@@ -1,27 +1,57 @@
 ---
-title: "全球卫生支出自由分析：完整静态展示版"
-subtitle: "Global Health Spending 2000–2023 · 可转发 HTML 总成品"
-author: "庄颂（20241334）"
+title: "全球卫生支出 2000–2023：整合分析与深度发现"
+subtitle: "庄颂（20241334）· R 大作业· GHED + WDI"
+author: "庄颂 20241334"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
 output:
   html_document:
     self_contained: true
-    toc: true
-    toc_float: true
-    theme: flatly
+    toc: false
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 root <- normalizePath(file.path(dirname(knitr::current_input(dir = TRUE)), '..'), mustWork = FALSE)
 for (f in list.files(file.path(root, '程序'), pattern = '\\.R$', full.names = TRUE)) source(f, encoding = 'UTF-8')
-generate_static_showcase(root = root)
 ```
 
-本 Rmd 是提交版 HTML 的可复现入口。运行上方 chunk 会生成：
+## 提交说明
 
-- `课程提交/庄颂_20241334.html`
-- `课程提交/庄颂_20241334_完整静态展示.html`
-- `网站发布/index.html`
-- `网站发布/完整静态展示.html`
+本 Rmd 是课程提交的唯一入口，knit 后会调用 `generate_static_showcase()` 生成两份同源产物：
 
-最终可直接转发的文件是 `课程提交/庄颂_20241334_完整静态展示.html`。
+1. `课程提交/庄颂_20241334.html` — 课程提交版（图表 base64 内嵌，交互组件走相对路径/远程连授）
+2. `网站发布/index.html` — GitHub Pages 首页（与提交版同源）
+
+两份产物同源于一套生成器 `程序/21_static_showcase.R`。页面含：8 项核心发现（每项都有研究问题、方法、R 代码、原图、表格、深度解读） · 数据与方法· 44 张静态图· 24 个交互组件· 复现说明· 结论与政策。
+
+## 一键生成
+
+```{r build, results='hide'}
+out <- generate_static_showcase(root = root)
+knitr::kable(data.frame(产物 = basename(out), 路径 = out))
+```
+
+## 现场嵌入预览
+
+```{r preview, echo=FALSE, results='asis'}
+html_path <- file.path(root, '课程提交', '庄颂_20241334.html')
+if (file.exists(html_path)) {
+  cat(sprintf("提交主件已生成： `%s` （%.1f MB）。在浏览器打开查看完整内容。\n\n",
+                html_path, file.info(html_path)$size / 1024^2))
+} else {
+  cat("请先运行 `Rscript 构建.R submission` 生成 HTML。\n\n")
+}
+```
+
+## 复现命令
+
+```bash
+# 安装依赖·构建数据与产物
+Rscript 安装依赖.R
+Rscript 构建.R data
+Rscript 构建.R figures
+Rscript 构建.R widgets
+Rscript 构建.R models
+Rscript 构建.R submission     # 生成课程提交 HTML 与 GitHub Pages 首页
+Rscript 启动仪表盘.R 4848 # 本地运行 Shiny 仪表盘
+```

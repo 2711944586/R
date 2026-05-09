@@ -183,11 +183,14 @@ target_submission <- function() {
 }
 
 target_deploy <- function() {
-  target_book()
+  # 单一标准：网站发布/index.html 由 21_static_showcase.R 生成的整合页
+  # 不再渲染旧的 Quarto book 章节（已弃用）；shinylive + 整合首页 + widget assets 即可。
   target_shinylive()
   target_submission()
   cat("\n[make] deploy bundle ready at 网站发布/\n")
-  cat("[make] hint: push to GitHub and Pages will serve it.\n")
+  cat("[make]  - index.html         (整合首页，等同课程提交版)\n")
+  cat("[make]  - 交互组件/          (24 个 standalone widget)\n")
+  cat("[make]  - 仪表盘/            (shinylive 浏览器版 Shiny)\n")
   invisible(NULL)
 }
 

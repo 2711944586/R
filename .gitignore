@@ -77,9 +77,29 @@ logs/
 *.zip
 !网站发布/**/*.zip
 /2026作业_*.docx
-课程提交/*完整静态展示.html
+
+# 网站发布：仅托管 index.html、交互组件/ 与 仪表盘/（由 CI 注入）
 网站发布/交互组件/
+网站发布/仪表盘/
+网站发布/01-*.html
+网站发布/02-*.html
+网站发布/03-*.html
+网站发布/04-*.html
+网站发布/05-*.html
+网站发布/06-*.html
+网站发布/07-*.html
+网站发布/08-*.html
+网站发布/09-*.html
+网站发布/10-*.html
+网站发布/11-*.html
+网站发布/12-*.html
+网站发布/A0-*.html
+网站发布/references.html
+网站发布/search.json
+网站发布/site_libs/
+网站发布/*_files/
 网站发布/完整静态展示.html
+课程提交/*完整静态展示.html
 
 # Secrets
 .env

@@ -1,8 +1,10 @@
-# 🚀 部署教程 · GitHub Pages 发布整合静态站
+# 部署教程 · GitHub Pages 发布整合静态站
 
-> 目标：把本项目的 **最终整合静态展示页 + Quarto 章节 + shinylive 仪表盘 + 交互组件** 自动发布成一个可公开访问的网站。
-> 最终 URL 形如：`https://<你的用户名>.github.io/<仓库名>/`。
-> **零本地运行**：用户只需点链接就能看到全部图表和内容。
+> 目标：把本项目的 **唯一整合静态首页 + shinylive 仪表盘 + 24 个交互组件** 自动发布成一个可公开访问的网站。
+> 最终 URL：<https://2711944586.github.io/R/>
+> **零本地运行**：用户只需点链接就能看到全部发现、代码、图表和交互组件。
+>
+> 本部署遵循项目 **单一标准**：Pages 首页 = 课程提交页，都由 `程序/21_static_showcase.R` 生成。不再发布旧版 Quarto book 子页。
 
 ---
 
@@ -33,7 +35,7 @@
 
 本项目 workflow 已写好在 `.github/workflows/deploy.yml`，触发条件：
 
-- **push 到 `main` 且改动了 `程序/` / `报告书/` / `仪表盘/` / `课程提交/` / `分析输出/` / `构建.R` / `_targets.R`**
+- **push 到 `main` 且改动了 `程序/` / `仪表盘/` / `课程提交/` / `分析输出/` / `构建.R` / `_targets.R`**
 - 也可手动在 Actions 页面点 **Run workflow**
 
 ```bash
@@ -47,7 +49,7 @@ git push origin main
 1. 打开仓库 → 点顶部 **Actions** tab。
 2. 找到最新的 **Deploy v2 · Pages + shinylive + shinyapps.io** run。
 3. 观察 3 个 job：
-   - `build` ≈ 8-12 min — 装 R 包 + 渲染 Quarto + shinylive 编译
+   - `build` ≈ 6-10 min — 装 R 包 + shinylive 编译 + 整合首页生成
    - `deploy-pages` ≈ 1 min — 推到 Pages
    - `deploy-shinyapps` ≈ 5 min — 可选（未配 secret 会自动跳过）
 4. 全部 ✅ 后，**部署 URL** 会显示在 `deploy-pages` job 的 summary 里。
@@ -66,10 +68,11 @@ https://<username>.github.io/<repo-name>/
 
 打开后你应该看到：
 
-- **整合首页** — 封面大标题、关键 KPI、静态图表库、交互实验室、部署说明。
-- **Quarto 章节 HTML** — 12 章叙事仍保留在 `网站发布/` 中，可通过文件名访问。
-- **浏览器 Shiny** — `/仪表盘/` 为 shinylive 编译的 Shiny。
-- **交互组件** — `/交互组件/` 中保留 standalone HTML widgets 及依赖。
+- **整合首页**（`/index.html`）— Hero · KPI · 数据与方法 · 8 项发现 · 44 张静态图 · 24 个交互组件 · 复现说明 · 结论与政策。
+- **浏览器 Shiny**（`/仪表盘/`）— shinylive 编译的 Shiny（12 个模块）。
+- **交互组件**（`/交互组件/`）— standalone HTML widgets 及依赖。
+
+不再发布旧版 Quarto book 子页（`01-the-big-picture.html` 等已废弃）。
 
 ---
 
@@ -83,12 +86,12 @@ https://<username>.github.io/<repo-name>/
 
 ## 七、常见问题 / 排错
 
-### ❌ build 失败：`Quarto render` error
+### ❌ build 失败：`Build integrated static showcase` error
 
-打开失败 run 的 `build` job，展开 **Render Quarto Book** 步骤：
+打开失败 run 的 `build` job，展开 **Build integrated static showcase** 步骤：
 
-- 报错 `could not find function "xxx"` → 在 `deploy.yml` 的 `packages:` 列表里加包名。
-- 报错 `cannot find file "..."` → 多半是某个章节引用了不存在的文件，检查 `报告书/*.qmd` 的 `source()` 或 `include` 路径。
+- 报错 `Missing master cache` → 上一步 **Pre-build master_enriched cache** 出错，看那里的堆栈。
+- 报错 `No PNG figures` / `No widgets` → 需要先本地跑 `Rscript 构建.R figures` / `widgets` 后推送（仓库已预生成）。
 - 报错 `No default font family "…"` → 忽略即可，CI 已装 `fonts-noto-cjk` + `fonts-inter` 作兜底。
 
 ### ❌ 部署 URL 404
@@ -111,7 +114,7 @@ https://<username>.github.io/<repo-name>/
 
 ### ❌ Pages 首页不是最终整合页
 
-确认 workflow 中 `Build integrated static showcase → 网站发布/index.html` 步骤位于 Quarto 和 shinylive 之后。
+确认 workflow 中 `Build integrated static showcase → 网站发布/index.html` 步骤位于 shinylive 之后。
 本地也可以直接运行：
 
 ```bash
@@ -125,8 +128,8 @@ Rscript 构建.R submission
 不推 push 直接看渲染结果：
 
 ```bash
-quarto render 报告书
-quarto preview 报告书     # 本地 http://localhost:xxxx
+Rscript 构建.R submission     # 生成 课程提交/庄颂_20241334.html 与 网站发布/index.html
+start 课程提交/庄颂_20241334.html  # Windows 打开 课程提交 HTML
 ```
 
 ---

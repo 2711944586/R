@@ -1,56 +1,53 @@
-# Global Health Spending · 最终交付版
+# Global Health Spending 2000–2023 · 最终交付版
 
-> 作者：庄颂（20241334）  
-> 数据集：TidyTuesday 2026-04-21 / WHO Global Health Expenditure Database (GHED)  
-> 仓库：<https://github.com/2711944586/R>
+> 作者：庄颂（20241334） · 数据：TidyTuesday 2026-04-21 / WHO GHED + WDI  
+> 仓库：<https://github.com/2711944586/R> · 在线：<https://2711944586.github.io/R/>
 
-本项目是一个完整的 GHED 全球卫生支出数据分析作品，已整合为“中文业务目录 + 必要英文生态入口”的结构，并包含：
+## 单一标准（Single source of truth）
 
-- **完整静态展示页**：新版视觉设计、44 张静态图、24 个交互组件入口、部署说明，适合直接打开和展示。
-- **课程提交版**：`课程提交/庄颂_20241334.Rmd` + `课程提交/庄颂_20241334.html`。
-- **GitHub Pages 版**：`网站发布/index.html` 作为线上首页，附带 `网站发布/交互组件/`、`网站发布/仪表盘/`。
-- **Shiny 交互仪表盘**：`仪表盘/`，支持本地、shinyapps.io、shinylive 三种运行方式。
-- **数据工程与建模产物**：缓存、模型表、静态图、standalone HTML widgets 均可由 `构建.R` 复现。
+整个项目只产出 **一份页面**，由唯一生成器 `程序/21_static_showcase.R` 派生为两个等价副本：
 
-## 一、最重要的成品
+| 用途 | 路径 | 大小 | 说明 |
+|---|---|---|---|
+| **课程提交** | `课程提交/庄颂_20241334.html` | ~13 MB | 自包含图表 base64；交互组件经相对路径或仓库链接打开。 |
+| **GitHub Pages 首页** | `网站发布/index.html` | ~13 MB | 与提交版同源；交互组件由 `网站发布/交互组件/` 提供。 |
+| **课程提交 Rmd** | `课程提交/庄颂_20241334.Rmd` | < 1 KB | 一键调用生成器；可直接 knit 复现。 |
 
-| 成品 | 路径 | 用途 |
-|---|---|---|
-| 课程提交 HTML | `课程提交/庄颂_20241334.html` | 课程提交主文件，约 10 MB，图表内嵌，交互组件按相对路径加载。 |
-| 可转发单文件 HTML | `课程提交/庄颂_20241334_完整静态展示.html` | 全部图表和交互组件内嵌，约 131 MB，适合本地转发；因超过 GitHub 单文件限制已被 `.gitignore` 忽略。 |
-| GitHub Pages 首页 | `网站发布/index.html` | 线上静态站入口，使用新版整合展示页设计。 |
-| Pages 备份入口 | `网站发布/完整静态展示.html` | 与首页同版，作为固定入口保留。 |
-| 交互组件目录 | `网站发布/交互组件/` | 24 个 standalone HTML widgets 及依赖资源。 |
-| 浏览器 Shiny | `网站发布/仪表盘/` | shinylive 版 Shiny 仪表盘。 |
+页面组织（**14 个章节**，统一品牌设计）：
 
-## 二、最重要的运行入口
+1. **Hero** —— 项目元数据与四段导航
+2. **01 · Snapshot** —— 8 张 KPI（覆盖国家、CHE 总额、年化增速、OOPS 等）
+3. **02 · Data & Methods** —— 真实 R 代码（io / clean / enrich / metrics）
+4. **F1–F8 · 八项核心发现** —— 每项含：研究问题 · 方法 · R 代码 · 原图 · 数据表 · 深度解读 · 数值 chips
+5. **11 · Gallery** —— 44 张静态图，按主题（时间/分布/地图/结构/模型/指标/综合）筛选
+6. **12 · Interactive lab** —— 24 个 standalone widget，懒加载 iframe
+7. **13 · Reproducibility** —— 8 条一键命令
+8. **14 · Conclusion** —— 6 条政策建议 + 3 条研究局限
+
+不再生成"完整静态展示.html / Quarto book 章节"等冗余产物（已删除）；`网站发布/` 现在只承载 `index.html` + `交互组件/` + `仪表盘/`。
+
+## 一键复现
+
+```bash
+Rscript 安装依赖.R
+Rscript 构建.R data        # 派生数据/处理结果/master_enriched.rds
+Rscript 构建.R figures     # 分析输出/图表/*.png + .svg（44 张）
+Rscript 构建.R widgets     # 分析输出/交互组件/*.html（24 个）
+Rscript 构建.R models      # 分析输出/模型表/*.csv | *.rds（17 张）
+Rscript 构建.R submission  # 课程提交/庄颂_20241334.html + 网站发布/index.html
+Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
+```
 
 | 目标 | 命令 |
 |---|---|
-| 安装依赖 | `source("安装依赖.R")` |
-| 构建数据缓存 | `Rscript 构建.R data` |
-| 构建模型表 | `Rscript 构建.R models` |
-| 构建静态图 | `Rscript 构建.R figures` |
-| 构建交互组件 | `Rscript 构建.R widgets` |
-| 生成提交/展示 HTML | `Rscript 构建.R submission` |
-| 渲染 Quarto Book | `Rscript 构建.R book` |
-| 构建 shinylive | `Rscript 构建.R shinylive` |
-| 完整部署包 | `Rscript 构建.R deploy` |
+| 全量构建 | `Rscript 构建.R all` |
+| 部署包（shinylive + 整合首页） | `Rscript 构建.R deploy` |
 | 项目审计 | `Rscript 构建.R audit` |
-| 本地启动 Shiny | `Rscript 启动仪表盘.R 4848` |
-| 运行自动测试 | `Rscript 开发脚本/运行自动测试.R` |
+| 自动测试 | `Rscript 开发脚本/运行自动测试.R` |
 | 语法检查 | `Rscript 开发脚本/语法检查.R` |
+| Shiny 模块测试 | `Rscript 开发脚本/测试仪表盘模块.R` |
 
-推荐最短复现流程：
-
-```bash
-Rscript 构建.R data
-Rscript 构建.R figures
-Rscript 构建.R widgets
-Rscript 构建.R submission
-```
-
-## 三、根目录结构
+## 项目目录
 
 | 路径 | 用途 |
 |---|---|
@@ -81,7 +78,7 @@ Rscript 构建.R submission
 | `项目文档/` | 方案、部署教程、变更记录、课程说明文档。 |
 | `部署配置/` | Dockerfile 与 docker-compose 配置。 |
 
-## 四、数据目录
+## 数据目录
 
 | 路径 | 内容 |
 |---|---|
@@ -95,7 +92,7 @@ Rscript 构建.R submission
 | `派生数据/处理结果/master_enriched.rds` | Shiny、Quarto 和模型共享的主分析表。 |
 | `派生数据/处理结果/world_sf_medium.rds` | 世界地图 sf 缓存。 |
 
-## 五、程序目录
+## 程序模块
 
 | 路径 | 职责 |
 |---|---|
