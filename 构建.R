@@ -86,6 +86,11 @@ target_figures <- function() {
                           out_dir = file.path("分析输出", "图表"),
                           verbose = TRUE)
   }
+  if (exists("ghs_export_extra", mode = "function")) {
+    ghs_export_extra(master, world_sf,
+                     outputs_dir = file.path("分析输出", "图表"),
+                     verbose = TRUE)
+  }
   invisible(NULL)
 }
 
