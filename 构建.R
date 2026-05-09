@@ -4,6 +4,7 @@
 # 用法：
 #   Rscript 构建.R all       # 全量：data + models + figures + widgets + book + shiny
 #   Rscript 构建.R data      # 仅生成 master_enriched + external 缓存
+#   Rscript 构建.R features  # 生成统一 country-year 特征表 + 变量字典
 #   Rscript 构建.R models    # 仅跑 6 类统计模型 → 分析输出/模型表/
 #   Rscript 构建.R figures   # 仅生成 60+ 静态图 → 分析输出/图表/
 #   Rscript 构建.R widgets   # 仅生成 30+ 交互 widget → 分析输出/交互组件/
@@ -55,6 +56,17 @@ target_data <- function() {
   invisible(NULL)
 }
 
+target_features <- function() {
+  source_all_r()
+  master <- ensure_cache()
+  if (exists("ghs_export_feature_mart", mode = "function")) {
+    ghs_export_feature_mart(master_enriched = master)
+  } else {
+    stop("[make] ghs_export_feature_mart not found")
+  }
+  invisible(NULL)
+}
+
 target_models <- function() {
   master <- ensure_cache()
   if (exists("ghs_export_all_models", mode = "function")) {
@@ -91,6 +103,11 @@ target_figures <- function() {
                      outputs_dir = file.path("分析输出", "图表"),
                      verbose = TRUE)
   }
+  if (exists("ghs_export_more", mode = "function")) {
+    ghs_export_more(master,
+                    outputs_dir = file.path("分析输出", "图表"),
+                    verbose = TRUE)
+  }
   invisible(NULL)
 }
 
@@ -114,6 +131,11 @@ target_widgets <- function() {
                                 out_dir = file.path("分析输出", "交互组件"),
                                 verbose = TRUE)
   }
+  if (exists("ghs_export_widgets_more", mode = "function")) {
+    ghs_export_widgets_more(master,
+                            out_dir = file.path("分析输出", "交互组件"),
+                            verbose = TRUE)
+  }
   invisible(NULL)
 }
 
@@ -126,10 +148,6 @@ target_book <- function() {
 }
 
 target_shinylive <- function() {
-  if (!requireNamespace("shinylive", quietly = TRUE)) {
-    message("[make] installing shinylive ...")
-    install.packages("shinylive")
-  }
   dir.create("网站发布/仪表盘", recursive = TRUE, showWarnings = FALSE)
   # Snapshot master 到 仪表盘/数据快照/ 供 shinylive 加载
   master <- ensure_cache()
@@ -140,6 +158,15 @@ target_shinylive <- function() {
   file.copy(list.files("程序", pattern = "\\.R$", full.names = TRUE),
             "仪表盘/程序库", overwrite = TRUE)
   cat("[make] shinylive snapshot copied to 仪表盘/数据快照/\n")
+  if (!requireNamespace("shinylive", quietly = TRUE)) {
+    message("[make] shinylive package not available; writing fallback index.html")
+    writeLines(c(
+      "<!doctype html><html><head><meta charset=\"utf-8\">",
+      "<title>Shinylive unavailable</title></head><body>",
+      "<p>Shinylive package is not installed locally. Use shinyapps.io or run after installing shinylive.</p>",
+      "</body></html>"), "网站发布/仪表盘/index.html")
+    return(invisible(NULL))
+  }
   tryCatch(
     shinylive::export("仪表盘", "网站发布/仪表盘", quiet = FALSE),
     error = function(e) {
@@ -206,6 +233,13 @@ target_audit <- function() {
   invisible(NULL)
 }
 
+target_quality <- function() {
+  src <- file.path("开发脚本", "质量门禁.R")
+  if (file.exists(src)) source(src, encoding = "UTF-8")
+  else stop("[make] quality gate script missing at ", src)
+  invisible(NULL)
+}
+
 target_clean <- function() {
   ans <- readline("really delete 网站发布/ + 分析输出/ ? (yes/no) ")
   if (identical(ans, "yes")) {
@@ -222,6 +256,7 @@ target_clean <- function() {
 
 target_all <- function() {
   target_data()
+  target_features()
   target_models()
   target_figures()
   target_widgets()
@@ -236,6 +271,7 @@ switch(
   target,
   all       = target_all(),
   data      = target_data(),
+  features  = target_features(),
   models    = target_models(),
   figures   = target_figures(),
   widgets   = target_widgets(),
@@ -244,9 +280,10 @@ switch(
   submission = target_submission(),
   deploy    = target_deploy(),
   audit     = target_audit(),
+  quality   = target_quality(),
   clean     = target_clean(),
   {
     cat("unknown target:", target, "\n\n")
-    cat("usage: Rscript 构建.R [all|data|models|figures|widgets|book|shinylive|submission|deploy|audit|clean]\n")
+    cat("usage: Rscript 构建.R [all|data|features|models|figures|widgets|book|shinylive|submission|deploy|audit|quality|clean]\n")
   }
 )

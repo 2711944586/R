@@ -63,6 +63,11 @@ renv/sandbox/
 
 # Shiny rsconnect deployment metadata
 rsconnect/
+仪表盘/数据快照/snapshot.rds
+仪表盘/程序库/
+
+# Generated quality-gate reports
+分析输出/质量报告/
 
 # OS
 .DS_Store

@@ -6,7 +6,15 @@
 mod_outcomes_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#127973; 产出 Outcomes"),
+    title = htmltools::HTML("&#127973; \u4ea7\u51fa Outcomes"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("\u8d44\u91d1 \u2192 \u5bff\u547d\u7684\u9650\u8fb9\u95ee\u9898"),
+      htmltools::p(class = "text-muted",
+                   paste("\u5728\u4e0d\u540c\u6536\u5165\u7ec4\u91cc\u3001\u591a\u4ed8 1% CHE/cap \u5bf9\u9884\u671f\u5bff\u547d\u7684\u9650\u8fb9\u8d21\u732e\u4e0d\u540c\u3002",
+                         "\u5de6\u56fe = \u70b9\u4e0e\u5206\u6bb5 OLS\uff0c\u53f3\u8868 = \u6bcf\u4e2a\u6536\u5165\u7ec4\u7684\u5f39\u6027\u53c2\u6570 \u00b1 95% CI\u3002",
+                         "\u5916\u751f\u6027\u53d7\u8bb8\u591a\u9009\u9879\u5f71\u54cd\uff0c\u5b9c\u4f5c\u4e3a\u5173\u8054\u4fe1\u53f7\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

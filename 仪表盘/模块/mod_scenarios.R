@@ -25,7 +25,18 @@ mod_scenarios_ui <- function(id, country_choices_named) {
         shiny::tags$hr(),
         shiny::helpText(
           "蒙特卡洛在 ", htmltools::strong("ARIMA 残差分布"),
-          " 上重采样，得到", htmltools::strong("非参数概率扇"), "。")
+          " 上重采样，得到", htmltools::strong("非参数概率扇"), "。"),
+        shiny::tags$hr(),
+        shiny::h5("Policy Simulator"),
+        shiny::sliderInput(ns("policy_years"), "政策兑现期（年）",
+          min = 1, max = 10, value = 5),
+        shiny::sliderInput(ns("gghed_boost"), "GGHED 提升（百分点）",
+          min = 0, max = 30, value = 8, step = 1),
+        shiny::sliderInput(ns("oop_cut"), "OOPS 下降（百分点）",
+          min = 0, max = 30, value = 8, step = 1),
+        shiny::sliderInput(ns("che_growth"), "人均 CHE 额外增长（%）",
+          min = 0, max = 80, value = 15, step = 5),
+        shiny::helpText("政策模拟是透明的 what-if 计算，不是因果估计。")
       ),
       mod_card(
         title = "MC 概率扇 + ARIMA 中位数",
@@ -34,6 +45,18 @@ mod_scenarios_ui <- function(id, country_choices_named) {
       mod_card(
         title = "情景比较：5%/25%/50%/75%/95% 分位",
         mod_spinner(reactable::reactableOutput(ns("scenario_table")))
+      ),
+      bslib::layout_columns(
+        col_widths = c(6, 6),
+        mod_card(
+          title = "Policy Simulator：政府筹资与自付下降",
+          mod_spinner(plotly::plotlyOutput(ns("policy_plot"), height = 430))
+        ),
+        mod_card(
+          title = "政策情景指标对照",
+          mod_spinner(reactable::reactableOutput(ns("policy_table"))),
+          shiny::helpText("寿命变化来自最近年份截面 life_exp ~ log(CHE_pc) 的描述性斜率。")
+        )
       )
     )
   )
@@ -119,6 +142,105 @@ mod_scenarios_server <- function(id, master_r) {
       reactable::reactable(tab, defaultPageSize = 12,
         pagination = FALSE, highlight = TRUE,
         defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")))
+    })
+
+    policy_obj <- shiny::reactive({
+      shiny::req(input$country, input$policy_years)
+      m <- master_r()
+      needed <- c("iso3_code", "country_name", "year", "che_pc_usd2023",
+                  "gghed_che", "hf3_che", "life_exp")
+      shiny::validate(shiny::need(all(needed %in% names(m)),
+        "当前数据缺少政策模拟所需字段。"))
+      yr <- max(m$year, na.rm = TRUE)
+      base <- m[m$iso3_code == input$country & m$year == yr, needed, drop = FALSE]
+      if (!nrow(base)) {
+        base <- m[m$iso3_code == input$country, needed, drop = FALSE]
+        base <- base[order(base$year, decreasing = TRUE), , drop = FALSE]
+        base <- utils::head(base, 1)
+      }
+      shiny::validate(shiny::need(nrow(base) == 1, "未找到所选国家的最近年份观测。"))
+      shiny::validate(shiny::need(is.finite(base$che_pc_usd2023) && base$che_pc_usd2023 > 0,
+        "所选国家缺少可用人均 CHE。"))
+      cross <- m[m$year == base$year &
+                   is.finite(m$che_pc_usd2023) &
+                   is.finite(m$life_exp) &
+                   m$che_pc_usd2023 > 0, , drop = FALSE]
+      elastic <- tryCatch({
+        fit <- stats::lm(life_exp ~ log(che_pc_usd2023), data = cross)
+        as.numeric(stats::coef(fit)[["log(che_pc_usd2023)"]])
+      }, error = function(e) NA_real_)
+      if (!is.finite(elastic)) elastic <- 2
+      base_che <- as.numeric(base$che_pc_usd2023)
+      scenario_che <- base_che * (1 + input$che_growth / 100)
+      base_life <- as.numeric(base$life_exp)
+      life_gain <- elastic * log(scenario_che / base_che)
+      scenario_life <- if (is.finite(base_life)) base_life + life_gain else NA_real_
+      base_gghed <- as.numeric(base$gghed_che)
+      base_oop <- as.numeric(base$hf3_che)
+      scenario_gghed <- pmin(100, base_gghed + input$gghed_boost)
+      scenario_oop <- pmax(0, base_oop - input$oop_cut)
+      public_add_pc <- base_che * input$gghed_boost / 100
+      household_relief_pc <- base_che * input$oop_cut / 100
+      data.frame(
+        country_name = base$country_name,
+        iso3_code = base$iso3_code,
+        year = base$year,
+        metric = c("GGHED 占 CHE (%)", "OOPS 占 CHE (%)",
+                   "人均 CHE (USD2023)", "预期寿命（年）",
+                   "公共筹资增加（USD/人）", "居民自付减负（USD/人）"),
+        baseline = c(base_gghed, base_oop, base_che, base_life, 0, 0),
+        scenario = c(scenario_gghed, scenario_oop, scenario_che,
+                     scenario_life, public_add_pc, household_relief_pc),
+        stringsAsFactors = FALSE
+      )
+    })
+
+    output$policy_plot <- plotly::renderPlotly({
+      d <- policy_obj()
+      shiny::req(nrow(d) > 0)
+      show <- d[d$metric %in% c("GGHED 占 CHE (%)", "OOPS 占 CHE (%)",
+                                "人均 CHE (USD2023)", "预期寿命（年）"), ]
+      long <- data.frame(
+        metric = rep(show$metric, 2),
+        value = c(show$baseline, show$scenario),
+        scenario = rep(c("baseline", "policy"), each = nrow(show)),
+        stringsAsFactors = FALSE
+      )
+      plotly::plot_ly(long, x = ~metric, y = ~value, color = ~scenario,
+                      type = "bar",
+                      colors = c(baseline = "#5A5A65", policy = "#C46B27"),
+                      text = ~round(value, 2), textposition = "auto") |>
+        plotly::layout(
+          title = sprintf("%s · %s 年政策兑现期",
+                          unique(d$country_name), input$policy_years),
+          barmode = "group",
+          xaxis = list(title = ""),
+          yaxis = list(title = ""),
+          legend = list(orientation = "h", x = 0, y = -0.18),
+          margin = list(b = 95)
+        ) |>
+        plotly::config(displaylogo = FALSE)
+    })
+
+    output$policy_table <- reactable::renderReactable({
+      d <- policy_obj()
+      d$change <- d$scenario - d$baseline
+      tab <- data.frame(
+        指标 = d$metric,
+        基线 = round(d$baseline, 2),
+        政策情景 = round(d$scenario, 2),
+        变化 = round(d$change, 2),
+        check.names = FALSE
+      )
+      reactable::reactable(tab, pagination = FALSE, highlight = TRUE,
+        defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
+        columns = list(
+          变化 = reactable::colDef(style = function(value) {
+            if (is.na(value)) return(NULL)
+            color <- if (value >= 0) "#1B5E88" else "#C46B27"
+            list(color = color, fontWeight = "700")
+          })
+        ))
     })
   })
 }

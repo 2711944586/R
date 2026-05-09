@@ -9,18 +9,18 @@
 
 | 用途 | 路径 | 大小 | 说明 |
 |---|---|---|---|
-| **课程提交** | `课程提交/庄颂_20241334.html` | ~26 MB | 自包含图表 base64；交互组件经相对路径或仓库链接打开。 |
-| **GitHub Pages 首页** | `网站发布/index.html` | ~26 MB | 与提交版同源；交互组件由 `网站发布/交互组件/` 提供。 |
+| **课程提交** | `课程提交/庄颂_20241334.html` | ~33 MB | 自包含图表 base64；交互组件经相对路径或仓库链接打开。 |
+| **GitHub Pages 首页** | `网站发布/index.html` | ~33 MB | 与提交版同源；交互组件由 `网站发布/交互组件/` 提供。 |
 | **课程提交 Rmd** | `课程提交/庄颂_20241334.Rmd` | < 1 KB | 一键调用生成器；可直接 knit 复现。 |
 
 页面组织（**36 个内容章节**，统一品牌设计）：
 
-1. **Hero** —— 项目元数据与四段导航
+1. **Hero** —— 项目元数据、桌面导航、移动目录、阅读进度与 scroll-spy 高亮
 2. **01 · Snapshot** —— 8 张 KPI（覆盖国家、CHE 总额、年化增速、OOPS 等）
 3. **02 · Data & Methods** —— 真实 R 代码（io / clean / enrich / metrics）
 4. **F1–F14 · 十四项核心发现** —— 每项含：研究问题 · 方法 · R 代码 · 原图 · 数据表 · 深度解读 · 数值 chips
-5. **11 · Gallery** —— 50 张主体静态图，按主题（时间/分布/地图/结构/模型/指标/综合）筛选
-6. **12 · Interactive lab** —— 24 个 standalone widget，懒加载 iframe
+5. **11 · Gallery** —— 94 张主体静态图（原 58 + `程序/22_plots_extra.R` 与 `程序/24_plots_more.R` 共 36 张扩充图），按主题筛选，提供可搜索图表索引，并为每张图补充解释性说明
+6. **12 · Interactive lab** —— 42 个 standalone widget（原 24 + `程序/25_widgets_more.R` 的 18 张新 plotly / reactable / DT widget），懒加载 iframe，并统一提供 loading / empty / error / source / fallback shell；发布链路合计审计 96 个可打开交互入口
 7. **13 · Reproducibility** —— 8 条一键命令
 8. **14 · Conclusion** —— 6 条政策建议 + 3 条研究局限
 
@@ -31,8 +31,9 @@
 ```bash
 Rscript 安装依赖.R
 Rscript 构建.R data        # 派生数据/处理结果/master_enriched.rds
-Rscript 构建.R figures     # 分析输出/图表/*.png + .svg（50+ 张）
-Rscript 构建.R widgets     # 分析输出/交互组件/*.html（24 个）
+Rscript 构建.R features    # 派生数据/处理结果/feature_mart_country_year.* + feature_dictionary.csv
+Rscript 构建.R figures     # 分析输出/图表/*.png + .svg（94 张）
+Rscript 构建.R widgets     # 分析输出/交互组件/*.html（42 个）
 Rscript 构建.R models      # 分析输出/模型表/*.csv | *.rds（17 张）
 Rscript 构建.R submission  # 课程提交/庄颂_20241334.html + 网站发布/index.html
 Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
@@ -41,6 +42,7 @@ Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
 | 目标 | 命令 |
 |---|---|
 | 全量构建 | `Rscript 构建.R all` |
+| 特征表与变量字典 | `Rscript 构建.R features` |
 | 部署包（shinylive + 整合首页） | `Rscript 构建.R deploy` |
 | 项目审计 | `Rscript 构建.R audit` |
 | 自动测试 | `Rscript 开发脚本/运行自动测试.R` |
@@ -61,7 +63,7 @@ Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
 | `.lintr` | R 代码静态检查配置。 |
 | `_targets.R` | `{targets}` 可复现数据流水线入口，文件名必须保留。 |
 | `安装依赖.R` | 一键安装 R 包依赖。 |
-| `构建.R` | 本地统一构建脚本：数据、模型、图表、交互、提交版、部署。 |
+| `构建.R` | 本地统一构建脚本：数据、特征表、模型、图表、交互、提交版、部署。 |
 | `启动仪表盘.R` | 本地启动 Shiny 仪表盘的轻量入口。 |
 | `.github/workflows/` | GitHub Actions：测试、Pages、shinylive、shinyapps.io。 |
 | `原始数据/` | 作业指定的 GHED 三张原始 CSV 与说明文档。 |
@@ -119,6 +121,7 @@ Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
 | `程序/20_deploy.R` | 部署辅助：复制组件、生成 sitemap、体积报告、缓存预热。 |
 | `程序/21_static_showcase.R` | 生成新版整合静态展示页和课程提交 HTML。 |
 | `程序/22_plots_extra.R` | 扩展图集与高级分析图：分位回归、变点、SDG-3、排名变迁、聚类画像等。 |
+| `程序/23_feature_mart.R` | 生成统一 country-year 特征表和变量字典。 |
 
 ## 六、Shiny 仪表盘
 
@@ -128,7 +131,7 @@ Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
 | `仪表盘/ui.R` | 12 个模块化导航页的 UI。 |
 | `仪表盘/server.R` | 12 个模块 server 调用链。 |
 | `仪表盘/模块/_helpers.R` | Shiny 模块共享组件。 |
-| `仪表盘/模块/mod_*.R` | 12 个业务模块。 |
+| `仪表盘/模块/mod_*.R` | 12 个业务模块；`mod_scenarios.R` 含 MC 预测与 Policy Simulator。 |
 | `仪表盘/数据快照/snapshot.rds` | shinylive 打包时使用的数据快照。 |
 | `仪表盘/程序库/` | shinylive 打包时复制进去的 R 函数库。 |
 
@@ -175,6 +178,8 @@ Rscript 构建.R submission
 | `分析输出/交互组件/` | standalone HTML 交互组件。 |
 | `分析输出/模型表/` | CSV/RDS 模型与指标结果。 |
 | `分析输出/报告/` | 额外报告输出位置。 |
+| `派生数据/处理结果/feature_mart_country_year.csv` | 建模、图表和复核可共用的 country-year 特征表。 |
+| `派生数据/处理结果/feature_dictionary.csv` | 变量来源、单位、公式、角色和缺失率字典。 |
 
 ## 九、课程提交与探索分析
 
@@ -189,6 +194,7 @@ Rscript 构建.R submission
 | 路径 | 用途 |
 |---|---|
 | `开发脚本/审计项目.R` | 检查各阶段文件与产物是否齐全。 |
+| `开发脚本/质量门禁.R` | 按十倍升级 Plan 检查语法、空白图、SVG 占位、图表类型多样性、链接、widget 错误与 shell、交互覆盖、Gallery 图表说明、静态页导航、科学性与可追溯性、交付清单、secret、文案痕迹与部署包。 |
 | `开发脚本/语法检查.R` | 解析 `程序/*.R`，快速发现语法错误。 |
 | `开发脚本/运行自动测试.R` | 运行 `自动测试/testthat/`。 |
 | `开发脚本/测试仪表盘模块.R` | 验证 12 个 Shiny 模块、UI 和 server。 |
@@ -209,16 +215,20 @@ Rscript 构建.R submission
 Rscript 开发脚本/语法检查.R
 Rscript 开发脚本/运行自动测试.R
 Rscript 开发脚本/测试仪表盘模块.R
+Rscript 构建.R features
 Rscript 构建.R submission
 Rscript 构建.R audit
+Rscript 构建.R quality
 ```
 
 轻量验证优先跑：
 
 ```bash
 Rscript 开发脚本/语法检查.R
+Rscript 构建.R features
 Rscript 构建.R submission
 Rscript 构建.R audit
+Rscript 构建.R quality
 ```
 
 ## 十二、部署
@@ -270,6 +280,8 @@ docker compose -f 部署配置/docker-compose.yml up -d
 |---|---|
 | `项目文档/项目方案.md` | 20× 项目方案、阶段计划与验收标准。 |
 | `项目文档/高标准审核与升级建议.md` | 本轮高标准审核、bug 清单、已修复项、10× 提升建议与复核清单。 |
+| `项目文档/十倍升级详细Plan.md` | 基于审核建议拆解的数据、因果、预测、公平、交互、设计和工程十倍升级执行计划。 |
+| `项目文档/方法手册.md` | 14 个核心 findings 的研究问题、数据口径、方法、产物与局限。 |
 | `项目文档/变更记录.md` | 历史变更与已修复问题。 |
 | `项目文档/部署总览.md` | 本地、Docker、CI/CD 总览。 |
 | `项目文档/部署_GitHub_Pages.md` | GitHub Pages 静态站部署教程。 |

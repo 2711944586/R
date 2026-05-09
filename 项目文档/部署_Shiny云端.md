@@ -49,23 +49,19 @@ rsconnect::setAccountInfo(
 本地 R 控制台：
 
 ```r
-# 1) 首次：注册账号信息（在电脑上留存，以后不用再做）
-rsconnect::setAccountInfo(
-  name   = 'yourname',
-  token  = 'ABCD1234...',
-  secret = '9876EFGH...'
-)
+# 1) 首次：只在本机 .Renviron 设置，不写入项目脚本
+usethis::edit_r_environ()
 
-# 2) 部署
-rsconnect::deployApp(
-  appDir        = '仪表盘',
-  appName       = 'ghs-dashboard-v2',
-  appFiles      = list.files('仪表盘', recursive = TRUE, full.names = FALSE),
-  forceUpdate   = TRUE
-)
+# 写入以下三行后重启 R：
+SHINYAPPS_NAME=yourname
+SHINYAPPS_TOKEN=ABCD1234...
+SHINYAPPS_SECRET=9876EFGH...
+
+# 2) 部署：脚本会准备 数据快照/ 与 程序库/，再调用 rsconnect::deployApp()
+source("开发脚本/部署Shiny云端.R", encoding = "UTF-8")
 ```
 
-部署前需把 `程序/*.R` 复制到 `仪表盘/程序库/`，并把 `派生数据/处理结果/master_enriched.rds` 复制为 `仪表盘/数据快照/snapshot.rds`。GitHub Actions 已自动完成这一步；手动部署时可先运行 `Rscript 构建.R data` 后照此复制。首次会上传 + 构建（约 5-10 分钟）。完成后会自动打开 URL。
+部署前需把 `程序/*.R` 复制到 `仪表盘/程序库/`，并把 `派生数据/处理结果/master_enriched.rds` 复制为 `仪表盘/数据快照/snapshot.rds`。`开发脚本/部署Shiny云端.R` 已自动完成这一步；手动部署前可先运行 `Rscript 构建.R data`。首次会上传 + 构建（约 5-10 分钟）。完成后会自动打开 URL。
 
 ---
 

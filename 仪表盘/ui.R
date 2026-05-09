@@ -62,6 +62,125 @@ v2_css <- htmltools::tags$style(htmltools::HTML("
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background: #1A1A1F33; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #1A1A1F66; }
+
+  /* v2 hero（总览页大标题） */
+  .v2-hero {
+    background: linear-gradient(135deg, #1B5E88 0%, #224a6f 50%, #2c3e50 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 40px 44px;
+    margin: -8px 0 22px;
+    box-shadow: 0 18px 44px rgba(13,18,27,0.16);
+    position: relative;
+    overflow: hidden;
+  }
+  .v2-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 78% 18%, rgba(224,123,0,0.18), transparent 38%),
+      radial-gradient(circle at 14% 82%, rgba(255,255,255,0.06), transparent 42%);
+    pointer-events: none;
+  }
+  .v2-hero-inner { position: relative; z-index: 1; max-width: 980px; }
+  .v2-hero-kicker {
+    display: inline-block; padding: 5px 14px; border-radius: 999px;
+    background: rgba(255,255,255,0.14); color: #ffd9a8;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .v2-hero-title {
+    color: #fff !important;
+    font-size: 34px;
+    line-height: 1.2;
+    margin: 16px 0 10px;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 700;
+  }
+  .v2-hero-lead {
+    color: rgba(255,255,255,0.86);
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0 0 18px;
+    max-width: 780px;
+  }
+  .v2-hero-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 14px;
+    color: rgba(255,255,255,0.72); font-size: 13px;
+  }
+  .v2-hero-meta a { color: #ffd9a8; text-decoration: underline; }
+  .v2-hero-meta a:hover { color: #fff; }
+
+  /* v2 KPI grid */
+  .v2-kpi-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 1100px) {
+    .v2-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .v2-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* card-note：每个图卡上方的引导句 */
+  .card-note {
+    color: #5A5A65; font-size: 13px; line-height: 1.6;
+    margin: -4px 0 12px; padding: 0;
+  }
+
+  /* v2 section head */
+  .v2-section-head {
+    margin: 28px 0 14px;
+  }
+  .v2-section-head h3 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 22px; margin: 0 0 6px; color: #1A1A1F;
+  }
+  .v2-section-lead {
+    color: #5A5A65; font-size: 14px; line-height: 1.7; margin: 0;
+    max-width: 760px;
+  }
+
+  /* 模块卡片导航 */
+  .module-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 1100px) {
+    .module-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .module-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .module-card {
+    text-align: left;
+    background: #FFFFFF;
+    border: 1px solid #1A1A1F12;
+    border-radius: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    display: flex; flex-direction: column; gap: 6px;
+    min-height: 118px;
+  }
+  .module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(13,18,27,0.10);
+    border-color: #1B5E88;
+  }
+  .module-card .module-kicker {
+    color: #E07B00; font-size: 11px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .module-card .module-title {
+    color: #1A1A1F; font-family: 'Source Serif 4', serif;
+    font-size: 17px; font-weight: 600;
+  }
+  .module-card .module-desc {
+    color: #5A5A65; font-size: 12.5px; line-height: 1.55;
+  }
 "))
 
 bslib::page_navbar(

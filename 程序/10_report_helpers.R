@@ -202,6 +202,84 @@ ghs_export_all_static <- function(master,
 # =============================================================================
 
 #' 把交互 widget 写成 standalone HTML（适合 GitHub Pages 嵌入）
+ghs_widget_escape <- function(x) {
+  x <- as.character(if (is.null(x)) "" else x)
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x <- gsub("\"", "&quot;", x, fixed = TRUE)
+  x
+}
+
+ghs_widget_label <- function(path_or_name) {
+  x <- tools::file_path_sans_ext(basename(path_or_name))
+  x <- sub("^v2_w_", "", x)
+  x <- sub("^[0-9]+_", "", x)
+  trimws(gsub("_+", " ", x))
+}
+
+ghs_widget_shell <- function(path, title = NULL, caption = NULL,
+                             source = "WHO GHED · standalone htmlwidget",
+                             fallback = NULL) {
+  if (is.null(path) || !file.exists(path)) return(invisible(FALSE))
+  html <- paste(readLines(path, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+  if (grepl("data-ghs-widget-shell", html, fixed = TRUE)) return(invisible(TRUE))
+  label <- if (is.null(title) || !nzchar(title)) ghs_widget_label(path) else title
+  cap <- if (is.null(caption) || !nzchar(caption)) {
+    "交互组件已封装为 standalone HTML；若 iframe 内加载较慢，可等待脚本完成或改用新窗打开。"
+  } else caption
+  fb <- if (is.null(fallback) || !nzchar(fallback)) {
+    "Fallback：如组件空白，请重新运行 Rscript 构建.R widgets，或在浏览器新窗打开当前 HTML。"
+  } else fallback
+  css <- paste0(
+    "<style id=\"ghs-widget-shell-css\">",
+    "body{margin:0;background:#FAF7F2;color:#1A1A1F;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}",
+    ".ghs-widget-shell{box-sizing:border-box;min-height:100vh;padding:16px;background:linear-gradient(180deg,#FAF7F2,#fff)}",
+    ".ghs-widget-caption,.ghs-widget-source{box-sizing:border-box;background:#fff;border:1px solid rgba(26,26,31,.10);border-radius:14px;padding:12px 16px;box-shadow:0 10px 28px rgba(26,26,31,.06)}",
+    ".ghs-widget-caption{display:grid;gap:4px;margin-bottom:12px}.ghs-widget-caption b{font-family:'Source Serif 4',Georgia,serif;font-size:18px;color:#1B5E88}.ghs-widget-caption span{font-size:12.5px;color:#5A5A65;line-height:1.55}",
+    ".ghs-widget-stage{position:relative;background:#fff;border:1px solid rgba(26,26,31,.08);border-radius:14px;padding:10px;min-height:420px;overflow:auto}",
+    ".ghs-widget-loading,.ghs-widget-empty,.ghs-widget-error{position:absolute;inset:14px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:12px;background:rgba(250,247,242,.92);color:#5A5A65;font-size:13px;z-index:20}",
+    ".ghs-widget-empty,.ghs-widget-error{display:none}.ghs-widget-shell.is-loaded .ghs-widget-loading{display:none}.ghs-widget-shell.is-empty .ghs-widget-empty,.ghs-widget-shell.has-error .ghs-widget-error{display:flex}",
+    ".ghs-widget-source{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;font-size:12px;color:#5A5A65}.ghs-widget-fallback{color:#C46B27;font-weight:700}",
+    ".ghs-widget-stage>.html-widget,.ghs-widget-stage>.leaflet{max-width:100%}",
+    "</style>"
+  )
+  shell_open <- sprintf(
+    "<main class=\"ghs-widget-shell\" data-ghs-widget-shell=\"true\" data-widget-name=\"%s\"><header class=\"ghs-widget-caption\"><b>%s</b><span>%s</span></header><section class=\"ghs-widget-stage\"><div class=\"ghs-widget-loading\">Loading widget…</div><div class=\"ghs-widget-empty\">Empty state：没有检测到可渲染的 htmlwidget 容器。</div><div class=\"ghs-widget-error\">Error state：组件脚本运行异常。<span></span></div>",
+    ghs_widget_escape(label), ghs_widget_escape(label), ghs_widget_escape(cap)
+  )
+  shell_close <- sprintf(
+    "</section><footer class=\"ghs-widget-source\"><span>Source · %s</span><span class=\"ghs-widget-fallback\">%s</span></footer></main>",
+    ghs_widget_escape(source), ghs_widget_escape(fb)
+  )
+  js <- paste0(
+    "<script id=\"ghs-widget-shell-js\">",
+    "(function(){function mark(){var s=document.querySelector('.ghs-widget-shell');if(!s)return;s.classList.add('is-loaded');var ok=s.querySelector('.html-widget,.leaflet,.plotly,svg,canvas,table');if(!ok)s.classList.add('is-empty');}",
+    "window.addEventListener('error',function(e){var s=document.querySelector('.ghs-widget-shell');if(!s)return;s.classList.add('has-error');var m=s.querySelector('.ghs-widget-error span');if(m)m.textContent=e&&e.message?(' '+e.message):'';},true);",
+    "if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(mark,500)}else{window.addEventListener('load',function(){setTimeout(mark,500)})}})();",
+    "</script>"
+  )
+  if (grepl("</head>", html, ignore.case = TRUE)) {
+    html <- sub("(?i)</head>", paste0(css, "\n</head>"), html, perl = TRUE)
+  } else {
+    html <- paste0(css, "\n", html)
+  }
+  body_open <- regexpr("(?is)<body[^>]*>", html, perl = TRUE)
+  body_close <- regexpr("(?is)</body>", html, perl = TRUE)
+  if (body_open[1] > 0 && body_close[1] > 0) {
+    open_end <- body_open[1] + attr(body_open, "match.length") - 1
+    before <- substr(html, 1, open_end)
+    inner <- substr(html, open_end + 1, body_close[1] - 1)
+    after <- substr(html, body_close[1], nchar(html))
+    html <- paste0(before, "\n", shell_open, "\n", inner, "\n", shell_close, "\n", after)
+    html <- sub("(?is)</body>", paste0(js, "\n</body>"), html, perl = TRUE)
+  } else {
+    html <- paste0(shell_open, "\n", html, "\n", shell_close, "\n", js)
+  }
+  writeLines(html, path, useBytes = TRUE)
+  invisible(TRUE)
+}
+
 ghs_save_widget <- function(widget, name,
                               dir = file.path(proj_root(), "分析输出", "交互组件"),
                               selfcontained = TRUE) {
@@ -209,13 +287,19 @@ ghs_save_widget <- function(widget, name,
   if (!requireNamespace("htmlwidgets", quietly = TRUE)) return(invisible(NULL))
   dir.create(dir, recursive = TRUE, showWarnings = FALSE)
   path <- file.path(dir, paste0(name, ".html"))
-  tryCatch(
+  ok <- tryCatch({
     htmlwidgets::saveWidget(widget, file = path,
-                              selfcontained = selfcontained),
-    error = function(e) {
+                              selfcontained = selfcontained)
+    TRUE
+  }, error = function(e) {
       logw("widget save failed: ", name, " | ", conditionMessage(e))
-    }
-  )
+      FALSE
+    })
+  if (isTRUE(ok)) {
+    ghs_widget_shell(path, title = ghs_widget_label(name),
+                     source = "WHO GHED · 程序/10_report_helpers.R")
+  }
+  if (!isTRUE(ok)) return(invisible(NULL))
   invisible(path)
 }
 

@@ -6,7 +6,15 @@
 mod_equity_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#9878; 公平 Equity"),
+    title = htmltools::HTML("&#9878; \u516c\u5e73 Equity"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("\u516c\u5e73\u4e0e\u4e0d\u5e73\u7b49"),
+      htmltools::p(class = "text-muted",
+                   paste("\u8de8\u56fd\u4eba\u5747 CHE \u7684 Gini / Theil-T / Atkinson \u4e09\u6307\u6570\u540c\u671f\u4e0b\u884c\uff0c",
+                         "\u4f46 Theil-T \u4e0e Atkinson \u6536\u655b\u66f4\u6162\u8868\u660e\u6781\u503c\u56fd\u5bb6\u5dee\u8ddd\u4ecd\u5728\u3002",
+                         "\u5de6\u4fa7\u53ef\u9009\u8981\u663e\u793a\u7684\u6307\u6570\uff0c\u53f3\u4fa7 Lorenz \u53ef\u8c03\u5e74\u4efd\u5bf9\u6bd4\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

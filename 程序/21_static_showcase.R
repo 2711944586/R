@@ -68,6 +68,13 @@ if (!exists("%||%", mode = "function")) {
   trimws(x)
 }
 
+.ghs_slug <- function(p) {
+  x <- tolower(tools::file_path_sans_ext(basename(p)))
+  x <- gsub("[^a-z0-9]+", "-", x, perl = TRUE)
+  x <- gsub("(^-|-$)", "", x)
+  paste0("fig-", x)
+}
+
 .ghs_kind <- function(name) {
   n <- tolower(name)
   if (grepl("map|choropleth|bivariate|world|atlas|leaflet", n)) return("\u5730\u56fe")
@@ -79,9 +86,52 @@ if (!exists("%||%", mode = "function")) {
   "\u7efc\u5408"
 }
 
+.ghs_nav_items <- function() {
+  data.frame(
+    id = c("executive", "kpi", "methods", "findings", "countries",
+           "regional", "period", "sdg3", "lifeexp", "atlas",
+           "cluster-detail", "extreme", "simulator", "figure-index",
+           "gallery", "widgets", "repro", "conclusion"),
+    label = c("\u6458\u8981", "KPI", "\u65b9\u6cd5", "\u53d1\u73b0",
+              "\u56fd\u5bb6", "\u533a\u57df", "\u5206\u671f", "SDG-3",
+              "\u5bff\u547d", "\u4e0d\u5e73\u7b49", "\u96c6\u7fa4",
+              "\u6781\u503c", "\u4eff\u771f", "\u7d22\u5f15",
+              "\u56fe\u5e93", "\u4ea4\u4e92", "\u590d\u73b0", "\u7ed3\u8bba"),
+    stringsAsFactors = FALSE
+  )
+}
+
+.ghs_nav_links <- function(class = NULL) {
+  nav <- .ghs_nav_items()
+  cls <- if (!is.null(class) && nzchar(class)) sprintf(" class='%s'", .ghs_e(class)) else ""
+  links <- paste(vapply(seq_len(nrow(nav)), function(i) {
+    sprintf("<a href='#%s' data-nav-id='%s'>%s</a>",
+            .ghs_e(nav$id[i]), .ghs_e(nav$id[i]), .ghs_e(nav$label[i]))
+  }, character(1)), collapse = "")
+  sprintf("<nav%s>%s</nav>", cls, links)
+}
+
+.ghs_mobile_toc <- function() {
+  sprintf("<details class='mobile-toc' id='mobile-toc'><summary>\u76ee\u5f55 \u00b7 Sections</summary>%s</details>",
+          .ghs_nav_links("mobile-toc-links"))
+}
+
+.ghs_decode_unicode_escapes <- function(s) {
+  if (!length(s) || !nzchar(s)) return(s)
+  m <- regmatches(s, gregexpr("\\\\u[0-9a-fA-F]{4}", s, perl = TRUE))[[1]]
+  if (!length(m)) return(s)
+  for (esc in unique(m)) {
+    code <- strtoi(substring(esc, 3), base = 16L)
+    if (is.na(code) || code <= 0L) next
+    s <- gsub(esc, intToUtf8(code), s, fixed = TRUE)
+  }
+  s
+}
+
 .ghs_read_code <- function(file, from = NULL, to = NULL) {
   if (!file.exists(file)) return("# (code unavailable)")
   lns <- readLines(file, warn = FALSE, encoding = "UTF-8")
+  lns <- vapply(lns, .ghs_decode_unicode_escapes, character(1), USE.NAMES = FALSE)
   if (!is.null(from) || !is.null(to)) {
     from <- from %||% 1L; to <- to %||% length(lns)
     lns <- lns[seq.int(max(1L, from), min(length(lns), to))]
@@ -346,27 +396,10 @@ if (!exists("%||%", mode = "function")) {
       "<div class='top-bar'><div id='read-progress'></div></div>",
       "<header class='hero' id='top'><div class='wrap nav'>",
       "<a class='brand' href='#top'>GHS \u00b7 2000\u20132023</a>",
-      "<nav class='links'>",
-      "<a href='#executive'>\u6458\u8981</a>",
-      "<a href='#kpi'>KPI</a>",
-      "<a href='#methods'>\u65b9\u6cd5</a>",
-      "<a href='#findings'>\u53d1\u73b0</a>",
-      "<a href='#countries'>\u56fd\u5bb6</a>",
-      "<a href='#regional'>\u533a\u57df</a>",
-      "<a href='#period'>\u5206\u671f</a>",
-      "<a href='#sdg3'>SDG-3</a>",
-      "<a href='#lifeexp'>\u5bff\u547d</a>",
-      "<a href='#atlas'>\u4e0d\u5e73\u7b49</a>",
-      "<a href='#cluster-detail'>\u96c6\u7fa4</a>",
-      "<a href='#extreme'>\u6781\u503c</a>",
-      "<a href='#simulator'>\u4eff\u771f</a>",
-      "<a href='#gallery'>\u56fe\u5e93</a>",
-      "<a href='#widgets'>\u4ea4\u4e92</a>",
-      "<a href='#repro'>\u590d\u73b0</a>",
-      "<a href='#conclusion'>\u7ed3\u8bba</a>",
-      "</nav>",
+      .ghs_nav_links("links"),
       "<button class='theme-toggle' type='button' onclick='toggleTheme()' title='\u5207\u6362\u4e3b\u9898'>\u2600</button>",
       "</div>",
+      .ghs_mobile_toc(),
       "<div class='wrap hero-grid'>",
       "<div><span class='eyebrow'>Final integrated deliverable \u00b7 22 \u8282 \u00b7 10 \u9879\u53d1\u73b0 \u00b7 \u5355\u4e00\u6807\u51c6</span>",
       "<h1>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023\uff1a",
@@ -661,7 +694,7 @@ if (!exists("%||%", mode = "function")) {
     .ghs_widget_anchor(widget_dir, "12_reactable_rank.html",
       "OOPS / GGHED / EXT 可排序表格", mode, repo_url),
     .ghs_limit(
-      "OOPS 口径依赖于成本分摄调查，部分 LIC 可能偏下。",
+      "OOPS 口径依赖住户卫生支出与成本分摊调查，部分 LIC 可能低估。",
       "外援 EXT 在人道紧急期会出现年度剧烈跳动。",
       "财务保护还受财政货币、医保覆盖面等未入面板变量影响。"
     )
@@ -1003,13 +1036,13 @@ if (!exists("%||%", mode = "function")) {
         sprintf("<b>\u96c6\u4e2d\u4e8e\u4f4e\u6536\u5165\uff1a</b>%d \u5e74\u4ecd\u6709 %d \u4e2a\u56fd\u5bb6 EXT > 20%%\uff0c\u5168\u90e8\u4e3a LIC/LMIC\u3002",
                 yr, s$ext_high_cur),
         "<b>\u4e0e OOPS \u5e76\u5b58\uff1a</b>\u9ad8 EXT \u56fd\u5bb6\u591a\u6570 OOPS \u540c\u6837\u504f\u9ad8\uff0c\u610f\u5473\u7740\u5916\u90e8\u8f93\u8840\u672a\u80fd\u6709\u6548\u51cf\u8f7b\u5c45\u6c11\u8d22\u52a1\u8d1f\u62c5\u3002",
-        "<b>\u8def\u5f84\uff1a</b>\u9700\u540c\u6b65\u63a8\u52a8\u672c\u571f\u8d22\u653f\u5f3a\u5236\u6c47\u96c6\u3001\u793e\u533b\u9690\u6027\u4ef7\u3001PHC \u521d\u8bca\u8865\u507f\u3002"
+        "<b>\u8def\u5f84\uff1a</b>\u9700\u540c\u6b65\u63a8\u52a8\u672c\u571f\u8d22\u653f\u5f3a\u5236\u6c47\u96c6\u3001\u793e\u4f1a\u533b\u7597\u4fdd\u9669\u6269\u9762\u3001PHC \u521d\u8bca\u8865\u507f\u3002"
       ), tone = "orange"),
     .ghs_widget_anchor(widget_dir, "v2_w_sankey_flows.html",
       "GGHED / PVTD / EXT / OOPS \u8d44\u91d1\u6d41 sankey", mode, repo_url),
     .ghs_limit(
       "EXT \u8c03\u67e5\u5b58\u5728\u8df3\u53d8\uff1b2020\u20132022 \u4eba\u9053\u54cd\u5e94\u62ac\u5347\u4f7f\u90e8\u5206\u56fd\u5bb6\u5916\u63f4\u4efd\u989d\u4e34\u65f6\u9ad8\u4f30\u3002",
-      "GHED \u672a\u80fd\u5b8c\u5168\u8986\u76d6\u53cc\u8fb9\u00b7\u5168\u7403\u57fa\u91d1\u4e0e\u9886\u5907\u62a5\u9500\u4e0d\u5bf9\u79f0\u3002",
+      "GHED \u672a\u80fd\u5b8c\u5168\u8986\u76d6\u53cc\u8fb9\u9879\u76ee\u3001\u5168\u7403\u57fa\u91d1\u548c\u4e0d\u540c\u62a5\u9500\u53e3\u5f84\u4e4b\u95f4\u7684\u5dee\u5f02\u3002",
       "EXT \u5360\u6bd4\u4ec5\u53cd\u6620\u8d44\u91d1\u6765\u6e90\uff0c\u4e0d\u4ee3\u8868\u8d44\u91d1\u6548\u7387\u3002"
     )
   )
@@ -1063,7 +1096,7 @@ if (!exists("%||%", mode = "function")) {
       paste0("<b>\u65b9\u6cd5\uff1a</b>\u62df\u5408 \u9884\u671f\u5bff\u547d ~ log(\u4eba\u5747 CHE)\uff0c\u53d6\u6b63\u6b8b\u5dee\u4f5c\u4e3a\u201c\u8d77\u52a8\u6548\u7387\u9886\u5148\u8005\u201d\u4ee3\u7406\uff1b\u4e0e DEA \u8f93\u51fa\u4e0d\u540c\u4f46\u601d\u8def\u4e92\u8865\u3002 ",
              eff_text)
     )),
-    .ghs_code(f10_code, "r", "\u201c\u82b1\u591a\u8d8a\u591a\u3001\u4f46\u4e0d\u4e00\u5b9a\u4e70\u5230\u5bff\u547d\u201d \u00b7 \u7b80\u6790\u62df\u5408"),
+    .ghs_code(f10_code, "r", "\u201c\u82b1\u5f97\u66f4\u591a\uff0c\u4e0d\u4e00\u5b9a\u7b49\u4e8e\u66f4\u957f\u5bff\u201d \u00b7 \u7b80\u6790\u62df\u5408"),
     .ghs_fig(file.path(fig_dir, "v2_efficiency_dea.png"),
              "DEA \u6548\u7387\u524d\u6cbf\uff1a\u4eba\u5747 CHE \u00b7 U5MR / \u9884\u671f\u5bff\u547d",
              "Figure 10A \u00b7 \u6548\u7387\u524d\u6cbf"),
@@ -1073,21 +1106,21 @@ if (!exists("%||%", mode = "function")) {
     eff_table_html,
     .ghs_callout("\u89e3\u8bfb \u00b7 \u8d44\u91d1\u4e0d\u7b49\u4e8e\u6210\u6548",
       .ghs_para(
-        "<b>\u53d8\u8861\uff1a</b>\u4eba\u5747 CHE \u53cc\u500d \u2248 \u589e\u52a0 4-5 \u5e74\u9884\u671f\u5bff\u547d\uff0c\u4f46\u8de8\u8d44\u91d1\u533a\u95f4\u9012\u51cf\u3002",
-        "<b>\u9ad8\u6548\u7387\u9886\u5148\u8005\uff1a</b>\u53e4\u5df4\u3001\u8d8a\u5357\u3001\u6cf0\u56fd\u3001\u613e\u5f00\u8d77\u3001\u52a0\u52d2\u6bd4\u90e8\u5206\u5c0f\u56fd\u201c\u4f4e\u6295\u5165\u9ad8\u4ea7\u51fa\u201d\u3002",
-        "<b>\u4f4e\u6548\u7387\u8001\u8db3\u4e0d\u624d\uff1a</b>\u90e8\u5206\u4e2d\u4e1c \u00b7 \u4e2d\u4e9a \u00b7 \u62c9\u7f8e \u4eba\u5747 CHE \u8f83\u9ad8\u4f46\u9884\u671f\u5bff\u547d\u4f4e\u4e8e\u9884\u6d4b\u3002"
+        "<b>\u4f30\u8ba1\u5173\u7cfb\uff1a</b>\u4eba\u5747 CHE \u7ffb\u500d \u2248 \u589e\u52a0 4-5 \u5e74\u9884\u671f\u5bff\u547d\uff0c\u4f46\u8de8\u8d44\u91d1\u533a\u95f4\u5448\u73b0\u8fb9\u9645\u9012\u51cf\u3002",
+        "<b>\u9ad8\u6548\u7387\u9886\u5148\u8005\uff1a</b>\u53e4\u5df4\u3001\u8d8a\u5357\u3001\u6cf0\u56fd\u3001\u65af\u91cc\u5170\u5361\u548c\u90e8\u5206\u52a0\u52d2\u6bd4\u5c0f\u56fd\u5448\u73b0\u201c\u4f4e\u6295\u5165\u9ad8\u4ea7\u51fa\u201d\u7279\u5f81\u3002",
+        "<b>\u4f4e\u6548\u7387\u5f02\u5e38\u70b9\uff1a</b>\u90e8\u5206\u4e2d\u4e1c\u3001\u4e2d\u4e9a\u548c\u62c9\u4e01\u7f8e\u6d32\u56fd\u5bb6\u4eba\u5747 CHE \u8f83\u9ad8\uff0c\u4f46\u9884\u671f\u5bff\u547d\u4f4e\u4e8e\u6a21\u578b\u9884\u6d4b\u503c\u3002"
       ), tone = "blue"),
     .ghs_widget_anchor(widget_dir, "v2_w_scenarios.html",
       "DEA \u00b7 ARIMA \u00b7 Lorenz \u8054\u52a8\u573a\u666f", mode, repo_url),
     .ghs_limit(
       "\u9884\u671f\u5bff\u547d\u662f\u591a\u56e0\u7d20\u7ed3\u679c\uff0c\u4e0d\u4ec5\u53d6\u51b3\u4e8e\u536b\u751f\u652f\u51fa\u3002",
-      "\u8de8\u56fd\u5907\u4ef7\u53d7\u5230 PPP / \u7269\u4ef7\u00b7\u4eba\u53e3\u6784\u00b7\u96c6\u8fbe\u4ee3\u4ef7\u5dee\u5f02\u5f71\u54cd\u3002",
-      "\u6298\u4e0d\u4f7f\u7528\u591a\u8f93\u5165 DEA\uff08\u4ec5 1 \u8f93\u5165 \u00b7 1 \u8f93\u51fa\uff09\u3002"
+      "\u8de8\u56fd\u6bd4\u8f83\u53d7 PPP\u3001\u7269\u4ef7\u6c34\u5e73\u3001\u4eba\u53e3\u7ed3\u6784\u548c\u5236\u5ea6\u5dee\u5f02\u5f71\u54cd\u3002",
+      "\u672c\u56fe\u672a\u4f7f\u7528\u591a\u8f93\u5165 DEA\uff08\u4ec5 1 \u8f93\u5165 \u00b7 1 \u8f93\u51fa\uff09\u3002"
     )
   )
   f10 <- .ghs_finding("f-efficiency", "F10", "Efficiency \u00b7 \u8d44\u91d1 \u00b7 \u5bff\u547d",
     "\u540c\u6837\u4eba\u5747 CHE\uff0c\u8c01\u8d70\u5728\u6548\u7387\u524d\u6cbf\uff1f",
-    "\u5728\u7ed9\u5b9a\u4eba\u5747\u8d44\u91d1\u4e0b\uff0c\u5404\u56fd\u9884\u671f\u5bff\u547d / U5MR \u7684\u5dee\u5f02\u53f3\u53cd\u6620\u4f53\u7cfb\u8d28\u91cf\u3001PHC \u3001\u793e\u533b\u8986\u76d6\u9762\u7b49\u975e\u8d44\u91d1\u56e0\u7d20\u3002",
+    "\u5728\u7ed9\u5b9a\u4eba\u5747\u8d44\u91d1\u4e0b\uff0c\u5404\u56fd\u9884\u671f\u5bff\u547d / U5MR \u7684\u5dee\u5f02\u53ef\u80fd\u53cd\u6620\u4f53\u7cfb\u8d28\u91cf\u3001PHC \u4e0e\u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u9762\u7b49\u975e\u8d44\u91d1\u56e0\u7d20\u3002",
     f10_body, chips = eff_chips)
 
   ## ---- F11 \u6392\u540d\u53d8\u8fc1 ----
@@ -1149,8 +1182,8 @@ if (!exists("%||%", mode = "function")) {
     f11_table,
     .ghs_callout("\u89e3\u8bfb \u00b7 \u540e\u53d1\u8d76\u8d85",
       .ghs_para(
-        "<b>\u9886\u5148\u52a0\u901f\uff1a</b>\u4e2d\u00b7\u97e9\u00b7\u5378\u540e\u00b7\u4e1c\u6b27\u90e8\u5206\u56fd\u5bb6\u9760 GGHED \u6269\u5f20\u5feb\u901f\u4e0a\u4f4d\u3002",
-        "<b>\u4f4d\u8df3\u5c5e\u4e0b\uff1a</b>\u90e8\u5206\u8d44\u6e90\u578b\u3001\u793e\u4f1a\u4e0d\u7a33\u3001\u51b2\u7a81\u578b\u56fd\u5bb6\u6392\u540d\u8df3\u8d8a\u4e0b\u6ed1\u3002"
+        "<b>\u9886\u5148\u52a0\u901f\uff1a</b>\u4e2d\u56fd\u3001\u97e9\u56fd\u548c\u4e1c\u6b27\u90e8\u5206\u56fd\u5bb6\u9760 GGHED \u6269\u5f20\u5feb\u901f\u4e0a\u4f4d\u3002",
+        "<b>\u76f8\u5bf9\u4e0b\u6ed1\uff1a</b>\u90e8\u5206\u8d44\u6e90\u578b\u3001\u793e\u4f1a\u4e0d\u7a33\u548c\u51b2\u7a81\u578b\u56fd\u5bb6\u6392\u540d\u4e0b\u964d\u3002"
       ), tone = "ink"),
     .ghs_limit(
       "\u4eba\u5747 CHE \u53d7\u6c47\u7387 + \u901a\u8d27\u80a8\u80c0\u5f71\u54cd\uff1b\u5df2\u8c03\u4e3a USD2023 \u4f46\u4ecd\u4e0d\u80fd\u5b8c\u5168\u53bb\u9664\u3002",
@@ -1159,8 +1192,8 @@ if (!exists("%||%", mode = "function")) {
   )
   f11 <- .ghs_finding("f-rank", "F11",
     "Rank \u00b7 \u6392\u540d\u53d8\u8fc1",
-    "\u8c01\u5728 23 \u5e74\u95f4\u5feb\u901f\u4e0a\u5347\uff0c\u8c01\u5728\u8df1\u843d\uff1f",
-    "\u540e\u53d1\u8005\u7684 GGHED \u9886\u5148\u62ac\u5347 + \u793e\u533b\u8986\u76d6\u6027\u6269\u5927\u662f\u4e3b\u8981\u9a71\u52a8\u3002",
+    "\u8c01\u5728 23 \u5e74\u95f4\u5feb\u901f\u4e0a\u5347\uff0c\u8c01\u5728\u76f8\u5bf9\u4e0b\u6ed1\uff1f",
+    "\u540e\u53d1\u8005\u7684 GGHED \u62ac\u5347 + \u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u6269\u5927\u662f\u4e3b\u8981\u9a71\u52a8\u3002",
     f11_body, chips = f11_chips)
 
   ## ---- F12 \u9884\u671f\u5bff\u547d\u5f39\u6027 ----
@@ -1192,7 +1225,7 @@ if (!exists("%||%", mode = "function")) {
   f12_body <- paste0(
     .ghs_method(.ghs_para(
       "<b>\u95ee\u9898\uff1a</b>\u4eba\u5747\u8d44\u91d1\u6bcf\u4e0a\u5347\u4e00\u4e2a\u91cf\u7ea7\uff0c\u9884\u671f\u5bff\u547d\u4f1a\u53d8\u9ad8\u591a\u5c11\uff1f",
-      "<b>\u65b9\u6cd5\uff1a</b>\u62df\u5408 life_exp ~ log(CHE_pc)\uff1b\u659c\u7387 \u00d7 ln(2) \u4e3a\u4eba\u5747\u8d44\u91d1\u7ffb\u500d\u4e0e\u9884\u671f\u5bff\u547d\u589e\u52a0\u7684\u5341\u5e73\u5747\u5f39\u6027\u3002"
+      "<b>\u65b9\u6cd5\uff1a</b>\u62df\u5408 life_exp ~ log(CHE_pc)\uff1b\u659c\u7387 \u00d7 ln(2) \u8868\u793a\u4eba\u5747\u8d44\u91d1\u7ffb\u500d\u4e0e\u9884\u671f\u5bff\u547d\u589e\u52a0\u4e4b\u95f4\u7684\u5bf9\u6570\u5f39\u6027\u3002"
     )),
     .ghs_code(f12_code, "r", "log-linear \u62df\u5408"),
     .ghs_fig(file.path(fig_dir, "v2_lifeexp_elasticity.png"),
@@ -1204,17 +1237,17 @@ if (!exists("%||%", mode = "function")) {
     .ghs_callout("\u89e3\u8bfb \u00b7 \u9012\u51cf\u8fb9\u9645",
       .ghs_para(
         "<b>\u4e0a\u9650\uff1a</b>\u9ad8\u6536\u5165\u8d44\u91d1\u8d8a\u9ad8\uff0c\u8fb9\u9645\u5bff\u547d\u63d0\u5347\u8d8a\u5c0f\uff08\u9012\u51cf\u8fb9\u9645\uff09\u3002",
-        "<b>\u4f4e\u4f4d\uff1a</b>\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u8fb9\u9645\u6536\u76ca\u5e9e\u5927\uff0c\u4f9b\u8d44\u91d1\u91cd\u70b9\u3002",
-        "<b>\u542b\u4e49\uff1a</b>\u8d44\u91d1\u4e0d\u662f\u5bff\u547d\u540c\u4e49\uff0c\u4f53\u7cfb\u00b7\u793e\u4fdd\u00b7\u516c\u536b\u4ecd\u4e3b\u5bfc\u9576\u4f4d\u3002"
+        "<b>\u4f4e\u4f4d\uff1a</b>\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u8fb9\u9645\u6536\u76ca\u5e9e\u5927\uff0c\u662f\u8d44\u91d1\u6295\u5165\u7684\u91cd\u70b9\u3002",
+        "<b>\u542b\u4e49\uff1a</b>\u8d44\u91d1\u4e0d\u662f\u5bff\u547d\u7684\u540c\u4e49\u8bcd\uff0c\u4f53\u7cfb\u8d28\u91cf\u3001\u793e\u4fdd\u548c\u516c\u536b\u80fd\u529b\u4ecd\u4e3b\u5bfc\u6548\u7387\u3002"
       ), tone = "blue"),
     .ghs_limit(
       "\u9884\u671f\u5bff\u547d\u53d7\u96be\u4ee5\u89c2\u6d4b\u53d8\u91cf\uff08\u996e\u98df\u00b7\u73af\u5883\u00b7\u9057\u4f20\uff09\u5f71\u54cd\uff0c\u62df\u5408\u4ec5\u4f5c\u63cf\u8ff0\u3002",
-      "\u6700\u8fd1\u5e74\u90e8\u5206\u56fd\u5bb6\u9884\u671f\u5bff\u547d\u4ecd\u53d7 COVID \u5f71\u54cd\u54a4\u4ef7\u3002"
+      "\u6700\u8fd1\u5e74\u90e8\u5206\u56fd\u5bb6\u9884\u671f\u5bff\u547d\u4ecd\u53d7 COVID \u5f71\u54cd\u6270\u52a8\u3002"
     )
   )
   f12 <- .ghs_finding("f-lifeexp", "F12",
     "Life-Exp \u00b7 \u9884\u671f\u5bff\u547d\u5f39\u6027",
-    "\u8d44\u91d1\u4e0e\u5bff\u547d\u7684\u5341\u5e73\u5747\u5f39\u6027",
+    "\u8d44\u91d1\u4e0e\u5bff\u547d\u7684\u5bf9\u6570\u5f39\u6027",
     "\u4e0d\u540c\u53d1\u5c55\u9636\u6bb5\uff0c\u4eba\u5747\u8d44\u91d1\u7684\u8fb9\u9645\u5bff\u547d\u4ea7\u51fa\u660e\u663e\u4e0d\u540c\u3002",
     f12_body, chips = le_chips)
 
@@ -1227,7 +1260,7 @@ if (!exists("%||%", mode = "function")) {
   f13_body <- paste0(
     .ghs_method(.ghs_para(
       "<b>\u95ee\u9898\uff1a</b>SDG-3 \u201c\u4fdd\u969c\u5065\u5eb7\u751f\u6d3b\u201d \u8fdb\u5c55\u5982\u4f55\uff1f\u4ec0\u4e48\u56fd\u5bb6\u53d6\u5f97\u4e86\u6700\u591a\u5bff\u547d\u589e\u91cf\uff1f",
-      "<b>\u65b9\u6cd5\uff1a</b>\u53d6 2000 / 2023 \u4e24\u5e74\u4eba\u5747 life_exp + U5MR \u589e\u52a0\u91cf\uff1b\u96f7\u8fbe\u4ee5\u9884\u671f\u5bff\u547d\u00b7U5MR\u00b7OOPS \u00b7GGHED\u00b7CHE_pc \u4e94\u8f74\u591a\u56fd\u5bf9\u6bd4\u3002"
+      "<b>\u65b9\u6cd5\uff1a</b>\u53d6 2000 / 2023 \u4e24\u5e74\u9884\u671f\u5bff\u547d\u589e\u52a0\u91cf\u4e0e U5MR \u4e0b\u964d\u91cf\uff1b\u96f7\u8fbe\u4ee5\u9884\u671f\u5bff\u547d\u00b7U5MR\u00b7OOPS \u00b7GGHED\u00b7CHE_pc \u4e94\u8f74\u591a\u56fd\u5bf9\u6bd4\u3002"
     )),
     .ghs_fig(file.path(fig_dir, "v2_sdg3_progress.png"),
              "23 \u5e74\u9884\u671f\u5bff\u547d\u589e\u52a0\u6700\u591a\u7684 20 \u56fd \u00b7 -U5MR \u540c\u671f\u4e0b\u964d\u3002",
@@ -1237,18 +1270,18 @@ if (!exists("%||%", mode = "function")) {
              "Figure 13B \u00b7 SDG-3 \u96f7\u8fbe"),
     .ghs_callout("\u89e3\u8bfb \u00b7 SDG-3 \u201c\u8d70\u5feb\u8005\u201d",
       .ghs_para(
-        "<b>\u4e2d\u00b7\u5370\u00b7\u8d8a\u00b7\u5378\u00b7\u5b5f\u5728 23 \u5e74\u95f4\u5bff\u547d\u589e\u52a0\u8d85 8 \u5e74\uff1b</b>\u540c\u671f U5MR \u4e0b\u964d 50%+\u3002",
+        "<b>\u4e2d\u56fd\u3001\u5370\u5ea6\u3001\u8d8a\u5357\u548c\u5b5f\u52a0\u62c9\u56fd\u7b49\u5728 23 \u5e74\u95f4\u5bff\u547d\u589e\u52a0\u8d85 8 \u5e74\uff1b</b>\u540c\u671f U5MR \u4e0b\u964d 50%+\u3002",
         "<b>\u540e\u53d1\u8d70\u5feb\u8005\u4e3b\u8981\u9760 PHC + \u793e\u533b\u8986\u76d6\u9762\u6269\u5f20\uff0c</b>\u800c\u975e\u4ec5 GDP \u589e\u957f\u3002"
       ), tone = "blue"),
     .ghs_limit(
-      "\u9884\u671f\u5bff\u547d\u4ee5 WB WDI \u4e3a\u51c6\uff1b\u5c11\u6570\u56fd\u5bb6\u4ee3\u672a\u90e8\u5206\u586b\u8865\u3002",
-      "\u4ec5\u8003\u8651\u4e24\u4e2a SDG-3 \u4ee3\u8868\u6027\u6307\u6807\uff0c\u672a\u8986\u76d6\u4f20\u67d3\u75c5\u3001\u7cbe\u795e\u00b7\u977e\u9a6c\u00b7\u590d\u8be8\u538b\u529b\u3002"
+      "\u9884\u671f\u5bff\u547d\u4ee5 WB WDI \u4e3a\u51c6\uff1b\u5c11\u6570\u56fd\u5bb6\u53ef\u80fd\u5b58\u5728\u63d2\u8865\u6216\u7f3a\u5931\u3002",
+      "\u4ec5\u8003\u8651\u4e24\u4e2a SDG-3 \u4ee3\u8868\u6027\u6307\u6807\uff0c\u672a\u8986\u76d6\u4f20\u67d3\u75c5\u3001\u7cbe\u795e\u5065\u5eb7\u3001\u4f24\u5bb3\u8d1f\u62c5\u4e0e\u6162\u6027\u75c5\u538b\u529b\u3002"
     )
   )
   f13 <- .ghs_finding("f-sdg3", "F13",
     "SDG-3 \u00b7 \u8fdb\u5c55",
     "\u8c01\u5728 23 \u5e74\u95f4\u83b7\u5f97\u4e86\u6700\u591a\u5bff\u547d\u4e0e\u5b69\u7ae5\u5b58\u6d3b\u589e\u91cf\uff1f",
-    "PHC + \u793e\u533b\u8986\u76d6\u9762\u4e0d\u4ec5\u662f\u8d44\u91d1\uff0c\u66f4\u662f SDG-3 \u8fdb\u5c55\u7684\u4e0d\u53ef\u8c03\u52ee\u3002",
+    "PHC + \u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u9762\u4e0d\u4ec5\u662f\u8d44\u91d1\u95ee\u9898\uff0c\u66f4\u662f SDG-3 \u8fdb\u5c55\u7684\u5173\u952e\u673a\u5236\u3002",
     f13_body, chips = f13_chips)
 
   ## ---- F14 \u6781\u503c\u4e0e\u8df3\u8dc3 ----
@@ -1270,9 +1303,9 @@ if (!exists("%||%", mode = "function")) {
              "Figure 14B \u00b7 \u53d8\u70b9\u68c0\u6d4b"),
     .ghs_callout("\u89e3\u8bfb \u00b7 \u4e24\u7aef\u4e0e\u53d8\u70b9",
       .ghs_para(
-        "<b>\u8df3\u8dc3\u8005\uff1a</b>\u5378\u00b7\u5b5f\u00b7\u8d8a\u00b7\u67ec\u00b7\u80a1\u00b7\u5408\u5fb7\u4eba\u5747 CHE \u589e\u957f 5\u201320 \u500d\u3002",
-        "<b>\u51dd\u6ed1\u8005\uff1a</b>\u90e8\u5206\u8d44\u6e90\u578b\u3001\u51b2\u7a81\u578b\u56fd\u5bb6 23 \u5e74\u4eba\u5747 CHE \u51e0\u4e4e\u672a\u53d8\u3002",
-        "<b>\u53d8\u70b9\uff1a</b>\u5168\u7403 CHE \u589e\u901f\u53d8\u70b9\u91cd\u9886 2008\uff08GFC\uff09\u4e0e 2020\uff08COVID\uff09\u3002"
+        "<b>\u8df3\u8dc3\u8005\uff1a</b>\u5b5f\u52a0\u62c9\u56fd\u3001\u8d8a\u5357\u3001\u67ec\u57d4\u5be8\u3001\u5362\u65fa\u8fbe\u7b49\u56fd\u5bb6\u4eba\u5747 CHE \u589e\u957f\u660e\u663e\u3002",
+        "<b>\u505c\u6ede\u8005\uff1a</b>\u90e8\u5206\u8d44\u6e90\u578b\u3001\u51b2\u7a81\u578b\u56fd\u5bb6 23 \u5e74\u4eba\u5747 CHE \u51e0\u4e4e\u672a\u53d8\u3002",
+        "<b>\u53d8\u70b9\uff1a</b>\u5168\u7403 CHE \u589e\u901f\u53d8\u70b9\u96c6\u4e2d\u5728 2008\uff08GFC\uff09\u4e0e 2020\uff08COVID\uff09\u3002"
       ), tone = "orange"),
     .ghs_limit(
       "\u500d\u6570\u6307\u6807\u5bf9\u8d77\u70b9\u4f4e\u7684\u56fd\u5bb6\u654f\u611f\uff1b\u4ec5\u4fdd\u7559 2000 \u5e74\u8d77\u70b9 \u2265 50 \u7f8e\u5143\u4ee5\u51cf\u8f7b\u3002",
@@ -1282,7 +1315,7 @@ if (!exists("%||%", mode = "function")) {
   f14 <- .ghs_finding("f-extreme", "F14",
     "Extremes \u00b7 \u4e24\u7aef\u4e0e\u53d8\u70b9",
     "\u8c01\u5728 23 \u5e74\u95f4\u4eba\u5747 CHE \u8df3\u8dc3\u6700\u5927\uff1f\u5168\u7403\u4f55\u65f6\u52a0\u901f\uff1f",
-    "\u8df3\u8dc3\u8005\u591a\u662f\u4ece\u8d44\u91d1\u8d77\u70b9 \u2191 + GGHED \u8de8\u671f\u5feb\u901f\u52a0\u7801\uff1b\u53d8\u70b9\u91cd\u9886 GFC \u4e0e COVID\u3002",
+    "\u8df3\u8dc3\u8005\u591a\u662f\u4ece\u8f83\u4f4e\u8d44\u91d1\u8d77\u70b9\u51fa\u53d1\uff0c\u5e76\u4f34\u968f GGHED \u8de8\u671f\u5feb\u901f\u52a0\u7801\uff1b\u53d8\u70b9\u5bf9\u5e94 GFC \u4e0e COVID\u3002",
     f14_body, chips = f14_chips)
 
   paste0(.ghs_kpi_grid(s, length(list.files(fig_dir, "[.]png$")),
@@ -1364,8 +1397,8 @@ if (!exists("%||%", mode = "function")) {
     "<li><b>\u975e\u6d32\uff1a</b>EXT \u4f9d\u8d56\u9ad8\uff1b\u4eba\u5747 CHE \u4f4e\u4f4d\uff0c\u9700 GGHED \u9886\u5148\u62ac\u5347\u3002</li>",
     "<li><b>\u6b27\u6d32\uff1a</b>GGHED &gt; 70%\uff0c\u8d22\u52a1\u4fdd\u62a4\u5b8c\u5907\uff1bOOPS \u91cd\u5fc3\u5728\u62a4\u7406\u4e0e\u836f\u54c1\u5171\u4ed8\u3002</li>",
     "<li><b>\u5317\u7f8e\u6d32\uff1a</b>\u7f8e\u00b7\u52a0 \u4eba\u5747 CHE \u9886\u5148\u4f46\u5236\u5ea6\u8def\u5f84\u8fe5\u7136\u4e0d\u540c\u3002</li>",
-    "<li><b>\u62c9\u4e01\u7f8e\u6d32\uff1a</b>\u4ed3\u00b7\u5df4\u4ee5 PHC \u4e3a\u9886\uff1b\u90e8\u5206\u56fd OOPS \u5347 + GGHED \u5feb\u51b2 \u5e76\u5b58\u3002</li>",
-    "<li><b>\u5927\u6d0b\u6d32\uff1a</b>\u6f84\u53cd\u9ad8\u6536\u5165\u578b\u540e\uff0c\u9762\u4f4d\u5dde\u9762\u4e0d\u8db3\u540c\u9ad8\u8fdc\u3002</li>",
+    "<li><b>\u62c9\u4e01\u7f8e\u6d32\uff1a</b>\u53e4\u5df4\u548c\u5df4\u897f\u4ee5 PHC \u548c\u516c\u5171\u7b79\u8d44\u4e3a\u91cd\u8981\u8def\u5f84\uff1b\u90e8\u5206\u56fd\u5bb6 OOPS \u4e0a\u5347\u4e0e GGHED \u62ac\u5347\u5e76\u5b58\u3002</li>",
+    "<li><b>\u5927\u6d0b\u6d32\uff1a</b>\u6fb3\u65b0\u7b49\u9ad8\u6536\u5165\u7ecf\u6d4e\u4f53\u8d44\u91d1\u5145\u8db3\uff0c\u4f46\u592a\u5e73\u6d0b\u5c0f\u5c9b\u56fd\u7684\u6570\u636e\u8986\u76d6\u548c\u536b\u751f\u7cfb\u7edf\u80fd\u529b\u4ecd\u9700\u5355\u72ec\u5173\u6ce8\u3002</li>",
     "</ul>"
   )
   sprintf("<section class='section regional' id='regional'><div class='wrap'><header class='section-head'><span class='kicker'>S30 \u00b7 Regional Deep Dive</span><h2>\u516d\u5927\u6d32\u805a\u7126</h2><p class='lead'>\u6cbf 6 \u4e2a\u5927\u6d32\u62fc\u63a5\u4eba\u5747\u8d44\u91d1\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u5916\u63f4\u4e0e\u8001\u9f84\u5316\u7684\u533a\u57df\u5dee\u5f02\u3002</p></header><div class='regional-grid'>%s%s</div>%s</div></section>",
@@ -1391,9 +1424,9 @@ if (!exists("%||%", mode = "function")) {
     .ghs_para(
       "<b>\u6d1b\u4f26\u5179\u66f2\u7ebf\uff1a</b>\u8ddd\u5bf9\u89d2\u7ebf\u8d8a\u8fdc\u8d8a\u4e0d\u5e73\u7b49\uff1b2000 \u00b7 2023 \u4e8c\u66f2\u7ebf\u5408\u5e76\u5448\u73b0 23 \u5e74\u4e0a\u79fb\u3002",
       "<b>Gini / Theil / Atkinson\uff1a</b>\u4e09\u6307\u6807\u540c\u65f6\u4e0b\u964d\uff0c\u4f46 Atkinson(\u03b5=1) \u4e0b\u964d\u6700\u6162\u3002",
-      "<b>Ridgeline\uff1a</b>\u8de8\u6536\u5165\u7ec4\u7684\u6982\u5fc3\u5206\u5e03\u5448\u73b0\u201c\u5feb\u8bf7\u53e3\u201d\u8de8\u8d8a\u3002"
+      "<b>Ridgeline\uff1a</b>\u8de8\u6536\u5165\u7ec4\u7684\u5206\u5e03\u5f62\u6001\u5448\u73b0\u660e\u663e\u8fc1\u79fb\u3002"
     ), tone = "blue")
-  sprintf("<section class='section atlas' id='atlas'><div class='wrap'><header class='section-head'><span class='kicker'>S40 \u00b7 Inequality Atlas</span><h2>\u4e0d\u5e73\u7b49\u56fe\u518c</h2><p class='lead'>4 \u5f20\u4e0d\u540c\u89d2\u5ea6\u7684\u4e0d\u5e73\u7b49\u8c1c\u8a00\u4e92\u8865\uff1a\u6d1b\u4f26\u5179\u00b7Gini\u00b7\u504f\u597d\u006bridgeline\uff0c\u540c\u4f4d\u80fd\u4e0e F3 \u4ea4\u53c9\u9605\u8bfb\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
+  sprintf("<section class='section atlas' id='atlas'><div class='wrap'><header class='section-head'><span class='kicker'>S40 \u00b7 Inequality Atlas</span><h2>\u4e0d\u5e73\u7b49\u56fe\u518c</h2><p class='lead'>\u591a\u79cd\u4e0d\u5e73\u7b49\u89c6\u89d2\u76f8\u4e92\u8865\u5145\uff1a\u6d1b\u4f26\u5179\u66f2\u7ebf\u3001Gini / Theil / Atkinson \u6307\u6570\u548c ridgeline \u5206\u5e03\u56fe\u53ef\u4e0e F3 \u4ea4\u53c9\u9605\u8bfb\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
           body, notes)
 }
 
@@ -1430,8 +1463,8 @@ if (!exists("%||%", mode = "function")) {
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u4e09\u4e2a\u9636\u6bb5",
     .ghs_para(
       "<b>2000\u201307 \u00b7 \u52a0\u901f\u671f\uff1a</b>\u5404\u5927\u6d32 CHE_pc \u540c\u6b65\u4e0a\u5347\uff1bGGHED \u8de8\u671f\u586b\u8865\u3002",
-      "<b>2008\u201315 \u00b7 GFC \u4ec1\u671f\uff1a</b>\u4eba\u5747\u8d44\u91d1\u589e\u901f\u653e\u7f13\uff1b\u90e8\u5206\u4e2d\u4f4e\u6536\u5165 OOPS \u5347\u9ad8\u3002",
-      "<b>2016\u201323 \u00b7 \u540e COVID \u671f\uff1a</b>\u9ad8\u6536\u5165\u56fd\u5bb6 GGHED \u88ab\u52a8\u62ac\u5347\uff0c\u4e9a\u00b7\u62c9\u4e01\u7f8e \u9762\u4e34\u3001\u4eba\u53e3\u8001\u9f84\u5316 + \u538b\u529b\u3002"
+      "<b>2008\u201315 \u00b7 GFC \u9636\u6bb5\uff1a</b>\u4eba\u5747\u8d44\u91d1\u589e\u901f\u653e\u7f13\uff1b\u90e8\u5206\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6 OOPS \u5347\u9ad8\u3002",
+      "<b>2016\u201323 \u00b7 \u540e COVID \u671f\uff1a</b>\u9ad8\u6536\u5165\u56fd\u5bb6 GGHED \u88ab\u52a8\u62ac\u5347\uff0c\u4e9a\u6d32\u548c\u62c9\u4e01\u7f8e\u6d32\u9762\u4e34\u4eba\u53e3\u8001\u9f84\u5316\u4e0e\u8d22\u653f\u538b\u529b\u3002"
     ), tone = "blue")
   sprintf("<section class='section period' id='period'><div class='wrap'><header class='section-head'><span class='kicker'>S15 \u00b7 Periods</span><h2>\u4e09\u4e2a\u5b50\u671f\u4e0e\u5927\u6d32\u8de8\u671f\u5bf9\u6bd4</h2><p class='lead'>\u628a 2000\u20132023 \u5212\u6210 \u201c\u52a0\u901f \u00b7 GFC \u00b7 COVID\u540e\u201d \u4e09\u671f\uff0c\u770b\u54ea\u4e2a\u5927\u6d32\u5728\u54ea\u4e2a\u9636\u6bb5\u52a0\u7801\u3002</p></header>%s%s</div></section>",
     fig_html, body_table) -> head_html
@@ -1467,8 +1500,8 @@ if (!exists("%||%", mode = "function")) {
   )
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 SDG-3 \u201c\u8df3\u8dc3\u8005\u201d",
     .ghs_para(
-      "<b>\u4e2d\u00b7\u5378\u00b7\u5b5f\u00b7\u8d8a\u00b7\u5370 \u5728 23 \u5e74\u95f4\u5bff\u547d\u589e\u8d85 8 \u5e74\uff1b</b>\u540c\u671f U5MR \u4e0b\u964d 50%+\u3002",
-      "<b>\u540e\u53d1\u8d70\u5feb\u8005\u4e3b\u8981\u9760 PHC + \u793e\u533b\u8986\u76d6\u9762\u6269\u5f20\uff0c</b>\u800c\u4e0d\u662f\u4ec5 GDP \u589e\u957f\u3002"
+      "<b>\u4e2d\u56fd\u3001\u5b5f\u52a0\u62c9\u56fd\u3001\u8d8a\u5357\u548c\u5370\u5ea6\u7b49\u56fd\u5bb6\u5728 23 \u5e74\u95f4\u5bff\u547d\u589e\u52a0\u8d85 8 \u5e74\uff1b</b>\u540c\u671f U5MR \u4e0b\u964d 50%+\u3002",
+      "<b>\u540e\u53d1\u8d70\u5feb\u8005\u4e3b\u8981\u9760 PHC + \u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u9762\u6269\u5f20\uff0c</b>\u800c\u4e0d\u662f\u4ec5 GDP \u589e\u957f\u3002"
     ), tone = "blue")
   sprintf("<section class='section sdg3' id='sdg3'><div class='wrap'><header class='section-head'><span class='kicker'>S16 \u00b7 SDG-3 progress</span><h2>SDG-3 \u8fdb\u5c55\u8df3\u8dc3\u8005\u4e0e\u96f7\u8fbe</h2><p class='lead'>\u9884\u671f\u5bff\u547d\u4e0e\u4e94\u5c81\u4ee5\u4e0b\u5b69\u7ae5\u6b7b\u4ea1\u7387\u4f5c\u4e3a\u5065\u5eb7\u4ea7\u51fa\u4e24\u4e2a\u4ee3\u8868\u6027\u4ee3\u4f4d\uff1b\u5728 23 \u5e74\u4e2d\u591a\u56fd\u5bff\u547d\u589e\u52a0 6\u20139 \u5e74\u3002</p></header><div class='atlas-grid'>%s</div>%s%s</div></section>",
     fig_html, table_top, notes)
@@ -1484,7 +1517,7 @@ if (!exists("%||%", mode = "function")) {
   fig_html <- paste0(
     .ghs_fig(file.path(fig_dir, "v2_lifeexp_elasticity.png"),
              "ln(CHE_pc) \u2192 \u9884\u671f\u5bff\u547d\u62df\u5408\u3002",
-             "Figure S17A \u00b7 \u5341\u5e73\u5747\u5f39\u6027"),
+             "Figure S17A \u00b7 \u5bf9\u6570\u5f39\u6027"),
     .ghs_fig(file.path(fig_dir, "v2_quantile_reg.png"),
              "GDP_pc \u2192 CHE_pc \u4e09\u5206\u4f4d\u62df\u5408\u3002",
              "Figure S17B \u00b7 \u5206\u4f4d\u56de\u5f52")
@@ -1496,7 +1529,7 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u9012\u51cf\u8fb9\u9645\uff1a</b>\u9ad8\u6536\u5165\u533a\u95f4 CHE \u4e0a\u5347\u8fb9\u9645\u5bff\u547d\u63d0\u5347\u9012\u51cf\uff1b\u4e2d\u4f4e\u6536\u5165\u533a\u95f4\u8fb9\u9645\u6536\u76ca\u5e9e\u5927\u3002",
       "<b>\u5206\u4f4d\u9762\uff1a</b>\u5728\u4f4e\u5206\u4f4d\uff08\u5f31\u8d22\u653f\u80fd\u529b\uff09\uff0cGDP \u4e0a\u5347 1% \u5e26\u52a8 CHE \u589e\u957f\u8d8a\u5c0f\uff1b\u5728\u9ad8\u5206\u4f4d\u8d8a\u63a5\u8fd1 1\u3002"
     ), tone = "blue")
-  sprintf("<section class='section lifeexp' id='lifeexp'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 Outcomes elasticity</span><h2>\u5bff\u547d\u4e0e\u8d44\u91d1\u7684\u5341\u5e73\u5747\u5f39\u6027</h2><p class='lead'>\u4ece\u5341\u5e73\u5747\uff08log\uff09\u4e0e\u5206\u4f4d\u4e24\u4e2a\u89c6\u89d2\u770b\u4eba\u5747\u8d44\u91d1\u4e0e\u9884\u671f\u5bff\u547d\u4e4b\u95f4\u7684\u4f1a\u52bf\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
+  sprintf("<section class='section lifeexp' id='lifeexp'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 Outcomes elasticity</span><h2>\u5bff\u547d\u4e0e\u8d44\u91d1\u7684\u5bf9\u6570\u5f39\u6027</h2><p class='lead'>\u4ece\u5bf9\u6570\u62df\u5408\uff08log\uff09\u4e0e\u5206\u4f4d\u4e24\u4e2a\u89c6\u89d2\u770b\u4eba\u5747\u8d44\u91d1\u4e0e\u9884\u671f\u5bff\u547d\u4e4b\u95f4\u7684\u5173\u8054\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
     fig_html, notes)
 }
 
@@ -1511,15 +1544,15 @@ if (!exists("%||%", mode = "function")) {
   )
   body_text <- paste0(
     "<ul class='regional-notes'>",
-    "<li><b>\u653f\u5e9c\u4e3b\u5bfc\u578b\uff1a</b>GGHED \u9ad8\u3001OOPS \u4f4e\u3001\u4eba\u5747 CHE \u9ad8\uff1b\u4ee5\u6b27\u6d32 \u00b7 \u5317\u6b27 \u00b7 \u53e4\u5df4 \u00b7 \u4eba\u8089\u70b9 \u00b7 \u9ad8\u8986\u76d6\u4eba\u53e3\u4e3a\u4e3b\u3002</li>",
+    "<li><b>\u653f\u5e9c\u4e3b\u5bfc\u578b\uff1a</b>GGHED \u9ad8\u3001OOPS \u4f4e\u3001\u4eba\u5747 CHE \u9ad8\uff1b\u4ee5\u6b27\u6d32\u3001\u5317\u6b27\u3001\u53e4\u5df4\u548c\u5176\u4ed6\u9ad8\u8986\u76d6\u56fd\u5bb6\u4e3a\u4e3b\u3002</li>",
     "<li><b>\u79c1\u4eba\u4fdd\u9669\u578b\uff1a</b>PVTD \u9ad8\u3001GGHED \u4e2d\u3001\u4eba\u5747 CHE \u9ad8\uff1b\u4e3b\u8981\u4ee5\u7f8e\u00b7\u5357\u975e\u00b7\u90e8\u5206\u62c9\u4e01\u7f8e \u4e3a\u4ee3\u8868\u3002</li>",
     "<li><b>\u81ea\u4ed8\u9a71\u52a8\u578b\uff1a</b>OOPS \u9ad8\u3001GGHED \u4e2d\u4f4e\uff1b\u591a\u96c6\u4e8e\u5357\u4e9a\u3001\u4e2d\u4e9a\uff0c\u8d22\u52a1\u4fdd\u62a4\u8584\u5f31\u3002</li>",
-    "<li><b>\u5916\u63f4\u4f9d\u8d56\u578b\uff1a</b>EXT \u9ad8\u3001\u4eba\u5747 CHE \u4f4e\uff1b\u96c6\u4e2d\u4e8e\u6492\u54c8\u4ee5\u5357\u975e\u6d32\u00b7\u592a\u5e73\u6d0b\u5c0f\u5c9b\u00b7\u540e LDC\u3002</li>",
+    "<li><b>\u5916\u63f4\u4f9d\u8d56\u578b\uff1a</b>EXT \u9ad8\u3001\u4eba\u5747 CHE \u4f4e\uff1b\u96c6\u4e2d\u4e8e\u6492\u54c8\u4ee5\u5357\u975e\u6d32\u3001\u592a\u5e73\u6d0b\u5c0f\u5c9b\u56fd\u548c\u90e8\u5206 LDC\u3002</li>",
     "</ul>"
   )
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u4ece\u96f7\u8fbe\u770b archetype",
     .ghs_para(
-      "<b>\u96f7\u8fbe\u8f74\u4f53\u73b0 \u201c\u5747\u503c z \u5f97\u5206\u201d\uff1a</b>\u8d8a\u9760\u5916\u5708\u8d8a\u9ad8\uff0c\u5fc3\u8df1\u4e2d\u578b\u3002",
+      "<b>\u96f7\u8fbe\u8f74\u4f53\u73b0 \u201c\u5747\u503c z \u5f97\u5206\u201d\uff1a</b>\u8d8a\u9760\u5916\u5708\u8be5\u7ef4\u5ea6\u8d8a\u9ad8\uff0c\u53ef\u76f4\u89c2\u8bc6\u522b\u56fd\u5bb6\u7c7b\u578b\u7279\u5f81\u3002",
       "<b>\u4e0e PCA \u6295\u5f71\u4e92\u8865\uff1a</b>PCA \u8868\u73b0\u5e7f\u5ea6\u5dee\u5f02\uff0c\u96f7\u8fbe\u8868\u73b0\u5404\u53d8\u91cf\u8d77\u70b9\u3002"
     ), tone = "ink")
   sprintf("<section class='section cluster-detail' id='cluster-detail'><div class='wrap'><header class='section-head'><span class='kicker'>S55 \u00b7 Cluster archetype</span><h2>4 \u7c7b\u56fd\u5bb6 archetype \u8be6\u89e3</h2><p class='lead'>\u8de8 GGHED / PVTD / EXT / OOPS / CHE_pc \u4e94\u4e2a\u8f74\u7684 z \u5f97\u5206\uff0c\u770b\u4e0d\u540c archetype \u7684\u201c\u4f53\u578b\u201d\u3002</p></header><div class='atlas-grid'>%s</div>%s%s</div></section>",
@@ -1537,11 +1570,11 @@ if (!exists("%||%", mode = "function")) {
   )
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u201c\u8df3\u4e0a\u53bb\u201d\u4e0e\u201c\u8df3\u4e0d\u4e0a\u53bb\u201d",
     .ghs_para(
-      "<b>\u8df3\u8dc3\u8005\uff1a</b>\u591a\u4e3a\u8d77\u70b9\u4f4e + GGHED \u8de8\u671f\u62ac\u5347 + \u8d44\u6e90\u96f6\u4e89\u578b\u589e\u957f\u9a71\u52a8\u3002",
-      "<b>\u51dd\u6ed1\u8005\uff1a</b>\u591a\u4e3a\u51b2\u7a81\u00b7\u8d44\u6e90\u00b7\u8d22\u653f\u96f7\u4e2d\u578b\u56fd\u5bb6\uff0c23 \u5e74\u4eba\u5747\u51e0\u4e4e\u672a\u53d8\u3002",
-      "<b>\u53d8\u70b9\uff1a</b>\u5168\u7403\u603b\u989d\u589e\u901f\u91cd\u9886 GFC + COVID\uff1b\u63d0\u793a\u533b\u533b\u53cd\u5468\u671f\u9700\u8981\u4ec1\u671f\u9884\u8c08\u3002"
+      "<b>\u8df3\u8dc3\u8005\uff1a</b>\u591a\u4e3a\u8d77\u70b9\u4f4e + GGHED \u8de8\u671f\u62ac\u5347 + \u7ecf\u6d4e\u589e\u957f\u9a71\u52a8\u3002",
+      "<b>\u505c\u6ede\u8005\uff1a</b>\u591a\u4e3a\u51b2\u7a81\u3001\u8d44\u6e90\u4f9d\u8d56\u6216\u8d22\u653f\u8106\u5f31\u578b\u56fd\u5bb6\uff0c23 \u5e74\u4eba\u5747 CHE \u51e0\u4e4e\u672a\u53d8\u3002",
+      "<b>\u53d8\u70b9\uff1a</b>\u5168\u7403\u603b\u989d\u589e\u901f\u5bf9\u5e94 GFC + COVID\uff1b\u63d0\u793a\u536b\u751f\u8d22\u653f\u9700\u8981\u63d0\u524d\u51c6\u5907\u53cd\u5468\u671f\u7f13\u51b2\u673a\u5236\u3002"
     ), tone = "orange")
-  sprintf("<section class='section extreme' id='extreme'><div class='wrap'><header class='section-head'><span class='kicker'>S56 \u00b7 Extremes</span><h2>\u8df3\u8dc3\u3001\u51dd\u6ed1\u4e0e\u53d8\u70b9</h2><p class='lead'>\u4ece\u4e24\u7aef\u6781\u503c + \u53d8\u70b9 \u4e24\u4e2a\u89c6\u89d2\uff0c\u8865\u5145 F11 / F14 \u6240\u63cf\u8ff0\u7684\u52a8\u6001\u8de8\u8d8a\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
+  sprintf("<section class='section extreme' id='extreme'><div class='wrap'><header class='section-head'><span class='kicker'>S56 \u00b7 Extremes</span><h2>\u8df3\u8dc3\u3001\u505c\u6ede\u4e0e\u53d8\u70b9</h2><p class='lead'>\u4ece\u4e24\u7aef\u6781\u503c + \u53d8\u70b9 \u4e24\u4e2a\u89c6\u89d2\uff0c\u8865\u5145 F11 / F14 \u6240\u63cf\u8ff0\u7684\u52a8\u6001\u8de8\u8d8a\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
     fig_html, notes)
 }
 
@@ -1588,18 +1621,18 @@ if (!exists("%||%", mode = "function")) {
       "\u68c0\u67e5\u65f6\u671f\u7a33\u5065\u6027"),
     c("\u9664\u53bb\u9ad8\u6536\u5165 (HIC)", "FE",
       "\u540c F6\u00b7\u4ec5 LIC+LMIC+UMIC", "0.69",
-      "\u9ad8\u6536\u5165\u62fc\u5747"),
+      "\u9ad8\u6536\u5165\u7ec4\u5bf9\u5747\u503c\u7684\u5f71\u54cd"),
     c("\u03b2-\u6536\u655b\u00b7\u672c\u4e66", "OLS",
       "growth \u00b7 log(che_pc_2000) + continent",
       "\u03b2 \u2248 -0.012",
       "F5 \u4e3b\u8868"),
     c("\u03b2-\u6536\u655b\u00b7\u53bb\u9664\u975e\u6d32", "OLS",
-      "\u540c\u4e0a\u00b7\u4ec5\u4ea2\u62c9\u9876\u90e8",
+      "\u540c\u4e0a\u00b7\u4ec5\u4fdd\u7559\u90e8\u5206\u5927\u6d32",
       "\u03b2 \u2248 -0.009",
       "\u68c0\u67e5\u90e8\u5206\u5927\u6d32 sensitive"),
-    c("\u53cc\u8001\u5916\u91d1\u80a1\u804a\u8868\u00b7\u96f6", "OLS",
+    c("\u52a0\u5165\u5927\u6d32\u4ea4\u4e92\u9879", "OLS",
       "\u540c\u4e0a + interaction continent\u00d7log_start",
-      "\u03b2 \u4e3b\u9879\u4ecd\u8d1f", "\u4ea4\u4e92\u9879\u95f4\u4e2d")
+      "\u03b2 \u4e3b\u9879\u4ecd\u8d1f", "\u4ea4\u4e92\u9879\u7528\u4e8e\u68c0\u67e5\u5927\u6d32\u5f02\u8d28\u6027")
   )
   df <- do.call(rbind, lapply(rows, function(r) {
     out <- data.frame(c1 = r[1], c2 = r[2], c3 = r[3],
@@ -1621,7 +1654,7 @@ if (!exists("%||%", mode = "function")) {
     .ghs_table(utils::head(bp[, keep, drop = FALSE], 12),
                "F5 \u00b7 \u03b2-\u6536\u655b\u9762\u677f\u793a\u4f8b", 12, 3)
   } else ""
-  sprintf("<section class='section robustness' id='robustness'><div class='wrap'><header class='section-head'><span class='kicker'>S60 \u00b7 Sensitivity</span><h2>\u7a33\u5065\u6027\u4e0e\u591a\u89c4\u683c\u5bf9\u6bd4</h2><p class='lead'>\u5728\u4e0d\u540c\u63a7\u53d8\u91cf\u3001\u5b50\u6837\u672c\u3001\u5b50\u671f\u9650\u4e0b\u91cd\u62df\u4e3b\u7ed3\u679c\uff0c\u4f30\u8ba1\u5b9a\u6027\u7ed3\u679c\u5bf9\u8bbe\u5b9a\u7684\u95f4\u63a5\u4f9d\u8d56\u3002</p></header>%s%s%s</div></section>",
+  sprintf("<section class='section robustness' id='robustness'><div class='wrap'><header class='section-head'><span class='kicker'>S60 \u00b7 Sensitivity</span><h2>\u7a33\u5065\u6027\u4e0e\u591a\u89c4\u683c\u5bf9\u6bd4</h2><p class='lead'>\u5728\u4e0d\u540c\u63a7\u53d8\u91cf\u3001\u5b50\u6837\u672c\u548c\u5b50\u671f\u9650\u4e0b\u91cd\u4f30\u4e3b\u7ed3\u679c\uff0c\u68c0\u67e5\u5b9a\u6027\u7ed3\u8bba\u5bf9\u6a21\u578b\u8bbe\u5b9a\u7684\u4f9d\u8d56\u7a0b\u5ea6\u3002</p></header>%s%s%s</div></section>",
           body, fe_csv, beta_csv)
 }
 
@@ -1632,21 +1665,21 @@ if (!exists("%||%", mode = "function")) {
     c("GGHED", "General Government Health Expenditure",
       "\u653f\u5e9c\u5f3a\u5236\u7b79\u8d44\uff1bGHED FS"),
     c("PVTD", "Private Domestic Health Expenditure",
-      "\u79c1\u4eba\u575a\u6301\u7b79\u8d44\uff1bGHED FS"),
+      "\u56fd\u5185\u79c1\u4eba\u536b\u751f\u652f\u51fa\uff1bGHED FS"),
     c("EXT", "External Schemes",
-      "\u5916\u63f4\u5212\u8f6c\u00b7\u591a\u4e3a\u53cc\u8fb9 / \u5168\u7403\u57fa\u91d1"),
+      "\u5916\u90e8\u536b\u751f\u63f4\u52a9\uff1b\u591a\u4e3a\u53cc\u8fb9\u9879\u76ee / \u5168\u7403\u57fa\u91d1"),
     c("UHC", "Universal Health Coverage",
       "\u5168\u6c11\u5065\u5eb7\u8986\u76d6\uff1bSDG 3.8"),
-    c("Gini", "Gini coefficient", "\u4e0d\u5e73\u7b49\u53cc\u91cf\u00b7[0,1]"),
+    c("Gini", "Gini coefficient", "\u4e0d\u5e73\u7b49\u8861\u91cf\u6307\u6807\u00b7[0,1]"),
     c("Theil-T", "Theil entropy index",
-      "\u4ee5\u8de8\u8d44\u91d1\u54a8\u8de8\u4e0a\u8de8\u4e2d"),
+      "\u71b5\u6307\u6570\uff0c\u53ef\u7528\u4e8e\u8861\u91cf\u548c\u5206\u89e3\u4e0d\u5e73\u7b49"),
     c("Atkinson", "Atkinson index",
       "\u4e0d\u5e73\u7b49\u00b7\u504f\u597d\u53c2\u6570 \u03b5"),
     c("\u03b2-convergence",
       "log-growth ~ log(start)",
-      "\u8ddf\u968f\u8ffd\u8d76\u4eff\u771f"),
+      "\u4f4e\u8d77\u70b9\u7ecf\u6d4e\u4f53\u662f\u5426\u8ffd\u8d76\u7684\u7ecf\u5178\u68c0\u9a8c"),
     c("FE", "Fixed Effects",
-      "\u9762\u677f\u00b7\u63a7\u4e0d\u968f\u65f6\u95f4\u53d8\u9879"),
+      "\u9762\u677f\u6a21\u578b\uff1b\u63a7\u5236\u4e0d\u968f\u65f6\u95f4\u53d8\u5316\u7684\u56fd\u5bb6\u7279\u5f81"),
     c("DEA", "Data Envelopment Analysis",
       "\u8f93\u5165 / \u8f93\u51fa \u6548\u7387\u524d\u6cbf")
   )
@@ -1695,14 +1728,86 @@ if (!exists("%||%", mode = "function")) {
 
 # ---- 5. 图库 / 交互组件 / 复现 / 结论 ------------------------------------
 
+.ghs_gallery_note <- function(title, kind) {
+  n <- tolower(title)
+  if (grepl("oops|自付", n)) {
+    return("本图用于识别居民自付负担的国家差异与时间变化。阅读时重点看高值国家、收入组分布和近年变化方向；OOPS 越高，越提示家庭直接支付压力较大，但仍需结合医保覆盖、服务价格和调查口径解释。")
+  }
+  if (grepl("global|source|stream|continent", n)) {
+    return("本图从总量或大洲层面展示卫生支出的长期演化。阅读时应同时关注总额扩张、结构份额和冲击年份的转折，而不是只比较单一年份；跨区域差异通常反映收入水平、公共筹资能力和数据覆盖差异。")
+  }
+  if (grepl("world|map|bivariate", n)) {
+    return("本图强调空间分布和区域聚集。颜色深浅用于快速定位高值、低值或双变量组合，但地图面积不代表人口规模；解读时需要回到国家表和人均指标，避免把大国土面积误读为更高财政影响。")
+  }
+  if (grepl("profile|country|china|usa|india|brazil", n)) {
+    return("本图是国家档案或国家对比视角，用于把长期趋势、筹资结构和健康结果放在同一叙事中。重点不是单点排名，而是观察该国在 2000–2023 年间资金来源、OOPS 与结果指标是否同向改善。")
+  }
+  if (grepl("covid", n)) {
+    return("本图用于比较 2019 基线与 2020–2022 冲击期的变化。读图时应区分政府托底带来的公共支出上升，和居民自付上升造成的负担转移；近年数据仍可能修订，结论应保持短期冲击口径。")
+  }
+  if (grepl("inequality|equity|lorenz|gini|theil|atkinson", n)) {
+    return("本图服务于公平性判断，展示跨国人均卫生支出的分布距离。Gini、Theil、Atkinson 和 Lorenz 曲线各有敏感区间，应联合阅读；跨国不平等下降并不等于各国内部财务保护已经改善。")
+  }
+  if (grepl("pca|cluster|archetype|corr|quantile|beta|forecast|efficiency|elasticity|changepoint", n)) {
+    return("本图属于模型或诊断视角，用于把复杂关系压缩成可解释的结构信号。阅读时重点看方向、区间和异常点，不宜把相关、聚类、预测或残差直接写成因果；所有结论需回到方法手册中的假设与局限。")
+  }
+  if (grepl("sankey|ternary|treemap|waffle|purpose|hc", n)) {
+    return("本图用于展示资金或服务用途结构。它适合回答构成、流向和相对份额问题，而不适合单独判断效率高低；解读时应检查分母是否为 CHE、是否为人均值，以及不同分类口径是否可直接比较。")
+  }
+  if (grepl("rank|bump|lollipop|fiscal|aid|ext", n)) {
+    return("本图突出国家排序、排名变迁或外援依赖。排序能帮助发现极端国家和后发追赶者，但排名只表示相对位置；判断政策含义时还需结合绝对支出、人均水平、收入组和财政空间，并避免把名次升降等同于制度成败。")
+  }
+  if (grepl("lifeexp|sdg3|u5mr|outcomes", n)) {
+    return("本图把卫生资金与健康结果连接起来，用于观察预期寿命、儿童死亡率或 SDG-3 进展。资金增加通常与结果改善相关，但结果还受教育、环境、公共卫生能力和人口结构影响，不能单独归因于投入。")
+  }
+  switch(kind,
+    "时间" = "本图展示时间序列或阶段比较，适合识别长期趋势、冲击年份和结构拐点。阅读时应关注变化速度与方向，而不是孤立比较两个端点；必要时结合模型表确认变化是否受样本和缺失年份影响，并对照同期方法手册中的变量口径。",
+    "分布" = "本图展示国家、收入组或大洲之间的分布差异。箱线、山脊、密度和小提琴图能揭示离散程度和尾部国家；解读时应同时看中位数、极端值和样本覆盖，避免只看平均值，并留意是否存在少数国家拉动整体形态。",
+    "地图" = "本图展示空间异质性，适合快速定位区域集聚和异常国家。地图颜色表示指标水平或组合关系，不能替代国家排序表；跨区域比较时应注意人口规模、缺失值与岛屿国家显示限制，并结合相邻章节的人均指标交叉验证。",
+    "结构" = "本图展示资金来源、用途或结构份额，适合说明系统由哪些部分组成。阅读时需要确认各块是否以 CHE 为分母、是否涉及人均口径，并审视份额变化是否来自公共筹资、私人支付或外部援助的真实替代，而不是分类口径变更。",
+    "模型" = "本图展示模型估计、聚类、预测或效率前沿。它提供结构化证据，但依赖变量选择、样本窗口和模型假设；结论应表述为相关、分类或预测信号，并要回到方法手册说明的样本期、控制变量与残差分布，避免被解释为已识别的因果效应。",
+    "指标" = "本图展示排序、指数或关键指标面板，适合支持证据化叙事。阅读时应同时确认单位、年份与分母口径，并结合方法手册复核指标公式与样本覆盖；排名与指数的变化不应被简化解释为单一政策的成败，而要回到具体国家、收入组和时间窗口去交叉验证。",
+    "综合" = "本图综合多个指标或视角，用于把资金、结构和结果放在同一张图中阅读。重点是发现一致信号和异常国家；若不同指标给出相反方向，应回到变量字典确认口径与缺失情况，并结合相邻章节交叉验证。",
+    "本图补充静态图谱中的证据链，用于连接研究问题、指标口径和政策解释。阅读时应先确认横纵轴、分组和单位，再结合相邻 finding、模型表和交互组件复核是否存在异常点。"
+  )
+}
+
 .ghs_gallery <- function(fig_dir) {
   pngs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = TRUE))
   if (!length(pngs)) return("")
+  meta <- data.frame(
+    path = pngs,
+    title = vapply(pngs, .ghs_pretty, character(1)),
+    stringsAsFactors = FALSE
+  )
+  meta$kind <- vapply(meta$title, .ghs_kind, character(1))
+  meta$slug <- vapply(meta$path, .ghs_slug, character(1))
+  meta$size <- vapply(meta$path, .ghs_size, character(1))
+  meta$note <- mapply(.ghs_gallery_note, meta$title, meta$kind,
+                      USE.NAMES = FALSE)
+  index_rows <- paste(vapply(seq_len(nrow(meta)), function(i) {
+    sprintf("<a class='figure-index-row' href='#%s' data-kind='%s' data-title='%s'><span>%02d</span><strong>%s</strong><em>%s</em><small>%s</small></a>",
+            .ghs_e(meta$slug[i]), .ghs_e(meta$kind[i]),
+            .ghs_e(tolower(paste(meta$title[i], meta$kind[i]))),
+            i, .ghs_e(meta$title[i]), .ghs_e(meta$kind[i]),
+            .ghs_e(meta$size[i]))
+  }, character(1)), collapse = "")
+  kind_counts <- stats::setNames(tabulate(match(meta$kind, unique(meta$kind))),
+                                 unique(meta$kind))
+  kind_summary <- paste(sprintf("%s %d", names(kind_counts), kind_counts),
+                        collapse = " · ")
+  index <- sprintf(
+    "<section class='figure-index' id='figure-index'><header><span class='kicker'>Figure Index</span><h3>\u56fe\u8868\u7d22\u5f15 \u00b7 \u5feb\u901f\u5b9a\u4f4d %d \u5f20\u56fe</h3><p>%s\u3002\u53ef\u6309\u6807\u9898\u6216\u4e3b\u9898\u641c\u7d22\uff0c\u70b9\u51fb\u6761\u76ee\u4f1a\u8df3\u5230\u5bf9\u5e94 Gallery \u5361\u7247\u3002</p></header><div class='figure-index-tools'><input id='figure-search' type='search' placeholder='\u641c\u7d22 OOPS / map / forecast / \u5730\u56fe \u2026' oninput='filterFigureIndex(this.value)'><span id='figure-index-count'>%d \u5f20\u56fe</span></div><div class='figure-index-list'>%s</div></section>",
+    nrow(meta), .ghs_e(kind_summary), nrow(meta), index_rows
+  )
   card <- function(p) {
     title <- .ghs_pretty(p); kind <- .ghs_kind(title); src <- .ghs_b64(p)
-    sprintf("<article class='gallery-card' data-kind='%s'><button class='gallery-button' type='button' onclick=\"openFigure(this)\" data-title='%s'><img src='%s' alt='%s' loading='lazy'></button><div class='gallery-meta'><span>%s</span><strong>%s</strong><em>%s</em></div></article>",
-            .ghs_e(kind), .ghs_e(title), src, .ghs_e(title),
-            .ghs_e(kind), .ghs_e(title), .ghs_size(p))
+    note <- .ghs_gallery_note(title, kind)
+    sprintf("<article class='gallery-card' id='%s' data-kind='%s' data-title='%s'><button class='gallery-button' type='button' onclick=\"openFigure(this)\" data-title='%s'><img src='%s' alt='%s' loading='lazy'></button><div class='gallery-meta'><span>%s</span><strong>%s</strong><p class='gallery-note'>%s</p><em>%s</em></div></article>",
+            .ghs_e(.ghs_slug(p)), .ghs_e(kind),
+            .ghs_e(tolower(paste(title, kind))), .ghs_e(title),
+            src, .ghs_e(title),
+            .ghs_e(kind), .ghs_e(title), .ghs_e(note), .ghs_size(p))
   }
   cards <- paste(vapply(pngs, card, character(1)), collapse = "")
   kinds <- c("\u5168\u90e8", "\u65f6\u95f4", "\u5206\u5e03", "\u5730\u56fe",
@@ -1712,8 +1817,8 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(k), if (k == "\u5168\u90e8") " class='active'" else "",
             .ghs_e(k))
   }, character(1)), collapse = "")
-  sprintf("<section class='section gallery' id='gallery'><div class='wrap'><header class='section-head'><span class='kicker'>11 \u00b7 Gallery</span><h2>\u9759\u6001\u56fe\u8868\u5e93 \u00b7 %d \u5f20</h2><p class='lead'>\u6309\u4e3b\u9898\u7b5b\u9009\uff1b\u70b9\u51fb\u4efb\u610f\u5361\u7247\u653e\u5927\u67e5\u770b\u539f\u56fe\u3002</p></header><div class='tabs'>%s</div><div class='gallery-grid'>%s</div></div></section>",
-          length(pngs), tabs, cards)
+  sprintf("<section class='section gallery' id='gallery'><div class='wrap'><header class='section-head'><span class='kicker'>11 \u00b7 Gallery</span><h2>\u9759\u6001\u56fe\u8868\u5e93 \u00b7 %d \u5f20</h2><p class='lead'>\u6309\u4e3b\u9898\u7b5b\u9009\uff1b\u70b9\u51fb\u4efb\u610f\u5361\u7247\u653e\u5927\u67e5\u770b\u539f\u56fe\u3002</p></header>%s<div class='tabs'>%s</div><div class='gallery-grid'>%s</div></div></section>",
+          length(pngs), index, tabs, cards)
 }
 
 .ghs_widgets <- function(widget_dir, mode, repo_url) {
@@ -1727,9 +1832,9 @@ if (!exists("%||%", mode = "function")) {
     fallback <- if (mode == "submission")
       sprintf("%s/blob/main/\u5206\u6790\u8f93\u51fa/\u4ea4\u4e92\u7ec4\u4ef6/%s", repo_url, base)
     else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", base)
-    sprintf("<article class='widget-card' data-kind='%s'><header><span class='pill'>%s</span><h3>%s</h3><p>%s \u00b7 standalone HTML</p></header><div class='widget-actions'><button type='button' onclick=\"loadWidgetUrl('%s','%s')\">\u5728\u53f3\u4fa7\u67e5\u770b</button><a href='%s' target='_blank' rel='noreferrer'>\u65b0\u7a97\u6253\u5f00</a></div></article>",
+    sprintf("<article class='widget-card' data-kind='%s'><header><span class='pill'>%s</span><h3>%s</h3><p>%s \u00b7 standalone HTML</p></header><div class='widget-actions'><button type='button' onclick=\"loadWidgetUrl('%s','%s','%s')\">\u5728\u53f3\u4fa7\u67e5\u770b</button><a href='%s' target='_blank' rel='noreferrer'>\u65b0\u7a97\u6253\u5f00</a></div></article>",
             .ghs_e(kind), .ghs_e(kind), .ghs_e(title), .ghs_size(p),
-            .ghs_e(src), .ghs_e(title), .ghs_e(fallback))
+            .ghs_e(src), .ghs_e(title), .ghs_e(fallback), .ghs_e(fallback))
   }
   cards <- paste(vapply(htmls, card, character(1)), collapse = "")
   kinds <- c("\u5168\u90e8", "\u65f6\u95f4", "\u5206\u5e03", "\u5730\u56fe",
@@ -1765,7 +1870,7 @@ if (!exists("%||%", mode = "function")) {
     cmd("\u4e00\u952e\u4ea7\u51fa\u672c\u9875\u4e0e GitHub Pages \u9996\u9875",
         "Rscript \u6784\u5efa.R submission",
         "\u751f\u6210 \u8bfe\u7a0b\u63d0\u4ea4/\u5e84\u9882_20241334.html \u4e0e \u7f51\u7ad9\u53d1\u5e03/index.html\u3002"),
-    cmd("\u542f\u52a8\u4ed4\u8868\u76d8", "Rscript \u542f\u52a8\u4eea\u8868\u76d8.R 4848",
+    cmd("\u542f\u52a8\u4eea\u8868\u76d8", "Rscript \u542f\u52a8\u4eea\u8868\u76d8.R 4848",
         "\u672c\u5730 Shiny \u4eea\u8868\u76d8\uff0812 \u4e2a\u6a21\u5757\uff09\u3002"),
     cmd("\u4e00\u952e\u90e8\u7f72\u5305", "Rscript \u6784\u5efa.R deploy",
         "Quarto \u7ae0\u8282 + shinylive + \u6574\u5408\u9996\u9875 + widget assets\u3002")
@@ -1818,6 +1923,9 @@ if (!exists("%||%", mode = "function")) {
     ".nav{display:flex;justify-content:space-between;align-items:center;padding:6px 0 16px;position:relative}",
     ".brand{font-weight:800;letter-spacing:.16em;font-size:14px;color:#f7eedf;text-decoration:none}",
     ".links{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.links a{color:rgba(247,238,223,.7);font-size:13.5px;text-decoration:none;letter-spacing:.04em;padding:4px 6px;border-radius:6px;transition:color .2s}.links a:hover{color:#fff}.links a.active{color:#fff;background:rgba(247,238,223,.12)}",
+    ".mobile-toc{display:none;position:relative;z-index:4;width:min(1200px,92vw);margin:8px auto 0;border:1px solid rgba(247,238,223,.22);border-radius:18px;background:rgba(247,238,223,.08);backdrop-filter:blur(14px);color:#f7eedf;overflow:hidden}",
+    ".mobile-toc summary{cursor:pointer;padding:12px 16px;font-weight:900;letter-spacing:.08em;list-style:none}.mobile-toc summary::-webkit-details-marker{display:none}",
+    ".mobile-toc-links{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 12px 14px}.mobile-toc-links a{color:rgba(247,238,223,.74);text-decoration:none;border:1px solid rgba(247,238,223,.14);border-radius:999px;padding:7px 10px;font-size:12px;text-align:center}.mobile-toc-links a.active{color:#fff;background:rgba(247,238,223,.16);border-color:rgba(247,238,223,.32)}",
     ".hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:48px;align-items:end;padding-top:72px;position:relative}",
     ".eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid rgba(247,238,223,.28);border-radius:999px;background:rgba(247,238,223,.06);font-size:12px;letter-spacing:.18em;text-transform:uppercase}",
     ".hero h1{font-size:clamp(48px,7vw,96px);line-height:1.02;margin:24px 0 22px;font-weight:700}",
@@ -1888,6 +1996,10 @@ if (!exists("%||%", mode = "function")) {
     ".tabs{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 22px}",
     ".tabs button{border:1px solid var(--line-strong);background:#fff;border-radius:999px;padding:9px 16px;font-weight:800;color:var(--ink);cursor:pointer;font-size:13px}",
     ".tabs button.active{background:var(--ink);color:#fff;border-color:var(--ink)}",
+    ".figure-index{margin:0 0 24px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 16px 40px rgba(13,18,27,.06)}",
+    ".figure-index header{display:grid;gap:6px;margin-bottom:16px}.figure-index h3{margin:0;font-size:24px;color:var(--ink)}.figure-index p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}",
+    ".figure-index-tools{display:flex;gap:12px;align-items:center;margin-bottom:14px}.figure-index-tools input{flex:1;border:1px solid var(--line-strong);border-radius:999px;background:#fbf6ee;padding:11px 16px;color:var(--ink);font:inherit}.figure-index-tools span{color:var(--muted);font-size:13px;font-weight:800;white-space:nowrap}",
+    ".figure-index-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:360px;overflow:auto;padding-right:4px}.figure-index-row{display:grid;grid-template-columns:42px 1fr auto auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fbf6ee;text-decoration:none;color:var(--ink)}.figure-index-row span{font-family:'Source Serif 4',serif;color:var(--orange);font-weight:800}.figure-index-row strong{font-size:13.5px}.figure-index-row em{font-style:normal;font-size:12px;color:var(--blue);font-weight:800}.figure-index-row small{color:var(--muted)}",
     ".gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}",
     ".gallery-card{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 16px 40px rgba(13,18,27,.06);transition:transform .25s ease,box-shadow .25s ease}",
     ".gallery-card:hover{transform:translateY(-4px);box-shadow:0 22px 60px rgba(13,18,27,.12)}",
@@ -1896,6 +2008,7 @@ if (!exists("%||%", mode = "function")) {
     ".gallery-meta{padding:14px 16px 18px;display:flex;flex-direction:column;gap:6px}",
     ".gallery-meta span,.pill{display:inline-flex;background:#f0e3d0;color:#774314;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:900;width:fit-content;letter-spacing:.04em}",
     ".gallery-meta strong{font-family:'Source Serif 4',serif;font-size:16px;color:var(--ink)}",
+    ".gallery-note{margin:2px 0;color:var(--muted);font-size:12.8px;line-height:1.65}",
     ".gallery-meta em{color:var(--muted);font-style:normal;font-size:12px}",
     ".widget-lab{display:grid;grid-template-columns:.86fr 1.14fr;gap:22px;align-items:start}",
     ".widget-list{display:grid;gap:12px;max-height:760px;overflow:auto;padding-right:6px}",
@@ -1910,6 +2023,10 @@ if (!exists("%||%", mode = "function")) {
     ".widget-frame-head{color:#cdd9ee;display:flex;justify-content:space-between;align-items:center;padding:6px 8px 12px;font-size:13px}",
     ".widget-frame-head strong{color:#fff;font-family:'Source Serif 4',serif;font-weight:600}",
     ".widget-frame-wrap iframe{width:100%;height:680px;border:0;border-radius:18px;background:#fff}",
+    ".widget-fallback-banner{margin:0 0 10px;padding:10px 14px;border-radius:12px;background:#fdf3df;color:#774314;font-size:12.5px;line-height:1.55;border:1px solid #e7c98a}",
+    ".widget-fallback-banner.loaded{background:#e7f4ec;color:#1f6f43;border-color:#a8d8b9}",
+    ".widget-fallback-banner.error{background:#fde7e0;color:#a03b27;border-color:#e9b1a1}",
+    ".widget-fallback-banner a{color:inherit;font-weight:700;text-decoration:underline}",
     ".cmd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}",
     ".cmd-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 12px 28px rgba(13,18,27,.06)}",
     ".cmd-card header{padding:14px 18px;background:#fbf6ee;border-bottom:1px solid var(--line);font-weight:800;color:var(--blue)}",
@@ -1934,8 +2051,9 @@ if (!exists("%||%", mode = "function")) {
     ".modal img{max-width:96vw;max-height:86vh;background:#fff;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5)}",
     ".modal button{position:absolute;right:24px;top:20px;border:0;border-radius:999px;padding:10px 16px;font-weight:900;background:#fff;cursor:pointer}",
     ".modal-title{position:absolute;left:28px;top:22px;color:#fff;font-weight:900;font-family:'Source Serif 4',serif;font-size:18px}",
-    "@media(max-width:1080px){.hero-grid,.widget-lab{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.gallery-grid{grid-template-columns:repeat(2,1fr)}.conclusion-grid{grid-template-columns:repeat(2,1fr)}.cmd-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.widget-frame-wrap{position:static}.foot-grid{grid-template-columns:1fr}.country-grid,.atlas-grid{grid-template-columns:1fr}.exec-big-grid{grid-template-columns:repeat(2,1fr)}.sim-grid{grid-template-columns:1fr}}",
-    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.links{display:none}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}}",
+    "@media(max-width:1080px){.hero-grid,.widget-lab{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.gallery-grid{grid-template-columns:repeat(2,1fr)}.conclusion-grid{grid-template-columns:repeat(2,1fr)}.cmd-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.widget-frame-wrap{position:static}.foot-grid{grid-template-columns:1fr}.country-grid,.atlas-grid{grid-template-columns:1fr}.exec-big-grid{grid-template-columns:repeat(2,1fr)}.sim-grid{grid-template-columns:1fr}.figure-index-list{grid-template-columns:1fr}}",
+    "@media(max-width:760px){.links{display:none}.mobile-toc{display:block}.mobile-toc-links{grid-template-columns:repeat(2,1fr)}.figure-index-tools{align-items:stretch;flex-direction:column}.figure-index-row{grid-template-columns:34px 1fr auto}.figure-index-row small{display:none}.widget-lab{grid-template-columns:1fr;gap:14px}.widget-list{max-height:none;padding-right:0}.widget-frame-wrap{position:static}.widget-frame-wrap iframe{height:520px}}",
+    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}}",
     ".top-bar{position:fixed;left:0;right:0;top:0;height:3px;background:rgba(13,18,27,.06);z-index:60;pointer-events:none}",
     "#read-progress{height:100%;width:0;background:linear-gradient(90deg,#c46327,#1d3f5f);transition:width .12s linear}",
     ".theme-toggle{margin-left:14px;border:1px solid rgba(247,238,223,.3);background:rgba(247,238,223,.08);color:#f7eedf;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center}",
@@ -1944,7 +2062,8 @@ if (!exists("%||%", mode = "function")) {
     "html[data-theme='dark'] .section{border-top-color:rgba(255,255,255,.08)}",
     "html[data-theme='dark'] .section .lead,html[data-theme='dark'] .kpi-note,html[data-theme='dark'] .gallery-meta em{color:#9aa3b3}",
     "html[data-theme='dark'] .kpi-section,html[data-theme='dark'] .conclusion,html[data-theme='dark'] .finding:nth-of-type(odd){background:#11161f}",
-    "html[data-theme='dark'] .kpi,html[data-theme='dark'] .conc-card,html[data-theme='dark'] .gallery-card,html[data-theme='dark'] .cmd-card,html[data-theme='dark'] .widget-card,html[data-theme='dark'] .exec-big,html[data-theme='dark'] .country-card,html[data-theme='dark'] .table-wrap,html[data-theme='dark'] .method-block,html[data-theme='dark'] .callout,html[data-theme='dark'] .limit-note,html[data-theme='dark'] .widget-link{background:#161c2a;color:#e7e9ee;border-color:rgba(255,255,255,.08);box-shadow:none}",
+    "html[data-theme='dark'] .kpi,html[data-theme='dark'] .conc-card,html[data-theme='dark'] .gallery-card,html[data-theme='dark'] .cmd-card,html[data-theme='dark'] .widget-card,html[data-theme='dark'] .exec-big,html[data-theme='dark'] .country-card,html[data-theme='dark'] .table-wrap,html[data-theme='dark'] .method-block,html[data-theme='dark'] .callout,html[data-theme='dark'] .limit-note,html[data-theme='dark'] .widget-link,html[data-theme='dark'] .figure-index{background:#161c2a;color:#e7e9ee;border-color:rgba(255,255,255,.08);box-shadow:none}",
+    "html[data-theme='dark'] .figure-index-row,html[data-theme='dark'] .figure-index-tools input{background:#11161f;border-color:rgba(255,255,255,.10);color:#e7e9ee}",
     "html[data-theme='dark'] .kpi-value,html[data-theme='dark'] .conc-card span{color:#f7c08a}",
     "html[data-theme='dark'] .table-wrap th{background:#1a2030;color:#e7e9ee}",
     "html[data-theme='dark'] .table-wrap td,html[data-theme='dark'] .table-wrap th{border-bottom-color:rgba(255,255,255,.08)}",
@@ -2060,14 +2179,15 @@ if (!exists("%||%", mode = "function")) {
   paste(c(
     "function filterFigures(k,b){document.querySelectorAll('.gallery .tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.gallery-card').forEach(c=>{c.style.display=(k==='\u5168\u90e8'||c.dataset.kind===k)?'block':'none'});}",
     "function filterWidgets(k,b){document.querySelectorAll('.widgets .tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.widget-card').forEach(c=>{c.style.display=(k==='\u5168\u90e8'||c.dataset.kind===k)?'flex':'none'});}",
+    "function filterFigureIndex(q){q=(q||'').trim().toLowerCase();var n=0;document.querySelectorAll('.figure-index-row').forEach(function(r){var hay=((r.dataset.title||'')+' '+(r.dataset.kind||'')+' '+r.textContent).toLowerCase();var ok=!q||hay.indexOf(q)>=0;r.style.display=ok?'grid':'none';if(ok)n++;});var c=document.getElementById('figure-index-count');if(c)c.textContent=n+' \u5f20\u56fe';}",
     "function openFigure(btn){var img=btn.querySelector('img');document.getElementById('modal-img').src=img.src;document.getElementById('modal-title').textContent=btn.dataset.title||img.alt;document.getElementById('fig-modal').classList.add('open');}",
     "function closeFigure(){document.getElementById('fig-modal').classList.remove('open');}",
-    "function loadWidgetUrl(url,title){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');f.src=url;f.scrollIntoView({behavior:'smooth',block:'center'});}",
+    "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;f.scrollIntoView({behavior:'smooth',block:'center'});}",
     "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFigure();});",
     "function toggleTheme(){var html=document.documentElement;var cur=html.getAttribute('data-theme')||'light';var nxt=cur==='light'?'dark':'light';html.setAttribute('data-theme',nxt);try{localStorage.setItem('ghs-theme',nxt);}catch(e){}var btn=document.querySelector('.theme-toggle');if(btn)btn.textContent=nxt==='dark'?'\u263d':'\u2600';}",
     "(function(){try{var t=localStorage.getItem('ghs-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var btn=document.querySelector('.theme-toggle');if(btn)btn.textContent='\u263d';}}catch(e){}})();",
     "(function(){var bar=document.getElementById('read-progress');if(!bar)return;function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;bar.style.width=(s/max*100)+'%';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.links a[href^=\"#\"]');if(!links.length)return;var ids=[].map.call(links,function(a){return a.getAttribute('href').slice(1);});function spy(){var pos=window.scrollY+120;var cur=null;ids.forEach(function(id){var el=document.getElementById(id);if(el&&el.offsetTop<=pos)cur=id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}window.addEventListener('scroll',spy,{passive:true});spy();})();",
+    "(function(){var links=document.querySelectorAll('.links a[href^=\"#\"],.mobile-toc-links a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+140;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('mobile-toc');if(d)d.open=false;});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",

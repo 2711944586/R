@@ -6,7 +6,15 @@
 mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128205; 国家 Country"),
+    title = htmltools::HTML("&#128205; \u56fd\u5bb6 Country"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("\u56fd\u5bb6\u753b\u50cf"),
+      htmltools::p(class = "text-muted",
+                   paste("\u9009\u62e9\u4e00\u4e2a\u56fd\u5bb6\u67e5\u770b\u5176 24 \u5e74\u603b\u989d / \u4eba\u5747 / \u4e09\u6e90\u7ed3\u6784 / \u7b79\u8d44\u65b9\u6848 / \u9884\u9632 vs \u6cbb\u7597\u3002",
+                         "\u56db\u4e2a Tab \u4e3b\u9898\u9762\u677f\u53ef\u5212\u8fc7\u6bd4\u8f83\u3002",
+                         "\u4e0a\u65b9 4 \u4e2a KPI \u662f\u9009\u4e2d\u533a\u95f4\u672b\u5e74\u4ee3\u8868\u503c\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

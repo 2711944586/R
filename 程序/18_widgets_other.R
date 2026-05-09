@@ -295,6 +295,13 @@ ghs_export_v2_widgets_other <- function(master, world_sf = NULL,
     tryCatch({
       htmlwidgets::saveWidget(p, file = f, selfcontained = TRUE,
                                 title = j$id)
+      if (exists("ghs_widget_shell", mode = "function") &&
+          exists("ghs_widget_label", mode = "function")) {
+        shell_fn <- get("ghs_widget_shell", mode = "function")
+        label_fn <- get("ghs_widget_label", mode = "function")
+        shell_fn(f, title = label_fn(j$id),
+                 source = "WHO GHED · 程序/18_widgets_other.R")
+      }
       if (verbose) cat("[v2_widget]", j$id, "saved\n")
       ok <- ok + 1
     }, error = function(e) {

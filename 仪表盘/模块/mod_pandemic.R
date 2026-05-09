@@ -6,7 +6,15 @@
 mod_pandemic_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#129516; 韧性 Pandemic"),
+    title = htmltools::HTML("&#129516; \u97e7\u6027 Pandemic"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("COVID \u51b2\u51fb\u4e0b\u7684\u97e7\u6027\u8bc4\u4ef7"),
+      htmltools::p(class = "text-muted",
+                   paste("\u5bf9\u6bd4 2019 \u4e0e 2022 \u7684\u4e09\u6e90\u7ed3\u6784\u53d8\u5316\uff1a",
+                         "\u5de6\u56fe\u662f \u0394 GGHE-D % vs \u0394 OOPS % \u6563\u70b9\uff0c\u53f3\u56fe\u662f Top N \u53d8\u5316 dumbbell\u3002",
+                         "\u4e0b\u65b9\u8868\u683c\u4ee5 \u0394GGHE - \u0394OOPS \u4e3a\u97e7\u6027\u5f97\u5206\uff08\u8d8a\u9ad8\u8d8a\u80fd\u516c\u5171\u8d22\u653f\u6258\u5e95\uff09\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

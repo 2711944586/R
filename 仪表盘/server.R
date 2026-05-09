@@ -10,7 +10,8 @@ function(input, output, session) {
   })
 
   # ---- 12 模块 server -----------------------------------------------------
-  mod_overview_server("overview", master_r, world_sf_obj, year_max)
+  mod_overview_server("overview", master_r, world_sf_obj, year_max,
+                      parent_session = session)
   mod_country_server("country", master_r)
   mod_equity_server("equity", master_r, year_max)
   mod_efficiency_server("efficiency", master_r)
