@@ -184,12 +184,15 @@ jobs:
 
   # ---------- (3) Deploy Shiny to shinyapps.io (optional) ----------
   deploy-shinyapps:
-    if: github.repository_owner != '' && success()
+    if: success()
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: build
     env:
       RSPM: https://packagemanager.posit.co/cran/__linux__/jammy/latest
+      SHINYAPPS_NAME:   ${{ secrets.SHINYAPPS_NAME }}
+      SHINYAPPS_TOKEN:  ${{ secrets.SHINYAPPS_TOKEN }}
+      SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
@@ -212,25 +215,62 @@ jobs:
             any::rsconnect
             any::shiny
             any::bslib
+            any::readr
+            any::readxl
+            any::wbstats
+            any::httr
             any::dplyr
             any::tidyr
             any::ggplot2
             any::scales
+            any::stringr
+            any::forcats
+            any::purrr
+            any::ggrepel
+            any::patchwork
+            any::ggridges
             any::plotly
             any::leaflet
             any::DT
             any::reactable
+            any::htmlwidgets
+            any::htmltools
             any::shinyWidgets
             any::shinycssloaders
             any::countrycode
             any::sf
+            any::rnaturalearth
+            any::rnaturalearthdata
+            any::ineq
+            any::changepoint
+            any::fixest
+            any::broom
+            any::forecast
+            any::jsonlite
+            any::arrow
+
+      - name: Prepare portable Shiny app bundle
+        run: |
+          Rscript -e '
+          for (f in list.files("程序", pattern="\\.R$", full.names=TRUE)) source(f, encoding="UTF-8")
+          dir.create("派生数据/处理结果", recursive=TRUE, showWarnings=FALSE)
+          if (!file.exists("派生数据/处理结果/master_enriched.rds")) {
+            ghs <- load_ghs()
+            master <- enrich_master(build_master_wide(ghs), with_wdi = TRUE)
+            saveRDS(master, "派生数据/处理结果/master_enriched.rds")
+          }
+          if (dir.exists("仪表盘/程序库")) unlink("仪表盘/程序库", recursive=TRUE, force=TRUE)
+          dir.create("仪表盘/程序库", recursive=TRUE, showWarnings=FALSE)
+          file.copy(list.files("程序", pattern="\\.R$", full.names=TRUE),
+                    "仪表盘/程序库", overwrite=TRUE)
+          dir.create("仪表盘/数据快照", recursive=TRUE, showWarnings=FALSE)
+          file.copy("派生数据/处理结果/master_enriched.rds",
+                    "仪表盘/数据快照/snapshot.rds", overwrite=TRUE)
+          cat("[ci] portable shiny bundle prepared\n")
+          '
 
       - name: Deploy to shinyapps.io
-        if: env.SHINYAPPS_NAME != ''
-        env:
-          SHINYAPPS_NAME:   ${{ secrets.SHINYAPPS_NAME }}
-          SHINYAPPS_TOKEN:  ${{ secrets.SHINYAPPS_TOKEN }}
-          SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
+        if: env.SHINYAPPS_NAME != '' && env.SHINYAPPS_TOKEN != '' && env.SHINYAPPS_SECRET != ''
         run: |
           Rscript -e '
           if (nchar(Sys.getenv("SHINYAPPS_NAME")) == 0) {
@@ -243,13 +283,14 @@ jobs:
             secret = Sys.getenv("SHINYAPPS_SECRET")
           )
           rsconnect::deployApp(
-            appDir        = ".",
-            appPrimaryDoc = "仪表盘/ui.R",
+            appDir        = "仪表盘",
             appName       = "ghs-dashboard-v2",
-            appFiles      = c(
-              list.files("仪表盘", recursive=TRUE, full.names=TRUE),
-              list.files("程序", pattern="\\.R$", full.names=TRUE),
-              "派生数据/处理结果/master_enriched.rds"
-            ),
+            appFiles      = list.files("仪表盘", recursive=TRUE, full.names=FALSE),
             forceUpdate   = TRUE
           )'
+
+      - name: Explain skipped shinyapps.io deployment
+        if: env.SHINYAPPS_NAME == '' || env.SHINYAPPS_TOKEN == '' || env.SHINYAPPS_SECRET == ''
+        run: |
+          echo "[ci] shinyapps.io deploy skipped because one or more secrets are missing."
+          echo "[ci] Required: SHINYAPPS_NAME, SHINYAPPS_TOKEN, SHINYAPPS_SECRET."

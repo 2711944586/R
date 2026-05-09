@@ -9,17 +9,17 @@
 
 | 用途 | 路径 | 大小 | 说明 |
 |---|---|---|---|
-| **课程提交** | `课程提交/庄颂_20241334.html` | ~13 MB | 自包含图表 base64；交互组件经相对路径或仓库链接打开。 |
-| **GitHub Pages 首页** | `网站发布/index.html` | ~13 MB | 与提交版同源；交互组件由 `网站发布/交互组件/` 提供。 |
+| **课程提交** | `课程提交/庄颂_20241334.html` | ~26 MB | 自包含图表 base64；交互组件经相对路径或仓库链接打开。 |
+| **GitHub Pages 首页** | `网站发布/index.html` | ~26 MB | 与提交版同源；交互组件由 `网站发布/交互组件/` 提供。 |
 | **课程提交 Rmd** | `课程提交/庄颂_20241334.Rmd` | < 1 KB | 一键调用生成器；可直接 knit 复现。 |
 
-页面组织（**14 个章节**，统一品牌设计）：
+页面组织（**36 个内容章节**，统一品牌设计）：
 
 1. **Hero** —— 项目元数据与四段导航
 2. **01 · Snapshot** —— 8 张 KPI（覆盖国家、CHE 总额、年化增速、OOPS 等）
 3. **02 · Data & Methods** —— 真实 R 代码（io / clean / enrich / metrics）
-4. **F1–F8 · 八项核心发现** —— 每项含：研究问题 · 方法 · R 代码 · 原图 · 数据表 · 深度解读 · 数值 chips
-5. **11 · Gallery** —— 44 张静态图，按主题（时间/分布/地图/结构/模型/指标/综合）筛选
+4. **F1–F14 · 十四项核心发现** —— 每项含：研究问题 · 方法 · R 代码 · 原图 · 数据表 · 深度解读 · 数值 chips
+5. **11 · Gallery** —— 50 张主体静态图，按主题（时间/分布/地图/结构/模型/指标/综合）筛选
 6. **12 · Interactive lab** —— 24 个 standalone widget，懒加载 iframe
 7. **13 · Reproducibility** —— 8 条一键命令
 8. **14 · Conclusion** —— 6 条政策建议 + 3 条研究局限
@@ -31,7 +31,7 @@
 ```bash
 Rscript 安装依赖.R
 Rscript 构建.R data        # 派生数据/处理结果/master_enriched.rds
-Rscript 构建.R figures     # 分析输出/图表/*.png + .svg（44 张）
+Rscript 构建.R figures     # 分析输出/图表/*.png + .svg（50+ 张）
 Rscript 构建.R widgets     # 分析输出/交互组件/*.html（24 个）
 Rscript 构建.R models      # 分析输出/模型表/*.csv | *.rds（17 张）
 Rscript 构建.R submission  # 课程提交/庄颂_20241334.html + 网站发布/index.html
@@ -118,6 +118,7 @@ Rscript 启动仪表盘.R 4848  # 本地 Shiny（12 模块）
 | `程序/19_narrative.R` | Quarto 叙事辅助函数。 |
 | `程序/20_deploy.R` | 部署辅助：复制组件、生成 sitemap、体积报告、缓存预热。 |
 | `程序/21_static_showcase.R` | 生成新版整合静态展示页和课程提交 HTML。 |
+| `程序/22_plots_extra.R` | 扩展图集与高级分析图：分位回归、变点、SDG-3、排名变迁、聚类画像等。 |
 
 ## 六、Shiny 仪表盘
 
@@ -154,10 +155,8 @@ Rscript 启动仪表盘.R 4848
 | `报告书/A0-methodology.qmd` | 方法附录。 |
 | `报告书/references.qmd` / `references.bib` | 参考文献。 |
 | `网站发布/index.html` | GitHub Pages 入口；当前由 `Rscript 构建.R submission` 生成整合展示页。 |
-| `网站发布/完整静态展示.html` | 与首页同版的备用入口。 |
 | `网站发布/仪表盘/` | shinylive 版本 Shiny。 |
 | `网站发布/交互组件/` | 复制后的 standalone HTML 交互组件及依赖资源。 |
-| `网站发布/site_libs/` | Quarto HTML 依赖。 |
 
 渲染：
 
@@ -166,7 +165,7 @@ quarto render 报告书
 Rscript 构建.R submission
 ```
 
-说明：GitHub Actions 会先渲染 Quarto Book，再执行 `Rscript 构建.R submission`，因此线上首页会使用最终整合展示页，而 Quarto 章节 HTML 仍保留在 `网站发布/` 中。
+说明：GitHub Actions 会先准备 Shiny / shinylive 资源，再执行 `Rscript 构建.R submission`，因此线上首页会使用最终整合展示页。
 
 ## 八、输出目录
 
@@ -183,7 +182,6 @@ Rscript 构建.R submission
 |---|---|
 | `课程提交/庄颂_20241334.Rmd` | 课程要求的 RMarkdown 源文件；现在作为最终展示页生成入口。 |
 | `课程提交/庄颂_20241334.html` | 课程要求的 HTML 结果文件，图表内嵌，交互组件按相对路径加载。 |
-| `课程提交/庄颂_20241334_完整静态展示.html` | 全内嵌可转发版，约 131 MB，不提交 GitHub。 |
 | `探索分析/01_eda.qmd` | 探索性分析：缺失、分布、异常值、相关性。 |
 
 ## 十、开发脚本
@@ -271,6 +269,7 @@ docker compose -f 部署配置/docker-compose.yml up -d
 | 路径 | 用途 |
 |---|---|
 | `项目文档/项目方案.md` | 20× 项目方案、阶段计划与验收标准。 |
+| `项目文档/高标准审核与升级建议.md` | 本轮高标准审核、bug 清单、已修复项、10× 提升建议与复核清单。 |
 | `项目文档/变更记录.md` | 历史变更与已修复问题。 |
 | `项目文档/部署总览.md` | 本地、Docker、CI/CD 总览。 |
 | `项目文档/部署_GitHub_Pages.md` | GitHub Pages 静态站部署教程。 |
@@ -299,8 +298,7 @@ git push -u origin main
 
 注意：
 
-- `课程提交/庄颂_20241334_完整静态展示.html` 超过 100 MB，已被 `.gitignore` 忽略，避免 GitHub push 被拒。
-- 根目录课程说明 `.docx` 如果仍被 Word/WPS 占用，可关闭占用程序后手动删除；项目文档目录内已有副本。
+- 根目录课程说明 `.docx` 已由 `.gitignore` 排除；项目文档目录内保留课程说明副本。
 
 ## 十五、关键约束
 

@@ -22,6 +22,11 @@ plot_source_area <- function(master,
                              subtitle = NULL) {
   ensure_pkgs(c("dplyr", "tidyr", "ggplot2", "scales"))
   has_pop <- "pop" %in% names(master) && any(is.finite(master$pop))
+  safe_wmean <- function(x, w) {
+    ok <- is.finite(x) & is.finite(w) & w > 0
+    if (!any(ok)) return(mean(x, na.rm = TRUE))
+    stats::weighted.mean(x[ok], w[ok], na.rm = TRUE)
+  }
   if (is.null(subtitle)) {
     subtitle <- if (has_pop) {
       "2000\u20132023 \u00b7 \u6309\u4eba\u53e3\u52a0\u6743\u5747\u503c\uff0c\u5360\u603b\u5f00\u652f % of CHE"
@@ -33,13 +38,13 @@ plot_source_area <- function(master,
     dplyr::group_by(.data$year) |>
     dplyr::summarise(
       gghed = if (has_pop) {
-        stats::weighted.mean(.data$gghed_che, .data$pop, na.rm = TRUE)
+        safe_wmean(.data$gghed_che, .data$pop)
       } else mean(.data$gghed_che, na.rm = TRUE),
       pvtd  = if (has_pop) {
-        stats::weighted.mean(.data$pvtd_che, .data$pop, na.rm = TRUE)
+        safe_wmean(.data$pvtd_che, .data$pop)
       } else mean(.data$pvtd_che, na.rm = TRUE),
       ext   = if (has_pop) {
-        stats::weighted.mean(.data$ext_che, .data$pop, na.rm = TRUE)
+        safe_wmean(.data$ext_che, .data$pop)
       } else mean(.data$ext_che, na.rm = TRUE),
       .groups = "drop"
     ) |>
@@ -486,19 +491,68 @@ plot_stream_continent <- function(master,
 #' Ternary plot: hf1 / hf2 / hf3 三元组
 plot_ternary_schemes <- function(master, year_focus = 2022,
                                   title = NULL) {
-  if (!requireNamespace("ggtern", quietly = TRUE)) {
-    warning("ggtern not installed; returning placeholder")
-    return(ggplot2::ggplot() +
-             ggplot2::annotate("text", x = 1, y = 1,
-                               label = "ggtern not installed") +
-             theme_ghs())
-  }
   d <- master |>
     dplyr::filter(.data$year == year_focus,
                   is.finite(.data$hf1_che),
                   is.finite(.data$hf2_che),
                   is.finite(.data$hf3_che),
                   !is.na(.data$continent))
+  if (!nrow(d)) return(NULL)
+  if (!requireNamespace("ggtern", quietly = TRUE)) {
+    total <- d$hf1_che + d$hf2_che + d$hf3_che
+    d <- d[is.finite(total) & total > 0, , drop = FALSE]
+    total <- d$hf1_che + d$hf2_che + d$hf3_che
+    d$a <- d$hf1_che / total
+    d$b <- d$hf2_che / total
+    d$c <- d$hf3_che / total
+    d$tx <- d$b + 0.5 * d$c
+    d$ty <- d$c * sqrt(3) / 2
+    tri <- data.frame(x = c(0, 1, 0.5, 0),
+                      y = c(0, 0, sqrt(3) / 2, 0))
+    label_data <- d |>
+      dplyr::slice_max(.data$hf3_che, n = 10)
+    label_layer <- if (requireNamespace("ggrepel", quietly = TRUE)) {
+      ggrepel::geom_text_repel(
+        data = label_data,
+        ggplot2::aes(label = .data$iso3_code),
+        size = 3, colour = "#0d121b", max.overlaps = 12
+      )
+    } else {
+      ggplot2::geom_text(
+        data = label_data,
+        ggplot2::aes(label = .data$iso3_code),
+        size = 3, colour = "#0d121b", vjust = -0.7
+      )
+    }
+    ggplot2::ggplot(d, ggplot2::aes(.data$tx, .data$ty,
+                                     colour = .data$continent)) +
+      ggplot2::geom_path(data = tri, ggplot2::aes(.data$x, .data$y),
+                         inherit.aes = FALSE, linewidth = 0.8,
+                         colour = "#1d3f5f") +
+      ggplot2::geom_point(size = 2.4, alpha = 0.82) +
+      label_layer +
+      ggplot2::annotate("text", x = -0.03, y = -0.03,
+                        label = "HF1 政府", hjust = 0, size = 3.8,
+                        colour = "#1d3f5f", fontface = "bold") +
+      ggplot2::annotate("text", x = 1.03, y = -0.03,
+                        label = "HF2 社保", hjust = 1, size = 3.8,
+                        colour = "#1d3f5f", fontface = "bold") +
+      ggplot2::annotate("text", x = 0.5, y = sqrt(3) / 2 + 0.04,
+                        label = "HF3 OOPS", hjust = 0.5, size = 3.8,
+                        colour = "#c46327", fontface = "bold") +
+      scale_colour_ghs_continent() +
+      ggplot2::coord_equal(xlim = c(-0.07, 1.07),
+                           ylim = c(-0.07, sqrt(3) / 2 + 0.08),
+                           clip = "off") +
+      labs_ghs(
+        title = title %||% sprintf("%d HF1 · HF2 · HF3 三角坐标投影", year_focus),
+        subtitle = "无需 ggtern 的 barycentric fallback；点越靠上，OOPS 占比越高。",
+        x = NULL, y = NULL
+      ) +
+      theme_ghs(grid = FALSE) +
+      ggplot2::theme(axis.text = ggplot2::element_blank(),
+                     axis.ticks = ggplot2::element_blank())
+  } else {
   ggtern::ggtern(d, ggtern::aes(x = .data$hf1_che,
                                   y = .data$hf2_che,
                                   z = .data$hf3_che,
@@ -513,6 +567,7 @@ plot_ternary_schemes <- function(master, year_focus = 2022,
       z = "HF3 OOPS",
       caption = ghs_caption_bi()
     )
+  }
 }
 
 #' 国家 × 年份 OOPS 热力图（按大洲分面）
@@ -575,17 +630,36 @@ plot_pc_ridges_income <- function(master, year_focus = 2022, title = NULL) {
 
 #' Treemap: 2023 年各国 CHE 绝对规模
 plot_che_treemap <- function(master, year_focus = 2022, title = NULL) {
-  if (!requireNamespace("treemapify", quietly = TRUE)) {
-    warning("treemapify not installed; returning placeholder")
-    return(ggplot2::ggplot() +
-             ggplot2::annotate("text", x = 1, y = 1,
-                               label = "treemapify not installed") +
-             theme_ghs())
-  }
   d <- master |>
     dplyr::filter(.data$year == year_focus,
                   is.finite(.data$che_usd2023),
                   !is.na(.data$continent))
+  if (!nrow(d)) return(NULL)
+  if (!requireNamespace("treemapify", quietly = TRUE)) {
+    d <- d |>
+      dplyr::slice_max(.data$che_usd2023, n = 30) |>
+      dplyr::mutate(country_name = forcats::fct_reorder(.data$country_name,
+                                                        .data$che_usd2023))
+    return(
+      ggplot2::ggplot(d, ggplot2::aes(.data$che_usd2023, .data$country_name,
+                                      fill = .data$continent)) +
+        ggplot2::geom_col(width = 0.72, alpha = 0.92) +
+        ggplot2::geom_text(ggplot2::aes(label = scales::dollar(.data$che_usd2023,
+                                                               scale = 1e-9,
+                                                               suffix = "B")),
+                           hjust = -0.08, size = 3.2, colour = "#0d121b") +
+        ggplot2::scale_x_continuous(labels = scales::label_dollar(scale = 1e-9,
+                                                                    suffix = "B"),
+                                    expand = ggplot2::expansion(mult = c(0, 0.14))) +
+        scale_fill_ghs_continent() +
+        labs_ghs(
+          title = title %||% sprintf("%d 各国 CHE 绝对规模 Top 30", year_focus),
+          subtitle = "treemapify 不可用时自动降级为横向排名条形图；长度 ∝ 总 CHE (USD 2023)。",
+          x = "总 CHE (十亿美元，USD2023)", y = NULL
+        ) +
+        theme_ghs(grid = "x")
+    )
+  }
   ggplot2::ggplot(d,
                   ggplot2::aes(area = .data$che_usd2023,
                                 fill = .data$continent,
@@ -948,13 +1022,6 @@ plot_waffle_purpose <- function(master, year_focus = 2022,
                                   isos = c("USA", "DEU", "CHN", "BRA",
                                             "IND", "ZAF"),
                                   title = NULL) {
-  if (!requireNamespace("waffle", quietly = TRUE)) {
-    warning("waffle not installed; returning placeholder")
-    return(ggplot2::ggplot() +
-             ggplot2::annotate("text", x = 1, y = 1,
-                               label = "waffle not installed") +
-             theme_ghs())
-  }
   ensure_pkgs(c("dplyr"))
   d <- master |>
     dplyr::filter(.data$iso3_code %in% isos,
@@ -972,6 +1039,44 @@ plot_waffle_purpose <- function(master, year_focus = 2022,
     tidyr::pivot_longer(c("curative", "preventive", "other"),
                          names_to = "purpose",
                          values_to = "value")
+  if (!requireNamespace("waffle", quietly = TRUE)) {
+    wide <- tidyr::pivot_wider(d, names_from = "purpose", values_from = "value")
+    tiles <- do.call(rbind, lapply(seq_len(nrow(wide)), function(i) {
+      row <- wide[i, , drop = FALSE]
+      purpose <- c(rep("curative", row$curative),
+                   rep("preventive", row$preventive),
+                   rep("other", row$other))
+      purpose <- purpose[seq_len(min(100, length(purpose)))]
+      if (length(purpose) < 100) purpose <- c(purpose, rep("other", 100 - length(purpose)))
+      data.frame(country_name = row$country_name,
+                 tile = seq_len(100),
+                 x = ((seq_len(100) - 1) %% 10) + 1,
+                 y = 10 - ((seq_len(100) - 1) %/% 10),
+                 purpose = purpose)
+    }))
+    return(
+      ggplot2::ggplot(tiles, ggplot2::aes(.data$x, .data$y,
+                                          fill = .data$purpose)) +
+        ggplot2::geom_tile(width = 0.88, height = 0.88, colour = "white",
+                           linewidth = 0.2) +
+        ggplot2::facet_wrap(~ .data$country_name, ncol = 3) +
+        ggplot2::scale_fill_manual(
+          values = c(curative = "#1B5E88", preventive = "#2E8B57",
+                     other = "#d7d1c6"),
+          labels = c(curative = "治疗 hc1",
+                     preventive = "预防 hc6",
+                     other = "其他")
+        ) +
+        ggplot2::coord_equal() +
+        labs_ghs(title = title %||% sprintf(
+          "%d 治疗 vs 预防 · 100 格矩阵", year_focus),
+          subtitle = "每格 = 1% of CHE；无需 waffle 包的稳定 fallback。",
+          x = NULL, y = NULL) +
+        theme_ghs(grid = FALSE) +
+        ggplot2::theme(axis.text = ggplot2::element_blank(),
+                       axis.ticks = ggplot2::element_blank())
+    )
+  }
   ggplot2::ggplot(d,
                   ggplot2::aes(fill = .data$purpose, values = .data$value)) +
     waffle::geom_waffle(n_rows = 5, size = 0.4,

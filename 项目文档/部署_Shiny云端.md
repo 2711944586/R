@@ -58,19 +58,14 @@ rsconnect::setAccountInfo(
 
 # 2) 部署
 rsconnect::deployApp(
-  appDir        = '.',               # 仓库根
-  appPrimaryDoc = '仪表盘/ui.R',
+  appDir        = '仪表盘',
   appName       = 'ghs-dashboard-v2',
-  appFiles      = c(
-    list.files('仪表盘', recursive = TRUE, full.names = TRUE),
-    list.files('程序',   pattern = '\\.R$', full.names = TRUE),
-    '派生数据/处理结果/master_enriched.rds'
-  ),
+  appFiles      = list.files('仪表盘', recursive = TRUE, full.names = FALSE),
   forceUpdate   = TRUE
 )
 ```
 
-首次会上传 + 构建（约 5-10 分钟）。完成后会自动打开 URL。
+部署前需把 `程序/*.R` 复制到 `仪表盘/程序库/`，并把 `派生数据/处理结果/master_enriched.rds` 复制为 `仪表盘/数据快照/snapshot.rds`。GitHub Actions 已自动完成这一步；手动部署时可先运行 `Rscript 构建.R data` 后照此复制。首次会上传 + 构建（约 5-10 分钟）。完成后会自动打开 URL。
 
 ---
 
@@ -91,7 +86,7 @@ rsconnect::deployApp(
 
 ### 5.2 推送触发
 
-本项目的 `.github/workflows/deploy.yml` 里 `deploy-shinyapps` job 已写好 —— 只要 3 个 secret 齐了、`build` job 成功，就会自动跑。
+本项目的 `.github/workflows/deploy.yml` 里 `deploy-shinyapps` job 已写好 —— 只要 3 个 secret 齐了、`build` job 成功，就会自动准备可移植 Shiny 包并部署 `仪表盘/`。
 
 ```bash
 git push origin main
@@ -110,8 +105,8 @@ git push origin main
 本项目已在 `仪表盘/数据快照/` 存快照。**不要** 在 app 里算大表，让 RDS 做 fast path：
 
 ```r
-# 仪表盘/global.R
-master <- readRDS('派生数据/处理结果/master_enriched.rds')
+# 仪表盘/global.R 会优先读取：
+master <- readRDS('数据快照/snapshot.rds')
 ```
 
 ### 6.2 裁剪依赖包
@@ -152,8 +147,8 @@ suppressPackageStartupMessages({
 ### ❌ 部署成功但打开白屏
 
 1. 右上角 **Logs** → 看报错堆栈。
-2. 常见：`master_enriched.rds` 没打包进去 → 检查 `appFiles` 参数。
-3. 常见：`source("程序/xxx.R")` 用了绝对路径 → 改相对路径。
+2. 常见：`snapshot.rds` 没打包进去 → 检查 `仪表盘/数据快照/snapshot.rds`。
+3. 常见：`程序库/` 没打包进去 → 检查 `仪表盘/程序库/*.R`。
 
 ### ❌ CI 里 secret 没生效
 
@@ -165,11 +160,7 @@ suppressPackageStartupMessages({
 删掉大文件：`派生数据/原始缓存/*.parquet`、`分析输出/交互组件/*.html`（这些不是 Shiny 运行必需的）。
 
 ```r
-appFiles = c(
-  list.files("仪表盘", recursive=TRUE, full.names=TRUE),
-  list.files("程序",   pattern="\\.R$", full.names=TRUE),
-  "派生数据/处理结果/master_enriched.rds"   # 只需要这一份
-)
+appFiles = list.files("仪表盘", recursive = TRUE, full.names = FALSE)
 ```
 
 ---
