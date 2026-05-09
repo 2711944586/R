@@ -1,6 +1,6 @@
-# 🚀 部署教程 · GitHub Pages 发布 Quarto Book
+# 🚀 部署教程 · GitHub Pages 发布整合静态站
 
-> 目标：把本项目的 **Quarto Book（12 章叙事）** 自动发布成一个可公开访问的网站。
+> 目标：把本项目的 **最终整合静态展示页 + Quarto 章节 + shinylive 仪表盘 + 交互组件** 自动发布成一个可公开访问的网站。
 > 最终 URL 形如：`https://<你的用户名>.github.io/<仓库名>/`。
 > **零本地运行**：用户只需点链接就能看到全部图表和内容。
 
@@ -33,7 +33,7 @@
 
 本项目 workflow 已写好在 `.github/workflows/deploy.yml`，触发条件：
 
-- **push 到 `main` 且改动了 `程序/` / `报告书/` / `仪表盘/` / `_targets.R`**
+- **push 到 `main` 且改动了 `程序/` / `报告书/` / `仪表盘/` / `课程提交/` / `分析输出/` / `构建.R` / `_targets.R`**
 - 也可手动在 Actions 页面点 **Run workflow**
 
 ```bash
@@ -66,10 +66,10 @@ https://<username>.github.io/<repo-name>/
 
 打开后你应该看到：
 
-- **Hero** — 封面大标题 + 关键 KPI 卡片
-- **12 章叙事** — 左侧目录可跳转
-- **顶部 Dashboard 链接** — 通向 `/仪表盘/`（shinylive 编译的 Shiny）
-- **各章内嵌交互图** — plotly / leaflet 均可用
+- **整合首页** — 封面大标题、关键 KPI、静态图表库、交互实验室、部署说明。
+- **Quarto 章节 HTML** — 12 章叙事仍保留在 `网站发布/` 中，可通过文件名访问。
+- **浏览器 Shiny** — `/仪表盘/` 为 shinylive 编译的 Shiny。
+- **交互组件** — `/交互组件/` 中保留 standalone HTML widgets 及依赖。
 
 ---
 
@@ -109,10 +109,14 @@ https://<username>.github.io/<repo-name>/
 - 公开仓库 **免费无限分钟**，私有仓库每月 2000 分钟（免费版）。
 - 本项目每次 build ≈ 15 分钟 ≈ 每月可跑 ~130 次。
 
-### ❌ 网站发布/ 被 git 追踪冲突
+### ❌ Pages 首页不是最终整合页
 
-`网站发布/` 已在 `.gitignore`，CI 生成后不会回写到仓库。
-如果你本地跑过 `quarto render 报告书`，`网站发布/` 会生成但不被 commit —— 正常。
+确认 workflow 中 `Build integrated static showcase → 网站发布/index.html` 步骤位于 Quarto 和 shinylive 之后。
+本地也可以直接运行：
+
+```bash
+Rscript 构建.R submission
+```
 
 ---
 
@@ -129,6 +133,6 @@ quarto preview 报告书     # 本地 http://localhost:xxxx
 
 ## 九、下一步
 
-- 仪表盘部署 → [`项目文档/部署_Shiny云端.md`](./项目文档/部署_Shiny云端.md)
-- shinylive 嵌入 Pages → [`项目文档/部署_浏览器仪表盘.md`](./项目文档/部署_浏览器仪表盘.md)
+- 仪表盘部署 → [`部署_Shiny云端.md`](./部署_Shiny云端.md)
+- shinylive 嵌入 Pages → [`部署_浏览器仪表盘.md`](./部署_浏览器仪表盘.md)
 - 所有产物的一键本地构建 → `Rscript 构建.R all`

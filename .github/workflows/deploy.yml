@@ -7,6 +7,9 @@ on:
       - '程序/**'
       - '报告书/**'
       - '仪表盘/**'
+      - '课程提交/**'
+      - '分析输出/**'
+      - '构建.R'
       - '_targets.R'
       - '.github/workflows/deploy.yml'
       - '原始数据/**'
@@ -99,6 +102,7 @@ jobs:
             any::wbstats
             any::httr
             any::jsonlite
+            any::base64enc
             any::arrow
             any::shiny
             any::bslib
@@ -158,9 +162,13 @@ jobs:
       - name: Copy pre-rendered widgets → 网站发布/交互组件/
         run: |
           if [ -d 分析输出/交互组件 ]; then
-            mkdir -p 网站发布/交互组件
-            cp -r 分析输出/交互组件/* 网站发布/交互组件/ || true
+            rm -rf 网站发布/交互组件
+            mkdir -p 网站发布
+            cp -r 分析输出/交互组件 网站发布/交互组件
           fi
+
+      - name: Build integrated static showcase → 网站发布/index.html
+        run: Rscript 构建.R submission
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -280,7 +280,7 @@ ghs_export_all_widgets <- function(master, world_sf = NULL,
 ghs_export_all_models <- function(master,
                                    outputs_dir = file.path(proj_root(),
                                                               "分析输出",
-                                                              "tables")) {
+                                                              "模型表")) {
   ensure_pkgs(c("dplyr"))
   dir.create(outputs_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -387,19 +387,19 @@ ghs_run_everything <- function(master = NULL, world_sf = NULL,
   if (figures) {
     res$figures <- ghs_export_all_static(master, world_sf,
                                           outputs_dir = file.path(
-                                            outputs_dir, "figures"),
+                                            outputs_dir, "图表"),
                                           verbose = verbose)
   }
   if (widgets) {
     res$widgets <- ghs_export_all_widgets(master, world_sf,
                                            dir = file.path(outputs_dir,
-                                                            "widgets"),
+                                                            "交互组件"),
                                            verbose = verbose)
   }
   if (models) {
     res$models <- ghs_export_all_models(master,
                                          outputs_dir = file.path(
-                                           outputs_dir, "tables"))
+                                           outputs_dir, "模型表"))
   }
   invisible(res)
 }

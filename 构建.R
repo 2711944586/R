@@ -9,6 +9,7 @@
 #   Rscript 构建.R widgets   # 仅生成 30+ 交互 widget → 分析输出/交互组件/
 #   Rscript 构建.R book      # 仅渲染 Quarto Book → 网站发布/
 #   Rscript 构建.R shinylive # 仅编译 shinylive → 网站发布/仪表盘/
+#   Rscript 构建.R submission# 生成课程提交与可转发静态 HTML
 #   Rscript 构建.R deploy    # book + shinylive + copy widgets → 网站发布/（部署用）
 #   Rscript 构建.R clean     # 删除 网站发布/ 与 分析输出/（慎用）
 #   Rscript 构建.R audit     # 对照 plan v2 检查产物完备性
@@ -57,7 +58,8 @@ target_data <- function() {
 target_models <- function() {
   master <- ensure_cache()
   if (exists("ghs_export_all_models", mode = "function")) {
-    ghs_export_all_models(master)
+    ghs_export_all_models(master,
+                          outputs_dir = file.path("分析输出", "模型表"))
   } else {
     cat("[make] ghs_export_all_models not found; skipped\n")
   }
@@ -74,6 +76,16 @@ target_figures <- function() {
   } else {
     cat("[make] ghs_export_all_static not found; skipped\n")
   }
+  if (exists("ghs_export_v2_thematic", mode = "function")) {
+    ghs_export_v2_thematic(master,
+                           out_dir = file.path("分析输出", "图表"),
+                           verbose = TRUE)
+  }
+  if (exists("ghs_export_v2_dataviz", mode = "function")) {
+    ghs_export_v2_dataviz(master, world_sf,
+                          out_dir = file.path("分析输出", "图表"),
+                          verbose = TRUE)
+  }
   invisible(NULL)
 }
 
@@ -86,6 +98,16 @@ target_widgets <- function() {
                              verbose = TRUE)
   } else {
     cat("[make] ghs_export_all_widgets not found; skipped\n")
+  }
+  if (exists("ghs_export_v2_widgets_plotly", mode = "function")) {
+    ghs_export_v2_widgets_plotly(master,
+                                 out_dir = file.path("分析输出", "交互组件"),
+                                 verbose = TRUE)
+  }
+  if (exists("ghs_export_v2_widgets_other", mode = "function")) {
+    ghs_export_v2_widgets_other(master, world_sf,
+                                out_dir = file.path("分析输出", "交互组件"),
+                                verbose = TRUE)
   }
   invisible(NULL)
 }
@@ -130,21 +152,40 @@ target_shinylive <- function() {
 
 target_copy_widgets <- function() {
   if (dir.exists("分析输出/交互组件")) {
-    dir.create("网站发布/交互组件", recursive = TRUE, showWarnings = FALSE)
-    files <- list.files("分析输出/交互组件", full.names = TRUE, recursive = TRUE)
-    if (length(files)) {
-      file.copy(files, "网站发布/交互组件/",
-                recursive = TRUE, overwrite = TRUE)
-      cat("[make] copied", length(files), "widgets to 网站发布/交互组件/\n")
+    dst <- file.path("网站发布", "交互组件")
+    if (dir.exists(dst)) unlink(dst, recursive = TRUE, force = TRUE)
+    dir.create("网站发布", recursive = TRUE, showWarnings = FALSE)
+    ok <- file.copy(file.path("分析输出", "交互组件"),
+                    "网站发布", recursive = TRUE, overwrite = TRUE)
+    files <- list.files(dst, full.names = TRUE, recursive = TRUE)
+    if (isTRUE(ok)) {
+      cat("[make] copied", length(files), "widget assets to 网站发布/交互组件/\n")
     }
   }
   invisible(NULL)
 }
 
+target_submission <- function() {
+  source_all_r()
+  ensure_cache()
+  if (length(list.files(file.path("分析输出", "图表"), pattern = "[.]png$")) < 30) {
+    target_figures()
+  }
+  if (length(list.files(file.path("分析输出", "交互组件"), pattern = "[.]html$")) < 20) {
+    target_widgets()
+  }
+  target_copy_widgets()
+  if (!exists("generate_static_showcase", mode = "function")) {
+    stop("[make] generate_static_showcase not found")
+  }
+  generate_static_showcase(root = getwd())
+  invisible(NULL)
+}
+
 target_deploy <- function() {
   target_book()
-  target_copy_widgets()
   target_shinylive()
+  target_submission()
   cat("\n[make] deploy bundle ready at 网站发布/\n")
   cat("[make] hint: push to GitHub and Pages will serve it.\n")
   invisible(NULL)
@@ -192,11 +233,12 @@ switch(
   widgets   = target_widgets(),
   book      = target_book(),
   shinylive = target_shinylive(),
+  submission = target_submission(),
   deploy    = target_deploy(),
   audit     = target_audit(),
   clean     = target_clean(),
   {
     cat("unknown target:", target, "\n\n")
-    cat("usage: Rscript 构建.R [all|data|models|figures|widgets|book|shinylive|deploy|audit|clean]\n")
+    cat("usage: Rscript 构建.R [all|data|models|figures|widgets|book|shinylive|submission|deploy|audit|clean]\n")
   }
 )

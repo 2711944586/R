@@ -34,6 +34,7 @@ if (file.exists("renv.lock")) {
 pkgs_core <- c(
   # 数据与核心
   "tidyverse", "data.table", "janitor", "here", "glue", "rlang",
+  "base64enc",
   "arrow", "parquetize", "fs",
   # 国家映射 / 外部数据
   "countrycode", "wbstats",

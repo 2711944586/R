@@ -1,12 +1,29 @@
-# Global Health Spending · 中文化整理版
+# Global Health Spending · 最终交付版
 
 > 作者：庄颂（20241334）  
 > 数据集：TidyTuesday 2026-04-21 / WHO Global Health Expenditure Database (GHED)  
 > 仓库：<https://github.com/2711944586/R>
 
-本项目已经整理为“中文业务目录 + 必要英文生态入口”的结构，便于 GitHub 上传、Quarto Book 发布、Shiny/shinylive 部署与课程提交。
+本项目是一个完整的 GHED 全球卫生支出数据分析作品，已整合为“中文业务目录 + 必要英文生态入口”的结构，并包含：
 
-## 一、最重要的运行入口
+- **完整静态展示页**：新版视觉设计、44 张静态图、24 个交互组件入口、部署说明，适合直接打开和展示。
+- **课程提交版**：`课程提交/庄颂_20241334.Rmd` + `课程提交/庄颂_20241334.html`。
+- **GitHub Pages 版**：`网站发布/index.html` 作为线上首页，附带 `网站发布/交互组件/`、`网站发布/仪表盘/`。
+- **Shiny 交互仪表盘**：`仪表盘/`，支持本地、shinyapps.io、shinylive 三种运行方式。
+- **数据工程与建模产物**：缓存、模型表、静态图、standalone HTML widgets 均可由 `构建.R` 复现。
+
+## 一、最重要的成品
+
+| 成品 | 路径 | 用途 |
+|---|---|---|
+| 课程提交 HTML | `课程提交/庄颂_20241334.html` | 课程提交主文件，约 10 MB，图表内嵌，交互组件按相对路径加载。 |
+| 可转发单文件 HTML | `课程提交/庄颂_20241334_完整静态展示.html` | 全部图表和交互组件内嵌，约 131 MB，适合本地转发；因超过 GitHub 单文件限制已被 `.gitignore` 忽略。 |
+| GitHub Pages 首页 | `网站发布/index.html` | 线上静态站入口，使用新版整合展示页设计。 |
+| Pages 备份入口 | `网站发布/完整静态展示.html` | 与首页同版，作为固定入口保留。 |
+| 交互组件目录 | `网站发布/交互组件/` | 24 个 standalone HTML widgets 及依赖资源。 |
+| 浏览器 Shiny | `网站发布/仪表盘/` | shinylive 版 Shiny 仪表盘。 |
+
+## 二、最重要的运行入口
 
 | 目标 | 命令 |
 |---|---|
@@ -15,6 +32,7 @@
 | 构建模型表 | `Rscript 构建.R models` |
 | 构建静态图 | `Rscript 构建.R figures` |
 | 构建交互组件 | `Rscript 构建.R widgets` |
+| 生成提交/展示 HTML | `Rscript 构建.R submission` |
 | 渲染 Quarto Book | `Rscript 构建.R book` |
 | 构建 shinylive | `Rscript 构建.R shinylive` |
 | 完整部署包 | `Rscript 构建.R deploy` |
@@ -23,7 +41,16 @@
 | 运行自动测试 | `Rscript 开发脚本/运行自动测试.R` |
 | 语法检查 | `Rscript 开发脚本/语法检查.R` |
 
-## 二、根目录结构
+推荐最短复现流程：
+
+```bash
+Rscript 构建.R data
+Rscript 构建.R figures
+Rscript 构建.R widgets
+Rscript 构建.R submission
+```
+
+## 三、根目录结构
 
 | 路径 | 用途 |
 |---|---|
@@ -37,7 +64,7 @@
 | `.lintr` | R 代码静态检查配置。 |
 | `_targets.R` | `{targets}` 可复现数据流水线入口，文件名必须保留。 |
 | `安装依赖.R` | 一键安装 R 包依赖。 |
-| `构建.R` | 本地统一构建脚本：数据、模型、图表、报告、部署。 |
+| `构建.R` | 本地统一构建脚本：数据、模型、图表、交互、提交版、部署。 |
 | `启动仪表盘.R` | 本地启动 Shiny 仪表盘的轻量入口。 |
 | `.github/workflows/` | GitHub Actions：测试、Pages、shinylive、shinyapps.io。 |
 | `原始数据/` | 作业指定的 GHED 三张原始 CSV 与说明文档。 |
@@ -54,7 +81,7 @@
 | `项目文档/` | 方案、部署教程、变更记录、课程说明文档。 |
 | `部署配置/` | Dockerfile 与 docker-compose 配置。 |
 
-## 三、数据目录
+## 四、数据目录
 
 | 路径 | 内容 |
 |---|---|
@@ -68,7 +95,7 @@
 | `派生数据/处理结果/master_enriched.rds` | Shiny、Quarto 和模型共享的主分析表。 |
 | `派生数据/处理结果/world_sf_medium.rds` | 世界地图 sf 缓存。 |
 
-## 四、程序目录
+## 五、程序目录
 
 | 路径 | 职责 |
 |---|---|
@@ -93,8 +120,9 @@
 | `程序/18_widgets_other.R` | leaflet / DT / reactable / network 等组件。 |
 | `程序/19_narrative.R` | Quarto 叙事辅助函数。 |
 | `程序/20_deploy.R` | 部署辅助：复制组件、生成 sitemap、体积报告、缓存预热。 |
+| `程序/21_static_showcase.R` | 生成新版整合静态展示页和课程提交 HTML。 |
 
-## 五、Shiny 仪表盘
+## 六、Shiny 仪表盘
 
 | 路径 | 用途 |
 |---|---|
@@ -118,7 +146,7 @@ shiny::runApp("仪表盘", port = 4848)
 Rscript 启动仪表盘.R 4848
 ```
 
-## 六、Quarto Book 与发布目录
+## 七、Quarto Book、整合首页与发布目录
 
 | 路径 | 用途 |
 |---|---|
@@ -128,18 +156,22 @@ Rscript 启动仪表盘.R 4848
 | `报告书/01-*.qmd` 至 `报告书/12-*.qmd` | 12 章叙事分析。 |
 | `报告书/A0-methodology.qmd` | 方法附录。 |
 | `报告书/references.qmd` / `references.bib` | 参考文献。 |
-| `网站发布/index.html` | GitHub Pages 入口。 |
+| `网站发布/index.html` | GitHub Pages 入口；当前由 `Rscript 构建.R submission` 生成整合展示页。 |
+| `网站发布/完整静态展示.html` | 与首页同版的备用入口。 |
 | `网站发布/仪表盘/` | shinylive 版本 Shiny。 |
-| `网站发布/交互组件/` | 复制后的 standalone HTML 交互组件。 |
+| `网站发布/交互组件/` | 复制后的 standalone HTML 交互组件及依赖资源。 |
 | `网站发布/site_libs/` | Quarto HTML 依赖。 |
 
 渲染：
 
 ```bash
 quarto render 报告书
+Rscript 构建.R submission
 ```
 
-## 七、输出目录
+说明：GitHub Actions 会先渲染 Quarto Book，再执行 `Rscript 构建.R submission`，因此线上首页会使用最终整合展示页，而 Quarto 章节 HTML 仍保留在 `网站发布/` 中。
+
+## 八、输出目录
 
 | 路径 | 用途 |
 |---|---|
@@ -148,15 +180,16 @@ quarto render 报告书
 | `分析输出/模型表/` | CSV/RDS 模型与指标结果。 |
 | `分析输出/报告/` | 额外报告输出位置。 |
 
-## 八、课程提交与探索分析
+## 九、课程提交与探索分析
 
 | 路径 | 用途 |
 |---|---|
-| `课程提交/庄颂_20241334.Rmd` | 课程要求的 RMarkdown 源文件。 |
-| `课程提交/庄颂_20241334.html` | 课程要求的 HTML 结果文件。 |
+| `课程提交/庄颂_20241334.Rmd` | 课程要求的 RMarkdown 源文件；现在作为最终展示页生成入口。 |
+| `课程提交/庄颂_20241334.html` | 课程要求的 HTML 结果文件，图表内嵌，交互组件按相对路径加载。 |
+| `课程提交/庄颂_20241334_完整静态展示.html` | 全内嵌可转发版，约 131 MB，不提交 GitHub。 |
 | `探索分析/01_eda.qmd` | 探索性分析：缺失、分布、异常值、相关性。 |
 
-## 九、开发脚本
+## 十、开发脚本
 
 | 路径 | 用途 |
 |---|---|
@@ -175,12 +208,13 @@ quarto render 报告书
 | `开发脚本/修复裸中文参数.R` | 修复裸中文参数名。 |
 | `开发脚本/修复反引号中文.R` | 修复反引号中的 Unicode 转义。 |
 
-## 十、测试与验证
+## 十一、测试与验证
 
 ```bash
 Rscript 开发脚本/语法检查.R
 Rscript 开发脚本/运行自动测试.R
 Rscript 开发脚本/测试仪表盘模块.R
+Rscript 构建.R submission
 Rscript 构建.R audit
 ```
 
@@ -188,16 +222,18 @@ Rscript 构建.R audit
 
 ```bash
 Rscript 开发脚本/语法检查.R
+Rscript 构建.R submission
 Rscript 构建.R audit
 ```
 
-## 十一、部署
+## 十二、部署
 
 ### GitHub Pages + shinylive
 
 1. GitHub 仓库 Settings → Pages → Source 选择 `GitHub Actions`。
 2. 推送到 `main` 或 `master`。
 3. `.github/workflows/deploy.yml` 会构建 `网站发布/` 并上传到 Pages。
+4. 工作流会执行 `Rscript 构建.R submission`，确保 Pages 首页为新版整合展示页。
 
 目标 URL：
 
@@ -233,7 +269,7 @@ docker run -p 3838:3838 ghs-dashboard
 docker compose -f 部署配置/docker-compose.yml up -d
 ```
 
-## 十二、项目文档
+## 十三、项目文档
 
 | 路径 | 用途 |
 |---|---|
@@ -245,20 +281,31 @@ docker compose -f 部署配置/docker-compose.yml up -d
 | `项目文档/部署_浏览器仪表盘.md` | shinylive 浏览器内运行教程。 |
 | `项目文档/2026作业_Global Health Spending 数据集自由分析.docx` | 课程原始说明文档。 |
 
-## 十三、GitHub 上传建议
+## 十四、GitHub 上传与当前状态
+
+本项目已初始化 Git，并配置：
+
+```text
+branch: main
+origin: https://github.com/2711944586/R.git
+```
+
+首次推送：
 
 ```bash
-git init
 git add .
-git commit -m "中文化整理项目结构"
-git branch -M main
-git remote add origin https://github.com/2711944586/R.git
+git commit -m "升级最终静态展示与部署流程"
 git push -u origin main
 ```
 
 如果远端已有历史，请先 `git pull --rebase origin main` 后再推送。
 
-## 十四、关键约束
+注意：
+
+- `课程提交/庄颂_20241334_完整静态展示.html` 超过 100 MB，已被 `.gitignore` 忽略，避免 GitHub push 被拒。
+- 根目录课程说明 `.docx` 如果仍被 Word/WPS 占用，可关闭占用程序后手动删除；项目文档目录内已有副本。
+
+## 十五、关键约束
 
 - `financing_schemes`、`health_spending`、`spending_purpose` 三个变量名不能改。
 - `README.md`、`DESCRIPTION`、`LICENSE`、`_targets.R`、`.github/`、`.gitignore` 等生态入口保留英文命名。
