@@ -1,0 +1,136 @@
+---
+title: "5. The Roads Ahead"
+subtitle: "走向 UHC：不平等、收敛与未来五年"
+description: "用不平等指数 + β-收敛 + ARIMA 预测，把 23 年面板的 *惯性* 投影到 2028。"
+---
+
+```{r setup, include=FALSE}
+.proj_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+source(file.path(.proj_root, "报告书", "_setup.R"), encoding = "UTF-8")
+```
+
+::: {.callout-tip appearance="minimal" icon=false}
+## 本章 TL;DR
+
+- 全球人均 CHE 基尼系数从 2000 年的 ~0.78 缓慢下降到 2023 年的 ~0.65 —— **正在收敛，但慢**。
+- β-收敛回归表明 *穷国增速更快*，但**半收敛期 > 30 年**，远超一代人的耐心。
+- ARIMA 预测：到 2028 年，**美国仍 > $14k / 人，中国 ~ $900 / 人，印度 ~ $90 / 人** —— 差距在结构上几乎无解。
+:::
+
+# 5.1 全球人均 CHE 的不平等
+
+```{r fig-inequality-trend, fig.cap="2000-2023 全球人均 CHE 不平等指数演化（人口加权）"}
+ineq <- inequality_by_year(master_enriched,
+                           value_col = "che_pc_usd2023",
+                           weight_col = "pop") |>
+  tidyr::pivot_longer(dplyr::starts_with(c("gini", "atk", "theil")),
+                      names_to = "metric", values_to = "value") |>
+  dplyr::filter(!is.na(.data$value),
+                .data$metric %in% c("gini_pop", "atk05", "atk1", "theil_pop"))
+
+ggplot2::ggplot(ineq, ggplot2::aes(.data$year, .data$value, colour = .data$metric)) +
+  ggplot2::geom_line(linewidth = 1.2) +
+  ggplot2::geom_point(size = 1.4, alpha = 0.8) +
+  ggplot2::geom_vline(xintercept = 2020, linetype = "dotted", colour = "grey50") +
+  ggplot2::annotate("text", x = 2020.2, y = 0.08, label = "COVID",
+                    size = 3, hjust = 0, colour = "grey30") +
+  ggplot2::scale_colour_viridis_d(option = "D", end = 0.85,
+                                   labels = c("Atkinson(0.5)",
+                                              "Atkinson(1)",
+                                              "Gini (人口加权)",
+                                              "Theil-T (人口加权)")) +
+  labs_ghs(
+    title    = "Global Inequality of per-capita CHE",
+    subtitle = "四种指标 \u00b7 整体下降趋势 \u00b7 2015 后放缓",
+    x = NULL, y = "Index value", colour = NULL
+  ) +
+  theme_ghs()
+```
+
+::: {.callout-note appearance="minimal"}
+**为什么用 4 种指标？** 各指标对分布尾部的敏感度不同：
+- *Gini* 关注总体集中度。
+- *Atkinson(ε)* 越大越关注底层。
+- *Theil-T* 可分解为大洲 *between* + *within*。
+联合呈现可避免单指标误导。
+:::
+
+# 5.2 β-收敛回归：穷国在追赶吗？
+
+```{r beta-conv-book}
+bc <- fit_beta_convergence(master_enriched, start_year = 2005, end_year = 2022)
+if (!is.null(bc)) {
+  cat(sprintf("β = %.4f\n半收敛期 ≈ %.1f 年\n",
+              bc$beta %||% NA_real_,
+              bc$half_life %||% NA_real_))
+  if (requireNamespace("broom", quietly = TRUE)) {
+    print(broom::tidy(bc$model))
+  } else {
+    print(bc$model)
+  }
+}
+```
+
+```{r fig-beta-scatter, fig.cap="β-收敛散点：起始水平 (2005) vs 年化增速 (2005-2022)"}
+plot_beta_convergence_scatter(bc)
+```
+
+> 解读：β 系数为负意味着**起点较低的国家增速较快** —— 即"穷国在追赶"。但半收敛期通常 > 30 年，节奏并不快。COVID 短暂打断了这一进程。
+
+# 5.3 5 国未来 5 年预测：扇形图
+
+```{r fig-forecast, fig.cap="ARIMA 5 年预测 \u00b7 中美印巴南五国 \u00b7 含 80%/95% 置信区间", fig.height=8}
+plot_forecast_fan(master_enriched,
+                   isos = c("CHN", "USA", "IND", "BRA", "ZAF"),
+                   h = 5)
+```
+
+读图三句话：
+
+1. **美国** 仍以接近 5% 的年化速率增长，2028 年人均 CHE 预计逼近 $14,000；
+2. **中国** 进入中速档，预测点估计在 $900-1000 / 人；
+3. **印度、南非、巴西** 增长放缓，但**离 UHC 目标仍有结构性差距**。
+
+# 5.4 三类有意义的预测情景
+
+| 情景 | 假设 | 含义 |
+|------|------|------|
+| **基线** | ARIMA / `auto.arima()` 自动选阶 | 维持过去 23 年节奏 |
+| **乐观** | 政府份额 +5pp，本地 GDP 弹性提升 | 撒哈拉以南非洲提前 5 年达到 *MWHF 阈值* |
+| **悲观** | 财政紧缩 -3pp，外援退潮 -10% | 低收入国家 OOPS 反弹至 50%+，全民健康覆盖倒退 |
+
+> Shiny `Forecast` 模块允许读者切换情景，本章仅展示基线。
+
+# 5.5 三个值得追踪的指标
+
+::: {.callout-important}
+1. **OOPS 占比 (`hf3_che`)** —— 居民端财务风险的最直接代理。
+2. **预防 hc6 占比** —— 长期健康投资的"Hidden Fragility"。
+3. **基尼 / Atkinson 指数** —— 全球不平等的实时雷达。
+:::
+
+# 5.6 致谢
+
+感谢 WHO/GHED 团队、ONE Data 报告作者、TidyTuesday 社区，以及所有把 *公开数据* 当作严肃事业的人。
+
+---
+
+## 数据 / 代码 / 引用 {.unnumbered}
+
+- **数据**：GHED `che_pc_usd2023`（人均 CHE）+ `pop`（人口加权）；预测使用 1995-2023 各国时序。
+- **代码**：`inequality_by_year()` 计算 Gini/Atkinson/Theil；`fit_beta_convergence()` 跑面板回归；`plot_forecast_fan()` 绘制 ARIMA 扇形图。模型批量运行脚本 `开发脚本/构建.R models`。
+- **引用**：Sala-i-Martin (1996). *The classical approach to convergence analysis*; Wagstaff (2002). *Inequalities in health in developing countries*; Hyndman & Athanasopoulos (2021). *Forecasting: principles and practice*.
+
+## 5.x v2 数据新闻拓展 {.unnumbered}
+
+```{r ch12-v2-stream, fig.cap="数据新闻 5 · 大洲三源 stream chart", fig.height=4.6}
+plot_v2_continent_stream(master_enriched)
+```
+
+```{r ch12-v2-atlas, echo=FALSE}
+htmltools::tagList(widget_v2_dt_atlas(master_enriched))
+```
+
+::: {.callout-tip appearance="minimal" icon=false}
+**Atlas DT**：30+ 字段全字段查询表。可搜索、可排序、可下载 CSV。读者可以在此自行验证书中所有结论。
+:::

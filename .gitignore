@@ -1,0 +1,91 @@
+# R session data
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Ruserdata
+*.Rproj.user/
+*.Rproj
+
+# RStudio / VSCode / IDE
+.Rproj.user
+.vscode/
+!.vscode/extensions.json
+
+# Output / build
+*_cache/
+*_files/
+!分析输出/交互组件/**/*_files/
+!分析输出/交互组件/**/*_files/**
+!网站发布/**/*_files/
+!网站发布/**/*_files/**
+*.knit.md
+*.utf8.md
+# 图表导出保留（用于 README/Shiny www/ 等对外展示）
+# 分析输出/图表/*.png
+# 分析输出/图表/*.pdf
+# 分析输出/图表/*.svg
+!分析输出/图表/.gitkeep
+分析输出/报告/*.html
+分析输出/报告/*.docx
+!分析输出/报告/.gitkeep
+
+# targets pipeline
+_targets/
+_targets_r/
+
+# renv library (but keep the lock file and activate script)
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/staging/
+renv/python/
+renv/sandbox/
+
+# Data caches
+派生数据/原始缓存/*.rds
+派生数据/原始缓存/*.parquet
+派生数据/中间数据/*
+派生数据/处理结果/*
+!派生数据/原始缓存/.gitkeep
+!派生数据/中间数据/.gitkeep
+!派生数据/处理结果/.gitkeep
+
+# Quarto site build 分析输出 (published via gh-pages branch)
+报告书/_报告书/
+报告书/.quarto/
+报告书/_freeze/
+报告书/*.html
+报告书/data/
+/_site/
+/.quarto/
+
+# Shiny rsconnect deployment metadata
+rsconnect/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Packaging
+*.zip
+!网站发布/**/*.zip
+/2026作业_*.docx
+
+# Secrets
+.env
+.Renviron
+.Rprofile.local
+
+quarto-render.log
+_diag.qmd
+_diag.html
+_diag_files/
+shiny.log
+shiny.err

@@ -1,0 +1,100 @@
+---
+title: "10 · Five Tribes"
+subtitle: "把 195 国分成 4 类筹资 DNA"
+---
+
+```{r setup, include=FALSE}
+.proj_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+source(file.path(.proj_root, "报告书", "_setup.R"), encoding = "UTF-8")
+```
+
+::: {.lead}
+当我们把 4 维筹资指标（GGHE-D, PVT-D, EXT, OOPS）做主成分降维并 k-means 聚类，
+**195 个国家自然落入 4 个家族**：北欧型、撒哈拉援助型、中东自付型、东亚混合型。
+:::
+
+## 10.1 PCA + k-means 聚类（2023）
+
+```{r fig-cluster}
+snap <- master_enriched |>
+  dplyr::filter(.data$year == 2023) |>
+  tidyr::drop_na(dplyr::all_of(c("gghed_che", "pvtd_che", "ext_che", "hf3_che")))
+
+pca_res <- fit_pca(snap, vars = c("gghed_che", "pvtd_che", "ext_che", "hf3_che"))
+clu <- if (!is.null(pca_res)) fit_cluster(pca_res, k = 4) else NULL
+
+if (!is.null(clu)) {
+  scores <- clu$scores
+  ggplot2::ggplot(scores, ggplot2::aes(.data$PC1, .data$PC2,
+                                         colour = .data$cluster,
+                                         label = .data$country_name)) +
+    ggplot2::geom_point(size = 2.4, alpha = 0.78) +
+    ggrepel::geom_text_repel(
+      data = scores |> dplyr::group_by(.data$cluster) |>
+        dplyr::slice_max(abs(.data$PC1), n = 4),
+      family = get_brand_fonts()$serif, size = 3.2,
+      max.overlaps = 25, segment.colour = "grey60") +
+    ggplot2::scale_colour_manual(
+      values = c("1" = brand_palette$source[["gghed"]],
+                 "2" = brand_palette$source[["pvtd"]],
+                 "3" = brand_palette$source[["ext"]],
+                 "4" = "#7B4B94"),
+      name = "\u96c6\u7fa4"
+    ) +
+    labs_news(
+      title    = "PCA + k-means(k=4) \u00b7 195 \u56fd\u7684\u7b79\u8d44 DNA",
+      subtitle = "\u6a2a\u8f74 = \u653f\u5e9c\u4e3b\u5bfc \u00b7 \u7eb5\u8f74 = OOPS \u4e3b\u5bfc",
+      x = sprintf("PC1 (%.0f%%)", pca_res$var_explained[1] * 100),
+      y = sprintf("PC2 (%.0f%%)", pca_res$var_explained[2] * 100)
+    )
+}
+```
+
+## 10.2 各集群的特征
+
+```{r tbl-cluster-profile}
+if (!is.null(clu)) {
+  scores <- clu$scores |>
+    dplyr::left_join(
+      master_enriched |> dplyr::filter(.data$year == 2023) |>
+        dplyr::select("iso3_code", "gghed_che", "pvtd_che",
+                      "ext_che", "hf3_che", "che_pc_usd2023"),
+      by = "iso3_code"
+    )
+  scores |>
+    dplyr::group_by(`集群` = .data$cluster) |>
+    dplyr::summarise(
+      n            = dplyr::n(),
+      `中位 GGHE-D %` = round(stats::median(.data$gghed_che, na.rm = TRUE), 1),
+      `中位 PVT-D %`  = round(stats::median(.data$pvtd_che, na.rm = TRUE), 1),
+      `中位 ext %`    = round(stats::median(.data$ext_che, na.rm = TRUE), 1),
+      `中位 OOPS %`   = round(stats::median(.data$hf3_che, na.rm = TRUE), 1),
+      `中位 人均 CHE` = round(stats::median(.data$che_pc_usd2023, na.rm = TRUE), 0)
+    ) |>
+    knitr::kable(caption = "4 \u4e2a\u96c6\u7fa4\u7684\u4e2d\u4f4d\u753b\u50cf")
+}
+```
+
+## 10.3 集群命名（编辑式标注）
+
+| 集群 | 命名 | 代表国家 | 标志 |
+|:---:|---|---|---|
+| 1 | **北欧/西欧型** | NOR, DEU, FRA | GGHE-D ≥ 75%, OOPS ≤ 15% |
+| 2 | **东亚/拉美混合型** | CHN, BRA, MEX | GGHE-D + PVT-D 均衡，OOPS 居中 |
+| 3 | **撒哈拉援助型** | RWA, MOZ, KEN | ext ≥ 25%，GGHE-D 偏低 |
+| 4 | **中东高自付型** | YEM, AFG, EGY | OOPS ≥ 50%，外援与政府并存 |
+
+## 10.x v2 数据新闻拓展 {.unnumbered}
+
+```{r ch10-v2-bivariate, fig.cap="数据新闻 2 · OOPS × 政府份额 bivariate map", fig.height=5.5}
+plot_v2_bivariate_oops_gov(master_enriched, year = max(master_enriched$year))
+```
+
+```{r ch10-v2-rank, echo=FALSE}
+htmltools::tagList(widget_v2_reactable_rank(master_enriched, 
+                    year = max(master_enriched$year)))
+```
+
+::: {.callout-note appearance="minimal" icon=false}
+**Bivariate 双指标**：把「OOPS 高/低 × 政府份额 高/低」映射到 9 宫格颜色。**右上角（OOPS 高 + 政府低）= 高风险国**；**左下角 = 健康筹资**。
+:::

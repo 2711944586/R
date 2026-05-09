@@ -1,0 +1,172 @@
+---
+title: "Appendix · Methods, Formulas, Limits"
+subtitle: "方法论附录：公式、参数、敏感性、局限"
+description: "对所有图表与统计量给出严格的算法定义，便于复核与二次分析。"
+---
+
+```{r setup, include=FALSE}
+.proj_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+source(file.path(.proj_root, "报告书", "_setup.R"), encoding = "UTF-8")
+```
+
+::: {.callout-note appearance="simple"}
+本章是 *方法论附录*，不进入主叙事。读者若关心**所引数字是怎么算出来的**，请来这里。所有公式皆与仓库 `程序/04_metrics.R` 与 `程序/05_models.R` 中的 R 代码一一对应。
+:::
+
+# A. 数据来源 & 单位约定
+
+| 缩写 | 含义 | 单位 |
+|------|------|------|
+| `che_usd2023`     | 当前卫生支出 (Current Health Expenditure) | 百万美元，2023 年不变价 |
+| `che_pc_usd2023`  | 人均 CHE | 美元 / 人 / 年 |
+| `gghed_che`       | 公共支出占 CHE 比例 | % |
+| `pvtd_che`        | 私人支出占 CHE 比例 | % |
+| `ext_che`         | 外援占 CHE 比例 | % |
+| `hf1..hfnec_che`  | 五种筹资方案占 CHE 比例 | % |
+| `hc1..hc9_che`    | 九类支出用途占 CHE 比例 | % |
+| `pop`             | 总人口（来自 World Bank `SP.POP.TOTL`） | 人 |
+| `gdp_pc_usd`      | 人均 GDP（World Bank `NY.GDP.PCAP.CD`） | 美元 |
+
+> 所有 GHED 字段名严格遵守 WHO 原始命名 (`indicator_code`)，未做任何重命名 —— 满足作业的"变量名不变"要求。
+
+# B. 不平等指数公式
+
+设 N 个国家在某年的人均 CHE 为 $y_1, \dots, y_N$，人口权重为 $w_1, \dots, w_N$（$\sum w_i = 1$），均值为 $\bar y = \sum w_i y_i$。
+
+## B.1 加权 Gini 系数
+
+$$
+G = \frac{\sum_i \sum_j w_i w_j |y_i - y_j|}{2\bar y}
+$$
+
+代码位置：`程序/04_metrics.R::gini_w()`，使用 Dagum (2000) 双重求和形式。
+
+## B.2 Atkinson 指数
+
+$$
+A_\varepsilon = 1 - \frac{1}{\bar y}\left[\sum_i w_i y_i^{1-\varepsilon}\right]^{1/(1-\varepsilon)} \quad (\varepsilon \neq 1)
+$$
+
+$$
+A_1 = 1 - \exp\left(\frac{1}{\bar y}\sum_i w_i \ln y_i\right) - \bar y
+$$
+
+代码位置：`程序/04_metrics.R::atkinson_w()`。本项目分别报告 $\varepsilon = 0.5$ 与 $\varepsilon = 1$ 两种参数。
+
+## B.3 Theil-T 指数
+
+$$
+T = \sum_i w_i \frac{y_i}{\bar y} \ln\!\left(\frac{y_i}{\bar y}\right)
+$$
+
+可分解为大洲 *between* + 大洲 *within* 两部分；本项目使用 `程序/04_metrics.R::theil_decomp()`。
+
+# C. β-收敛回归
+
+经典 Sala-i-Martin (1996) 设定：
+
+$$
+\frac{1}{T}\ln\left(\frac{y_{i,T}}{y_{i,0}}\right) = \alpha + \beta \ln(y_{i,0}) + \varepsilon_i
+$$
+
+其中 $T$ 为窗口长度（本项目 = 17 年, 2005-2022），$y_{i,0}$ 为起始水平。
+
+- 若 $\beta < 0$ 且统计显著 → 存在 *条件 β-收敛*。
+- *半收敛期* (half-life) $\tau = -\ln(2)/\beta$ 年。
+
+代码位置：`程序/05_models.R::fit_beta_convergence()`。本项目报告普通 OLS 与含国家固定效应两个版本。
+
+# D. PCA + k-means 聚类
+
+1. 标准化输入：`gghed_che`, `pvtd_che`, `ext_che`, `hf3_che`（4 维 → Z-score）。
+2. PCA：`stats::prcomp(scale. = TRUE)`，保留前 2 维 (累计解释方差通常 > 75%)。
+3. k-means：`stats::kmeans(centers = 4, nstart = 25)`。
+4. 选 k 的依据：silhouette (`cluster::silhouette()`) + elbow + 业务可解释性。
+
+代码位置：`程序/05_models.R::fit_pca()`、`fit_cluster()`。
+
+# E. ARIMA 5 年预测
+
+```r
+forecast::auto.arima(ts, stepwise = TRUE, approximation = FALSE) |>
+  forecast::forecast(h = 5, level = c(80, 95))
+```
+
+输出含点估计 + 80%/95% 置信区间扇形图（`程序/07_plot_static.R::plot_forecast_fan()`）。
+
+> *备选模型*：`prophet::prophet()` 与 *指数平滑 ETS*；本项目以 ARIMA 为主，但代码留接口便于切换。
+
+# F. 变点检测
+
+对每国 `gghed_che` 时序运行：
+
+```r
+changepoint::cpt.mean(x, method = "PELT", penalty = "BIC")
+```
+
+*PELT* 是精确动态规划，*BIC* 惩罚平衡过拟合。代码位置：`程序/05_models.R::detect_changepoints()`。
+
+# G. COVID 冲击度量
+
+定义 *冲击* 为 2020-2022 三年均值减 2019 基准：
+
+$$
+\Delta\text{CHE}_i = \bar y_{i, 2020-22} - y_{i, 2019}, \quad
+\Delta\text{OOPS}_i = \bar s_{i, 2020-22} - s_{i, 2019}
+$$
+
+代码位置：`程序/04_metrics.R::covid_shock()`。窗口可参数化。
+
+# H. 全图制作环境与字体
+
+- ggplot2 主题：`theme_ghs()` 定义于 `程序/06_plot_theme.R`，含 Inter / 思源黑体回退、深浅模式色板。
+- 中文字体：通过 `register_fonts()` 自动注册系统 Microsoft YaHei / Source Han Sans。
+- PNG 设备：优先 `ragg::agg_png()`，次选 `grDevices::png(type = 'cairo')`。
+- SVG 设备：`svglite::svglite()` 保留矢量。
+
+# I. 局限性 & 不做因果推断的边界
+
+::: {.callout-warning}
+1. **描述性研究**：所有结论限于 *关联* / *相关*，不声明因果。
+2. **数据口径混用风险**：`_che` 是占比，`_usd2023` 是绝对值，两者不可线性组合。
+3. **遗漏变量**：未纳入治理质量、医疗供给侧 (病床数 / 医师数)、私人保险渗透率等。
+4. **测量误差**：低收入国家的 GHED 估计依赖 NHA 间接重建，年度误差可达 ±10 pp。
+5. **短窗口**：`hc1..hc9` 系列从 2016 起才稳定，不足以做长周期收敛分析。
+6. **预测假设**：ARIMA 假设过去 23 年的随机过程平稳；地缘冲突 / 新疫情等外生冲击会显著破坏。
+:::
+
+# J. 复现 (Reproducibility) 清单
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/2711944586/R.git ghs && cd ghs
+
+# 2. 还原 R 包环境
+Rscript -e "renv::restore()"
+
+# 3. 一键产出全部图、widget、模型表
+Rscript 开发脚本/生成分析输出.R all
+
+# 4. 渲染叙事书
+quarto render 报告书/
+
+# 5. 启动 Shiny
+Rscript -e "shiny::runApp('仪表盘', port = 3838)"
+
+# 6. 单元测试
+Rscript -e "testthat::test_dir('自动测试/testthat')"
+```
+
+详细部署 (Docker / GitHub Actions / shinyapps.io) 见仓库根 `项目文档/部署总览.md`。
+
+---
+
+## 引用 {.unnumbered}
+
+- Atkinson, A. B. (1970). *On the measurement of inequality*. Journal of Economic Theory, 2(3), 244-263.
+- Dagum, C. (2000). *A new approach to the decomposition of the Gini income inequality ratio*. Empirical Economics, 22(4), 515-531.
+- Sala-i-Martin, X. (1996). *The classical approach to convergence analysis*. Economic Journal, 106(437), 1019-1036.
+- Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: principles and practice* (3rd ed.). OTexts.
+- Killick, R., Fearnhead, P., & Eckley, I. A. (2012). *Optimal detection of changepoints with a linear computational cost*. Journal of the American Statistical Association, 107(500), 1590-1598.
+- Wagstaff, A. (2002). *Inequalities in health in developing countries: swimming against the tide?* World Bank Policy Research Working Paper 2795.
+- World Health Organization. (2024). *Global Health Expenditure Database (GHED)*. <https://apps.who.int/nha/database>.

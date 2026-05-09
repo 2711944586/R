@@ -1,0 +1,22 @@
+linters: linters_with_defaults(
+    line_length_linter      = line_length_linter(120),
+    object_name_linter      = NULL,            # 项目大量使用 snake_case + 数字前缀
+    cyclocomp_linter        = cyclocomp_linter(complexity_limit = 25),
+    object_usage_linter     = NULL,            # tidyeval `.data$x` 触发太多噪音
+    indentation_linter      = NULL,            # 与项目缩进风格不完全兼容
+    commented_code_linter   = NULL,
+    object_length_linter    = object_length_linter(50),
+    todo_comment_linter     = NULL
+  )
+exclusions: list(
+    "renv",
+    "docs",
+    "outputs",
+    "data",
+    "2026-04-21-dataset",
+    "submission/_files",
+    "book/_freeze",
+    "book/_book",
+    "tests/testthat/_snaps"
+  )
+encoding: "UTF-8"

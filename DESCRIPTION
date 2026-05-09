@@ -1,0 +1,84 @@
+Package: ghs20x
+Title: Global Health Spending 20x Analysis (GHED 2000-2023)
+Version: 0.1.0
+Authors@R:
+    person(given = "Song", family = "Zhuang", email = "2711944586@example.com",
+           role = c("aut", "cre"))
+Description: End-to-end analysis, visualisation and deployment of the WHO Global
+    Health Expenditure Database (GHED) for the TidyTuesday 2026-04-21 dataset.
+    Includes a data engineering pipeline with targets, a Shiny dashboard, a Quarto
+    narrative site, and GitHub Actions deployment. Author: 庄颂 (20241334).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 4.3)
+Imports:
+    dplyr,
+    tidyr,
+    readr,
+    stringr,
+    purrr,
+    tibble,
+    forcats,
+    ggplot2,
+    scales,
+    rlang,
+    janitor,
+    countrycode,
+    here,
+    arrow,
+    glue
+Suggests:
+    testthat (>= 3.0.0),
+    renv,
+    targets,
+    tarchetypes,
+    wbstats,
+    sf,
+    rnaturalearth,
+    rnaturalearthdata,
+    plotly,
+    leaflet,
+    highcharter,
+    echarts4r,
+    gganimate,
+    ggtext,
+    ggrepel,
+    ggridges,
+    ggstream,
+    ggbump,
+    treemapify,
+    patchwork,
+    showtext,
+    ineq,
+    changepoint,
+    strucchange,
+    fixest,
+    cluster,
+    factoextra,
+    FactoMineR,
+    fable,
+    fabletools,
+    tsibble,
+    prophet,
+    shiny,
+    shinyWidgets,
+    bslib,
+    bs4Dash,
+    DT,
+    reactable,
+    waiter,
+    thematic,
+    rmarkdown,
+    quarto,
+    knitr,
+    skimr,
+    DataExplorer,
+    naniar,
+    lintr,
+    styler,
+    devtools,
+    shinytest2
+Config/testthat/edition: 3
+RoxygenNote: 7.3.2

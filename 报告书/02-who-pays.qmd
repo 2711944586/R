@@ -1,0 +1,136 @@
+---
+title: "2. Who Pays?"
+subtitle: "政府、私人、外援 —— 全球三方的角力"
+description: "把卫生支出按筹资来源切开看：地图、排行榜、脊线、桑基图四种视角讲清楚 *钱从哪来*。"
+---
+
+```{r setup, include=FALSE}
+.proj_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+source(file.path(.proj_root, "报告书", "_setup.R"), encoding = "UTF-8")
+hl <- ghs_headline_numbers(master_enriched)
+yr_max <- max(master_enriched$year, na.rm = TRUE)
+```
+
+::: {.callout-tip appearance="minimal" icon=false}
+## 本章 TL;DR
+
+- `r yr_max` 年全球各国 OOPS 占 CHE 的 **均值约 `r round(hl$mean_oops_cur, 1)`%**，但分布极偏：极端高的国家可达 70%+，极端低的国家不到 10%。
+- **政府主导 (GGHE-D > 60%)** 与较低 OOPS 高度负相关，这与 UHC 的核心政策目标一致。
+- **外援 (EXT)** 在最贫困国家曾承担 30-40% 的卫生支出，近 10 年系统性下降，意味着本土财政能力必须同步崛起。
+:::
+
+# 2.1 OOPS：居民自付的世界版图
+
+```{r fig-oops-map, fig.cap=paste(yr_max, '年各国 OOPS 占 CHE 比例（Robinson 投影）'), fig.width=11, fig.height=6}
+world_sf <- tryCatch(load_world_sf(scale = "medium", simplify_keep = 0.08),
+                     error = function(e) NULL)
+if (!is.null(world_sf)) {
+  plot_world_choropleth(master_enriched, world_sf,
+                        indicator_col = "hf3_che", year_focus = yr_max,
+                        title = sprintf("OOPS 占 CHE 比例 \u00b7 %d", yr_max),
+                        subtitle = "颜色越深 \u00b7 居民自付负担越高 \u00b7 灰色为缺失")
+}
+```
+
+::: {.callout-warning appearance="minimal"}
+**热区**：撒哈拉以南非洲、南亚、中亚以及部分加勒比国家颜色最深；**冷区**：欧盟核心国、澳新、加拿大颜色最浅。颜色梯度几乎与 *人均 GDP 倒序* 重合。
+:::
+
+# 2.2 OOPS 排行榜：极端两端 15 国
+
+```{r fig-oops-rank-book, fig.cap="OOPS 占比最高与最低 15 国", fig.height=8}
+plot_oops_ranking(master_enriched, year_focus = yr_max, top_n = 15,
+                  title = sprintf("Top/Bottom 15 OOPS Reliance \u00b7 %d",
+                                   yr_max))
+```
+
+排行榜的两个尾巴：
+
+- **高位**：阿富汗、孟加拉、也门、苏丹等，OOPS 普遍 > 60% —— 这意味着每生一场病，居民自掏腰包的金额能轻易拖垮一个家庭。
+- **低位**：荷兰、卢森堡、法国、德国 —— 全民医保 + 强制社会保险使 OOPS < 12%。
+
+# 2.3 收入组脊线：分布的厚尾故事
+
+```{r fig-ridges-book, fig.cap="按收入组的 OOPS 分布 (脊线密度图)"}
+if (requireNamespace("ggridges", quietly = TRUE)) {
+  plot_oops_ridges_income(master_enriched, year_focus = yr_max)
+}
+```
+
+脊线图比箱线图更能传达：
+
+- **低收入** 组分布右偏，"长尾" 集中在 50-70% 区间。
+- **高收入** 组分布左偏、几乎全部 < 25%。
+- 中等收入组在 20-40% 区域形成 *双峰*，对应国内不同医疗体系子样本。
+
+# 2.4 OOPS 的 23 年趋势
+
+```{r fig-oops-trend, fig.cap="2000-2023 各大洲 OOPS 中位数趋势"}
+d_oops_trend <- master_enriched |>
+  dplyr::filter(!is.na(.data$continent), !is.na(.data$hf3_che)) |>
+  dplyr::group_by(.data$year, .data$continent) |>
+  dplyr::summarise(median_oops = stats::median(.data$hf3_che, na.rm = TRUE),
+                   .groups = "drop")
+
+ggplot2::ggplot(d_oops_trend, ggplot2::aes(.data$year, .data$median_oops,
+                                             colour = .data$continent)) +
+  ggplot2::geom_line(linewidth = 1.3) +
+  ggplot2::geom_point(size = 1.5, alpha = 0.7) +
+  ggplot2::scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  scale_colour_ghs_continent() +
+  labs_ghs(
+    title    = "OOPS by Continent: 23-year Trend",
+    subtitle = "中位数 \u00b7 大多数大洲下降但分化未消除",
+    x = NULL, y = "OOPS (% of CHE)"
+  ) +
+  theme_ghs()
+```
+
+# 2.5 三源到方案的桑基图
+
+```{r fig-sankey, fig.cap=paste(yr_max, '年 三大来源 → 五种筹资方案 (人口加权份额)'), fig.height=6.5, fig.width=11}
+plot_sankey_static(master_enriched, year_focus = yr_max)
+```
+
+桑基图把"政府/私人/外援"这一**资金来源 (revenue)** 维度，与"hf1/hf2/hf3/hf4/hfnec"**筹资方案 (scheme)** 维度连起来：
+
+- 政府收入主要流向 **强制公共/社会保险 (hf1)**；
+- 私人收入分别流向 **自愿保险 (hf2)** 与 **居民自付 OOPS (hf3)**；
+- 外援几乎全部流向 hf1（政府）或 hf4（NPISH/雇主），极少形成 hf3。
+
+# 2.6 政策启示
+
+::: {.callout-important}
+- **OOPS > 50%** 几乎是**因病致贫风险**的高保真代理变量。
+- **政府份额** 增加是降低 OOPS 的最直接政策杠杆。
+- **外援依赖** 的国家需要 *转换* 而非 *戒断* —— 短期补贴必要、长期本土能力关键。
+:::
+
+> 说完"谁出钱"，下一章我们追问一个常被忽视的问题：**钱花在哪儿？为什么预防总是吃亏？**
+
+# 2.x v2 数据新闻拓展 {.unnumbered}
+
+```{r ch02-v2-fiscal, fig.cap="主题 B · 政府卫生支出占财政 % vs GDP 人均", fig.height=5}
+plot_v2_fiscal_ghe_share(master_enriched, year = max(master_enriched$year))
+```
+
+```{r ch02-v2-aid, fig.cap="主题 E · 援助依赖度 × 国家收入分组", fig.height=5}
+plot_v2_aid_dependency(master_enriched, year = max(master_enriched$year))
+```
+
+```{r ch02-v2-sankey, echo=FALSE}
+htmltools::tagList(widget_v2_sankey_flows(master_enriched,
+                                          year = max(master_enriched$year)))
+```
+
+::: {.callout-note appearance="minimal" icon=false}
+**Sankey 流向**：左侧三大资金源 → 中间 5 个筹资方案 (HF1–HFnec) → 右侧两大用途 (HC1 治疗 / HC6 预防)。鼠标悬停查看各通道流量。
+:::
+
+---
+
+## 数据 / 代码 / 引用 {.unnumbered}
+
+- **数据**：GHED 字段 `hf3_che`（OOPS 占 CHE %）、`gghed_che`、`pvtd_che`、`ext_che`；按 `iso3_code × year` panel。
+- **代码**：地图 = `plot_world_choropleth()`、排行 = `plot_oops_ranking()`、脊线 = `plot_oops_ridges_income()`、桑基 = `plot_sankey_static()`。在 `仪表盘/` 中也提供 *Country Profile* 模块以交互方式查看任意国家的来源构成。
+- **引用**：WHO. *GHED Methodology Notes*, 2024; ONE. *A Turning Point in Health Financing*, 2024.

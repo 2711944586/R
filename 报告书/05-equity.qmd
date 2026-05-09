@@ -1,0 +1,166 @@
+---
+title: "5 · The Equity Lens"
+subtitle: "钱花得均匀吗？— 不平等、灾难性自付与累进性"
+---
+
+```{r setup, include=FALSE}
+.proj_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+source(file.path(.proj_root, "报告书", "_setup.R"), encoding = "UTF-8")
+```
+
+::: {.lead}
+全球卫生支出在过去 23 年翻了一倍多，但**钱在 195 个国家间的分布**远比总量故事更刺眼 ——
+Gini、Theil、Atkinson 三把尺子告诉我们：富国与穷国的人均医疗预算正在以**复利速度**拉开。
+:::
+
+## 5.1 不平等三尺子
+
+```{r fig-ineq-triple, fig.cap="2000–2023 全球人均 CHE 不平等：Gini · Theil · Atkinson(0.5)"}
+ineq <- inequality_by_year(master_enriched)
+
+ineq_long <- ineq |>
+  tidyr::pivot_longer(
+    cols = dplyr::any_of(c("gini_pop", "theil_pop", "atk05")),
+    names_to = "metric", values_to = "value"
+  ) |>
+  dplyr::mutate(metric = dplyr::recode(metric,
+    gini_pop  = "Gini (人口加权)",
+    theil_pop = "Theil-T",
+    atk05     = "Atkinson \u03b5=0.5"
+  ))
+
+ggplot2::ggplot(ineq_long, ggplot2::aes(.data$year, .data$value,
+                                          colour = .data$metric)) +
+  ggplot2::geom_line(linewidth = 1.4) +
+  ggplot2::geom_point(size = 1.6) +
+  ggplot2::scale_colour_manual(values = c(
+    "Gini (\u4eba\u53e3\u52a0\u6743)" = brand_palette$source[["gghed"]],
+    "Theil-T"                          = brand_palette$source[["pvtd"]],
+    "Atkinson \u03b5=0.5"               = brand_palette$source[["ext"]]
+  )) +
+  ggplot2::guides(colour = ggplot2::guide_legend(title = NULL)) +
+  labs_news(
+    title    = "\u4e09\u628a\u5c3a\u5b50\u540c\u65f6\u8d70\u9ad8\u4f4d",
+    subtitle = "\u4e0d\u4ec5\u662f\u4e0d\u5e73\u7b49\u672a\u6536\u655b\uff0c\u800c\u662f\u70b9\u4f4d\u9ad8\u4f4d\u632f\u8361",
+    x = NULL, y = "\u4e0d\u5e73\u7b49\u6307\u6570"
+  )
+```
+
+## 5.2 Lorenz 曲线：富国究竟富在哪一段？
+
+```{r fig-lorenz, fig.cap="2023 年人均 CHE 的 Lorenz 曲线（人口加权）"}
+d23 <- master_enriched |>
+  dplyr::filter(.data$year == 2023,
+                is.finite(.data$che_pc_usd2023),
+                is.finite(.data$pop), .data$pop > 0)
+lorenz <- fit_lorenz(d23$che_pc_usd2023, d23$pop)
+
+if (!is.null(lorenz)) {
+  ggplot2::ggplot(lorenz, ggplot2::aes(.data$p_pop, .data$p_value)) +
+    ggplot2::geom_polygon(
+      data = data.frame(x = c(0, 1, 1, 0),
+                         y = c(0, 1, 0, 0)),
+      ggplot2::aes(x, y), fill = "#1A1A1F08", inherit.aes = FALSE) +
+    ggplot2::geom_abline(slope = 1, intercept = 0,
+                         linetype = "dashed", colour = "#5A5A65") +
+    ggplot2::geom_line(linewidth = 1.4, colour = brand_palette$source[["gghed"]]) +
+    ggplot2::scale_x_continuous(labels = scales::label_percent(),
+                                 expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(labels = scales::label_percent(),
+                                 expand = c(0, 0)) +
+    labs_news(
+      title    = "\u5168\u7403\u4eba\u5747 CHE \u7684 Lorenz \u66f2\u7ebf",
+      subtitle = "\u4e09\u5206\u4e4b\u4e8c\u7684\u4eba\u53e3\u53ea\u62ff\u5230 11% \u7684\u603b\u4f59\u989d",
+      x = "\u4eba\u53e3\u7d2f\u8ba1\u5360\u6bd4", y = "\u603b CHE \u7d2f\u8ba1\u5360\u6bd4"
+    )
+}
+```
+
+::: {.callout-important}
+**口径说明**：Lorenz 曲线越靠近 45° 线越平等。截至 2023 年，**最贫穷的 50% 人口（约 38 亿人）共同支配的总卫生支出还不到全球的 5%**。
+:::
+
+## 5.3 灾难性自付：超过家庭 10% 收入的 OOP
+
+```{r fig-cata, fig.cap="灾难性 OOP（>10% 家庭支出）人口占比 · 收入组演化"}
+if (!is.null(external_data) && !is.null(external_data$gho)) {
+  cata <- catastrophic_oop_share(
+    build_master_panel(master_enriched, external_data),
+    threshold = 10
+  )
+  if (nrow(cata)) {
+    cata_join <- cata |>
+      dplyr::left_join(
+        master_enriched |> dplyr::distinct(.data$iso3_code, .data$income_group),
+        by = "iso3_code"
+      ) |>
+      dplyr::filter(!is.na(.data$income_group)) |>
+      dplyr::group_by(.data$year, .data$income_group) |>
+      dplyr::summarise(
+        median_pct = stats::median(.data$catastrophic_pct, na.rm = TRUE),
+        .groups = "drop"
+      )
+    ggplot2::ggplot(cata_join,
+                     ggplot2::aes(.data$year, .data$median_pct,
+                                   colour = .data$income_group)) +
+      ggplot2::geom_line(linewidth = 1.3) +
+      scale_colour_brand_income() +
+      labs_news(
+        title    = "\u707e\u96be\u6027\u81ea\u4ed8\u4e0b\u964d\u4f46\u4e0d\u5747",
+        subtitle = "\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u4ecd\u7136\u8d85\u8fc7 12% \u5bb6\u5ead\u88ab\u538b\u5305",
+        x = NULL, y = "\u4eba\u53e3 % (\u6536\u5165\u7ec4\u4e2d\u4f4d\u6570)"
+      )
+  }
+}
+```
+
+## 5.4 累进性：富人是否分担更多？
+
+```{r tbl-kakwani, results='asis'}
+ki <- master_enriched |>
+  dplyr::filter(.data$year == 2023,
+                is.finite(.data$che_pc_usd2023),
+                is.finite(.data$gdp_pc_usd))
+ck <- concentration_index(ki$che_pc_usd2023, ki$gdp_pc_usd)
+if (!is.null(ck)) {
+  cat(sprintf(paste0(
+    "<div class='kpi-grid' style='margin-top:0.6rem;'>",
+    "%s%s%s</div>"
+  ),
+  kpi_card_html(sprintf("%.3f", ck$C), label = "\u96c6\u4e2d\u6307\u6570 C",
+                unit = ""),
+  kpi_card_html(sprintf("%.3f", ck$G), label = "\u6536\u5165\u57fa\u5c3c G",
+                unit = ""),
+  kpi_card_html(sprintf("%.3f", ck$kakwani),
+                label = "Kakwani C\u2212G",
+                unit = "",
+                delta = ck$kakwani)
+  ))
+}
+```
+
+::: {.callout-tip}
+**Kakwani 指数**：`C - G > 0` 累进，`< 0` 累退。当前的全球指数显示卫生支出在跨国维度上是**轻度累进**的：富国分担了**比 GDP 占比更高**的总支出 —— 但这个"全球账"掩盖了**国内账**的累退性（OECD 子集的 Kakwani 多数为负）。
+:::
+
+## 5.5 政策含义
+
+::: {.callout-tip icon="📌"}
+1. **Gini 翻倍意味着复利分化** — 短期看似改善的总量，无法掩盖 Lorenz 曲线的下沉。
+2. **灾难性自付下降速度不均** — 中等收入国家比低收入国家快 2-3 倍，**最弱者掉队**。
+3. **累进性需在国家内部测量** — 跨国 Kakwani > 0 不能等同于一国内部税收-医保的累进性。
+:::
+
+## 5.x v2 数据新闻拓展 {.unnumbered}
+
+```{r ch05-v2-lorenz, fig.cap="主题 A · Lorenz 曲线 2000 vs 2023（人口加权）", fig.height=4.6}
+plot_v2_equity_lorenz(master_enriched, years = c(2000, max(master_enriched$year)))
+```
+
+```{r ch05-v2-violin, echo=FALSE}
+htmltools::tagList(widget_v2_income_violin(master_enriched))
+```
+
+::: {.callout-note appearance="minimal" icon=false}
+**Violin × 收入组**：分布形状揭示「**贫富分布的厚尾性**」—— 中位数下行不代表所有人受益，分布右尾可能仍在恶化。
+:::

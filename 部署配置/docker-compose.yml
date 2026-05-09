@@ -1,0 +1,59 @@
+version: "3.8"
+# =============================================================================
+# docker-compose.yml
+#   - dashboard: 启动 Shiny 仪表盘 (端口 3838)
+#   - book:      在容器内 quarto render 叙事书并通过 nginx 8080 提供静态站
+#   - rstudio:   可选 RStudio Server (端口 8787) 给评阅老师查代码
+# =============================================================================
+
+services:
+  dashboard:
+    build:
+      context: ..
+      dockerfile: 部署配置/Dockerfile
+    image: ghs-dashboard:latest
+    container_name: ghs-dashboard
+    ports:
+      - "3838:3838"
+    volumes:
+      - ../派生数据:/srv/ghs/派生数据
+      - ../分析输出:/srv/ghs/分析输出
+    environment:
+      - R_SHINY_HOST=0.0.0.0
+      - R_SHINY_PORT=3838
+      - LANG=en_US.UTF-8
+    restart: unless-stopped
+
+  book:
+    image: ghs-dashboard:latest
+    container_name: ghs-book
+    depends_on:
+      - dashboard
+    command:
+      - bash
+      - -c
+      - |
+        cd /srv/ghs &&
+        quarto render 报告书 &&
+        cd 网站发布 &&
+        python3 -m http.server 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../报告书:/srv/ghs/报告书
+      - ../网站发布:/srv/ghs/网站发布
+      - ../派生数据:/srv/ghs/派生数据
+    restart: unless-stopped
+
+  rstudio:
+    image: rocker/rstudio:4.5.0
+    container_name: ghs-rstudio
+    ports:
+      - "8787:8787"
+    environment:
+      - PASSWORD=ghs20241334
+      - ROOT=true
+      - DISABLE_AUTH=false
+    volumes:
+      - ..:/home/rstudio/project
+    restart: unless-stopped

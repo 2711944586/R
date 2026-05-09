@@ -1,0 +1,266 @@
+---
+title: "EDA · WHO Global Health Expenditure Database"
+subtitle: "缺失诊断 · 分布概览 · 异常值"
+author: "庄颂 (20241334)"
+date: today
+date-format: "YYYY-MM-DD"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "目录"
+    theme: cosmo
+    code-fold: true
+    code-tools: true
+    df-print: paged
+    fig-width: 9
+    fig-height: 5.5
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r setup, include=FALSE}
+if (!dir.exists("程序")) {
+  if (basename(getwd()) == "analysis") setwd("..")
+}
+for (f in list.files("程序", pattern = "\\.R$", full.names = TRUE)) {
+  source(f, encoding = "UTF-8")
+}
+suppressPackageStartupMessages({
+  library(dplyr); library(tidyr); library(ggplot2); library(scales)
+})
+cache_path <- file.path("派生数据", "处理结果", "master_enriched.rds")
+if (file.exists(cache_path)) {
+  master_enriched <- readRDS(cache_path)
+} else {
+  ghs <- load_ghs()
+  master_enriched <- enrich_master(build_master_wide(ghs), with_wdi = TRUE)
+  dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
+  saveRDS(master_enriched, cache_path)
+}
+```
+
+# 1 概览
+
+::: {.callout-note}
+本章是 **正式叙事书 / Shiny 仪表盘的前置工序**：先看清数据有什么、缺什么、值域是什么，
+再决定如何讲故事。所有图表都是探索性的，不进入最终叙事。
+:::
+
+```{r overview-num}
+n_country <- dplyr::n_distinct(master_enriched$iso3_code)
+yr_min    <- min(master_enriched$year, na.rm = TRUE)
+yr_max    <- max(master_enriched$year, na.rm = TRUE)
+n_rows    <- nrow(master_enriched)
+n_cols    <- ncol(master_enriched)
+cat(sprintf(
+  "覆盖国家数: %d 个\n年份范围: %d–%d\n面板规模: %d 行 × %d 列\n",
+  n_country, yr_min, yr_max, n_rows, n_cols
+))
+```
+
+```{r overview-glimpse}
+dplyr::glimpse(master_enriched)
+```
+
+# 2 缺失结构 Missing structure
+
+```{r missing-table}
+miss <- master_enriched |>
+  dplyr::summarise(
+    dplyr::across(dplyr::where(is.numeric),
+                  ~ mean(!is.finite(.x)) * 100, .names = "{.col}")
+  ) |>
+  tidyr::pivot_longer(everything(),
+                      names_to = "variable",
+                      values_to = "missing_pct") |>
+  dplyr::arrange(dplyr::desc(.data$missing_pct))
+knitr::kable(utils::head(miss, 20),
+             digits = 1,
+             col.names = c("变量", "缺失率 (%)"),
+             caption = "Top-20 缺失最严重的变量")
+```
+
+```{r missing-heatmap, fig.cap="数值变量缺失率热力图（按变量与年份）"}
+miss_yr <- master_enriched |>
+  dplyr::group_by(.data$year) |>
+  dplyr::summarise(dplyr::across(dplyr::where(is.numeric),
+                                  ~ mean(!is.finite(.x)) * 100),
+                   .groups = "drop") |>
+  tidyr::pivot_longer(-"year", names_to = "variable",
+                       values_to = "missing_pct")
+
+ggplot2::ggplot(miss_yr,
+                ggplot2::aes(.data$year, .data$variable,
+                              fill = .data$missing_pct)) +
+  ggplot2::geom_tile(colour = "white", linewidth = 0.05) +
+  ggplot2::scale_fill_viridis_c(option = "magma", direction = -1,
+                                 labels = function(x) paste0(x, "%")) +
+  labs_ghs(
+    title = "缺失率 by 变量 \u00d7 年份",
+    subtitle = "颜色越深 \u00b7 缺失越严重",
+    x = NULL, y = NULL
+  ) +
+  theme_ghs(grid = FALSE) +
+  ggplot2::theme(
+    axis.text.y = ggplot2::element_text(size = 7)
+  )
+```
+
+::: {.callout-tip}
+- `hc1_che / hc6_che / hc2_che` 等 **purpose** 系列从 **2016** 才有较稳定的覆盖；早年可视为
+  系统性缺失。
+- WDI 衍生列 `gdp_pc_usd / pop` 在 1–2 个最新年通常缺末端值，需在跨年比较时用最新可得数。
+:::
+
+# 3 数值变量分布
+
+```{r dist-key, fig.cap="关键指标在最新年的分布", fig.height=6}
+key_vars <- c("hf3_che", "gghed_che", "pvtd_che", "ext_che",
+              "che_pc_usd2023", "hc6_che")
+d_key <- master_enriched |>
+  dplyr::filter(.data$year == yr_max) |>
+  dplyr::select("country_name", "continent",
+                 dplyr::all_of(key_vars)) |>
+  tidyr::pivot_longer(dplyr::all_of(key_vars),
+                       names_to = "metric", values_to = "value") |>
+  dplyr::filter(is.finite(.data$value))
+
+ggplot2::ggplot(d_key, ggplot2::aes(.data$value, fill = .data$metric)) +
+  ggplot2::geom_histogram(bins = 30, alpha = 0.85, colour = NA) +
+  ggplot2::facet_wrap(~ .data$metric, scales = "free", ncol = 3) +
+  ggplot2::scale_fill_viridis_d(option = "D", end = 0.85) +
+  labs_ghs(
+    title = sprintf("%d 年关键指标分布", yr_max),
+    subtitle = "y = 国家计数 \u00b7 各 facet 自由刻度",
+    x = NULL, y = NULL
+  ) +
+  theme_ghs(grid = "y") +
+  ggplot2::theme(legend.position = "none",
+                  strip.text = ggplot2::element_text(size = 9))
+```
+
+```{r dist-pc}
+ggplot2::ggplot(
+  master_enriched |>
+    dplyr::filter(.data$year == yr_max,
+                  is.finite(.data$che_pc_usd2023)),
+  ggplot2::aes(.data$che_pc_usd2023, fill = .data$continent)
+) +
+  ggplot2::geom_histogram(bins = 30, colour = NA, alpha = 0.85) +
+  ggplot2::scale_x_log10(labels = scales::label_dollar()) +
+  scale_fill_ghs_continent() +
+  labs_ghs(
+    title = sprintf("%d 年人均 CHE 分布（对数尺度）", yr_max),
+    subtitle = "明显右偏 \u00b7 高收入国家集中在右侧",
+    x = "Per-capita CHE (USD 2023, log)", y = "国家数"
+  ) +
+  theme_ghs()
+```
+
+# 4 时间维度概览
+
+```{r time-trend, fig.cap="按收入组分组的关键比例时序"}
+d_time <- master_enriched |>
+  dplyr::filter(!is.na(.data$income_group)) |>
+  dplyr::group_by(.data$year, .data$income_group) |>
+  dplyr::summarise(
+    median_oops  = stats::median(.data$hf3_che, na.rm = TRUE),
+    median_gghed = stats::median(.data$gghed_che, na.rm = TRUE),
+    median_ext   = stats::median(.data$ext_che, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  tidyr::pivot_longer(c("median_oops", "median_gghed", "median_ext"),
+                       names_to = "metric", values_to = "value")
+
+ggplot2::ggplot(d_time, ggplot2::aes(.data$year, .data$value,
+                                       colour = .data$income_group)) +
+  ggplot2::geom_line(linewidth = 1.1) +
+  ggplot2::facet_wrap(~ .data$metric, scales = "free_y") +
+  scale_colour_ghs_income() +
+  ggplot2::scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  labs_ghs(
+    title = "OOPS / GGHE-D / EXT 中位数演化",
+    subtitle = "按收入组分组 \u00b7 1 个低收入组的外援更剧烈下降",
+    x = NULL, y = "% of CHE"
+  ) +
+  theme_ghs()
+```
+
+# 5 异常值与极端国
+
+```{r outliers}
+extreme <- master_enriched |>
+  dplyr::filter(.data$year == yr_max,
+                is.finite(.data$hf3_che)) |>
+  dplyr::arrange(dplyr::desc(.data$hf3_che))
+extreme |>
+  dplyr::slice_head(n = 5) |>
+  dplyr::transmute(国家 = .data$country_name,
+                    `OOPS %` = round(.data$hf3_che, 1),
+                    `政府 %` = round(.data$gghed_che, 1),
+                    `外援 %` = round(.data$ext_che, 1),
+                    收入组 = .data$income_group) |>
+  knitr::kable(caption = "OOPS 占比最高的 5 国（最新年）")
+
+extreme |>
+  dplyr::slice_tail(n = 5) |>
+  dplyr::transmute(国家 = .data$country_name,
+                    `OOPS %` = round(.data$hf3_che, 1),
+                    `政府 %` = round(.data$gghed_che, 1),
+                    `外援 %` = round(.data$ext_che, 1),
+                    收入组 = .data$income_group) |>
+  knitr::kable(caption = "OOPS 占比最低的 5 国（最新年）")
+```
+
+# 6 变量两两相关性
+
+```{r corr-matrix, fig.cap="数值变量相关性热力图（最新年）", fig.height=7}
+num_keep <- master_enriched |>
+  dplyr::filter(.data$year == yr_max) |>
+  dplyr::select(dplyr::all_of(c(
+    "che_pc_usd2023", "che_usd2023",
+    "gghed_che", "pvtd_che", "ext_che", "hf3_che",
+    "hc1_che", "hc6_che",
+    "gdp_pc_usd", "pop"
+  ))) |>
+  dplyr::filter(dplyr::if_all(dplyr::everything(), is.finite))
+
+corr <- stats::cor(num_keep, use = "pairwise.complete.obs")
+corr_df <- as.data.frame(corr) |>
+  tibble::rownames_to_column("var1") |>
+  tidyr::pivot_longer(-"var1", names_to = "var2", values_to = "rho")
+
+ggplot2::ggplot(corr_df, ggplot2::aes(.data$var1, .data$var2,
+                                        fill = .data$rho)) +
+  ggplot2::geom_tile(colour = "white", linewidth = 0.05) +
+  ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", .data$rho)),
+                     size = 2.8, colour = "grey25") +
+  ggplot2::scale_fill_gradient2(low = "#1B5E88", mid = "white",
+                                 high = "#C0504D", midpoint = 0,
+                                 limits = c(-1, 1)) +
+  labs_ghs(title = sprintf("%d 年关键变量相关性", yr_max),
+            x = NULL, y = NULL) +
+  theme_ghs(grid = FALSE) +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+  )
+```
+
+::: {.callout-tip}
+- `che_pc_usd2023` 与 `gdp_pc_usd` 高度正相关 → "钱越多花越多"。
+- `hf3_che` (OOPS) 与 `gghed_che` 显著负相关 → 政府承担越多, 居民自付越少。
+- `ext_che` 与 `che_pc_usd2023` 在低收入国家强负相关 → 外援填补了部分本土筹资缺口。
+:::
+
+# 7 EDA 小结
+
+::: {.callout-important}
+1. **结构性缺失**：`hc1`/`hc6` 等 purpose 系列在 2016 之前不可信。
+2. **极端国家**：阿富汗、也门、尼日利亚 OOPS > 70%，挪威、德国 OOPS < 15%。
+3. **关键相关性**：政府 ↑ ↔ OOPS ↓；GDP ↑ → CHE/cap ↑（弹性 ≈ 1）。
+4. **下一步**：主叙事书把这些结构性结论作为读者推理路径的支柱。
+:::

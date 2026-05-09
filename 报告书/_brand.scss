@@ -1,0 +1,379 @@
+/*-- scss:defaults --*/
+// =============================================================================
+// Quarto Book v2 · 数据新闻风（FT/Bloomberg/Pudding 灵感）
+// =============================================================================
+
+// ----- 字体 -----
+$font-family-serif: "Source Serif 4", "Source Serif Pro", Fraunces, Georgia, "Songti SC", serif !default;
+$font-family-sans:  "Inter", "Inter Tight", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif !default;
+$font-family-mono:  "JetBrains Mono", "Fira Code", Consolas, monospace !default;
+
+$font-family-base:    $font-family-sans !default;
+$headings-font-family: $font-family-serif !default;
+$font-family-code:    $font-family-mono !default;
+
+$font-size-base:   1.05rem !default;   // 16.8px
+$line-height-base: 1.65 !default;
+$headings-line-height: 1.18 !default;
+$headings-font-weight: 600 !default;
+
+// ----- 主色调（莫兰迪基调）-----
+$ink:     #1A1A1F !default;
+$paper:   #FAF7F2 !default;
+$rule:    rgba(26, 26, 31, 0.12) !default;
+$muted:   #5A5A65 !default;
+$accent:  #1B5E88 !default;     // 政府蓝（数据色板 1 主调）
+$accent2: #C46B27 !default;     // 私人赭红
+$accent3: #6B8E5A !default;     // 外援橄榄绿
+$ok:      #2A9D8F !default;
+$warn:    #C46B27 !default;
+$danger:  #C0504D !default;
+
+// ----- bootstrap 变量映射 -----
+$body-bg:     $paper !default;
+$body-color:  $ink !default;
+$primary:     $accent !default;
+$secondary:   $muted !default;
+$success:     $ok !default;
+$warning:     $warn !default;
+$danger:      $danger !default;
+
+$link-color:           $accent !default;
+$link-hover-color:     $accent2 !default;
+$link-decoration:      underline !default;
+$link-hover-decoration: none !default;
+
+// 间距 4-8-16-32-64 节奏
+$spacer: 1rem !default;
+
+/*-- scss:rules --*/
+
+// ============================================================================
+// 排版基础
+// ============================================================================
+body {
+  font-family: $font-family-sans;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $ink;
+  background: $paper;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+// 编辑标题：衬线 + 重磅
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: $font-family-serif;
+  color: $ink;
+  letter-spacing: -0.01em;
+  margin-top: 2.4rem;
+  margin-bottom: 0.8rem;
+}
+h1, .h1 { font-size: 2.6rem; line-height: 1.12; font-weight: 600; }
+h2, .h2 { font-size: 2.0rem; line-height: 1.18; font-weight: 600;
+          border-top: 1px solid $rule; padding-top: 1.6rem; margin-top: 3.2rem; }
+h3, .h3 { font-size: 1.5rem; line-height: 1.25; font-weight: 600; }
+h4, .h4 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
+
+// 标题悬浮 anchor
+h1:hover .anchorjs-link, h2:hover .anchorjs-link, h3:hover .anchorjs-link {
+  opacity: 1; transition: opacity 0.2s;
+}
+
+// 正文段落
+p {
+  margin-bottom: 1.1rem;
+  max-width: 42rem;            // 阅读宽限制（680px）
+}
+.column-page p, .column-screen p, .full-width p {
+  max-width: none;
+}
+
+// 链接
+a {
+  color: $link-color;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+a:hover { text-decoration: none; color: $link-hover-color; }
+
+// 强调
+strong, b { font-weight: 600; color: $ink; }
+em, i { font-style: italic; }
+
+// ============================================================================
+// Hero / 封面
+// ============================================================================
+.book-cover, .ghs-hero {
+  background: linear-gradient(180deg, #FAF7F2 0%, #F2EEE6 100%);
+  padding: 4rem 2rem 5rem;
+  margin: -2rem -2rem 3rem;
+  border-bottom: 1px solid $rule;
+}
+.ghs-hero h1 {
+  font-size: 3.4rem;
+  line-height: 1.05;
+  max-width: 38rem;
+}
+.ghs-hero .subtitle {
+  font-size: 1.4rem;
+  line-height: 1.4;
+  color: $muted;
+  max-width: 42rem;
+  margin-top: 1rem;
+  font-family: $font-family-serif;
+  font-style: italic;
+}
+.ghs-hero .meta {
+  font-size: 0.92rem;
+  color: $muted;
+  margin-top: 2rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+// ============================================================================
+// KPI 卡片（共用组件）
+// ============================================================================
+.kpi-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 1.6rem 0 2.4rem;
+}
+.kpi-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(26,26,31,0.08);
+  border-radius: 8px;
+  padding: 18px 20px;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(26,26,31,0.06);
+}
+.kpi-card .label {
+  font-size: 12px;
+  color: $muted;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.kpi-card .value {
+  font-family: $font-family-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: $ink;
+  line-height: 1.1;
+}
+.kpi-card .unit {
+  font-size: 0.55em;
+  color: $muted;
+  margin-left: 4px;
+  font-weight: 400;
+}
+.kpi-card .delta {
+  font-size: 0.7em;
+  margin-left: 8px;
+}
+.kpi-card .delta.up   { color: $ok; }
+.kpi-card .delta.down { color: $danger; }
+.kpi-card .delta.flat { color: $muted; }
+
+// ============================================================================
+// 编辑式 callout（覆盖 Quarto 默认）
+// ============================================================================
+div.callout {
+  border: 1px solid $rule !important;
+  border-left: 4px solid $accent !important;
+  border-radius: 4px;
+  background: #FFFFFFA0 !important;
+  margin: 1.6rem 0;
+  padding: 1rem 1.2rem;
+}
+div.callout.callout-style-default > .callout-header {
+  background: transparent !important;
+  font-weight: 600;
+  font-family: $font-family-serif;
+  font-size: 1.05rem;
+}
+div.callout-tip      { border-left-color: $ok !important; }
+div.callout-warning  { border-left-color: $warn !important; }
+div.callout-important{ border-left-color: $danger !important; }
+div.callout-note     { border-left-color: $accent !important; }
+
+// 数据新闻式 blockquote
+blockquote {
+  border-left: 4px solid $accent;
+  padding: 0.6rem 1.2rem;
+  margin: 1.6rem 0;
+  background: #FFFFFF80;
+  font-family: $font-family-serif;
+  font-size: 1.18rem;
+  line-height: 1.5;
+  color: $ink;
+}
+blockquote p { margin: 0; max-width: none; }
+
+// ============================================================================
+// 图表与表格
+// ============================================================================
+.figure, figure {
+  margin: 2.2rem 0;
+}
+.figure img, figure img {
+  border-radius: 4px;
+}
+.figure-caption, figcaption {
+  font-size: 0.88rem;
+  color: $muted;
+  margin-top: 0.6rem;
+  font-family: $font-family-sans;
+  line-height: 1.4;
+  border-top: 1px solid $rule;
+  padding-top: 0.4rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.4rem 0;
+  font-size: 0.94rem;
+}
+th, td {
+  padding: 0.55rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid $rule;
+}
+th {
+  font-weight: 600;
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $muted;
+  border-bottom: 2px solid $ink;
+}
+tr:hover td { background: #1A1A1F08; }
+
+// ============================================================================
+// 代码块
+// ============================================================================
+pre, code {
+  font-family: $font-family-mono;
+}
+pre {
+  background: #FCFAF6 !important;
+  border: 1px solid $rule;
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+code {
+  background: rgba(26,26,31,0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: $accent;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  color: $ink;
+}
+
+// ============================================================================
+// 章节导航 / 侧栏
+// ============================================================================
+.sidebar nav[role="doc-toc"] {
+  font-size: 0.9rem;
+}
+.sidebar nav[role="doc-toc"] a {
+  color: $muted;
+  text-decoration: none;
+}
+.sidebar nav[role="doc-toc"] a:hover {
+  color: $accent;
+}
+.sidebar nav[role="doc-toc"] .active > a {
+  color: $accent !important;
+  font-weight: 600;
+}
+
+// ============================================================================
+// Scrollytelling（用 IntersectionObserver 联动）
+// ============================================================================
+.scrolly-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 3rem 0;
+  position: relative;
+}
+.scrolly-figure {
+  position: sticky;
+  top: 2rem;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scrolly-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 60vh;
+  padding: 2rem 0;
+}
+.scrolly-steps .step {
+  background: #FFFFFFD0;
+  border-left: 4px solid $accent;
+  padding: 1.2rem 1.4rem;
+  border-radius: 4px;
+  font-family: $font-family-serif;
+  font-size: 1.18rem;
+  line-height: 1.5;
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+.scrolly-steps .step.is-active { opacity: 1; }
+
+@media (max-width: 800px) {
+  .scrolly-container { grid-template-columns: 1fr; }
+  .scrolly-figure { position: relative; height: 50vh; top: 0; }
+  .scrolly-steps { gap: 2rem; padding: 0; }
+}
+
+// ============================================================================
+// 工具类
+// ============================================================================
+.text-muted { color: $muted !important; }
+.text-accent { color: $accent !important; }
+.font-serif { font-family: $font-family-serif !important; }
+.font-sans { font-family: $font-family-sans !important; }
+.font-mono { font-family: $font-family-mono !important; }
+.lead { font-size: 1.25rem; color: $muted; line-height: 1.5; max-width: 42rem;
+        font-family: $font-family-serif; font-style: italic; }
+.dropcap::first-letter {
+  font-family: $font-family-serif;
+  font-size: 4em;
+  float: left;
+  line-height: 0.85;
+  margin: 0.05em 0.08em 0 0;
+  font-weight: 600;
+  color: $accent;
+}
+
+// ============================================================================
+// 响应式
+// ============================================================================
+@media (max-width: 768px) {
+  body { font-size: 1rem; }
+  h1, .h1 { font-size: 2rem; }
+  h2, .h2 { font-size: 1.6rem; }
+  h3, .h3 { font-size: 1.25rem; }
+  .ghs-hero { padding: 2.4rem 1.2rem 3rem; }
+  .ghs-hero h1 { font-size: 2.2rem; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+}

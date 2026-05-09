@@ -1,0 +1,548 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "A Decade of Health Money",
+    "section": "",
+    "text": "0.1 TL;DR · 四个必须记住的数字\n2023 年全球 CHE 总额\n\n\n$10.6T\n\n\n\n\nOOPS 自付占 CHE 平均\n\n\n30.3%\n\n\n\n\n政府主导 GGHE-D 平均\n\n\n52.7%\n\n\n\n\n外援 ext 占 CHE 平均\n\n\n10.9%",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>A Decade of Health Money</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#三个产品一个故事",
+    "href": "index.html#三个产品一个故事",
+    "title": "A Decade of Health Money",
+    "section": "\n0.2 三个产品，一个故事",
+    "text": "0.2 三个产品，一个故事\n这份叙事不止一份 HTML —— 它是由 三件套 组成的可交互数据产品：\n\n\n\n\n\n\n\n\n\nNote📖 Quarto Book\n\n\n\n你正在看的这本书：12 章深度叙事 + 60+ 图表 + 方法论附录。 完全静态，GitHub Pages 托管，打开即读。\n\n\n\n\n\n\n\n\n\n\nNote🖥️ Shiny Dashboard\n\n\n\n→ 打开仪表盘\n12 个交互模块：国家画像、时光机、对比、聚类、预测、情景模拟 … 浏览器内 WebAssembly 运行，零本地依赖。\n\n\n\n\n\n\n\n\n\n\nNote🎓 作业合规包\n\n\n\nsubmission/庄颂_20241334.{Rmd,html} —— 独立的课程作业交付， 从零 knit 可跑通，面向 R 大作业评审场景。",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>A Decade of Health Money</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#章路线图",
+    "href": "index.html#章路线图",
+    "title": "A Decade of Health Money",
+    "section": "\n0.3 12 章路线图",
+    "text": "0.3 12 章路线图\n\n\n\n\n\n\n\n\n\n\n部分\n#\n章节\n一句话\n\n\n\nI\n01\nThe Big Picture\n4 万亿到 9 万亿美元的账单，分化的 23 年\n\n\nI\n02\nWho Pays?\n政府、私人、外援：三方的角力\n\n\nI\n03\nPrevention Deficit\n全球普遍存在的预防赤字\n\n\nII\n04\nPandemic Shock\n2020-2022 政府是最后的保险\n\n\nII\n05\nEquity Lens\n不平等、灾难性自付、累进性\n\n\nII\n06\nFiscal Space\n债务、财政空间与卫生挤占\n\n\nIII\n07\nEfficiency Frontier\nDEA 视角：钱买寿命的效率\n\n\nIII\n08\nHealth Outcomes\n弹性曲线、UHC SCI 与钱的边界\n\n\nIII\n09\nAid Flows\n外援下行与最后一公里\n\n\nIV\n10\nFive Tribes\n4 个筹资家族 · PCA 聚类画像\n\n\nIV\n11\nThe Future\n2030 情景 · 蒙特卡罗 1000 次\n\n\nIV\n12\nRoads Ahead\n政策意涵 · 局限 · 下一步",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>A Decade of Health Money</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#数据与方法",
+    "href": "index.html#数据与方法",
+    "title": "A Decade of Health Money",
+    "section": "\n0.4 数据与方法",
+    "text": "0.4 数据与方法\n这份报告建立在 6 个独立数据源 的融合之上（全部离线缓存，可零网络复现）：\n\n\nWHO GHED 2024 — 主数据（支出结构，195 国 × 24 年）\n\nWorld Bank WDI — 30 个宏观指标（人口、GDP、寿命、教育 …）\n\nWHO GHO — 12 个健康结果（HALE、UHC SCI、疫苗、灾难性 OOP）\n\nIMF GFS / WEO — 财政空间（债务、一般政府支出 / GDP）\n\nOECD Health Statistics — OECD 子集补充（床位、医生密度）\n\nNatural Earth 50m — 地图多边形\n\n\n\n\n\n\n\n方法论全文 — 第 A0 章 · Methodology Appendix 代码与数据 — GitHub 仓库 更新日期 — 2026 年 05 月 09 日\n\n\n\n\n\n\n\n\n\nWarning\n\n\n\n免责声明 · 本报告为 描述性 + 相关性 研究，不做因果推断。所有结论应在政策语境中谨慎解读，详细局限性说明见方法论附录。\n\n\n\n  ↓   向下滚动或点击左侧目录进入第一章   ↓",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>A Decade of Health Money</span>"
+    ]
+  },
+  {
+    "objectID": "01-the-big-picture.html",
+    "href": "01-the-big-picture.html",
+    "title": "\n2  1. The Big Picture\n",
+    "section": "",
+    "text": "3 1.1 全球总盘子：从 4 万亿到 9 万亿\nCoded_total &lt;- master_enriched |&gt;\n  dplyr::filter(is.finite(.data$che_usd2023)) |&gt;\n  dplyr::group_by(.data$year) |&gt;\n  dplyr::summarise(che = sum(.data$che_usd2023, na.rm = TRUE) / 1e12,\n                   .groups = \"drop\")\n\nggplot2::ggplot(d_total, ggplot2::aes(.data$year, .data$che)) +\n  ggplot2::geom_area(fill = \"#1B5E88\", alpha = 0.85) +\n  ggplot2::geom_line(colour = \"#1B5E88\", linewidth = 1) +\n  ggplot2::geom_point(size = 2, colour = \"#1B5E88\") +\n  ggplot2::geom_vline(xintercept = 2020, linetype = \"dashed\",\n                      colour = \"grey50\") +\n  ggplot2::annotate(\"text\", x = 2020.2, y = max(d_total$che) * 0.4,\n                    label = \"COVID-19\", hjust = 0, size = 3.2,\n                    colour = \"grey30\") +\n  ggplot2::scale_y_continuous(labels = function(x) paste0(\"$\", x, \"T\")) +\n  labs_ghs(\n    title    = \"Total Global Health Expenditure\",\n    subtitle = \"美元 \\u00b7 2023 年不变价 \\u00b7 trillion\",\n    x = NULL, y = NULL\n  ) +\n  theme_ghs()\n\n\n\n\n\n\nFigure 3.1: 2000-2023 全球总卫生支出 (CHE) 规模",
+    "crumbs": [
+      "I · 全球图谱",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>1. The Big Picture</span>"
+    ]
+  },
+  {
+    "objectID": "01-the-big-picture.html#数据-代码-引用",
+    "href": "01-the-big-picture.html#数据-代码-引用",
+    "title": "\n2  1. The Big Picture\n",
+    "section": "数据 / 代码 / 引用",
+    "text": "数据 / 代码 / 引用\n\n\n数据：WHO Global Health Expenditure Database, 2024-12 release; 字段 che_usd2023（CHE 总量, 不变美元）和 che_pc_usd2023（人均）。\n\n代码：本章三张图分别由 plot_source_area()、plot_che_treemap() 与原生 ggplot 块绘制；批量导出脚本 dev_scripts/run_all_outputs.R figures。\n\n引用：World Health Organization. Global Health Expenditure Database (GHED), 2024-12. https://apps.who.int/nha/database",
+    "crumbs": [
+      "I · 全球图谱",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>1. The Big Picture</span>"
+    ]
+  },
+  {
+    "objectID": "02-who-pays.html",
+    "href": "02-who-pays.html",
+    "title": "\n3  2. Who Pays?\n",
+    "section": "",
+    "text": "4 2.1 OOPS：居民自付的世界版图\nCodeworld_sf &lt;- tryCatch(load_world_sf(scale = \"medium\", simplify_keep = 0.08),\n                     error = function(e) NULL)\nif (!is.null(world_sf)) {\n  plot_world_choropleth(master_enriched, world_sf,\n                        indicator_col = \"hf3_che\", year_focus = yr_max,\n                        title = sprintf(\"OOPS 占 CHE 比例 \\u00b7 %d\", yr_max),\n                        subtitle = \"颜色越深 \\u00b7 居民自付负担越高 \\u00b7 灰色为缺失\")\n}\n\n\n\n\n\n\nFigure 4.1: 2023 年各国 OOPS 占 CHE 比例（Robinson 投影）",
+    "crumbs": [
+      "I · 全球图谱",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>2. Who Pays?</span>"
+    ]
+  },
+  {
+    "objectID": "02-who-pays.html#数据-代码-引用",
+    "href": "02-who-pays.html#数据-代码-引用",
+    "title": "\n3  2. Who Pays?\n",
+    "section": "数据 / 代码 / 引用",
+    "text": "数据 / 代码 / 引用\n\n\n数据：GHED 字段 hf3_che（OOPS 占 CHE %）、gghed_che、pvtd_che、ext_che；按 iso3_code × year panel。\n\n代码：地图 = plot_world_choropleth()、排行 = plot_oops_ranking()、脊线 = plot_oops_ridges_income()、桑基 = plot_sankey_static()。在 app/ 中也提供 Country Profile 模块以交互方式查看任意国家的来源构成。\n\n引用：WHO. GHED Methodology Notes, 2024; ONE. A Turning Point in Health Financing, 2024.",
+    "crumbs": [
+      "I · 全球图谱",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>2. Who Pays?</span>"
+    ]
+  },
+  {
+    "objectID": "03-prevention-deficit.html",
+    "href": "03-prevention-deficit.html",
+    "title": "\n4  3. Prevention Deficit\n",
+    "section": "",
+    "text": "5 3.1 治疗 vs 预防：散点的两极\nGHED 的 hc1 (治疗性护理) 与 hc6 (预防性护理) 完整覆盖 2016–2023，样本量足以揭示一种近似 普世 的不对称模式。\nCoded_pc &lt;- master_enriched |&gt;\n  dplyr::filter(.data$year == 2021,\n                !is.na(.data$hc1_che), !is.na(.data$hc6_che)) |&gt;\n  dplyr::mutate(label = ifelse(.data$hc6_che &gt; 9 | .data$hc1_che &gt; 88,\n                                .data$country_name, NA_character_))\n\np &lt;- ggplot2::ggplot(d_pc, ggplot2::aes(.data$hc1_che, .data$hc6_che,\n                                          colour = .data$continent)) +\n  ggplot2::geom_point(alpha = 0.78, size = 2.6) +\n  (if (requireNamespace(\"ggrepel\", quietly = TRUE)) {\n    ggrepel::geom_text_repel(ggplot2::aes(label = .data$label),\n                             size = 3, max.overlaps = 18)\n  } else {\n    ggplot2::geom_text(ggplot2::aes(label = .data$label), size = 3)\n  }) +\n  ggplot2::geom_hline(yintercept = 6, linetype = \"dashed\",\n                      colour = \"grey50\", linewidth = 0.4) +\n  ggplot2::annotate(\"text\", x = 90, y = 6.6, label = \"WHO Recommendation 6%\",\n                    size = 3, colour = \"grey40\", hjust = 1) +\n  ggplot2::scale_x_continuous(labels = scales::label_percent(scale = 1)) +\n  ggplot2::scale_y_continuous(labels = scales::label_percent(scale = 1)) +\n  scale_colour_ghs_continent() +\n  labs_ghs(\n    title    = \"Prevention is Underfunded Almost Everywhere\",\n    subtitle = \"横轴: 治疗 hc1 % \\u00b7 纵轴: 预防 hc6 % \\u00b7 大多数国家挤在 &lt; 6% 区域\",\n    x = \"治疗 hc1 (% of CHE)\", y = \"预防 hc6 (% of CHE)\"\n  ) +\n  theme_ghs()\np\n\n\n\n\n\n\nFigure 5.1: 2021 年各国治疗 hc1 vs 预防 hc6 散点（占 CHE %）",
+    "crumbs": [
+      "I · 全球图谱",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>3. Prevention Deficit</span>"
+    ]
+  },
+  {
+    "objectID": "03-prevention-deficit.html#数据-代码-引用",
+    "href": "03-prevention-deficit.html#数据-代码-引用",
+    "title": "\n4  3. Prevention Deficit\n",
+    "section": "数据 / 代码 / 引用",
+    "text": "数据 / 代码 / 引用\n\n\n数据：GHED hc1_che (治疗) 与 hc6_che (预防) —— 注意 purpose 系列从 2016 起才有较稳定覆盖。\n\n代码：散点 = 原生 ggplot；趋势 = 原生 ggplot；Waffle = plot_waffle_purpose()。\n\n引用：ONE. The Hidden Fragility of Preventive Health Spending, 2024. https://data.one.org/analysis/hidden-fragility-of-prevention-spending; WHO. Global spending on health: rising to the pandemic’s challenges, 2023.",
+    "crumbs": [
+      "I · 全球图谱",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>3. Prevention Deficit</span>"
+    ]
+  },
+  {
+    "objectID": "04-pandemic-shock.html",
+    "href": "04-pandemic-shock.html",
+    "title": "\n5  4. The COVID-19 Shock\n",
+    "section": "",
+    "text": "6 4.1 整体冲击\nCodesummary_tbl &lt;- tibble::tibble(\n  指标 = c(\"总体平均 CHE 变化 (%)\",\n           \"平均 OOPS 变化 (pp)\",\n           \"平均 GGHE-D 变化 (pp)\",\n           \"样本国家数\",\n           \"CHE 上升的国家数\"),\n  数值 = c(round(mean_che, 2),\n           round(mean_oops, 2),\n           round(mean_gov, 2),\n           n_total,\n           n_up)\n)\nknitr::kable(summary_tbl, caption = \"COVID 冲击 (2020-2022 vs 2019)\")\n\n\nCOVID 冲击 (2020-2022 vs 2019)\n\n指标\n数值\n\n\n\n总体平均 CHE 变化 (%)\n10.60\n\n\n平均 OOPS 变化 (pp)\n-1.75\n\n\n平均 GGHE-D 变化 (pp)\n1.32\n\n\n样本国家数\n194.00\n\n\nCHE 上升的国家数\n156.00",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>4. The COVID-19 Shock</span>"
+    ]
+  },
+  {
+    "objectID": "04-pandemic-shock.html#数据-代码-引用",
+    "href": "04-pandemic-shock.html#数据-代码-引用",
+    "title": "\n5  4. The COVID-19 Shock\n",
+    "section": "数据 / 代码 / 引用",
+    "text": "数据 / 代码 / 引用\n\n\n数据：GHED che_usd2023、hf3_che、gghed_che、ext_che；定义 冲击 为 2020-2022 三年均值 vs 2019 基准。\n\n代码：covid_shock() 函数计算各国 Δ%；plot_covid_dumbbell() 把 OOPS 端点变化可视化。\n\n引用：WHO. Global spending on health: rising to the pandemic’s challenges, 2023; OECD. Health at a Glance 2023; Our World in Data — COVID-19 dataset.",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>4. The COVID-19 Shock</span>"
+    ]
+  },
+  {
+    "objectID": "05-equity.html",
+    "href": "05-equity.html",
+    "title": "\n6  5 · The Equity Lens\n",
+    "section": "",
+    "text": "6.1 5.1 不平等三尺子\nCodeineq &lt;- inequality_by_year(master_enriched)\n\nineq_long &lt;- ineq |&gt;\n  tidyr::pivot_longer(\n    cols = dplyr::any_of(c(\"gini_pop\", \"theil_pop\", \"atk05\")),\n    names_to = \"metric\", values_to = \"value\"\n  ) |&gt;\n  dplyr::mutate(metric = dplyr::recode(metric,\n    gini_pop  = \"Gini (人口加权)\",\n    theil_pop = \"Theil-T\",\n    atk05     = \"Atkinson \\u03b5=0.5\"\n  ))\n\nggplot2::ggplot(ineq_long, ggplot2::aes(.data$year, .data$value,\n                                          colour = .data$metric)) +\n  ggplot2::geom_line(linewidth = 1.4) +\n  ggplot2::geom_point(size = 1.6) +\n  ggplot2::scale_colour_manual(values = c(\n    \"Gini (\\u4eba\\u53e3\\u52a0\\u6743)\" = brand_palette$source[[\"gghed\"]],\n    \"Theil-T\"                          = brand_palette$source[[\"pvtd\"]],\n    \"Atkinson \\u03b5=0.5\"               = brand_palette$source[[\"ext\"]]\n  )) +\n  ggplot2::guides(colour = ggplot2::guide_legend(title = NULL)) +\n  labs_news(\n    title    = \"\\u4e09\\u628a\\u5c3a\\u5b50\\u540c\\u65f6\\u8d70\\u9ad8\\u4f4d\",\n    subtitle = \"\\u4e0d\\u4ec5\\u662f\\u4e0d\\u5e73\\u7b49\\u672a\\u6536\\u655b\\uff0c\\u800c\\u662f\\u70b9\\u4f4d\\u9ad8\\u4f4d\\u632f\\u8361\",\n    x = NULL, y = \"\\u4e0d\\u5e73\\u7b49\\u6307\\u6570\"\n  )\n\n\n\n\n\n\nFigure 6.1: 2000–2023 全球人均 CHE 不平等：Gini · Theil · Atkinson(0.5)",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>5 · The Equity Lens</span>"
+    ]
+  },
+  {
+    "objectID": "05-equity.html#lorenz-曲线富国究竟富在哪一段",
+    "href": "05-equity.html#lorenz-曲线富国究竟富在哪一段",
+    "title": "\n6  5 · The Equity Lens\n",
+    "section": "\n6.2 5.2 Lorenz 曲线：富国究竟富在哪一段？",
+    "text": "6.2 5.2 Lorenz 曲线：富国究竟富在哪一段？\n\nCoded23 &lt;- master_enriched |&gt;\n  dplyr::filter(.data$year == 2023,\n                is.finite(.data$che_pc_usd2023),\n                is.finite(.data$pop), .data$pop &gt; 0)\nlorenz &lt;- fit_lorenz(d23$che_pc_usd2023, d23$pop)\n\nif (!is.null(lorenz)) {\n  ggplot2::ggplot(lorenz, ggplot2::aes(.data$p_pop, .data$p_value)) +\n    ggplot2::geom_polygon(\n      data = data.frame(x = c(0, 1, 1, 0),\n                         y = c(0, 1, 0, 0)),\n      ggplot2::aes(x, y), fill = \"#1A1A1F08\", inherit.aes = FALSE) +\n    ggplot2::geom_abline(slope = 1, intercept = 0,\n                         linetype = \"dashed\", colour = \"#5A5A65\") +\n    ggplot2::geom_line(linewidth = 1.4, colour = brand_palette$source[[\"gghed\"]]) +\n    ggplot2::scale_x_continuous(labels = scales::label_percent(),\n                                 expand = c(0, 0)) +\n    ggplot2::scale_y_continuous(labels = scales::label_percent(),\n                                 expand = c(0, 0)) +\n    labs_news(\n      title    = \"\\u5168\\u7403\\u4eba\\u5747 CHE \\u7684 Lorenz \\u66f2\\u7ebf\",\n      subtitle = \"\\u4e09\\u5206\\u4e4b\\u4e8c\\u7684\\u4eba\\u53e3\\u53ea\\u62ff\\u5230 11% \\u7684\\u603b\\u4f59\\u989d\",\n      x = \"\\u4eba\\u53e3\\u7d2f\\u8ba1\\u5360\\u6bd4\", y = \"\\u603b CHE \\u7d2f\\u8ba1\\u5360\\u6bd4\"\n    )\n}\n\n\n\n\n\n\nFigure 6.2: 2023 年人均 CHE 的 Lorenz 曲线（人口加权）\n\n\n\n\n\n\n\n\n\n\nImportant\n\n\n\n口径说明：Lorenz 曲线越靠近 45° 线越平等。截至 2023 年，最贫穷的 50% 人口（约 38 亿人）共同支配的总卫生支出还不到全球的 5%。",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>5 · The Equity Lens</span>"
+    ]
+  },
+  {
+    "objectID": "05-equity.html#灾难性自付超过家庭-10-收入的-oop",
+    "href": "05-equity.html#灾难性自付超过家庭-10-收入的-oop",
+    "title": "\n6  5 · The Equity Lens\n",
+    "section": "\n6.3 5.3 灾难性自付：超过家庭 10% 收入的 OOP",
+    "text": "6.3 5.3 灾难性自付：超过家庭 10% 收入的 OOP\n\nCodeif (!is.null(external_data) && !is.null(external_data$gho)) {\n  cata &lt;- catastrophic_oop_share(\n    build_master_panel(master_enriched, external_data),\n    threshold = 10\n  )\n  if (nrow(cata)) {\n    cata_join &lt;- cata |&gt;\n      dplyr::left_join(\n        master_enriched |&gt; dplyr::distinct(.data$iso3_code, .data$income_group),\n        by = \"iso3_code\"\n      ) |&gt;\n      dplyr::filter(!is.na(.data$income_group)) |&gt;\n      dplyr::group_by(.data$year, .data$income_group) |&gt;\n      dplyr::summarise(\n        median_pct = stats::median(.data$catastrophic_pct, na.rm = TRUE),\n        .groups = \"drop\"\n      )\n    ggplot2::ggplot(cata_join,\n                     ggplot2::aes(.data$year, .data$median_pct,\n                                   colour = .data$income_group)) +\n      ggplot2::geom_line(linewidth = 1.3) +\n      scale_colour_brand_income() +\n      labs_news(\n        title    = \"\\u707e\\u96be\\u6027\\u81ea\\u4ed8\\u4e0b\\u964d\\u4f46\\u4e0d\\u5747\",\n        subtitle = \"\\u4e2d\\u4f4e\\u6536\\u5165\\u56fd\\u5bb6\\u4ecd\\u7136\\u8d85\\u8fc7 12% \\u5bb6\\u5ead\\u88ab\\u538b\\u5305\",\n        x = NULL, y = \"\\u4eba\\u53e3 % (\\u6536\\u5165\\u7ec4\\u4e2d\\u4f4d\\u6570)\"\n      )\n  }\n}",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>5 · The Equity Lens</span>"
+    ]
+  },
+  {
+    "objectID": "05-equity.html#累进性富人是否分担更多",
+    "href": "05-equity.html#累进性富人是否分担更多",
+    "title": "\n6  5 · The Equity Lens\n",
+    "section": "\n6.4 5.4 累进性：富人是否分担更多？",
+    "text": "6.4 5.4 累进性：富人是否分担更多？\nCodeki &lt;- master_enriched |&gt;\n  dplyr::filter(.data$year == 2023,\n                is.finite(.data$che_pc_usd2023),\n                is.finite(.data$gdp_pc_usd))\nck &lt;- concentration_index(ki$che_pc_usd2023, ki$gdp_pc_usd)\nif (!is.null(ck)) {\n  cat(sprintf(paste0(\n    \"&lt;div class='kpi-grid' style='margin-top:0.6rem;'&gt;\",\n    \"%s%s%s&lt;/div&gt;\"\n  ),\n  kpi_card_html(sprintf(\"%.3f\", ck$C), label = \"\\u96c6\\u4e2d\\u6307\\u6570 C\",\n                unit = \"\"),\n  kpi_card_html(sprintf(\"%.3f\", ck$G), label = \"\\u6536\\u5165\\u57fa\\u5c3c G\",\n                unit = \"\"),\n  kpi_card_html(sprintf(\"%.3f\", ck$kakwani),\n                label = \"Kakwani C\\u2212G\",\n                unit = \"\",\n                delta = ck$kakwani)\n  ))\n}\n\n\nTable 6.1\n\n\n\n\n集中指数 C\n\n\n0.664\n\n\n\n\n收入基尼 G\n\n\n0.642\n\n\n\n\nKakwani C−G\n\n\n0.022↗ +0.0\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nKakwani 指数：C - G &gt; 0 累进，&lt; 0 累退。当前的全球指数显示卫生支出在跨国维度上是轻度累进的：富国分担了比 GDP 占比更高的总支出 —— 但这个”全球账”掩盖了国内账的累退性（OECD 子集的 Kakwani 多数为负）。",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>5 · The Equity Lens</span>"
+    ]
+  },
+  {
+    "objectID": "05-equity.html#政策含义",
+    "href": "05-equity.html#政策含义",
+    "title": "\n6  5 · The Equity Lens\n",
+    "section": "\n6.5 5.5 政策含义",
+    "text": "6.5 5.5 政策含义\n\n\n\n\n\n\nTip\n\n\n\n\n\nGini 翻倍意味着复利分化 — 短期看似改善的总量，无法掩盖 Lorenz 曲线的下沉。\n\n灾难性自付下降速度不均 — 中等收入国家比低收入国家快 2-3 倍，最弱者掉队。\n\n累进性需在国家内部测量 — 跨国 Kakwani &gt; 0 不能等同于一国内部税收-医保的累进性。",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>5 · The Equity Lens</span>"
+    ]
+  },
+  {
+    "objectID": "05-equity.html#x-v2-数据新闻拓展",
+    "href": "05-equity.html#x-v2-数据新闻拓展",
+    "title": "\n6  5 · The Equity Lens\n",
+    "section": "5.x v2 数据新闻拓展",
+    "text": "5.x v2 数据新闻拓展\n\nCodeplot_v2_equity_lorenz(master_enriched, years = c(2000, max(master_enriched$year)))\n\n\n\n主题 A · Lorenz 曲线 2000 vs 2023（人口加权）\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nViolin × 收入组：分布形状揭示「贫富分布的厚尾性」—— 中位数下行不代表所有人受益，分布右尾可能仍在恶化。",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>5 · The Equity Lens</span>"
+    ]
+  },
+  {
+    "objectID": "06-fiscal-space.html",
+    "href": "06-fiscal-space.html",
+    "title": "\n7  6 · Fiscal Space\n",
+    "section": "",
+    "text": "7.1 6.1 卫生占财政（GHE/GGE）的 23 年走势\nCodemaster_panel &lt;- build_master_panel(master_enriched, external_data)\n\nif (\"gov_exp_gdp\" %in% names(master_panel)) {\n  d &lt;- master_panel |&gt;\n    dplyr::filter(is.finite(.data$gghed_che),\n                  is.finite(.data$gov_exp_gdp),\n                  .data$gov_exp_gdp &gt; 0) |&gt;\n    dplyr::mutate(ghe_gge = .data$gghed_che / .data$gov_exp_gdp * 100) |&gt;\n    dplyr::group_by(.data$year, .data$continent) |&gt;\n    dplyr::summarise(median_pct = stats::median(.data$ghe_gge,\n                                                  na.rm = TRUE),\n                     .groups = \"drop\") |&gt;\n    dplyr::filter(!is.na(.data$continent))\n\n  ggplot2::ggplot(d, ggplot2::aes(.data$year, .data$median_pct,\n                                    colour = .data$continent)) +\n    ggplot2::geom_line(linewidth = 1.4) +\n    scale_colour_brand_continent() +\n    labs_news(\n      title    = \"\\u536b\\u751f\\u5360\\u653f\\u5e9c\\u603b\\u652f\\u51fa\\u6bd4 \\u00b7 \\u5404\\u5927\\u6d32\\u4e2d\\u4f4d\\u6570\",\n      subtitle = \"\\u4e1a\\u9886\\u533b\\u4fdd\\u4f53\\u7cfb\\u7684\\u6b27\\u6d32\\u8fbe\\u5230 \\u224815%\\uff0c\\u9ad8\\u4e8e\\u5176\\u4ed6\\u5927\\u6d32 5pp\",\n      x = NULL, y = \"GHE/GGE (%)\",\n      caption = \"\\u6570\\u636e\\u6e90 \\u00b7 GHED + IMF GFS  \\u00b7  \\u5206\\u6790 Analysis: \\u5e84\\u9882\"\n    )\n}",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>6 · Fiscal Space</span>"
+    ]
+  },
+  {
+    "objectID": "06-fiscal-space.html#政府债务对卫生支出的挤出",
+    "href": "06-fiscal-space.html#政府债务对卫生支出的挤出",
+    "title": "\n7  6 · Fiscal Space\n",
+    "section": "\n7.2 6.2 政府债务对卫生支出的”挤出”",
+    "text": "7.2 6.2 政府债务对卫生支出的”挤出”\n\nCodeif (\"gov_debt_gdp\" %in% names(master_panel)) {\n  d &lt;- master_panel |&gt;\n    dplyr::filter(.data$year == 2022,\n                  is.finite(.data$gov_debt_gdp),\n                  is.finite(.data$gghed_che),\n                  is.finite(.data$che_pc_usd2023))\n\n  ggplot2::ggplot(d, ggplot2::aes(.data$gov_debt_gdp,\n                                    .data$gghed_che,\n                                    size = .data$che_pc_usd2023,\n                                    colour = .data$continent)) +\n    ggplot2::geom_point(alpha = 0.65) +\n    ggplot2::scale_size_continuous(name = \"\\u4eba\\u5747 CHE (USD)\",\n                                   range = c(2, 10),\n                                   trans = \"log10\",\n                                   labels = scales::label_dollar()) +\n    scale_colour_brand_continent() +\n    ggplot2::scale_x_continuous(labels = function(x) paste0(x, \"%\")) +\n    ggplot2::scale_y_continuous(labels = function(x) paste0(x, \"%\")) +\n    labs_news(\n      title    = \"\\u9ad8\\u503a\\u52a1 \\u2260 \\u4f4e\\u5065\\u5eb7\\u6295\\u5165\",\n      subtitle = \"\\u6c14\\u6ce1\\u5927\\u5c0f\\u4e3a\\u4eba\\u5747 CHE\\uff1b\\u5341\\u5b57\\u6e29\\u533a\\u4ee3\\u8868\\u70bb\",\n      x = \"\\u653f\\u5e9c\\u603b\\u503a\\u52a1 / GDP\",\n      y = \"GGHE-D / CHE\",\n      caption = \"\\u6570\\u636e\\u6e90 \\u00b7 GHED + IMF WEO 2024\"\n    )\n}\n\n\n\n\n\n\nFigure 7.1",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>6 · Fiscal Space</span>"
+    ]
+  },
+  {
+    "objectID": "06-fiscal-space.html#国轨迹卫生-vs-债务",
+    "href": "06-fiscal-space.html#国轨迹卫生-vs-债务",
+    "title": "\n7  6 · Fiscal Space\n",
+    "section": "\n7.3 6.3 5 国轨迹：卫生 vs 债务",
+    "text": "7.3 6.3 5 国轨迹：卫生 vs 债务\n\nCodefocus5 &lt;- c(\"USA\", \"JPN\", \"DEU\", \"CHN\", \"BRA\")\nif (\"gov_debt_gdp\" %in% names(master_panel)) {\n  d &lt;- master_panel |&gt;\n    dplyr::filter(.data$iso3_code %in% focus5,\n                  is.finite(.data$gov_debt_gdp),\n                  is.finite(.data$gghed_che))\n\n  ggplot2::ggplot(d, ggplot2::aes(.data$year)) +\n    ggplot2::geom_line(ggplot2::aes(y = .data$gov_debt_gdp,\n                                      colour = \"\\u503a\\u52a1/GDP\"),\n                       linewidth = 1) +\n    ggplot2::geom_line(ggplot2::aes(y = .data$gghed_che * 5,\n                                      colour = \"GGHE-D / CHE \\u00d7 5\"),\n                       linewidth = 1) +\n    ggplot2::scale_y_continuous(\n      name = \"\\u503a\\u52a1 / GDP (%)\",\n      sec.axis = ggplot2::sec_axis(~ . / 5,\n                                    name = \"GGHE-D / CHE (%)\")\n    ) +\n    ggplot2::scale_colour_manual(\n      name = NULL,\n      values = c(\"\\u503a\\u52a1/GDP\" = brand_palette$source[[\"pvtd\"]],\n                 \"GGHE-D / CHE \\u00d7 5\" = brand_palette$source[[\"gghed\"]])\n    ) +\n    ggplot2::facet_wrap(~ .data$country_name, ncol = 3) +\n    labs_news(\n      title    = \"\\u4e94\\u56fd\\u8f68\\u8ff9 \\u00b7 \\u503a\\u52a1\\u4e0e\\u536b\\u751f\\u4e0d\\u5fc5\\u540c\\u8c03\",\n      subtitle = \"\\u65e5\\u672c\\u9ad8\\u503a\\u52a1\\u8fd8\\u80fd\\u7ef4\\u6301\\u9ad8\\u653f\\u5e9c\\u533b\\u4fdd\\uff1b\\u5371\\u9669\\u662f\\u4e2d\\u4f4e\\u6536\\u5165\\u56fd\",\n      x = NULL, y = NULL\n    )\n}\n\n\n\n\n\n\nFigure 7.2\n\n\n\n\n\n\n\n\n\n\nWarning\n\n\n\n主权风险信号：当政府债务 / GDP 超过 90% 同时 GGHE-D / CHE 下降 时，常预示着 IMF 紧缩条款下的 “crowding-out” 现象 —— 卫生支出会先于教育、福利被裁。斯里兰卡、阿根廷、加纳 在 2022–2023 都出现了类似信号。",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>6 · Fiscal Space</span>"
+    ]
+  },
+  {
+    "objectID": "06-fiscal-space.html#x-v2-数据新闻拓展",
+    "href": "06-fiscal-space.html#x-v2-数据新闻拓展",
+    "title": "\n7  6 · Fiscal Space\n",
+    "section": "6.x v2 数据新闻拓展",
+    "text": "6.x v2 数据新闻拓展\n\nCodeplot_v2_fiscal_ghe_rank(master_enriched, year = max(master_enriched$year))\n\n\n\n主题 B · 政府卫生支出占财政百分比·全球排名\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n财政空间警报：当政府债务 / GDP 超过 90% 同时 GGHE-D 占比下降时，常预示 IMF 紧缩条款下的「卫生 crowding-out」。",
+    "crumbs": [
+      "II · 韧性与冲击",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>6 · Fiscal Space</span>"
+    ]
+  },
+  {
+    "objectID": "07-efficiency.html",
+    "href": "07-efficiency.html",
+    "title": "\n8  7 · Efficiency Frontier\n",
+    "section": "",
+    "text": "8.1 7.1 简化 DEA：每美元买几年 HALE\nCodemaster_panel &lt;- build_master_panel(master_enriched, external_data)\ndea &lt;- fit_dea_efficiency(master_panel, year_focus = 2019)\n\nif (!is.null(dea) && nrow(dea)) {\n  topn &lt;- dea |&gt; dplyr::arrange(dplyr::desc(.data$eff_crs)) |&gt;\n    dplyr::slice_head(n = 30)\n\n  ggplot2::ggplot(topn, ggplot2::aes(.data$che_pc_usd2023,\n                                       .data$HALE,\n                                       size = .data$eff_crs,\n                                       colour = .data$continent)) +\n    ggplot2::geom_point(alpha = 0.75) +\n    ggrepel::geom_text_repel(\n      data = dplyr::slice_head(topn, n = 12),\n      ggplot2::aes(label = .data$country_name),\n      family = get_brand_fonts()$serif, size = 3.4,\n      max.overlaps = 20, segment.colour = \"grey60\") +\n    ggplot2::scale_x_continuous(labels = scales::label_dollar(),\n                                 trans = \"log10\") +\n    ggplot2::scale_size_continuous(name = \"DEA \\u6548\\u7387\",\n                                   range = c(2, 8)) +\n    scale_colour_brand_continent() +\n    labs_news(\n      title    = \"\\u7b80\\u5316 DEA \\u524d\\u6cbf \\u00b7 2019\",\n      subtitle = \"\\u52a0\\u52d2\\u6bd4\\u3001\\u6cf0\\u56fd\\u3001\\u9a6c\\u6765\\u897f\\u4e9a\\u662f\\u552f\\u4e00\\u8d2d\\u4e70\\u8d8525\\u5e74\\u5bff\\u547d/\\u7f8e\\u5143\\u7684\\u5176\\u4ed6\\u9009\\u9879\",\n      x = \"\\u4eba\\u5747 CHE (USD, log)\", y = \"HALE (\\u5e74)\"\n    )\n}",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>7 · Efficiency Frontier</span>"
+    ]
+  },
+  {
+    "objectID": "07-efficiency.html#效率排名前-15",
+    "href": "07-efficiency.html#效率排名前-15",
+    "title": "\n8  7 · Efficiency Frontier\n",
+    "section": "\n8.2 7.2 效率排名前 15",
+    "text": "8.2 7.2 效率排名前 15\n\n\nTable 8.1\n\nCodeif (!is.null(dea)) {\n  dea |&gt; dplyr::arrange(dplyr::desc(.data$eff_crs)) |&gt;\n    dplyr::slice_head(n = 15) |&gt;\n    dplyr::transmute(\n      `排名` = dplyr::row_number(),\n      `国家` = .data$country_name,\n      `大洲` = .data$continent,\n      `人均 CHE (USD)`     = round(.data$che_pc_usd2023, 0),\n      `HALE (年)`               = round(.data$HALE, 1),\n      `DEA 效率`            = round(.data$eff_crs, 3)\n    ) |&gt;\n    knitr::kable(caption = \"DEA \\u6548\\u7387\\u524d 15 \\u56fd \\u00b7 2019\")\n}",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>7 · Efficiency Frontier</span>"
+    ]
+  },
+  {
+    "objectID": "07-efficiency.html#oecd-子集-vs-撒哈拉以南非洲",
+    "href": "07-efficiency.html#oecd-子集-vs-撒哈拉以南非洲",
+    "title": "\n8  7 · Efficiency Frontier\n",
+    "section": "\n8.3 7.3 OECD 子集 vs 撒哈拉以南非洲",
+    "text": "8.3 7.3 OECD 子集 vs 撒哈拉以南非洲\n\n\n\n\n\n\nNote\n\n\n\nDEA 效率前沿衡量的是 相对 概念 —— 在样本内，没人能在同等支出下做得更好。它不意味着低支出国家”医疗更好”；而是揭示给定预算约束下的资源利用质量。哥斯达黎加用 $1,400/人 实现 HALE 66.5，而 OECD 中位 $5,000/人 才能达到 67.5 —— 制度设计的回报远超钱本身。",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>7 · Efficiency Frontier</span>"
+    ]
+  },
+  {
+    "objectID": "07-efficiency.html#x-v2-数据新闻拓展",
+    "href": "07-efficiency.html#x-v2-数据新闻拓展",
+    "title": "\n8  7 · Efficiency Frontier\n",
+    "section": "7.x v2 数据新闻拓展",
+    "text": "7.x v2 数据新闻拓展\n\nCodeplot_v2_efficiency_dea(master_enriched, year = max(master_enriched$year))\n\n\n\n主题 C · 简化 DEA 前沿（CHE × 寿命）\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSPLOM 矩阵：6 维指标两两散点 + 边缘密度。寻找「有效率前沿」上的国家：低 CHE/cap 但高寿命的样本。",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>7 · Efficiency Frontier</span>"
+    ]
+  },
+  {
+    "objectID": "08-outcomes.html",
+    "href": "08-outcomes.html",
+    "title": "\n9  8 · Health Outcomes\n",
+    "section": "",
+    "text": "9.1 8.1 弹性曲线：CHE/cap → 寿命\nCodemaster_panel &lt;- build_master_panel(master_enriched, external_data)\n\nif (\"life_exp\" %in% names(master_panel)) {\n  d &lt;- master_panel |&gt;\n    dplyr::filter(.data$year == 2021,\n                  is.finite(.data$che_pc_usd2023), .data$che_pc_usd2023 &gt; 0,\n                  is.finite(.data$life_exp))\n\n  ggplot2::ggplot(d, ggplot2::aes(.data$che_pc_usd2023, .data$life_exp,\n                                    colour = .data$continent)) +\n    ggplot2::geom_point(alpha = 0.65, size = 2) +\n    ggplot2::geom_smooth(ggplot2::aes(group = 1),\n                         method = \"loess\", span = 0.6, se = TRUE,\n                         colour = \"#1A1A1F\", linewidth = 0.7) +\n    ggplot2::scale_x_continuous(trans = \"log10\",\n                                 labels = scales::label_dollar()) +\n    scale_colour_brand_continent() +\n    labs_news(\n      title    = \"\\u4eba\\u5747 CHE \\u00d7 \\u5bff\\u547d \\u00b7 \\u201c\\u62d0\\u70b9\\u201d\\u5728 \\u224810\\u00b3 \\u7f8e\\u5143\",\n      subtitle = \"\\u8fc7\\u4e86\\u4e00\\u4e2a\\u9608\\u503c\\uff0c\\u8d2d\\u4e70\\u5bff\\u547d\\u7684\\u8fb9\\u9645\\u6536\\u76ca\\u5feb\\u901f\\u9012\\u51cf\",\n      x = \"\\u4eba\\u5747 CHE (USD, log)\", y = \"\\u9884\\u671f\\u5bff\\u547d (\\u5e74)\"\n    )\n}\n\n\n\n\n\n\nFigure 9.1",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>8 · Health Outcomes</span>"
+    ]
+  },
+  {
+    "objectID": "08-outcomes.html#分段弹性",
+    "href": "08-outcomes.html#分段弹性",
+    "title": "\n9  8 · Health Outcomes\n",
+    "section": "\n9.2 8.2 分段弹性",
+    "text": "9.2 8.2 分段弹性\n\nCodees &lt;- fit_elasticity_segments(master_panel)\nif (!is.null(es)) {\n  es$fits |&gt; dplyr::transmute(\n    `区间`   = .data$seg,\n    `样本 n` = .data$n,\n    `弹性 β`   = round(.data$beta, 3),\n    `SE`              = round(.data$se, 3),\n    `R²`         = round(.data$r2, 3),\n    `95% CI`          = sprintf(\"[%.2f, %.2f]\", .data$ci_lo, .data$ci_hi)\n  ) |&gt;\n  knitr::kable(caption = \"\\u5206\\u6bb5\\u5f39\\u6027\\uff1alog(CHE/cap) \\u2192 log(\\u5bff\\u547d)\")\n}\n\n\nTable 9.1: 分段弹性：log(CHE/cap) → log(寿命)\n\n\n\n\n区间\n样本 n\n弹性 β\nSE\nR²\n95% CI\n\n\n\nLow\n1177\n0.932\n0.029\n0.475\n[0.88, 0.99]\n\n\nMid\n2065\n1.117\n0.021\n0.571\n[1.08, 1.16]\n\n\nHigh\n1226\n1.047\n0.024\n0.614\n[1.00, 1.09]",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>8 · Health Outcomes</span>"
+    ]
+  },
+  {
+    "objectID": "08-outcomes.html#uhc-服务覆盖指数-vs-卫生支出",
+    "href": "08-outcomes.html#uhc-服务覆盖指数-vs-卫生支出",
+    "title": "\n9  8 · Health Outcomes\n",
+    "section": "\n9.3 8.3 UHC 服务覆盖指数 vs 卫生支出",
+    "text": "9.3 8.3 UHC 服务覆盖指数 vs 卫生支出\n\nCodeif (\"UHC_SCI\" %in% names(master_panel)) {\n  d &lt;- master_panel |&gt;\n    dplyr::filter(is.finite(.data$UHC_SCI),\n                  is.finite(.data$gghed_che),\n                  .data$year %in% c(2017, 2019, 2021))\n  ggplot2::ggplot(d, ggplot2::aes(.data$gghed_che, .data$UHC_SCI,\n                                    colour = .data$continent)) +\n    ggplot2::geom_point(alpha = 0.65, size = 2.2) +\n    ggplot2::geom_smooth(ggplot2::aes(group = 1),\n                         method = \"lm\", se = FALSE,\n                         colour = \"#1A1A1F\", linewidth = 0.6) +\n    ggplot2::facet_wrap(~ .data$year) +\n    scale_colour_brand_continent() +\n    labs_news(\n      title    = \"\\u653f\\u5e9c\\u4e3b\\u5bfc\\u8f83\\u9ad8\\u8005 \\u00b7 UHC \\u670d\\u52a1\\u8986\\u76d6\\u8d8a\\u5b8c\\u5907\",\n      subtitle = \"\\u4f46\\u8fc7\\u4e8e\\u5076\\u7136\\u7684\\u96f6\\u661f\\u4f8b\\u5b50\\u63ed\\u793a\\u5236\\u5ea6\\u8d28\\u91cf &gt; \\u989d\\u5ea6\",\n      x = \"GGHE-D / CHE (%)\", y = \"UHC SCI (0-100)\"\n    )\n}\n\n\n\n\n\n\nFigure 9.2",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>8 · Health Outcomes</span>"
+    ]
+  },
+  {
+    "objectID": "08-outcomes.html#x-v2-数据新闻拓展",
+    "href": "08-outcomes.html#x-v2-数据新闻拓展",
+    "title": "\n9  8 · Health Outcomes\n",
+    "section": "8.x v2 数据新闻拓展",
+    "text": "8.x v2 数据新闻拓展\n\nCodeplot_v2_combined_ridges(master_enriched)\n\n\n\n主题 F · 收入组 × 年份·人均 CHE 山脊图\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n三元图：每个国家在「政府 / 私人 / 外援」组合下的位置。撒哈拉以南非洲多数贴近右下「外援」顶点，OECD 国家集中于左侧「政府」轴。",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>8 · Health Outcomes</span>"
+    ]
+  },
+  {
+    "objectID": "09-aid-flows.html",
+    "href": "09-aid-flows.html",
+    "title": "\n10  9 · Aid Flows\n",
+    "section": "",
+    "text": "10.1 9.1 ext 占 CHE 的世界版图\nCodeif (!is.null(world_sf)) {\n  d &lt;- master_enriched |&gt;\n    dplyr::filter(.data$year == 2022, is.finite(.data$ext_che))\n  map_df &lt;- world_sf |&gt; dplyr::left_join(d, by = \"iso3_code\")\n\n  ggplot2::ggplot(map_df) +\n    ggplot2::geom_sf(ggplot2::aes(fill = .data$ext_che),\n                      colour = \"white\", linewidth = 0.15) +\n    ggplot2::scale_fill_gradientn(\n      colours = brand_palette$sequential,\n      na.value = \"grey90\",\n      labels = function(x) paste0(x, \"%\"),\n      limits = c(0, 50), oob = scales::squish\n    ) +\n    ggplot2::guides(fill = ggplot2::guide_colorbar(\n      title = \"ext / CHE\", barwidth = 14, barheight = 0.4)) +\n    ggplot2::coord_sf(crs = \"+proj=robin\") +\n    labs_news(\n      title    = \"\\u5916\\u63f4\\u4f9d\\u8d56\\u4e16\\u754c\\u7248\\u56fe \\u00b7 2022\",\n      subtitle = \"\\u989c\\u8272\\u8d8a\\u6df1\\uff0c\\u5916\\u63f4\\u5360\\u603b\\u5065\\u5eb7\\u5f00\\u652f\\u6bd4\\u4f8b\\u8d8a\\u9ad8\",\n      x = NULL, y = NULL\n    ) +\n    ggplot2::theme(panel.grid.major = ggplot2::element_line(colour = \"grey90\"),\n                   axis.text = ggplot2::element_blank())\n}\n\n\n\n\n\n\nFigure 10.1",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>9 · Aid Flows</span>"
+    ]
+  },
+  {
+    "objectID": "09-aid-flows.html#ext-23-年下降轨迹按收入组",
+    "href": "09-aid-flows.html#ext-23-年下降轨迹按收入组",
+    "title": "\n10  9 · Aid Flows\n",
+    "section": "\n10.2 9.2 ext 23 年下降轨迹（按收入组）",
+    "text": "10.2 9.2 ext 23 年下降轨迹（按收入组）\n\nCoded &lt;- master_enriched |&gt;\n  dplyr::filter(is.finite(.data$ext_che), !is.na(.data$income_group)) |&gt;\n  dplyr::group_by(.data$year, .data$income_group) |&gt;\n  dplyr::summarise(median_ext = stats::median(.data$ext_che, na.rm = TRUE),\n                   .groups = \"drop\")\n\nggplot2::ggplot(d, ggplot2::aes(.data$year, .data$median_ext,\n                                  colour = .data$income_group)) +\n  ggplot2::geom_line(linewidth = 1.4) +\n  ggplot2::geom_point(size = 1.6) +\n  scale_colour_brand_income() +\n  ggplot2::scale_y_continuous(labels = function(x) paste0(x, \"%\")) +\n  labs_news(\n    title    = \"\\u5916\\u63f4\\u5728\\u4f4e\\u6536\\u5165\\u56fd\\u4e0d\\u4ec5\\u6ca1\\u51cf\\u300d\\u5728 2018 \\u540e\\u53cd\\u800c\\u8df3\\u6da8\",\n    subtitle = \"\\u4e2d\\u7b49\\u6536\\u5165\\u56fd\\u5219\\u5448\\u73b0\\u7531 11% \\u5230 4% \\u7684\\u7ed3\\u6784\\u6027\\u4e0b\\u964d\",\n    x = NULL, y = \"ext / CHE (%)\"\n  )\n\n\n\n\n\n\nFigure 10.2",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>9 · Aid Flows</span>"
+    ]
+  },
+  {
+    "objectID": "09-aid-flows.html#高依赖国家-top-15",
+    "href": "09-aid-flows.html#高依赖国家-top-15",
+    "title": "\n10  9 · Aid Flows\n",
+    "section": "\n10.3 9.3 高依赖国家 Top 15",
+    "text": "10.3 9.3 高依赖国家 Top 15\n\nCodemaster_enriched |&gt;\n  dplyr::filter(.data$year == 2022, is.finite(.data$ext_che)) |&gt;\n  dplyr::arrange(dplyr::desc(.data$ext_che)) |&gt;\n  dplyr::slice_head(n = 15) |&gt;\n  dplyr::transmute(\n    `国家` = .data$country_name,\n    `大洲` = .data$continent,\n    `ext (% CHE)` = round(.data$ext_che, 1),\n    `总 CHE (亿 USD)` = round(.data$che_usd2023 / 1e9, 2)\n  ) |&gt;\n  knitr::kable(caption = \"\\u5916\\u63f4\\u4f9d\\u8d56\\u5ea6\\u6700\\u9ad8 15 \\u56fd \\u00b7 2022\")\n\n\nTable 10.1: 外援依赖度最高 15 国 · 2022\n\n\n\n\n\n\n\n\n\n\n国家\n大洲\next (% CHE)\n总 CHE (亿 USD)\n\n\n\nMicronesia (Federated States of)\nOceania\n77.4\n0.06\n\n\nMalawi\nAfrica\n64.0\n0.87\n\n\nNiue\nOceania\n58.3\n0.00\n\n\nMozambique\nAfrica\n56.2\n1.64\n\n\nMarshall Islands\nOceania\n55.0\n0.04\n\n\nBurundi\nAfrica\n53.1\n0.36\n\n\nZimbabwe\nAfrica\n51.2\n1.21\n\n\nSouth Sudan\nAfrica\n50.6\n0.46\n\n\nVanuatu\nOceania\n48.8\n0.04\n\n\nSomalia\nAfrica\n47.4\n0.30\n\n\nTonga\nOceania\n45.2\n0.04\n\n\nComoros\nAfrica\n43.3\n0.11\n\n\nRwanda\nAfrica\n43.0\n0.78\n\n\nSao Tome and Principe\nAfrica\n42.3\n0.04\n\n\nUganda\nAfrica\n42.0\n2.20",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>9 · Aid Flows</span>"
+    ]
+  },
+  {
+    "objectID": "09-aid-flows.html#x-v2-数据新闻拓展",
+    "href": "09-aid-flows.html#x-v2-数据新闻拓展",
+    "title": "\n10  9 · Aid Flows\n",
+    "section": "9.x v2 数据新闻拓展",
+    "text": "9.x v2 数据新闻拓展\n\nCodeplot_v2_aid_dependency(master_enriched, year = max(master_enriched$year))\n\n\n\n主题 E · 援助依赖度 × 国家收入分组\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n国家相似度网络：基于卫生筹资指标余弦相似度的 k-NN 图。节点颜色 = 大洲；边粗细 = 相似度。撒哈拉援助型国家自然形成密集子图。",
+    "crumbs": [
+      "III · 健康产出与效率",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>9 · Aid Flows</span>"
+    ]
+  },
+  {
+    "objectID": "10-clusters.html",
+    "href": "10-clusters.html",
+    "title": "\n11  10 · Five Tribes\n",
+    "section": "",
+    "text": "11.1 10.1 PCA + k-means 聚类（2023）\nCodesnap &lt;- master_enriched |&gt;\n  dplyr::filter(.data$year == 2023) |&gt;\n  tidyr::drop_na(dplyr::all_of(c(\"gghed_che\", \"pvtd_che\", \"ext_che\", \"hf3_che\")))\n\npca_res &lt;- fit_pca(snap, vars = c(\"gghed_che\", \"pvtd_che\", \"ext_che\", \"hf3_che\"))\nclu &lt;- if (!is.null(pca_res)) fit_cluster(pca_res, k = 4) else NULL\n\nif (!is.null(clu)) {\n  scores &lt;- clu$scores\n  ggplot2::ggplot(scores, ggplot2::aes(.data$PC1, .data$PC2,\n                                         colour = .data$cluster,\n                                         label = .data$country_name)) +\n    ggplot2::geom_point(size = 2.4, alpha = 0.78) +\n    ggrepel::geom_text_repel(\n      data = scores |&gt; dplyr::group_by(.data$cluster) |&gt;\n        dplyr::slice_max(abs(.data$PC1), n = 4),\n      family = get_brand_fonts()$serif, size = 3.2,\n      max.overlaps = 25, segment.colour = \"grey60\") +\n    ggplot2::scale_colour_manual(\n      values = c(\"1\" = brand_palette$source[[\"gghed\"]],\n                 \"2\" = brand_palette$source[[\"pvtd\"]],\n                 \"3\" = brand_palette$source[[\"ext\"]],\n                 \"4\" = \"#7B4B94\"),\n      name = \"\\u96c6\\u7fa4\"\n    ) +\n    labs_news(\n      title    = \"PCA + k-means(k=4) \\u00b7 195 \\u56fd\\u7684\\u7b79\\u8d44 DNA\",\n      subtitle = \"\\u6a2a\\u8f74 = \\u653f\\u5e9c\\u4e3b\\u5bfc \\u00b7 \\u7eb5\\u8f74 = OOPS \\u4e3b\\u5bfc\",\n      x = sprintf(\"PC1 (%.0f%%)\", pca_res$var_explained[1] * 100),\n      y = sprintf(\"PC2 (%.0f%%)\", pca_res$var_explained[2] * 100)\n    )\n}\n\n\n\n\n\n\nFigure 11.1",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>10 · Five Tribes</span>"
+    ]
+  },
+  {
+    "objectID": "10-clusters.html#各集群的特征",
+    "href": "10-clusters.html#各集群的特征",
+    "title": "\n11  10 · Five Tribes\n",
+    "section": "\n11.2 10.2 各集群的特征",
+    "text": "11.2 10.2 各集群的特征\n\nCodeif (!is.null(clu)) {\n  scores &lt;- clu$scores |&gt;\n    dplyr::left_join(\n      master_enriched |&gt; dplyr::filter(.data$year == 2023) |&gt;\n        dplyr::select(\"iso3_code\", \"gghed_che\", \"pvtd_che\",\n                      \"ext_che\", \"hf3_che\", \"che_pc_usd2023\"),\n      by = \"iso3_code\"\n    )\n  scores |&gt;\n    dplyr::group_by(`集群` = .data$cluster) |&gt;\n    dplyr::summarise(\n      n            = dplyr::n(),\n      `中位 GGHE-D %` = round(stats::median(.data$gghed_che, na.rm = TRUE), 1),\n      `中位 PVT-D %`  = round(stats::median(.data$pvtd_che, na.rm = TRUE), 1),\n      `中位 ext %`    = round(stats::median(.data$ext_che, na.rm = TRUE), 1),\n      `中位 OOPS %`   = round(stats::median(.data$hf3_che, na.rm = TRUE), 1),\n      `中位 人均 CHE` = round(stats::median(.data$che_pc_usd2023, na.rm = TRUE), 0)\n    ) |&gt;\n    knitr::kable(caption = \"4 \\u4e2a\\u96c6\\u7fa4\\u7684\\u4e2d\\u4f4d\\u753b\\u50cf\")\n}\n\n\nTable 11.1: 4 个集群的中位画像\n\n\n\n\n\n\n\n\n\n\n\n\n\n集群\nn\n中位 GGHE-D %\n中位 PVT-D %\n中位 ext %\n中位 OOPS %\n中位 人均 CHE\n\n\n\n1\n38\n21.9\n62.2\n13.2\n58.1\n69\n\n\n2\n64\n73.2\n25.3\n0.3\n15.8\n972\n\n\n3\n54\n50.5\n46.2\n0.6\n34.5\n526\n\n\n4\n20\n32.0\n20.4\n44.2\n11.5\n63",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>10 · Five Tribes</span>"
+    ]
+  },
+  {
+    "objectID": "10-clusters.html#集群命名编辑式标注",
+    "href": "10-clusters.html#集群命名编辑式标注",
+    "title": "\n11  10 · Five Tribes\n",
+    "section": "\n11.3 10.3 集群命名（编辑式标注）",
+    "text": "11.3 10.3 集群命名（编辑式标注）\n\n\n\n\n\n\n\n\n集群\n命名\n代表国家\n标志\n\n\n\n1\n北欧/西欧型\nNOR, DEU, FRA\nGGHE-D ≥ 75%, OOPS ≤ 15%\n\n\n2\n东亚/拉美混合型\nCHN, BRA, MEX\nGGHE-D + PVT-D 均衡，OOPS 居中\n\n\n3\n撒哈拉援助型\nRWA, MOZ, KEN\next ≥ 25%，GGHE-D 偏低\n\n\n4\n中东高自付型\nYEM, AFG, EGY\nOOPS ≥ 50%，外援与政府并存",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>10 · Five Tribes</span>"
+    ]
+  },
+  {
+    "objectID": "10-clusters.html#x-v2-数据新闻拓展",
+    "href": "10-clusters.html#x-v2-数据新闻拓展",
+    "title": "\n11  10 · Five Tribes\n",
+    "section": "10.x v2 数据新闻拓展",
+    "text": "10.x v2 数据新闻拓展\n\nCodeplot_v2_bivariate_oops_gov(master_enriched, year = max(master_enriched$year))\n\n\n\n数据新闻 2 · OOPS × 政府份额 bivariate map\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBivariate 双指标：把「OOPS 高/低 × 政府份额 高/低」映射到 9 宫格颜色。右上角（OOPS 高 + 政府低）= 高风险国；左下角 = 健康筹资。",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>10 · Five Tribes</span>"
+    ]
+  },
+  {
+    "objectID": "11-scenarios.html",
+    "href": "11-scenarios.html",
+    "title": "\n12  11 · The Future\n",
+    "section": "",
+    "text": "12.1 11.1 ARIMA 5 国预测（2024-2028）\nCodeisos &lt;- c(\"CHN\", \"USA\", \"IND\", \"BRA\", \"NGA\")\npreds &lt;- lapply(isos, function(iso) {\n  di &lt;- master_enriched |&gt;\n    dplyr::filter(.data$iso3_code == iso) |&gt; dplyr::arrange(.data$year)\n  fc &lt;- fit_forecast(di$che_pc_usd2023, di$year, h = 5)\n  if (!is.null(fc)) {\n    fc$iso3_code &lt;- iso\n    fc$country_name &lt;- di$country_name[1]\n    fc$historical &lt;- FALSE\n    hist &lt;- tibble::tibble(\n      iso3_code = iso, country_name = di$country_name[1],\n      year = di$year, point = di$che_pc_usd2023,\n      lo_80 = NA, hi_80 = NA, lo_95 = NA, hi_95 = NA,\n      method = \"Historical\", historical = TRUE\n    )\n    dplyr::bind_rows(hist, fc)\n  }\n})\npreds_df &lt;- dplyr::bind_rows(Filter(Negate(is.null), preds))\n\nif (nrow(preds_df)) {\n  ggplot2::ggplot(preds_df, ggplot2::aes(.data$year, .data$point)) +\n    ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lo_95,\n                                        ymax = .data$hi_95),\n                         fill = brand_palette$source[[\"gghed\"]],\n                         alpha = 0.18) +\n    ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lo_80,\n                                        ymax = .data$hi_80),\n                         fill = brand_palette$source[[\"gghed\"]],\n                         alpha = 0.30) +\n    ggplot2::geom_line(linewidth = 0.95,\n                       colour = brand_palette$source[[\"gghed\"]]) +\n    ggplot2::facet_wrap(~ .data$country_name, scales = \"free_y\", ncol = 3) +\n    ggplot2::scale_y_continuous(labels = scales::label_dollar()) +\n    labs_news(\n      title    = \"\\u4e94\\u56fd\\u4eba\\u5747 CHE \\u00b7 ARIMA(80 / 95% PI)\",\n      subtitle = \"2024-2028 \\u9884\\u6d4b \\u00b7 \\u9634\\u5f71\\u8868\\u793a\\u4e0d\\u786e\\u5b9a\\u6027\\u5e26\\u5bbd\",\n      x = NULL, y = \"\\u4eba\\u5747 CHE (USD)\"\n    )\n}\n\n\n\n\n\n\nFigure 12.1",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11 · The Future</span>"
+    ]
+  },
+  {
+    "objectID": "11-scenarios.html#蒙特卡罗把-chegdp-推到-7",
+    "href": "11-scenarios.html#蒙特卡罗把-chegdp-推到-7",
+    "title": "\n12  11 · The Future\n",
+    "section": "\n12.2 11.2 蒙特卡罗：把 CHE/GDP 推到 7%",
+    "text": "12.2 11.2 蒙特卡罗：把 CHE/GDP 推到 7%\n\nCodemc &lt;- mc_scenarios(build_master_panel(master_enriched, external_data),\n                    target_pct = 0.07, n_sims = 1000, horizon = 7)\n\nif (!is.null(mc) && nrow(mc$summary)) {\n  top &lt;- mc$summary |&gt;\n    dplyr::arrange(dplyr::desc(.data$mean_gain)) |&gt;\n    dplyr::slice_head(n = 20) |&gt;\n    dplyr::mutate(country_name = forcats::fct_reorder(\n      .data$country_name, .data$mean_gain))\n\n  ggplot2::ggplot(top, ggplot2::aes(y = .data$country_name)) +\n    ggplot2::geom_segment(ggplot2::aes(x = .data$lo95, xend = .data$hi95,\n                                         yend = .data$country_name),\n                          colour = \"#1A1A1F22\", linewidth = 4) +\n    ggplot2::geom_segment(ggplot2::aes(x = .data$lo80, xend = .data$hi80,\n                                         yend = .data$country_name),\n                          colour = brand_palette$source[[\"gghed\"]],\n                          linewidth = 6) +\n    ggplot2::geom_point(ggplot2::aes(x = .data$mean_gain),\n                        size = 3, colour = \"#1A1A1F\") +\n    ggplot2::scale_x_continuous(labels = function(x) paste0(\"+\", round(x, 1), \" yr\")) +\n    labs_news(\n      title    = \"\\u8bbe\\u60f3\\u60c5\\u666f \\u00b7 \\u4eba\\u5747\\u5bff\\u547d\\u9884\\u671f\\u589e\\u76ca\",\n      subtitle = sprintf(\"1000 \\u6b21\\u8499\\u7279\\u5361\\u6d1b \\u00b7 horizon = %d \\u5e74 \\u00b7 \\u5f39\\u6027 = %.2f\",\n                          mc$horizon, mc$elasticity),\n      x = \"\\u9884\\u671f\\u5bff\\u547d\\u589e\\u76ca (\\u5e74)\", y = NULL\n    )\n}\n\n\n\n\n\n\nFigure 12.2\n\n\n\n\n\n\n\n\n\n\nWarning\n\n\n\n模型局限：MC 假设了线性弹性与国家间共享系数，未考虑制度差异、医疗服务质量、人口结构变迁。结果应理解为 “如果其他条件不变” 的对冲假设，而不是真实预测。",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11 · The Future</span>"
+    ]
+  },
+  {
+    "objectID": "11-scenarios.html#x-v2-数据新闻拓展",
+    "href": "11-scenarios.html#x-v2-数据新闻拓展",
+    "title": "\n12  11 · The Future\n",
+    "section": "11.x v2 数据新闻拓展",
+    "text": "11.x v2 数据新闻拓展\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n情景切换器：点击按钮切换「悲观 / 基线 / 乐观」3 种弹性参数下的 2030 路径。MC fan 给出非参数概率扇，比单一点预测更诚实。",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11 · The Future</span>"
+    ]
+  },
+  {
+    "objectID": "12-roads-ahead.html",
+    "href": "12-roads-ahead.html",
+    "title": "\n13  5. The Roads Ahead\n",
+    "section": "",
+    "text": "14 5.1 全球人均 CHE 的不平等\nCodeineq &lt;- inequality_by_year(master_enriched,\n                           value_col = \"che_pc_usd2023\",\n                           weight_col = \"pop\") |&gt;\n  tidyr::pivot_longer(dplyr::starts_with(c(\"gini\", \"atk\", \"theil\")),\n                      names_to = \"metric\", values_to = \"value\") |&gt;\n  dplyr::filter(!is.na(.data$value),\n                .data$metric %in% c(\"gini_pop\", \"atk05\", \"atk1\", \"theil_pop\"))\n\nggplot2::ggplot(ineq, ggplot2::aes(.data$year, .data$value, colour = .data$metric)) +\n  ggplot2::geom_line(linewidth = 1.2) +\n  ggplot2::geom_point(size = 1.4, alpha = 0.8) +\n  ggplot2::geom_vline(xintercept = 2020, linetype = \"dotted\", colour = \"grey50\") +\n  ggplot2::annotate(\"text\", x = 2020.2, y = 0.08, label = \"COVID\",\n                    size = 3, hjust = 0, colour = \"grey30\") +\n  ggplot2::scale_colour_viridis_d(option = \"D\", end = 0.85,\n                                   labels = c(\"Atkinson(0.5)\",\n                                              \"Atkinson(1)\",\n                                              \"Gini (人口加权)\",\n                                              \"Theil-T (人口加权)\")) +\n  labs_ghs(\n    title    = \"Global Inequality of per-capita CHE\",\n    subtitle = \"四种指标 \\u00b7 整体下降趋势 \\u00b7 2015 后放缓\",\n    x = NULL, y = \"Index value\", colour = NULL\n  ) +\n  theme_ghs()\n\n\n\n\n\n\nFigure 14.1: 2000-2023 全球人均 CHE 不平等指数演化（人口加权）",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>5. The Roads Ahead</span>"
+    ]
+  },
+  {
+    "objectID": "12-roads-ahead.html#数据-代码-引用",
+    "href": "12-roads-ahead.html#数据-代码-引用",
+    "title": "\n13  5. The Roads Ahead\n",
+    "section": "数据 / 代码 / 引用",
+    "text": "数据 / 代码 / 引用\n\n\n数据：GHED che_pc_usd2023（人均 CHE）+ pop（人口加权）；预测使用 1995-2023 各国时序。\n\n代码：inequality_by_year() 计算 Gini/Atkinson/Theil；fit_beta_convergence() 跑面板回归；plot_forecast_fan() 绘制 ARIMA 扇形图。模型批量运行脚本 dev_scripts/run_models.R。\n\n引用：Sala-i-Martin (1996). The classical approach to convergence analysis; Wagstaff (2002). Inequalities in health in developing countries; Hyndman & Athanasopoulos (2021). Forecasting: principles and practice.",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>5. The Roads Ahead</span>"
+    ]
+  },
+  {
+    "objectID": "12-roads-ahead.html#x-v2-数据新闻拓展",
+    "href": "12-roads-ahead.html#x-v2-数据新闻拓展",
+    "title": "\n13  5. The Roads Ahead\n",
+    "section": "5.x v2 数据新闻拓展",
+    "text": "5.x v2 数据新闻拓展\n\nCodeplot_v2_continent_stream(master_enriched)\n\n\n\n数据新闻 5 · 大洲三源 stream chart\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAtlas DT：30+ 字段全字段查询表。可搜索、可排序、可下载 CSV。读者可以在此自行验证书中所有结论。",
+    "crumbs": [
+      "IV · 类型与未来",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>5. The Roads Ahead</span>"
+    ]
+  },
+  {
+    "objectID": "A0-methodology.html",
+    "href": "A0-methodology.html",
+    "title": "Appendix A — Appendix · Methods, Formulas, Limits",
+    "section": "",
+    "text": "B A. 数据来源 & 单位约定",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>Appendix · Methods, Formulas, Limits</span>"
+    ]
+  },
+  {
+    "objectID": "A0-methodology.html#b.1-加权-gini-系数",
+    "href": "A0-methodology.html#b.1-加权-gini-系数",
+    "title": "Appendix A — Appendix · Methods, Formulas, Limits",
+    "section": "\nC.1 B.1 加权 Gini 系数",
+    "text": "C.1 B.1 加权 Gini 系数\n\\[\nG = \\frac{\\sum_i \\sum_j w_i w_j |y_i - y_j|}{2\\bar y}\n\\]\n代码位置：R/04_metrics.R::gini_w()，使用 Dagum (2000) 双重求和形式。",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>Appendix · Methods, Formulas, Limits</span>"
+    ]
+  },
+  {
+    "objectID": "A0-methodology.html#b.2-atkinson-指数",
+    "href": "A0-methodology.html#b.2-atkinson-指数",
+    "title": "Appendix A — Appendix · Methods, Formulas, Limits",
+    "section": "\nC.2 B.2 Atkinson 指数",
+    "text": "C.2 B.2 Atkinson 指数\n\\[\nA_\\varepsilon = 1 - \\frac{1}{\\bar y}\\left[\\sum_i w_i y_i^{1-\\varepsilon}\\right]^{1/(1-\\varepsilon)} \\quad (\\varepsilon \\neq 1)\n\\]\n\\[\nA_1 = 1 - \\exp\\left(\\frac{1}{\\bar y}\\sum_i w_i \\ln y_i\\right) - \\bar y\n\\]\n代码位置：R/04_metrics.R::atkinson_w()。本项目分别报告 \\(\\varepsilon = 0.5\\) 与 \\(\\varepsilon = 1\\) 两种参数。",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>Appendix · Methods, Formulas, Limits</span>"
+    ]
+  },
+  {
+    "objectID": "A0-methodology.html#b.3-theil-t-指数",
+    "href": "A0-methodology.html#b.3-theil-t-指数",
+    "title": "Appendix A — Appendix · Methods, Formulas, Limits",
+    "section": "\nC.3 B.3 Theil-T 指数",
+    "text": "C.3 B.3 Theil-T 指数\n\\[\nT = \\sum_i w_i \\frac{y_i}{\\bar y} \\ln\\!\\left(\\frac{y_i}{\\bar y}\\right)\n\\]\n可分解为大洲 between + 大洲 within 两部分；本项目使用 R/04_metrics.R::theil_decomp()。",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>Appendix · Methods, Formulas, Limits</span>"
+    ]
+  },
+  {
+    "objectID": "A0-methodology.html#引用",
+    "href": "A0-methodology.html#引用",
+    "title": "Appendix A — Appendix · Methods, Formulas, Limits",
+    "section": "引用",
+    "text": "引用\n\nAtkinson, A. B. (1970). On the measurement of inequality. Journal of Economic Theory, 2(3), 244-263.\nDagum, C. (2000). A new approach to the decomposition of the Gini income inequality ratio. Empirical Economics, 22(4), 515-531.\nSala-i-Martin, X. (1996). The classical approach to convergence analysis. Economic Journal, 106(437), 1019-1036.\nHyndman, R. J., & Athanasopoulos, G. (2021). Forecasting: principles and practice (3rd ed.). OTexts.\nKillick, R., Fearnhead, P., & Eckley, I. A. (2012). Optimal detection of changepoints with a linear computational cost. Journal of the American Statistical Association, 107(500), 1590-1598.\nWagstaff, A. (2002). Inequalities in health in developing countries: swimming against the tide? World Bank Policy Research Working Paper 2795.\nWorld Health Organization. (2024). Global Health Expenditure Database (GHED). https://apps.who.int/nha/database.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>Appendix · Methods, Formulas, Limits</span>"
+    ]
+  },
+  {
+    "objectID": "references.html",
+    "href": "references.html",
+    "title": "Appendix B — References",
+    "section": "",
+    "text": "C 1. 数据来源 Data Sources\n\n\n\n来源\n用途\n访问方式\n\n\n\n\nWHO Global Health Expenditure Database (GHED), 2024-12 release\n主数据：195 国 × 24 年 × 数十个指标\nhttps://apps.who.int/nha/database; 本项目使用 TidyTuesday 镜像\n\n\nWorld Bank — World Development Indicators (WDI)\n人口、GDP / cap、预期寿命、U5MR\nwbstats::wb_data()\n\n\nUN M49 / countrycode\n大洲 / 区域 / 收入组分组\ncountrycode::countrycode()\n\n\nNatural Earth shapefile\n世界 / 大洲底图\nrnaturalearth\n\n\nOur World in Data — COVID-19\n2020-2022 疫情交叉验证\n公共 CSV\n\n\nOECD Health Statistics (可选)\nOECD 国家交叉验证\nOECD 包\n\n\nISO-3166\nISO3 标准化\ncountrycode\n\n\n\n\n\nD 2. 学术与政策参考文献\n\n\n\n\n详细方法论与公式请参阅 附录 · Methods, Formulas, Limits。\n\n\n\nE 3. 数据使用许可\n\nWHO GHED 数据采用 CC-BY 4.0 许可。\nWorld Bank WDI 数据采用 CC-BY 4.0 许可。\n本项目的代码与文档采用 MIT License（见仓库 LICENSE）。\n\n\n\nF 4. 引用本项目\n如果你在研究 / 报告中引用本项目，建议格式：\n庄颂. (2026). A Decade of Health Money: 全球卫生支出叙事 · 2000-2023 · GHED.\n学号 20241334. &lt;https://github.com/2711944586/R&gt;\nBibTeX:\n@misc{zhuang2026ghs,\n  author       = {Zhuang, Song},\n  title        = {A Decade of Health Money: A Narrative Analysis of Global Health Spending 2000-2023},\n  year         = {2026},\n  howpublished = {\\url{https://github.com/2711944586/R}}\n}\n\n\nG 5. 致谢与协作\n\n感谢 WHO/GHED 团队公开 24 年级别的数据集。\n感谢 ONE Data 团队的两份精彩报告（A Turning Point in Health Financing / The Hidden Fragility of Preventive Health Spending）启发了本项目章节切分。\n感谢 TidyTuesday 社区的 GHED 选题与数据预处理。\n感谢所有维护 R 开源生态的贡献者：tidyverse、ggplot2、plotly、leaflet、Shiny、Quarto。",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>B</span>  <span class='chapter-title'>References</span>"
+    ]
+  }
+]

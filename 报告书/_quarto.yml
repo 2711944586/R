@@ -1,0 +1,126 @@
+project:
+  type: book
+  output-dir: ../网站发布
+  resources:
+    - "../分析输出/交互组件/**/*.html"
+    - "../分析输出/图表/**/*.png"
+
+book:
+  title: "A Decade of Health Money"
+  subtitle: "全球卫生支出 2000–2023 数据新闻全景"
+  author:
+    - name: 庄颂
+      affiliation: 学号 20241334
+      url: https://github.com/2711944586/R
+  date: today
+  date-format: "YYYY-MM-DD"
+  language: zh
+  search:
+    location: navbar
+    type: overlay
+  reader-mode: true
+  page-navigation: true
+  back-to-top-navigation: true
+  repo-url: https://github.com/2711944586/R
+  repo-actions: [issue, source]
+  sharing: [twitter, linkedin]
+  twitter-card: true
+  open-graph: true
+  favicon: assets/favicon.svg
+  cover-image: assets/cover.png
+  navbar:
+    pinned: true
+    background: light
+    foreground: "#1A1A1F"
+    title: "GHS · 2000–2023"
+    right:
+      - icon: github
+        href: https://github.com/2711944586/R
+        aria-label: GitHub
+      - icon: app
+        href: 仪表盘/index.html
+        aria-label: Dashboard
+        text: Dashboard
+  sidebar:
+    style: docked
+    background: light
+    border: false
+    collapse-level: 2
+    pinned: true
+  chapters:
+    - index.qmd
+    - part: "I · 全球图谱"
+      chapters:
+        - 01-the-big-picture.qmd
+        - 02-who-pays.qmd
+        - 03-prevention-deficit.qmd
+    - part: "II · 韧性与冲击"
+      chapters:
+        - 04-pandemic-shock.qmd
+        - 05-equity.qmd
+        - 06-fiscal-space.qmd
+    - part: "III · 健康产出与效率"
+      chapters:
+        - 07-efficiency.qmd
+        - 08-outcomes.qmd
+        - 09-aid-flows.qmd
+    - part: "IV · 类型与未来"
+      chapters:
+        - 10-clusters.qmd
+        - 11-scenarios.qmd
+        - 12-roads-ahead.qmd
+  appendices:
+    - A0-methodology.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      light: [cosmo, _brand.scss]
+      dark:  [cosmo, _brand.scss, _brand-dark.scss]
+    toc: true
+    toc-depth: 3
+    toc-title: "本章导航"
+    toc-location: right
+    code-fold: true
+    code-tools:
+      source: false
+      toggle: true
+      caption: "查看代码"
+    code-link: true
+    code-line-numbers: false
+    code-copy: hover
+    fig-width: 9
+    fig-height: 5.5
+    fig-align: center
+    fig-format: retina
+    fig-responsive: true
+    df-print: paged
+    smooth-scroll: true
+    callout-icon: true
+    callout-appearance: default
+    citations-hover: true
+    crossrefs-hover: true
+    link-external-icon: true
+    link-external-newwindow: true
+    anchor-sections: true
+    include-in-header:
+      text: |
+        <link rel="preconnect" href="https://rsms.me/">
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+  cache: true
+
+knitr:
+  opts_chunk:
+    fig.align: center
+    fig.retina: 2
+    dev: ragg_png
+    dpi: 150

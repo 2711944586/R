@@ -1,0 +1,251 @@
+name: Deploy v2 · Pages + shinylive + shinyapps.io
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '程序/**'
+      - '报告书/**'
+      - '仪表盘/**'
+      - '_targets.R'
+      - '.github/workflows/deploy.yml'
+      - '原始数据/**'
+      - '派生数据/外部数据/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  # ---------- (1) Build Quarto Book + shinylive Shiny → 网站发布/ ----------
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RSPM: https://packagemanager.posit.co/cran/__linux__/jammy/latest
+      RENV_CONFIG_CACHE_SYMLINKS: FALSE
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup R 4.5
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5'
+          use-public-rspm: true
+
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.5.57'
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
+            libfontconfig1-dev libfreetype6-dev \
+            libharfbuzz-dev libfribidi-dev \
+            libpng-dev libtiff5-dev libjpeg-dev libcairo2-dev \
+            fonts-noto-cjk fonts-inter
+
+      - name: Setup R package cache
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::dplyr
+            any::tidyr
+            any::ggplot2
+            any::scales
+            any::tibble
+            any::stringr
+            any::forcats
+            any::purrr
+            any::knitr
+            any::rmarkdown
+            any::readr
+            any::readxl
+            any::countrycode
+            any::patchwork
+            any::ggridges
+            any::ggrepel
+            any::ragg
+            any::svglite
+            any::showtext
+            any::sysfonts
+            any::sf
+            any::rnaturalearth
+            any::rnaturalearthdata
+            any::rmapshaper
+            any::leaflet
+            any::plotly
+            any::DT
+            any::reactable
+            any::htmlwidgets
+            any::htmltools
+            any::ineq
+            any::changepoint
+            any::fixest
+            any::broom
+            any::forecast
+            any::wbstats
+            any::httr
+            any::jsonlite
+            any::arrow
+            any::shiny
+            any::bslib
+            any::shinyWidgets
+            any::shinycssloaders
+            any::shinylive
+            any::here
+            any::crosstalk
+            any::viridis
+
+      - name: Pre-build master_enriched cache
+        run: |
+          Rscript -e '
+          for (f in list.files("程序", pattern="\\.R$", full.names=TRUE)) source(f, encoding="UTF-8")
+          if (file.exists("派生数据/处理结果/master_enriched.rds")) {
+            cat("[ci] cache exists, skip\n")
+          } else {
+            ghs <- load_ghs()
+            master <- enrich_master(build_master_wide(ghs), with_wdi = TRUE)
+            dir.create("派生数据/处理结果", recursive=TRUE, showWarnings=FALSE)
+            saveRDS(master, "派生数据/处理结果/master_enriched.rds")
+            cat("[ci] master_enriched rows =", nrow(master), "\n")
+          }'
+
+      - name: Render Quarto Book → 网站发布/
+        run: quarto render 报告书
+
+      - name: Build shinylive app → 网站发布/仪表盘/
+        run: |
+          Rscript -e '
+          if (!requireNamespace("shinylive", quietly=TRUE)) install.packages("shinylive")
+          dir.create("网站发布/仪表盘", recursive=TRUE, showWarnings=FALSE)
+          if (dir.exists("仪表盘/程序库")) unlink("仪表盘/程序库", recursive=TRUE, force=TRUE)
+          dir.create("仪表盘/程序库", recursive=TRUE, showWarnings=FALSE)
+          file.copy(list.files("程序", pattern="\\.R$", full.names=TRUE),
+                    "仪表盘/程序库", overwrite=TRUE)
+          dir.create("仪表盘/数据快照", recursive=TRUE, showWarnings=FALSE)
+          if (file.exists("派生数据/处理结果/master_enriched.rds")) {
+            file.copy("派生数据/处理结果/master_enriched.rds",
+                      "仪表盘/数据快照/snapshot.rds", overwrite=TRUE)
+          }
+          tryCatch(
+            shinylive::export("仪表盘", "网站发布/仪表盘", quiet=FALSE),
+            error = function(e) {
+              message("[shinylive] export failed: ", conditionMessage(e))
+              message("[shinylive] skipping — Pages will still get Quarto book")
+              writeLines(
+                c("<!doctype html><html><head><meta charset=\"utf-8\">",
+                  "<title>Shiny unavailable</title></head><body>",
+                  "<p>Shinylive build failed in CI. Use shinyapps.io link instead.</p>",
+                  "</body></html>"),
+                "网站发布/仪表盘/index.html"
+              )
+            }
+          )'
+
+      - name: Copy pre-rendered widgets → 网站发布/交互组件/
+        run: |
+          if [ -d 分析输出/交互组件 ]; then
+            mkdir -p 网站发布/交互组件
+            cp -r 分析输出/交互组件/* 网站发布/交互组件/ || true
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 网站发布
+
+  # ---------- (2) Deploy to GitHub Pages ----------
+  deploy-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ---------- (3) Deploy Shiny to shinyapps.io (optional) ----------
+  deploy-shinyapps:
+    if: github.repository_owner != '' && success()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
+    env:
+      RSPM: https://packagemanager.posit.co/cran/__linux__/jammy/latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5'
+          use-public-rspm: true
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
+            libcairo2-dev fonts-noto-cjk
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::rsconnect
+            any::shiny
+            any::bslib
+            any::dplyr
+            any::tidyr
+            any::ggplot2
+            any::scales
+            any::plotly
+            any::leaflet
+            any::DT
+            any::reactable
+            any::shinyWidgets
+            any::shinycssloaders
+            any::countrycode
+            any::sf
+
+      - name: Deploy to shinyapps.io
+        if: env.SHINYAPPS_NAME != ''
+        env:
+          SHINYAPPS_NAME:   ${{ secrets.SHINYAPPS_NAME }}
+          SHINYAPPS_TOKEN:  ${{ secrets.SHINYAPPS_TOKEN }}
+          SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
+        run: |
+          Rscript -e '
+          if (nchar(Sys.getenv("SHINYAPPS_NAME")) == 0) {
+            message("[ci] SHINYAPPS_NAME secret not set; skipping shinyapps deploy")
+            quit(status = 0)
+          }
+          rsconnect::setAccountInfo(
+            name   = Sys.getenv("SHINYAPPS_NAME"),
+            token  = Sys.getenv("SHINYAPPS_TOKEN"),
+            secret = Sys.getenv("SHINYAPPS_SECRET")
+          )
+          rsconnect::deployApp(
+            appDir        = ".",
+            appPrimaryDoc = "仪表盘/ui.R",
+            appName       = "ghs-dashboard-v2",
+            appFiles      = c(
+              list.files("仪表盘", recursive=TRUE, full.names=TRUE),
+              list.files("程序", pattern="\\.R$", full.names=TRUE),
+              "派生数据/处理结果/master_enriched.rds"
+            ),
+            forceUpdate   = TRUE
+          )'

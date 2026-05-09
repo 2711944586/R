@@ -1,0 +1,132 @@
+---
+title: "4. The COVID-19 Shock"
+subtitle: "2020-2022：政府是最后的保险单"
+description: "用 4 张图回答：疫情期间 CHE 涨了多少？谁涨得最猛？居民负担有没有反弹？"
+---
+
+```{r setup, include=FALSE}
+.proj_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+source(file.path(.proj_root, "报告书", "_setup.R"), encoding = "UTF-8")
+shock <- covid_shock(master_enriched, base_year = 2019,
+                      shock_years = 2020:2022) |>
+  dplyr::filter(is.finite(.data$che_delta_pct))
+n_up <- sum(shock$che_delta_pct > 0, na.rm = TRUE)
+n_total <- nrow(shock)
+mean_che <- mean(shock$che_delta_pct, na.rm = TRUE)
+mean_gov <- mean(shock$gghed_delta_pp, na.rm = TRUE)
+mean_oops <- mean(shock$oops_delta_pp, na.rm = TRUE)
+```
+
+::: {.callout-tip appearance="minimal" icon=false}
+## 本章 TL;DR
+
+- `r n_up` / `r n_total` 国 (**`r round(n_up / n_total * 100)`%**) 在疫情三年间总卫生支出 **上升**，平均 CHE 增幅约 **`r round(mean_che, 1)`%**。
+- 增量主要由**政府** (GGHE-D) 承担——平均上升 **`r round(mean_gov, 2)` pp**，私人份额相应下降。
+- 但 OOPS 平均仅 **`r round(mean_oops, 2)` pp** 的微弱变化下，少数低收入国家**居民自付比例反而上升**——脆弱性传导。
+:::
+
+# 4.1 整体冲击
+
+```{r covid-shock}
+summary_tbl <- tibble::tibble(
+  指标 = c("总体平均 CHE 变化 (%)",
+           "平均 OOPS 变化 (pp)",
+           "平均 GGHE-D 变化 (pp)",
+           "样本国家数",
+           "CHE 上升的国家数"),
+  数值 = c(round(mean_che, 2),
+           round(mean_oops, 2),
+           round(mean_gov, 2),
+           n_total,
+           n_up)
+)
+knitr::kable(summary_tbl, caption = "COVID 冲击 (2020-2022 vs 2019)")
+```
+
+# 4.2 散点：CHE 增幅 vs OOPS 占比变化
+
+```{r fig-covid-scatter, fig.cap="疫情期间 CHE 增幅 vs OOPS 占比变化（散点 + 线性拟合）"}
+d <- shock |>
+  dplyr::filter(is.finite(.data$oops_delta_pp), abs(.data$che_delta_pct) < 200)
+
+ggplot2::ggplot(d, ggplot2::aes(.data$che_delta_pct, .data$oops_delta_pp)) +
+  ggplot2::geom_hline(yintercept = 0, colour = "grey60") +
+  ggplot2::geom_vline(xintercept = 0, colour = "grey60") +
+  ggplot2::geom_point(alpha = 0.65, size = 2.4, colour = "#1B5E88") +
+  ggplot2::geom_smooth(method = "lm", se = TRUE, colour = "#C0504D",
+                        linewidth = 0.6) +
+  ggplot2::scale_x_continuous(labels = scales::label_percent(scale = 1)) +
+  labs_ghs(
+    title    = "CHE 增幅 vs OOPS 占比变化",
+    subtitle = "x>0: 总支出上升 \u00b7 y>0: 居民自付占比上升 \u00b7 拟合线接近水平",
+    x = "CHE 增幅 (%)", y = "OOPS \u0394 (pp)"
+  ) +
+  theme_ghs()
+```
+
+::: {.callout-note appearance="minimal"}
+**拟合接近水平意味着**：CHE 涨得多的国家，OOPS 占比并没有系统性上升或下降——也就是说**多出来的钱主要由政府/外援承担**，而非由居民自付填补。
+:::
+
+# 4.3 谁逆势涨幅最大？
+
+```{r tbl-top-growth}
+shock |>
+  dplyr::arrange(dplyr::desc(.data$che_delta_pct)) |>
+  dplyr::slice_head(n = 10) |>
+  dplyr::transmute(
+    国家 = .data$country_name,
+    `CHE 增幅 (%)` = round(.data$che_delta_pct, 1),
+    `OOPS 变化 (pp)` = round(.data$oops_delta_pp, 2),
+    `政府变化 (pp)` = round(.data$gghed_delta_pp, 2)
+  ) |>
+  knitr::kable(caption = "2020-2022 vs 2019 \u00b7 CHE 增幅 Top 10")
+```
+
+# 4.4 哑铃图：每国 2019 vs 2022
+
+```{r fig-dumbbell, fig.cap="OOPS 占比 \u00b7 2019 vs 2022 \u00b7 Top 25 变动国家", fig.height=8.5}
+plot_covid_dumbbell(master_enriched, top_n = 25)
+```
+
+哑铃图把 *2019 → 2022* 的变化具像为两端点 + 一条线段：
+
+- 蓝色端点 = 2019；红色端点 = 2022。
+- 线段越长，说明该国 OOPS 占比变动越剧烈。
+- 多数线段为下降（红点在左），但也有部分国家逆向恶化。
+
+# 4.5 政策叙事
+
+::: {.callout-tip icon="📌"}
+1. **政府担当**：绝大多数国家 GGHE-D 占比在疫情中上升，私人压力被稀释——这是 *"财政保险"* 的真实运作。
+2. **OOPS 反弹**：少数低收入国家 OOPS 反而上升，揭示 **危机的脆弱性更易传导给居民**。
+3. **回归常态？** 2022 年后大部分国家结构回归基线——但**财政可持续性**与**慢病堆积**是接下来的真问题。
+:::
+
+> 疫情三年改变了我们对"卫生筹资能不能扛住冲击"的直觉。下一章我们把目光投向未来：**走向 UHC 的路上，全球还差几年？**
+
+# 4.x v2 数据新闻拓展 {.unnumbered}
+
+```{r ch04-v2-dumbbell, fig.cap="数据新闻 3 · 2019 vs 2022 OOPS 变化 dumbbell（Top 25）", fig.height=5.5}
+plot_v2_covid_dumbbell(master_enriched, n_top = 25)
+```
+
+```{r ch04-v2-stream, fig.cap="数据新闻 5 · 大洲三源占比演化 stream chart", fig.height=4.6}
+plot_v2_continent_stream(master_enriched)
+```
+
+```{r ch04-v2-mc, echo=FALSE}
+htmltools::tagList(widget_v2_mc_fan(master_enriched, country_iso = "CHN"))
+```
+
+::: {.callout-warning appearance="minimal" icon=false}
+**MC 概率扇**：基于 ARIMA 残差分布的 **1000 次蒙特卡洛重采样**，给出非参数 5–95% 概率区间。比单一点预测更诚实地表达不确定性。
+:::
+
+---
+
+## 数据 / 代码 / 引用 {.unnumbered}
+
+- **数据**：GHED `che_usd2023`、`hf3_che`、`gghed_che`、`ext_che`；定义 *冲击* 为 2020-2022 三年均值 vs 2019 基准。
+- **代码**：`covid_shock()` 函数计算各国 *Δ%*；`plot_covid_dumbbell()` 把 OOPS 端点变化可视化。
+- **引用**：WHO. *Global spending on health: rising to the pandemic's challenges*, 2023; OECD. *Health at a Glance 2023*; Our World in Data — *COVID-19 dataset*.
