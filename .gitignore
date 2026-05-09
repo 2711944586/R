@@ -112,3 +112,5 @@ _diag.html
 _diag_files/
 shiny.log
 shiny.err
+fig_log*.txt
+派生数据/raw/world_sf_*.rds
