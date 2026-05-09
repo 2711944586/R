@@ -6,7 +6,15 @@
 mod_scenarios_ui <- function(id, country_choices_named) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#127919; 情景 Scenarios"),
+    title = htmltools::HTML("&#127919; \u60c5\u666f Scenarios"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("\u4e09\u6e90\u8c03\u6574 \u00b7 \u8d22\u52a1\u4fdd\u62a4\u4eff\u771f"),
+      htmltools::p(class = "text-muted",
+                   paste("\u8c03\u8282 OOPS / GGHE-D / EXT \u7684\u5047\u60f3\u53d8\u5316\uff08\u767e\u5206\u70b9\uff09\uff0c",
+                         "\u89c2\u5bdf\u672a\u6765\u65b0\u503c\u3001\u91cd\u65b0\u5206\u7ec4\u4e0e\u6781\u503c\u56fd\u6570\u91cf\u7684\u53d8\u52a8\u3002",
+                         "\u4eff\u771f\u662f\u201c\u4f20\u9012\u63a8\u65ad\u201d\uff0c\u4e0d\u5305\u542b\u884c\u4e3a / \u7740\u529b / \u5468\u671f\u6548\u5e94\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

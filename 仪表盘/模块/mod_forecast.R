@@ -6,7 +6,15 @@
 mod_forecast_ui <- function(id, country_choices_named, indicator_choices) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128201; 预测 Forecast"),
+    title = htmltools::HTML("&#128201; \u9884\u6d4b Forecast"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("5 \u5e74 ARIMA / ETS \u9884\u6d4b"),
+      htmltools::p(class = "text-muted",
+                   paste("\u6307\u5b9a\u56fd\u5bb6 + \u6307\u6807\uff0c\u7528 forecast::auto.arima \u81ea\u52a8\u9009\u9636\uff0c",
+                         "\u8f93\u51fa\u70b9\u9884\u6d4b\u4e0e 80% / 95% CI\u3002",
+                         "\u9884\u6d4b\u53ea\u4f7f\u7528\u5355\u56fd\u5386\u53f2\u5e8f\u5217\uff0c\u5916\u90e8\u51b2\u51fb\u4e0d\u5728\u6a21\u578b\u5185\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

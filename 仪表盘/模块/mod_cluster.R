@@ -6,7 +6,15 @@
 mod_cluster_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128202; 聚类 Cluster"),
+    title = htmltools::HTML("&#128202; \u805a\u7c7b Cluster"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("PCA + k-means \u00b7 \u56fd\u5bb6\u8c61\u9650"),
+      htmltools::p(class = "text-muted",
+                   paste("\u4ee5 financing 4 \u7ef4\uff08GGHE-D / PVT-D / OOPS / EXT\uff09\u505a\u4e3b\u6210\u5206\u5206\u89e3\uff0c",
+                         "\u7136\u540e\u5728\u524d 2 \u4e2a\u4e3b\u6210\u5206\u4e0a\u8dd1 k-means\u3002",
+                         "\u53ef\u8c03 k\u3001\u5e74\u4efd\u4e0e\u662f\u5426\u6807\u51c6\u5316\uff0c\u89c2\u5bdf\u8c61\u9650\u6f02\u79fb\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,

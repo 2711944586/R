@@ -382,10 +382,90 @@ if (!exists("%||%", mode = "function")) {
           cap_html, thead, paste(rows, collapse = ""))
 }
 
+.ghs_deep_dive_bank <- list(
+  f1 = list(
+    cases = "<strong>总量侧：</strong>美国 2023 年 CHE 接近 4.9 万亿美元（USD 2023 不变价），几乎等于 OECD 其余所有国家之和；中国 2000\u20132023 年 CHE 年均实际增速约 8.6%，把全球增量份额从不足 3% 推到接近 18%。<strong>结构侧：</strong>德国 / 法国 / 日本的 GGHE-D 长期稳定在 75\u201385%，政府强制筹资占据绝对主导；印度 / 菲律宾 / 巴基斯坦长期维持 50%+ OOPS，私人自付仍是实际承担者。",
+    counter = "<strong>反例：</strong>希腊在 2009\u20132015 债务危机期间出现罕见的公共份额回撤（GGHE-D 占 CHE 由 68% 降至 59%），说明&ldquo;全球公共份额上升&rdquo;并非铁律；委内瑞拉 2016\u20132022 年 CHE/capita 实际下降 40%+，是少数几个走向&ldquo;去卫生化&rdquo;的国家。",
+    method = "全球加总使用人口加权 + USD 2023 不变价，排除汇率与通胀干扰；但 GHED 对部分非洲国家的 2021\u20132023 数据仍有修订，近 2\u20133 年图像应视为&ldquo;初步估计&rdquo;；大洲分解不控制收入组成差异，解读为&ldquo;结构&rdquo;而非&ldquo;绩效&rdquo;。"
+  ),
+  f2 = list(
+    cases = "<strong>高 OOPS 极值国：</strong>尼日利亚 / 孟加拉 / 埃及 2023 年 OOPS 均 >70%，意味着超过 7 成卫生支出由家庭在服务发生时直接支付；<strong>低 OOPS 典范：</strong>英国 / 挪威 / 古巴 OOPS 长期 <15%，背后是全民医保 + 强制社保。<strong>快速改善：</strong>泰国 2000 年 OOPS 约 34%，2023 年降至 ~11%，20 年内通过&ldquo;30 株方案&rdquo;（全民医保）实现结构性下降。",
+    counter = "<strong>反例：</strong>韩国 2000\u20132023 年 OOPS 下降仅 3 个百分点（从 37% 至 33%），远低于同期人均收入增速；显示&ldquo;经济增长&rdquo;未必自动转化为&ldquo;财务保护&rdquo;；加纳在外援大幅下降后 OOPS 反而回升 2\u20134 个百分点。",
+    method = "OOPS = hf3_che 以 CHE 为分母，未区分&ldquo;被迫自付&rdquo; vs &ldquo;主动选择&rdquo;；灾难性自付（>10% 家户消费）需用家户调查（WHO FPS）补充，这里只用宏观口径做跨国排序；岛屿小国（基里巴斯、汤加等）样本年份缺口较多。"
+  ),
+  f3 = list(
+    cases = "<strong>收敛证据：</strong>Gini(pop) 由 2000 年的 0.61 降至 2023 年的 0.54；Theil-T 由 0.75 降至 0.62；Atkinson(\u03b5=1) 由 0.44 降至 0.38；三指数同期下行说明长期趋势稳健。<strong>主要贡献：</strong>中国、印度、越南、印尼等中等收入人口大国人均 CHE 年均 6\u201310% 增长，把下半部分分布向上挤压，是 Gini 下降的主要推力。",
+    counter = "<strong>反例：</strong>撒哈拉以南若干国家（DRC、CAF、BDI）人均 CHE 2010\u20132023 年几无增长，在高收入国家继续上涨的背景下拉大底端差距；去除人口权重的 Gini_eq 下降幅度明显小于 Gini_pop（约 0.03 vs 0.07），说明&ldquo;国家数&rdquo;维度的收敛要慢得多。",
+    method = "Atkinson 对低端更敏感，Theil-T 对高端更敏感，Gini 居中；三者联合读取才能避免&ldquo;选取性结论&rdquo;；所有指数只衡量&ldquo;跨国&rdquo;不平等，国内家户层面的不平等需配合 WDI SI.POV.GINI 或 LIS 数据另行评估。"
+  ),
+  f4 = list(
+    cases = "<strong>政府托底（GGHE-D 冲高）：</strong>美国 / 英国 / 澳大利亚 2020\u20132022 GGHE-D 占 CHE 相较 2019 上升 2\u20134 个百分点，对应大规模疫苗 / 医院补贴；<strong>负担下沉（OOPS 冲高）：</strong>印度 / 菲律宾 / 巴基斯坦 OOPS 反而上升 2\u20136 个百分点，说明家户承担了额外费用而非公共预算。",
+    counter = "<strong>反例：</strong>俄罗斯 2020\u20132022 年 GGHE-D 短暂上升后 2023 年迅速回落至 2019 以下，呈现&ldquo;单次冲击&rdquo;而非&ldquo;持续跃迁&rdquo;；乌克兰 2022\u20132023 年因战事数据质量下降，不应纳入常规政策评估。",
+    method = "base=2019 的选择使得&ldquo;2020\u20132022&rdquo;综合了 COVID + 供应链 + 部分国家战时预算，单因归因不成立；用 \u0394GGHE - \u0394OOPS 作为韧性代理只能得到&ldquo;相对排序&rdquo;，不能解释绝对幅度；GHED 口径下院内检测 / 疫苗分类在各国存在差异。"
+  ),
+  f5 = list(
+    cases = "<strong>追赶者：</strong>越南 / 孟加拉 / 印尼 2000\u20132023 年人均 CHE 年化实际增速 >7%，显著高于人均收入增速，典型&ldquo;追赶型&rdquo;；<strong>停滞者：</strong>津巴布韦 / 委内瑞拉 2010 年后人均 CHE 负增长，反方向偏离收敛。",
+    counter = "<strong>反例：</strong>\u03b2-收敛的回归斜率 ~\u22120.02，对应&ldquo;半衰期&rdquo; ~35 年，意味着在现有趋势下要再 35 年才能让差距缩小一半；这意味着&ldquo;绝对赶超&rdquo;在可预见未来仍然遥远。",
+    method = "以大洲为固定效应控制区域差异，但未控制收入组；如果改用 \u03c3-收敛（横截面方差）观察可能得到更保守的结论；\u03b2 系数对起止年份选择敏感，这里使用 2000\u20132023，换成 2005\u20132019 结果仍然显著但幅度减小。"
+  ),
+  f6 = list(
+    cases = "<strong>典型&ldquo;流向健康&rdquo;：</strong>日本 / 韩国 / 新加坡 hc6（预防 + 健康促进）占 CHE 常年 >5%，配合低 U5MR 与高预期寿命；<strong>&ldquo;大治疗&rdquo;型：</strong>美国 / 英国 hc1 住院治疗占 CHE ~40%，但 U5MR 同组不占优势，说明&ldquo;治疗导向&rdquo;资金配置不自动对应更好的结果。",
+    counter = "<strong>反例：</strong>部分拉美国家（墨西哥、阿根廷）hc6 占比上升，但预期寿命改善幅度不大，提示 hc6 口径包含较多&ldquo;健康信息类&rdquo;支出，未必转化为实质性预防服务。",
+    method = "hc1\u2013hc9 分类在各国会计口径中口径差异较大，跨国直接比较存在风险；OECD-NHA 与 WHO-GHED 对同一国数字存在差异（通常 <2 个百分点）；本页只用 WHO-GHED 原始表。"
+  ),
+  f7 = list(
+    cases = "<strong>4 个典型 archetype：</strong>(1) 高公共 + 高人均（OECD 核心）；(2) 中等公共 + 中等人均（东欧 + 东南亚新兴）；(3) 高 OOPS + 低人均（南亚 + 部分非洲）；(4) 外援依赖 + 低人均（部分 LDC）。PCA 前两主成分解释 ~68% 方差，足以作为 archetype 代理。",
+    counter = "<strong>反例：</strong>若干石油出口国（沙特、卡塔尔）既有高人均、又低公共份额，落在主流 archetype 之外；这类国家 archetype 本身会随油价周期漂移，PCA 静态截面无法捕捉。",
+    method = "PCA 使用 2022 截面，未使用动态聚类；k=4 的选择参考 silhouette 最大化，但 k=3 与 k=5 结果也有一定解释力；archetype 是&ldquo;描述性&rdquo;工具，不适合作为因果识别起点。"
+  ),
+  f8 = list(
+    cases = "<strong>高置信预测：</strong>德国 / 日本 / 法国 历史序列平稳，ARIMA(0,1,1) 或 ARIMA(1,1,0) 足以获得 80% CI 宽度 <10% 的窄带预测；<strong>高不确定：</strong>撒哈拉以南非洲若干国家 CI 宽度 >30%，反映数据震荡 + 外援波动。",
+    counter = "<strong>反例：</strong>2020\u20132022 年的 COVID 冲击对所有模型都是外部结构性断点，auto.arima 会把它解释为方差上升而非均值转移；意味着任何&ldquo;5 年预测&rdquo;都应伴随&ldquo;下一个冲击会改写&rdquo;的保留。",
+    method = "点预测使用 auto.arima 选阶，CI 使用正态假设，对偏态重尾序列可能低估尾部风险；预测只用&ldquo;该国自身&rdquo;历史，不利用跨国结构信息；Prophet / ETS / 灰色 GM(1,1) 作为 robust 备选未在主页展示，但在模型表内已做对比。"
+  ),
+  f9 = list(
+    cases = "<strong>高外援依赖典范：</strong>马拉维 / 莫桑比克 / 卢旺达 EXT 占 CHE 常年 >30%；<strong>成功退出：</strong>越南 / 博茨瓦纳 EXT 由 2005 年 >15% 降至 2023 <5%，同时 GGHE-D 与 pvtd 填补缺口；<strong>警示：</strong>南苏丹 / 索马里 EXT >40% 且绝对人均 CHE 仍偏低，属于&ldquo;输血型+低水平&rdquo;双困境。",
+    counter = "<strong>反例：</strong>部分小岛国（图瓦卢、基里巴斯）EXT 占 CHE >50% 但人均 CHE 并不低，因援助国为少数双边合作伙伴；显示&ldquo;EXT 高=脆弱&rdquo;需结合绝对规模与援助多样性一起看。",
+    method = "EXT 口径包含双边、多边与全球基金（GFATM、Gavi），未区分赠款 vs 贷款；部分项目通过非政府组织执行，是否进入 GGHE-D 还是 EXT 视各国口径；阈值 20% 是实践经验值，并非国际统一标准。"
+  ),
+  f10 = list(
+    cases = "<strong>高投入 + 有效：</strong>日本 / 西班牙 / 以色列 在 CHE/cap \u226520k 组里，U5MR 仍 <4‰，体现&ldquo;高投入高产出&rdquo;；<strong>高投入 + 低回报：</strong>美国 CHE/cap ~13k 但 U5MR ~5.3‰、预期寿命 ~77 岁，明显低于投入相当的同侪；<strong>低投入 + 高效：</strong>古巴 / 哥斯达黎加 CHE/cap 不到 2k，但预期寿命 \u226579 岁，体现强基层 + 公共卫生能力的倍增效应。",
+    counter = "<strong>反例：</strong>部分石油富国（科威特、沙特）CHE/cap 高但 U5MR 仍 ~6\u20137‰，提示&ldquo;投入够&rdquo;不一定&ldquo;产出够&rdquo;；医生密度、基层服务可及性、教育与环境共同决定边际产出。",
+    method = "效率只用&ldquo;输入/输出&rdquo;比值，未控制人口结构与疾病负担；DEA 前沿有多重最优解，边界国家的排名对数据点敏感；寿命/U5MR 还受非卫生部门影响，不能全部归因于 CHE。"
+  ),
+  f11 = list(
+    cases = "<strong>大幅上升：</strong>中国 2000 排名 ~120，2023 排名 ~55（+65 位）；印度上升 ~40 位；越南 ~50 位；<strong>大幅下降：</strong>委内瑞拉从 ~55 降至 ~130；津巴布韦从 ~110 降至 ~160；<strong>稳定者：</strong>日 / 德 / 法 24 年内排名波动 <3 位。",
+    counter = "<strong>反例：</strong>部分资源依赖国（安哥拉、赞比亚）2005\u20132014 年排名快速上升，2015\u20132022 年又快速下降，反映原材料周期对 CHE 的溢出；仅看两个端点会错过这种 U 型路径。",
+    method = "排名对数据修订敏感，尤其小国；bump chart 把注意力集中在 top 25，掩盖了后 100 名的剧烈分化；解读时建议配合方差/滚动排名。"
+  ),
+  f12 = list(
+    cases = "<strong>低端斜率陡：</strong>在 CHE/cap < 500 USD 区间，每翻倍对应预期寿命 +5\u20137 岁；<strong>中端斜率中等：</strong>在 CHE/cap 500\u20135000 区间，每翻倍对应 +2\u20133 岁；<strong>高端斜率平缓：</strong>\u22655000 后每翻倍仅 +0.3\u20130.7 岁，边际收益显著递减。",
+    counter = "<strong>反例：</strong>同样 CHE/cap 水平下，寿命差距可达 8\u201312 年（如 2022 的沙特 vs 哥斯达黎加）；这部分由&ldquo;结构 + 行为 + 环境&rdquo;解释，不是资金问题；也提示高端国家若想延长寿命，应优化配置而非单纯加预算。",
+    method = "log-linear 拟合假设单一弹性，实际弹性分段；本页 Figure 12 同时提供分段 OLS 作为稳健性检验；对数弹性不能外推到 CHE/cap=0 或 < 100 USD 的极端样本。"
+  ),
+  f13 = list(
+    cases = "<strong>SDG-3.8 UHC 指数高：</strong>日 / 韩 / 德 / 法 SCI 指数 \u226580，对应低 OOPS + 高 GGHE-D；<strong>中档：</strong>中国 / 巴西 / 泰国 SCI ~70\u201376，近 20 年追赶明显；<strong>低档：</strong>部分非洲、战乱国家 SCI <50，需要国际合作 + 财政空间双向发力。",
+    counter = "<strong>反例：</strong>美国 SCI ~83（世界前 15%）但 CE(10%) \u226817%（灾难性自付暴露率）居高；显示 UHC 覆盖面与财务保护可以在同一国家脱节。",
+    method = "SDG 3.8.1 指数权重与分项选择存在争议；CE(10%) 需要家户数据，本页使用 WHO 估计值，跨国可比性弱于资金口径；SDG 3.8 不等于&ldquo;UHC 全面达成&rdquo;。"
+  ),
+  f14 = list(
+    cases = "<strong>政策建议优先级：</strong>(1) LIC + 高 EXT 组需优先保障过渡资金并在 5\u201310 年内建立本国强制筹资（OOPS \u2193 + GGHE-D \u2191）；(2) LMIC 高 OOPS 组应扩大门诊报销 + 增加 hc6 预防；(3) UMIC 中等投入组应重点优化配置（从 hc1 转向 hc6）；(4) HIC 高投入组需关注效率与公平（针对老年与慢性病）。",
+    counter = "<strong>反例与边界：</strong>建议不代表&ldquo;复制某国即可成功&rdquo;；政策复制还需考虑财政空间、制度能力、文化与疾病谱；政治周期常常是最大的&ldquo;反例源&rdquo;。",
+    method = "建议基于相关性 + 政策经验，不等同于因果识别；任何单一政策工具的效果都依赖执行质量；本报告不讨论具体的税收或保险设计细节（属于下一层研究）。"
+  )
+)
+
+.ghs_deep_dive <- function(id) {
+  info <- .ghs_deep_dive_bank[[tolower(id)]]
+  if (is.null(info)) return("")
+  sprintf("<div class='deep-dive'><h3>\u4e8c\u7ea7\u5206\u6790 \u00b7 Deep Dive</h3><div class='deep-grid'><article class='deep-card cases'><h4>\u6848\u4f8b\u56fd\u5bb6</h4><p>%s</p></article><article class='deep-card counter'><h4>\u53cd\u4f8b\u4e0e\u5f02\u5e38</h4><p>%s</p></article><article class='deep-card method'><h4>\u65b9\u6cd5\u811a\u6ce8 \u00b7 \u5c40\u9650</h4><p>%s</p></article></div></div>",
+          info$cases, info$counter, info$method)
+}
+
 .ghs_finding <- function(id, num, kicker, title, lead, body, chips = "") {
-  sprintf("<section class='finding' id='%s'><div class='wrap'><header class='finding-head'><span class='finding-num'>%s</span><div><span class='finding-kicker'>%s</span><h2>%s</h2><p class='lead'>%s</p><div class='chips'>%s</div></div></header><div class='finding-body'>%s</div></div></section>",
+  sprintf("<section class='finding' id='%s'><div class='wrap'><header class='finding-head'><span class='finding-num'>%s</span><div><span class='finding-kicker'>%s</span><h2>%s</h2><p class='lead'>%s</p><div class='chips'>%s</div></div></header><div class='finding-body'>%s%s</div></div></section>",
           .ghs_e(id), .ghs_e(num), .ghs_e(kicker), .ghs_e(title),
-          .ghs_e(lead), chips, body)
+          .ghs_e(lead), chips, body, .ghs_deep_dive(id))
 }
 
 # ---- 3. Hero / KPI / 数据与方法 ------------------------------------------
@@ -2027,6 +2107,22 @@ if (!exists("%||%", mode = "function")) {
     ".widget-fallback-banner.loaded{background:#e7f4ec;color:#1f6f43;border-color:#a8d8b9}",
     ".widget-fallback-banner.error{background:#fde7e0;color:#a03b27;border-color:#e9b1a1}",
     ".widget-fallback-banner a{color:inherit;font-weight:700;text-decoration:underline}",
+    ".deep-dive{margin:22px 0 6px;padding:22px 24px;background:#fbf6ee;border:1px solid #e3d6bb;border-radius:18px}",
+    ".deep-dive h3{font-family:'Source Serif 4',serif;font-size:20px;margin:0 0 14px;color:var(--ink);letter-spacing:.01em}",
+    ".deep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}",
+    ".deep-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 8px 22px rgba(13,18,27,.04)}",
+    ".deep-card h4{font-family:'Source Serif 4',serif;font-size:15px;margin:0 0 8px;color:var(--blue);font-weight:700}",
+    ".deep-card.counter h4{color:#b04a22}",
+    ".deep-card.method h4{color:#5a6b48}",
+    ".deep-card p{margin:0;color:#3a3a42;font-size:13.5px;line-height:1.72}",
+    ".deep-card p strong{color:var(--ink);font-weight:700}",
+    "@media(max-width:1080px){.deep-grid{grid-template-columns:1fr}}",
+    "html[data-theme='dark'] .deep-dive{background:#161c2a;border-color:rgba(255,255,255,.08)}",
+    "html[data-theme='dark'] .deep-card{background:#0f141e;color:#e7e9ee;border-color:rgba(255,255,255,.08)}",
+    "html[data-theme='dark'] .deep-card p{color:#c3c8d4}",
+    "html[data-theme='dark'] .deep-card h4{color:#f7c08a}",
+    "html[data-theme='dark'] .deep-card.counter h4{color:#f79b7d}",
+    "html[data-theme='dark'] .deep-card.method h4{color:#b7d796}",
     ".cmd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}",
     ".cmd-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 12px 28px rgba(13,18,27,.06)}",
     ".cmd-card header{padding:14px 18px;background:#fbf6ee;border-bottom:1px solid var(--line);font-weight:800;color:var(--blue)}",

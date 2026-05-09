@@ -6,7 +6,15 @@
 mod_efficiency_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#9881; 效率 Efficiency"),
+    title = htmltools::HTML("&#9881; \u6548\u7387 Efficiency"),
+    htmltools::div(
+      class = "panel-hero",
+      htmltools::h2("CHE \u2192 \u7ed3\u679c\uff1a\u6548\u7387\u524d\u6cbf\u4e0e\u5f39\u6027"),
+      htmltools::p(class = "text-muted",
+                   paste("DEA \u524d\u6cbf\u7528\u4eba\u5747 CHE \u4e3a\u8f93\u5165\u3001HALE / \u9884\u671f\u5bff\u547d / U5MR \u4e3a\u8f93\u51fa\uff1b",
+                         "\u4e0b\u65b9\u5f39\u6027\u56fe\u7528\u5206\u6bb5 OLS \u8bc4\u4f30\u8d44\u91d1\u7ffb\u500d\u5bf9\u5bff\u547d\u7684\u8fb9\u9645\u8d21\u732e\u3002",
+                         "\u6ce8\u610f\uff1a\u6548\u7387\u4e0d\u7b49\u4e8e\u56e0\u679c\u8d21\u732e\u3002"))
+    ),
     bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 280,
