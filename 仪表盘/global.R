@@ -242,3 +242,6 @@ kpi_card <- function(label, value, icon = NULL, color = "primary") {
   mod_kpi(label, value, color = color, icon = icon)
 }
 with_spinner <- function(x) mod_spinner(x)
+
+# ---- 语义别名（移除版本后缀） -----------------------------------------------
+ghs_shiny_css <- ghs_v3_shiny_css

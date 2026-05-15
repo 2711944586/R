@@ -306,3 +306,20 @@ fmt_v3_num <- function(x, digits = 0, suffix = "") {
   if (!length(x) || !is.finite(x)) return("\u2014")
   paste0(format(round(x, digits), big.mark = ",", nsmall = digits), suffix)
 }
+
+# =============================================================================
+# 语义别名（移除版本后缀，保持向后兼容）
+# =============================================================================
+mod_hero <- mod_v3_hero
+mod_section_head <- mod_v3_section_head
+mod_kpi_card <- mod_v3_kpi
+mod_kpi_grid <- mod_v3_kpi_grid
+mod_callout <- mod_v3_callout
+mod_module_card <- mod_v3_module_card
+mod_stat_strip <- mod_v3_stat_strip
+mod_plotly <- mod_v3_plotly
+mod_leaflet <- mod_v3_leaflet
+mod_reactable_themed <- mod_v3_reactable
+fmt_usd_v <- fmt_v3_usd
+fmt_pct_v <- fmt_v3_pct
+fmt_num_v <- fmt_v3_num
