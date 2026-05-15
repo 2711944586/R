@@ -1,6 +1,6 @@
 # =============================================================================
 # 仪表盘/模块/mod_overview.R
-# Tab 1 · 总览：4 KPI + 全球三源面积 + leaflet 世界地图 + OOPS 排行
+# Tab 1 · 总览：KPI + 全球三源面积 + leaflet 世界地图 + OOPS 排行
 # =============================================================================
 
 mod_overview_ui <- function(id) {
@@ -23,22 +23,22 @@ mod_overview_ui <- function(id) {
     title = htmltools::HTML("&#127759; \u603b\u89c8 Overview"),
     icon  = NULL,
     htmltools::div(
-      class = "v2-hero",
+      class = "ghs-hero",
       htmltools::div(
-        class = "v2-hero-inner",
-        htmltools::span(class = "v2-hero-kicker",
+        class = "ghs-hero-inner",
+        htmltools::span(class = "ghs-hero-kicker",
                         "Global Health Expenditure Database 2024-12"),
-        htmltools::h1(class = "v2-hero-title",
+        htmltools::h1(class = "ghs-hero-title",
                       "全球卫生支出 · 资金、结构与结果的 24 年长卷"),
-        htmltools::p(class = "v2-hero-lead",
+        htmltools::p(class = "ghs-hero-lead",
                      paste("基于 WHO GHED + WDI，对 195 个国家 2000–2023",
                            "年的医疗资金来源、政府/私人/外援构成、人均水平",
                            "和健康产出进行系统化建模与可视化。")),
         htmltools::div(
-          class = "v2-hero-meta",
+          class = "ghs-hero-meta",
           htmltools::span("\u4f5c\u8005 \u5e84\u9882 (20241334)"),
           htmltools::span("\u00b7"),
-          htmltools::span("12 \u4e2a Shiny \u6a21\u5757 \u00b7 94 \u5f20\u9759\u6001\u56fe \u00b7 42 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6"),
+          htmltools::span("36 \u4e2a Shiny \u6a21\u5757 \u00b7 300 \u5f20\u9759\u6001\u56fe \u00b7 133 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6"),
           htmltools::span("\u00b7"),
           htmltools::tags$a(
             href = "https://2711944586.github.io/R/", target = "_blank",
@@ -51,7 +51,7 @@ mod_overview_ui <- function(id) {
       )
     ),
     htmltools::div(
-      class = "v2-kpi-grid",
+      class = "ghs-kpi-grid-top",
       shiny::uiOutput(ns("kpi_n_countries")),
       shiny::uiOutput(ns("kpi_year_range")),
       shiny::uiOutput(ns("kpi_global_oops")),
@@ -106,9 +106,9 @@ mod_overview_ui <- function(id) {
       mod_spinner(leaflet::leafletOutput(ns("world_map"), height = 480))
     ),
     htmltools::div(
-      class = "v2-section-head",
-      htmltools::h3("\u9009\u62e9\u4f60\u611f\u5174\u8da3\u7684\u4e3b\u9898 \u00b7 12 \u4e2a\u4ea4\u4e92\u6a21\u5757"),
-      htmltools::p(class = "v2-section-lead",
+      class = "ghs-section-head-nav",
+      htmltools::h3("\u9009\u62e9\u4f60\u611f\u5174\u8da3\u7684\u4e3b\u9898 \u00b7 36 \u4e2a\u4ea4\u4e92\u6a21\u5757"),
+      htmltools::p(class = "ghs-section-lead",
                    paste("\u70b9\u51fb\u5361\u7247\u53ef\u76f4\u63a5\u8df3\u8f6c\u3002",
                          "\u6bcf\u4e2a\u6a21\u5757\u90fd\u53ef\u72ec\u7acb\u4ea4\u4e92\u3001",
                          "\u9884\u8bbe\u53ef\u590d\u5236\u3001\u4e0e\u9759\u6001\u56fe\u3001",

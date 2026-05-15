@@ -1,7 +1,7 @@
 # 🖥️ 部署教程 · Shiny → shinyapps.io
 
 > 目标：把 `仪表盘/` 下的 Shiny 仪表盘发布到 shinyapps.io 这个托管服务。
-> 最终 URL 形如：`https://<你的账号>.shinyapps.io/ghs-dashboard-v2/`。
+> 最终 URL 形如：`https://<你的账号>.shinyapps.io/ghs-dashboard/`。
 > **两条路**：① 手动一次性部署；② GitHub Actions 自动部署（推 push 即上线）。
 
 ---
@@ -35,8 +35,8 @@
 ```r
 rsconnect::setAccountInfo(
   name   = 'yourname',
-  token  = 'ABCD1234...',
-  secret = '9876EFGH...'
+  token  = '<TOKEN>',
+  secret = '<SECRET>'
 )
 ```
 
@@ -54,8 +54,8 @@ usethis::edit_r_environ()
 
 # 写入以下三行后重启 R：
 SHINYAPPS_NAME=yourname
-SHINYAPPS_TOKEN=ABCD1234...
-SHINYAPPS_SECRET=9876EFGH...
+SHINYAPPS_TOKEN=<TOKEN>
+SHINYAPPS_SECRET=<SECRET>
 
 # 2) 部署：脚本会准备 数据快照/ 与 程序库/，再调用 rsconnect::deployApp()
 source("开发脚本/部署Shiny云端.R", encoding = "UTF-8")

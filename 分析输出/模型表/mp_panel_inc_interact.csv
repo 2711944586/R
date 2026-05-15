@@ -1,0 +1,6 @@
+"stats::coef(summary(result))","term"
+0.745657469910589,"lgdp:income_groupHigh income"
+1.04872833271398,"lgdp:income_groupLow income"
+0.7181839656334,"lgdp:income_groupLower middle income"
+0.409398470766821,"lgdp:income_groupNot classified"
+0.852799331176031,"lgdp:income_groupUpper middle income"

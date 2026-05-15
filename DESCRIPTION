@@ -6,8 +6,10 @@ Authors@R:
            role = c("aut", "cre"))
 Description: End-to-end analysis, visualisation and deployment of the WHO Global
     Health Expenditure Database (GHED) for the TidyTuesday 2026-04-21 dataset.
-    Includes a data engineering pipeline with targets, a Shiny dashboard, a Quarto
-    narrative site, and GitHub Actions deployment. Author: 庄颂 (20241334).
+    Covers 195 countries over 2000-2023 with 300 static figures, 133 interactive
+    widgets, 81 statistical models, and a 36-module Shiny dashboard. Includes
+    data engineering pipeline, GitHub Actions deployment, and quality gates.
+    Author: 庄颂 (20241334).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

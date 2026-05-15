@@ -1,4 +1,4 @@
-if (!dir.exists("程序") && basename(getwd()) == "开发脚本") setwd("..")
+﻿if (!dir.exists("程序") && basename(getwd()) == "开发脚本") setwd("..")
 
 source_all <- function() {
   files <- list.files("程序", pattern = "[.]R$", full.names = TRUE)
@@ -44,7 +44,7 @@ read_env_or_prompt <- function(name, prompt) {
   value
 }
 
-deploy_shinyapps <- function(app_name = "ghs-dashboard-v2",
+deploy_shinyapps <- function(app_name = "ghs-dashboard",
                              account = Sys.getenv("SHINYAPPS_NAME", unset = "constantine1433223")) {
   if (!requireNamespace("rsconnect", quietly = TRUE)) {
     stop("Package rsconnect is required. Install it with install.packages('rsconnect').")
@@ -69,5 +69,5 @@ deploy_shinyapps <- function(app_name = "ghs-dashboard-v2",
 }
 
 args <- commandArgs(trailingOnly = TRUE)
-app_name <- if (length(args) >= 1 && nzchar(args[[1]])) args[[1]] else "ghs-dashboard-v2"
+app_name <- if (length(args) >= 1 && nzchar(args[[1]])) args[[1]] else "ghs-dashboard"
 deploy_shinyapps(app_name = app_name)

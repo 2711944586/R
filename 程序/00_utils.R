@@ -32,7 +32,7 @@ proj_root <- function() {
   for (up in 0:4) {
     candidate <- do.call(file.path, c(list(wd), as.list(rep("..", up))))
     candidate <- normalizePath(candidate, mustWork = FALSE)
-    if (any(file.exists(file.path(candidate, c(".Rprofile", "DESCRIPTION", "项目文档/项目方案.md"))))) {
+    if (any(file.exists(file.path(candidate, c(".Rprofile", "DESCRIPTION", "项目文档/方法手册.md"))))) {
       return(candidate)
     }
   }
@@ -144,7 +144,7 @@ register_fonts <- function() {
 #' 优先使用 ragg::agg_png / svglite::svglite，它们原生支持系统字体（含中文），
 #' 避免 showtext 与默认 Cairo 设备冲突导致的 "豆腐块" 问题。
 save_fig <- function(plot, name,
-                     width = 10, height = 6, dpi = 300,
+                     width = 12, height = 7, dpi = 400,
                      formats = c("png", "svg"),
                      dir = file.path(proj_root(), "分析输出", "图表")) {
   ensure_pkgs("ggplot2")

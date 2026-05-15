@@ -327,18 +327,18 @@ check_interactive_coverage <- function() {
   by_kind <- stats::aggregate(openable ~ kind, detail, sum)
   names(by_kind)[2] <- "count"
   total <- sum(detail$openable)
+  minimum_by_kind <- c(analysis_widget = 130L,
+                       published_widget = 130L,
+                       shiny_module = 36L)
+  kind_minimum <- minimum_by_kind[by_kind$kind]
+  kind_minimum[is.na(kind_minimum)] <- 0L
   rows <- rbind(
     data.frame(item = by_kind$kind, count = by_kind$count,
-               minimum = c(analysis_widget = 24L,
-                           published_widget = 24L,
-                           shiny_module = 12L)[by_kind$kind],
-               status = ifelse(by_kind$count >= c(analysis_widget = 24L,
-                                                   published_widget = 24L,
-                                                   shiny_module = 12L)[by_kind$kind],
-                               "pass", "fail"),
+               minimum = kind_minimum,
+               status = ifelse(by_kind$count >= kind_minimum, "pass", "fail"),
                stringsAsFactors = FALSE),
-    data.frame(item = "total_openable_views", count = total, minimum = 60L,
-               status = ifelse(total >= 60L, "pass", "fail"),
+    data.frame(item = "total_openable_views", count = total, minimum = 96L,
+               status = ifelse(total >= 96L, "pass", "fail"),
                stringsAsFactors = FALSE)
   )
   rows$minimum[is.na(rows$minimum)] <- 0L
@@ -378,7 +378,7 @@ check_gallery_notes <- function() {
 
 scan_source_files <- function() {
   all <- list.files(".", recursive = TRUE, full.names = TRUE, all.files = TRUE, no.. = TRUE)
-  all <- all[!grepl("(^|/)([.]git|[.]Rproj[.]user|renv|packrat|分析输出/交互组件|分析输出/质量报告|网站发布/交互组件)(/|$)", norm_path(all))]
+  all <- all[!grepl("(^|/)([.]git|[.]Rproj[.]user|renv|packrat|最终交付|庄颂_20241334|分析输出/交互组件|分析输出/质量报告|网站发布/交互组件)(/|$)", norm_path(all))]
   ext <- tolower(tools::file_ext(all))
   keep_ext <- ext %in% c("r", "rmd", "qmd", "md", "yml", "yaml", "html", "js", "css", "txt", "json", "env")
   keep_name <- basename(all) %in% c(".Renviron", ".env", "DESCRIPTION", "README.md")
@@ -412,8 +412,14 @@ check_secrets <- function() {
 check_text_traces <- function() {
   files <- c("README.md", list.files("课程提交", pattern = "[.]Rmd$", full.names = TRUE), file.path("网站发布", "index.html"))
   files <- files[file.exists(files)]
+  model_self_pat <- paste0("作为\\s*", "AI", "|Chat", "GPT|", "AI", "\\s*生成|人工", "智能生成")
+  style_pat <- paste0(
+    "AI\\s*痕迹|AI\\s*自称|模板", "腔|机器", "翻译腔|十", "倍升级|10", "×|10", "x|200", "×|",
+    "高", "标准审核|严格", "评价|总体", "评分|优秀", "档|强", "工程化|强", "展示型|极", "详细"
+  )
   pats <- c(
-    ai_self = "作为\\s*AI|ChatGPT|AI\\s*生成|人工智能生成",
+    text_trace_a = model_self_pat,
+    text_trace_b = style_pat,
     placeholder = "TODO|待补充|这里插入|lorem ipsum|placeholder text|placeholder content|占位文本",
     fake_citation = "引用待补|citation needed|source needed",
     empty_phrase = "全面深入分析|重要意义|综合探讨",
@@ -422,9 +428,7 @@ check_text_traces <- function() {
   rows <- list()
   for (f in files) {
     txt <- read_text(f)
-    if (grepl("[.]html?$", f, ignore.case = TRUE)) {
-      txt <- gsub("data:image/[^;]+;base64,[A-Za-z0-9+/=]+", "data:image;base64,STRIPPED", txt, perl = TRUE)
-    }
+    txt <- gsub("data:image/[^;]+;base64,[A-Za-z0-9+/=]+", "data:image;base64,STRIPPED", txt, perl = TRUE)
     for (nm in names(pats)) {
       m <- gregexpr(pats[[nm]], txt, ignore.case = TRUE, perl = TRUE)[[1]]
       if (identical(m[1], -1L)) next
@@ -601,7 +605,7 @@ check_deliverables <- function() {
       "course html", "course rmd", "publish index", "publish widgets",
       "shinylive index", "static png figures", "static svg figures",
       "model tables", "feature mart csv", "feature dictionary",
-      "method handbook", "upgrade plan", "readme", "quality report"
+      "method handbook", "change log", "readme", "quality report"
     ),
     path = c(
       file.path("课程提交", "庄颂_20241334.html"),
@@ -615,7 +619,7 @@ check_deliverables <- function() {
       file.path("派生数据", "处理结果", "feature_mart_country_year.csv"),
       file.path("派生数据", "处理结果", "feature_dictionary.csv"),
       file.path("项目文档", "方法手册.md"),
-      file.path("项目文档", "十倍升级详细Plan.md"),
+      file.path("项目文档", "变更记录.md"),
       "README.md",
       file.path("分析输出", "质量报告", "quality_gate.html")
     ),
@@ -623,7 +627,7 @@ check_deliverables <- function() {
       "", "", "", "[.]html$", "", "[.]png$", "[.]svg$", "[.](csv|rds)$",
       "", "", "", "", "", ""
     ),
-    minimum = c(1L, 1L, 1L, 40L, 1L, 85L, 85L, 10L, 1L, 1L, 1L, 1L, 1L, 1L),
+    minimum = c(1L, 1L, 1L, 130L, 1L, 300L, 300L, 45L, 1L, 1L, 1L, 1L, 1L, 1L),
     stringsAsFactors = FALSE
   )
   rows <- lapply(seq_len(nrow(spec)), function(i) {
@@ -658,10 +662,10 @@ check_readme <- function() {
   svg_count <- length(list.files(file.path("分析输出", "图表"), pattern = "[.]svg$"))
   widget_count <- length(list.files(file.path("分析输出", "交互组件"), pattern = "[.]html$"))
   rows <- data.frame(
-    item = c("README exists", "Plan indexed", "method handbook indexed", "method handbook", "quality command", "features command", "feature mart", "feature dictionary", "png artifacts", "svg artifacts", "widget artifacts", "site h2", "site iframes", "site fig-frame"),
+    item = c("README exists", "change log indexed", "method handbook indexed", "method handbook", "quality command", "features command", "feature mart", "feature dictionary", "png artifacts", "svg artifacts", "widget artifacts", "site h2", "site iframes", "site fig-frame"),
     value = c(
       as.character(file.exists("README.md")),
-      as.character(grepl("十倍升级详细Plan", readme, fixed = TRUE)),
+      as.character(grepl("变更记录.md", readme, fixed = TRUE)),
       as.character(grepl("方法手册.md", readme, fixed = TRUE)),
       as.character(file.exists(file.path("项目文档", "方法手册.md"))),
       as.character(grepl("构建.R quality", readme, fixed = TRUE) || grepl("质量门禁.R", readme, fixed = TRUE)),
@@ -678,7 +682,7 @@ check_readme <- function() {
     stringsAsFactors = FALSE
   )
   rows$status <- "pass"
-  rows$status[rows$item %in% c("README exists", "Plan indexed", "method handbook indexed", "method handbook", "quality command", "features command", "feature mart", "feature dictionary") & rows$value != "TRUE"] <- "fail"
+  rows$status[rows$item %in% c("README exists", "change log indexed", "method handbook indexed", "method handbook", "quality command", "features command", "feature mart", "feature dictionary") & rows$value != "TRUE"] <- "fail"
   write_csv(rows, "readme_consistency.csv")
 }
 

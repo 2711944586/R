@@ -1,7 +1,7 @@
-# 开发脚本/测试仪表盘模块.R
-# 验证 Shiny v2 模块化能 source/parse 通过且 UI 对象可生成
+﻿# 开发脚本/测试仪表盘模块.R
+# 验证 Shiny 模块化能 source/parse 通过且 UI 对象可生成
 
-cat("[shiny v2 test] starting\n")
+cat("[shiny test] starting\n")
 t0 <- Sys.time()
 
 # 1. source global.R
@@ -56,6 +56,6 @@ stopifnot(is.function(server_obj))
 cat("    server is function with args:",
     paste(names(formals(server_obj)), collapse = ", "), "\n")
 
-cat(sprintf("\n[shiny v2 test] DONE in %.1fs\n",
+cat(sprintf("\n[shiny test] DONE in %.1fs\n",
              as.numeric(difftime(Sys.time(), t0, units = "secs"))))
 cat("\nAll 12 modules loaded · UI built · Server function ready\n")

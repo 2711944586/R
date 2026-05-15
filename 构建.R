@@ -1,19 +1,20 @@
 # =============================================================================
-# 构建.R  ---  v2 统一本地构建脚本
+# 构建.R  ---  统一本地构建脚本
 # -----------------------------------------------------------------------------
 # 用法：
-#   Rscript 构建.R all       # 全量：data + models + figures + widgets + book + shiny
+#   Rscript 构建.R all       # 全量：data + features + models + figures + widgets + submission + shiny
 #   Rscript 构建.R data      # 仅生成 master_enriched + external 缓存
 #   Rscript 构建.R features  # 生成统一 country-year 特征表 + 变量字典
-#   Rscript 构建.R models    # 仅跑 6 类统计模型 → 分析输出/模型表/
-#   Rscript 构建.R figures   # 仅生成 60+ 静态图 → 分析输出/图表/
-#   Rscript 构建.R widgets   # 仅生成 30+ 交互 widget → 分析输出/交互组件/
-#   Rscript 构建.R book      # 仅渲染 Quarto Book → 网站发布/
+#   Rscript 构建.R models    # 仅跑统计与机器学习模型 → 分析输出/模型表/
+#   Rscript 构建.R figures   # 仅生成静态图 → 分析输出/图表/
+#   Rscript 构建.R widgets   # 仅生成交互 widget → 分析输出/交互组件/
 #   Rscript 构建.R shinylive # 仅编译 shinylive → 网站发布/仪表盘/
 #   Rscript 构建.R submission# 生成课程提交与可转发静态 HTML
-#   Rscript 构建.R deploy    # book + shinylive + copy widgets → 网站发布/（部署用）
+#   Rscript 构建.R deploy    # submission + shinylive + copy widgets → 网站发布/（部署用）
+#   Rscript 构建.R delivery  # 刷新课程 HTML 与质量报告（默认不打 庄颂_20241334/ 包；
+#                           #   设 GHS_BUILD_DELIVERY=TRUE 才会生成最终交付包）
 #   Rscript 构建.R clean     # 删除 网站发布/ 与 分析输出/（慎用）
-#   Rscript 构建.R audit     # 对照 plan v2 检查产物完备性
+#   Rscript 构建.R audit     # 检查项目主要交付目录是否齐备
 # =============================================================================
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -108,6 +109,48 @@ target_figures <- function() {
                     outputs_dir = file.path("分析输出", "图表"),
                     verbose = TRUE)
   }
+  # B1: 高级静态图集
+  if (exists("ghs_export_advanced", mode = "function")) {
+    cat("[make] ghs_export_advanced (B1)\n")
+    tryCatch(ghs_export_advanced(master,
+                                  fig_dir = file.path("分析输出", "图表")),
+              error = function(e) cat("[make]   B1 err: ", conditionMessage(e), "\n"))
+  }
+  # B2: 地图集
+  if (exists("ghs_export_maps_advanced", mode = "function")) {
+    cat("[make] ghs_export_maps_advanced (B2)\n")
+    tryCatch(ghs_export_maps_advanced(master, world_sf,
+                                       fig_dir = file.path("分析输出", "图表")),
+              error = function(e) cat("[make]   B2 err: ", conditionMessage(e), "\n"))
+  }
+  # B3: 产出图集
+  if (exists("ghs_export_outcomes", mode = "function")) {
+    cat("[make] ghs_export_outcomes (B3)\n")
+    tryCatch(ghs_export_outcomes(master, world_sf,
+                                  fig_dir = file.path("分析输出", "图表")),
+              error = function(e) cat("[make]   B3 err: ", conditionMessage(e), "\n"))
+  }
+  # B4: 不平等图集
+  if (exists("ghs_export_equity", mode = "function")) {
+    cat("[make] ghs_export_equity (B4)\n")
+    tryCatch(ghs_export_equity(master,
+                                fig_dir = file.path("分析输出", "图表")),
+              error = function(e) cat("[make]   B4 err: ", conditionMessage(e), "\n"))
+  }
+  # B5: 国家专题图集
+  if (exists("ghs_export_country", mode = "function")) {
+    cat("[make] ghs_export_country (B5)\n")
+    tryCatch(ghs_export_country(master,
+                                 fig_dir = file.path("分析输出", "图表")),
+              error = function(e) cat("[make]   B5 err: ", conditionMessage(e), "\n"))
+  }
+  # B6: 冲击图集
+  if (exists("ghs_export_shocks", mode = "function")) {
+    cat("[make] ghs_export_shocks (B6)\n")
+    tryCatch(ghs_export_shocks(master,
+                                fig_dir = file.path("分析输出", "图表")),
+              error = function(e) cat("[make]   B6 err: ", conditionMessage(e), "\n"))
+  }
   invisible(NULL)
 }
 
@@ -136,14 +179,23 @@ target_widgets <- function() {
                             out_dir = file.path("分析输出", "交互组件"),
                             verbose = TRUE)
   }
-  invisible(NULL)
-}
-
-target_book <- function() {
-  ensure_cache()
-  ok <- system2("quarto", c("render", "报告书"))
-  if (ok != 0) stop("[make] quarto render 报告书 failed; check quarto install")
-  cat("[make] book rendered to 网站发布/\n")
+  # C1: leaflet/plotly 地图 widget (~20)
+  if (exists("ghs_export_widgets_map", mode = "function")) {
+    cat("[make] ghs_export_widgets_map (C1)\n")
+    tryCatch(ghs_export_widgets_map(master, world_sf,
+                                       out_dir = file.path("分析输出", "交互组件")),
+              error = function(e) cat("[make]   C1 err: ",
+                                        conditionMessage(e), "\n"))
+  }
+  # C2: 高级 widget (~80)
+  if (exists("ghs_export_widgets_advanced", mode = "function")) {
+    cat("[make] ghs_export_widgets_advanced (C2)\n")
+    tryCatch(ghs_export_widgets_advanced(master,
+                                            out_dir = file.path("分析输出",
+                                                                  "交互组件")),
+              error = function(e) cat("[make]   C2 err: ",
+                                        conditionMessage(e), "\n"))
+  }
   invisible(NULL)
 }
 
@@ -200,10 +252,10 @@ target_copy_widgets <- function() {
 target_submission <- function() {
   source_all_r()
   ensure_cache()
-  if (length(list.files(file.path("分析输出", "图表"), pattern = "[.]png$")) < 30) {
+  if (length(list.files(file.path("分析输出", "图表"), pattern = "[.]png$")) < 200) {
     target_figures()
   }
-  if (length(list.files(file.path("分析输出", "交互组件"), pattern = "[.]html$")) < 20) {
+  if (length(list.files(file.path("分析输出", "交互组件"), pattern = "[.]html$")) < 100) {
     target_widgets()
   }
   target_copy_widgets()
@@ -221,7 +273,7 @@ target_deploy <- function() {
   target_submission()
   cat("\n[make] deploy bundle ready at 网站发布/\n")
   cat("[make]  - index.html         (整合首页，等同课程提交版)\n")
-  cat("[make]  - 交互组件/          (24 个 standalone widget)\n")
+  cat("[make]  - 交互组件/          (133 个 standalone widget)\n")
   cat("[make]  - 仪表盘/            (shinylive 浏览器版 Shiny)\n")
   invisible(NULL)
 }
@@ -237,6 +289,23 @@ target_quality <- function() {
   src <- file.path("开发脚本", "质量门禁.R")
   if (file.exists(src)) source(src, encoding = "UTF-8")
   else stop("[make] quality gate script missing at ", src)
+  invisible(NULL)
+}
+
+target_delivery <- function() {
+  target_submission()
+  target_quality()
+  build_pkg <- isTRUE(as.logical(Sys.getenv("GHS_BUILD_DELIVERY", "FALSE")))
+  if (!build_pkg) {
+    cat("[make] delivery package generation is currently disabled.\n")
+    cat("[make] submission + quality have been refreshed; 庄颂_20241334/ is NOT created.\n")
+    cat("[make] to regenerate the package, run: $env:GHS_BUILD_DELIVERY='TRUE'; Rscript 构建.R delivery\n")
+    return(invisible(NULL))
+  }
+  if (!exists("ghs_build_delivery", mode = "function")) {
+    stop("[make] ghs_build_delivery not found")
+  }
+  ghs_build_delivery(root = getwd(), delivery_dir = file.path(getwd(), "庄颂_20241334"))
   invisible(NULL)
 }
 
@@ -260,9 +329,8 @@ target_all <- function() {
   target_models()
   target_figures()
   target_widgets()
-  target_book()
-  target_copy_widgets()
   target_shinylive()
+  target_submission()
   cat("\n[make] ALL done.\n")
 }
 
@@ -275,15 +343,15 @@ switch(
   models    = target_models(),
   figures   = target_figures(),
   widgets   = target_widgets(),
-  book      = target_book(),
   shinylive = target_shinylive(),
   submission = target_submission(),
   deploy    = target_deploy(),
+  delivery  = target_delivery(),
   audit     = target_audit(),
   quality   = target_quality(),
   clean     = target_clean(),
   {
     cat("unknown target:", target, "\n\n")
-    cat("usage: Rscript 构建.R [all|data|features|models|figures|widgets|book|shinylive|submission|deploy|audit|quality|clean]\n")
+    cat("usage: Rscript 构建.R [all|data|features|models|figures|widgets|shinylive|submission|deploy|delivery|audit|quality|clean]\n")
   }
 )

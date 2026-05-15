@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-v2-plots.R
-# v2 程序/14-15 静态图工厂的烟雾测试
+﻿# 自动测试/testthat/test-v2-plots.R
+# 程序/14-15 静态图工厂的烟雾测试
 
 skip_if_no_master <- function() {
   if (!file.exists("派生数据/处理结果/master_enriched.rds") &&

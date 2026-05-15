@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-v2-design.R
-# v2 设计系统与高级模型模块的烟雾测试
+﻿# 自动测试/testthat/test-v2-design.R
+# 设计系统与高级模型模块的烟雾测试
 
 test_that("brand_palette has all expected slots", {
   expect_true(is.list(brand_palette))

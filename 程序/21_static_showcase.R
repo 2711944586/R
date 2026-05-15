@@ -7,7 +7,7 @@
 # 输出：
 #   - 课程提交/庄颂_20241334.html   课程提交版（图表 base64，widget 相对路径）
 #   - 网站发布/index.html           GitHub Pages 同源首页
-# 不再生成"完整静态展示.html"等冗余产物。
+# 不再生成旧版冗余静态展示页。
 # =============================================================================
 
 if (!exists("%||%", mode = "function")) {
@@ -481,13 +481,13 @@ if (!exists("%||%", mode = "function")) {
       "</div>",
       .ghs_mobile_toc(),
       "<div class='wrap hero-grid'>",
-      "<div><span class='eyebrow'>Final integrated deliverable \u00b7 22 \u8282 \u00b7 10 \u9879\u53d1\u73b0 \u00b7 \u5355\u4e00\u6807\u51c6</span>",
+      "<div><span class='eyebrow'>Final integrated deliverable \u00b7 36 \u4e2a\u5185\u5bb9\u7ae0\u8282 \u00b7 14 \u9879\u6838\u5fc3\u53d1\u73b0 \u00b7 \u5355\u4e00\u6807\u51c6</span>",
       "<h1>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023\uff1a",
       "<span class='accent'>\u516c\u5e73\u3001\u97e7\u6027\u3001\u672a\u6765</span></h1>",
-      "<p class='hero-lead'>\u672c\u9875\u6574\u5408 GHED + WDI \u957f\u9762\u677f\u7684\u6570\u636e\u5de5\u7a0b\u3001\u7edf\u8ba1\u5efa\u6a21\u3001\u53ef\u89c6\u5316\u3001\u4eff\u771f\u4e0e\u90e8\u7f72\uff1a22 \u8282\u5185\u5bb9\u6db5\u76d6 \u6458\u8981 \u00b7 KPI \u00b7 \u65b9\u6cd5 \u00b7 \u6570\u636e\u8d28\u91cf \u00b7 \u53d8\u91cf\u5b57\u5178 \u00b7 10 \u9879\u53d1\u73b0 \u00b7 \u56fd\u5bb6\u6863\u6848 \u00b7 \u533a\u57df\u805a\u7126 \u00b7 \u4e0d\u5e73\u7b49\u56fe\u518c \u00b7 \u653f\u7b56\u4eff\u771f\u5668 \u00b7 \u7a33\u5065\u6027 \u00b7 44 \u5f20\u9759\u6001\u56fe \u00b7 24 \u4ea4\u4e92\u7ec4\u4ef6 \u00b7 \u8bcd\u6c47 \u00b7 \u590d\u73b0\u00b7\u7ed3\u8bba\u3002</p>",
+      "<p class='hero-lead'>\u672c\u9875\u6574\u5408 GHED + WDI \u957f\u9762\u677f\u7684\u6570\u636e\u5de5\u7a0b\u3001\u7edf\u8ba1\u5efa\u6a21\u3001\u53ef\u89c6\u5316\u3001\u4eff\u771f\u4e0e\u90e8\u7f72\uff1a36 \u4e2a\u5185\u5bb9\u7ae0\u8282\u6db5\u76d6 \u6458\u8981 \u00b7 KPI \u00b7 \u65b9\u6cd5 \u00b7 \u6570\u636e\u8d28\u91cf \u00b7 \u53d8\u91cf\u5b57\u5178 \u00b7 14 \u9879\u6838\u5fc3\u53d1\u73b0 \u00b7 \u56fd\u5bb6\u6863\u6848 \u00b7 \u533a\u57df\u805a\u7126 \u00b7 \u4e0d\u5e73\u7b49\u56fe\u518c \u00b7 \u653f\u7b56\u4eff\u771f\u5668 \u00b7 \u7a33\u5065\u6027 \u00b7 94 \u5f20\u9759\u6001\u56fe \u00b7 42 \u4ea4\u4e92\u7ec4\u4ef6 \u00b7 \u8bcd\u6c47 \u00b7 \u590d\u73b0\u00b7\u7ed3\u8bba\u3002</p>",
       "<div class='hero-actions'>",
       "<a class='btn' href='#executive'>90 \u79d2\u8bfb\u6458\u8981 \u2192</a>",
-      "<a class='btn alt' href='#findings'>\u8df3\u5230 10 \u9879\u53d1\u73b0</a>",
+      "<a class='btn alt' href='#findings'>\u8df3\u5230 14 \u9879\u53d1\u73b0</a>",
       "<a class='btn ghost' href='%s'>GitHub \u4ed3\u5e93</a>",
       "<a class='btn ghost' href='./\u4eea\u8868\u76d8/'>\u6d4f\u89c8\u5668\u5185 Shiny</a></div></div>",
       "<aside class='hero-panel'><span class='hero-panel-tag'>\u9875\u9762\u6784\u6210</span>",
@@ -495,8 +495,8 @@ if (!exists("%||%", mode = "function")) {
       "<li><b>%d</b><span>\u56fd\u5bb6/\u5730\u533a \u00b7 %d \u5e74\u9762\u677f</span></li>",
       "<li><b>%d</b><span>\u9759\u6001\u56fe\u8868</span></li>",
       "<li><b>%d</b><span>\u4ea4\u4e92\u7ec4\u4ef6</span></li>",
-      "<li><b>10</b><span>\u6df1\u5ea6\u53d1\u73b0 + \u5b8c\u6574 R \u4ee3\u7801</span></li>",
-      "<li><b>22</b><span>\u8282\u00b7\u4ece\u6458\u8981\u5230\u4eff\u771f</span></li>",
+      "<li><b>14</b><span>\u6838\u5fc3\u53d1\u73b0 + \u4e8c\u7ea7\u5206\u6790 + \u5b8c\u6574 R \u4ee3\u7801</span></li>",
+      "<li><b>36</b><span>\u5185\u5bb9\u7ae0\u8282\u00b7\u4ece\u6458\u8981\u5230\u590d\u73b0</span></li>",
       "</ul></aside></div></header>"
     ),
     .ghs_e(project_url), s$n_country, s$span, n_fig, n_widget
@@ -537,7 +537,7 @@ if (!exists("%||%", mode = "function")) {
              "EXT > 20% \u56fd\u5bb6",
              paste0("\u5916\u63f4\u9ad8\u4f9d\u8d56\u4e2d/\u4f4e\u6536\u5165\uff1b", s$cur_year)),
     .ghs_kpi(.ghs_n(n_fig, 0), "\u9759\u6001\u56fe\u8868",
-             "ggplot2 + v2 \u5347\u7ea7"),
+             "ggplot2 + plotly"),
     .ghs_kpi(.ghs_n(n_widget, 0), "\u4ea4\u4e92\u7ec4\u4ef6",
              "plotly / leaflet / reactable / DT")
   )
@@ -1398,10 +1398,17 @@ if (!exists("%||%", mode = "function")) {
     "\u8df3\u8dc3\u8005\u591a\u662f\u4ece\u8f83\u4f4e\u8d44\u91d1\u8d77\u70b9\u51fa\u53d1\uff0c\u5e76\u4f34\u968f GGHED \u8de8\u671f\u5feb\u901f\u52a0\u7801\uff1b\u53d8\u70b9\u5bf9\u5e94 GFC \u4e0e COVID\u3002",
     f14_body, chips = f14_chips)
 
+  # F15\u2013F36 \u00b7 \u62fc\u63a5\u9644\u52a0 22 \u4e2a\u65b0 finding\uff08\u5b58\u5728\u65f6\uff09
+  f_extra <- if (exists("ghs_findings_extra", mode = "function"))
+    ghs_findings_extra(s, fig_dir, programs_dir = programs_dir,
+                        widget_dir = widget_dir,
+                        mode = mode, repo_url = repo_url)
+  else ""
   paste0(.ghs_kpi_grid(s, length(list.files(fig_dir, "[.]png$")),
                         length(list.files(file.path(dirname(fig_dir), "\u4ea4\u4e92\u7ec4\u4ef6"), "[.]html$"))),
          "<section class='findings-anchor' id='findings'></section>",
-         f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14)
+         f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14,
+         f_extra)
 }
 
 # ---- 4b. 国家档案 / 区域 / 不平等图册 / 仿真 / 稳健性 -------------------
@@ -1841,12 +1848,12 @@ if (!exists("%||%", mode = "function")) {
     return("本图把卫生资金与健康结果连接起来，用于观察预期寿命、儿童死亡率或 SDG-3 进展。资金增加通常与结果改善相关，但结果还受教育、环境、公共卫生能力和人口结构影响，不能单独归因于投入。")
   }
   switch(kind,
-    "时间" = "本图展示时间序列或阶段比较，适合识别长期趋势、冲击年份和结构拐点。阅读时应关注变化速度与方向，而不是孤立比较两个端点；必要时结合模型表确认变化是否受样本和缺失年份影响，并对照同期方法手册中的变量口径。",
-    "分布" = "本图展示国家、收入组或大洲之间的分布差异。箱线、山脊、密度和小提琴图能揭示离散程度和尾部国家；解读时应同时看中位数、极端值和样本覆盖，避免只看平均值，并留意是否存在少数国家拉动整体形态。",
-    "地图" = "本图展示空间异质性，适合快速定位区域集聚和异常国家。地图颜色表示指标水平或组合关系，不能替代国家排序表；跨区域比较时应注意人口规模、缺失值与岛屿国家显示限制，并结合相邻章节的人均指标交叉验证。",
-    "结构" = "本图展示资金来源、用途或结构份额，适合说明系统由哪些部分组成。阅读时需要确认各块是否以 CHE 为分母、是否涉及人均口径，并审视份额变化是否来自公共筹资、私人支付或外部援助的真实替代，而不是分类口径变更。",
-    "模型" = "本图展示模型估计、聚类、预测或效率前沿。它提供结构化证据，但依赖变量选择、样本窗口和模型假设；结论应表述为相关、分类或预测信号，并要回到方法手册说明的样本期、控制变量与残差分布，避免被解释为已识别的因果效应。",
-    "指标" = "本图展示排序、指数或关键指标面板，适合支持证据化叙事。阅读时应同时确认单位、年份与分母口径，并结合方法手册复核指标公式与样本覆盖；排名与指数的变化不应被简化解释为单一政策的成败，而要回到具体国家、收入组和时间窗口去交叉验证。",
+    "时间" = "图示时间序列或阶段比较，适合识别长期趋势、冲击年份和结构拐点。阅读时应关注变化速度与方向，而不是孤立比较两个端点；必要时结合模型表确认变化是否受样本和缺失年份影响，并对照同期方法手册中的变量口径。",
+    "分布" = "图示国家、收入组或大洲之间的分布差异。箱线、山脊、密度和小提琴图能揭示离散程度和尾部国家；解读时应同时看中位数、极端值和样本覆盖，避免只看平均值，并留意是否存在少数国家拉动整体形态。",
+    "地图" = "图示空间异质性，适合快速定位区域集聚和异常国家。地图颜色表示指标水平或组合关系，不能替代国家排序表；跨区域比较时应注意人口规模、缺失值与岛屿国家显示限制，并结合相邻章节的人均指标交叉验证。",
+    "结构" = "图示资金来源、用途或结构份额，适合说明系统由哪些部分组成。阅读时需要确认各块是否以 CHE 为分母、是否涉及人均口径，并审视份额变化是否来自公共筹资、私人支付或外部援助的真实替代，而不是分类口径变更。",
+    "模型" = "图示模型估计、聚类、预测或效率前沿。它提供结构化证据，但依赖变量选择、样本窗口和模型假设；结论应表述为相关、分类或预测信号，并要回到方法手册说明的样本期、控制变量与残差分布，避免被解释为已识别的因果效应。",
+    "指标" = "图示排序、指数或关键指标面板，适合支持证据化叙事。阅读时应同时确认单位、年份与分母口径，并结合方法手册复核指标公式与样本覆盖；排名与指数的变化不应被简化解释为单一政策的成败，而要回到具体国家、收入组和时间窗口去交叉验证。",
     "综合" = "本图综合多个指标或视角，用于把资金、结构和结果放在同一张图中阅读。重点是发现一致信号和异常国家；若不同指标给出相反方向，应回到变量字典确认口径与缺失情况，并结合相邻章节交叉验证。",
     "本图补充静态图谱中的证据链，用于连接研究问题、指标口径和政策解释。阅读时应先确认横纵轴、分组和单位，再结合相邻 finding、模型表和交互组件复核是否存在异常点。"
   )
@@ -2021,6 +2028,11 @@ if (!exists("%||%", mode = "function")) {
     ".hero-panel-list li{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid rgba(247,238,223,.14);padding-bottom:10px;font-size:15px}",
     ".hero-panel-list li:last-child{border-bottom:0}",
     ".hero-panel-list li b{font-family:'Source Serif 4',serif;font-size:34px;color:#f7c08a;font-weight:700;min-width:64px}",
+    ".hero,.section,.finding,.site-footer{overflow-x:hidden}",
+    ".wrap,.hero-grid,.kpi-grid,.finding-head,.finding-body,.gallery-grid,.widget-lab,.conclusion-grid,.cmd-grid,.deep-grid,.figure-index-list{min-width:0}",
+    "img,svg,iframe,video,canvas{max-width:100%}",
+    "pre,code,.table-wrap,.figure-index,.widget-card,.gallery-card,.hero-panel,.method-block,.callout{min-width:0;overflow-wrap:anywhere}",
+    ".hero-panel-list li span,.hero-lead,.section .lead,.finding-head .lead{min-width:0;overflow-wrap:anywhere}",
     ".section{padding:96px 0;border-top:1px solid var(--line)}",
     ".kpi-section{background:linear-gradient(180deg,#fbf6ee,#f1e8da)}",
     ".section-head{margin-bottom:42px;max-width:880px}",
@@ -2148,8 +2160,9 @@ if (!exists("%||%", mode = "function")) {
     ".modal button{position:absolute;right:24px;top:20px;border:0;border-radius:999px;padding:10px 16px;font-weight:900;background:#fff;cursor:pointer}",
     ".modal-title{position:absolute;left:28px;top:22px;color:#fff;font-weight:900;font-family:'Source Serif 4',serif;font-size:18px}",
     "@media(max-width:1080px){.hero-grid,.widget-lab{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.gallery-grid{grid-template-columns:repeat(2,1fr)}.conclusion-grid{grid-template-columns:repeat(2,1fr)}.cmd-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.widget-frame-wrap{position:static}.foot-grid{grid-template-columns:1fr}.country-grid,.atlas-grid{grid-template-columns:1fr}.exec-big-grid{grid-template-columns:repeat(2,1fr)}.sim-grid{grid-template-columns:1fr}.figure-index-list{grid-template-columns:1fr}}",
-    "@media(max-width:760px){.links{display:none}.mobile-toc{display:block}.mobile-toc-links{grid-template-columns:repeat(2,1fr)}.figure-index-tools{align-items:stretch;flex-direction:column}.figure-index-row{grid-template-columns:34px 1fr auto}.figure-index-row small{display:none}.widget-lab{grid-template-columns:1fr;gap:14px}.widget-list{max-height:none;padding-right:0}.widget-frame-wrap{position:static}.widget-frame-wrap iframe{height:520px}}",
-    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}}",
+    "@media(max-width:760px){.links{display:none}.mobile-toc{display:block}.mobile-toc-links{grid-template-columns:repeat(2,1fr)}.figure-index-tools{align-items:stretch;flex-direction:column}.figure-index-row{grid-template-columns:34px 1fr auto}.figure-index-row small{display:none}.widget-lab{grid-template-columns:1fr;gap:14px}.widget-list{max-height:none;padding-right:0}.widget-frame-wrap{position:static}.widget-frame-wrap iframe{height:520px}.hero-actions{align-items:stretch;flex-direction:column}.hero-actions .btn{justify-content:center;width:100%;box-sizing:border-box}.eyebrow{border-radius:18px;line-height:1.5;white-space:normal}.hero-panel-list li{align-items:flex-start}.hero-panel-list li b{min-width:54px;font-size:30px}.code-pre{font-size:12px;padding:14px 16px}}",
+    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}.hero h1{font-size:clamp(40px,13vw,58px)}.hero-lead{font-size:16.5px}.section{padding:68px 0}.widget-frame-wrap iframe{height:460px}}",
+    "@media(max-width:420px){.wrap{width:min(100% - 24px,1180px)}.kpi-grid{grid-template-columns:1fr}.mobile-toc-links{grid-template-columns:1fr}.figure-index-row{grid-template-columns:30px 1fr}.figure-index-row em{display:none}.hero-panel{padding:18px}.widget-frame-wrap{padding:10px;border-radius:18px}.widget-frame-wrap iframe{height:420px;border-radius:12px}}",
     ".top-bar{position:fixed;left:0;right:0;top:0;height:3px;background:rgba(13,18,27,.06);z-index:60;pointer-events:none}",
     "#read-progress{height:100%;width:0;background:linear-gradient(90deg,#c46327,#1d3f5f);transition:width .12s linear}",
     ".theme-toggle{margin-left:14px;border:1px solid rgba(247,238,223,.3);background:rgba(247,238,223,.08);color:#f7eedf;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center}",
@@ -2291,6 +2304,421 @@ if (!exists("%||%", mode = "function")) {
   ), collapse = "")
 }
 
+# =============================================================================
+# 设计系统 overlay（在 .ghs_css() 之后追加，复用语义槽）
+# -----------------------------------------------------------------------------
+# 设计原则：
+#   - 所有 v3 类用 .ghs-v3- 前缀，不污染既有 v2 选择器
+#   - 4 个响应断点 1280 / 1024 / 768 / 420，全部 min-width: 0 防溢出
+#   - 中文不强制断字（word-break:keep-all），英文 overflow-wrap:anywhere
+#   - sticky-toc 自动跟随；reading-progress 渐变；hamburger 抽屉
+# =============================================================================
+
+.ghs_css_v3 <- function() {
+  paste(c(
+    # ---- tokens（继承 :root 已有变量，再叠加语义槽）----------------
+    ":root{",
+      "--g3-primary:#1d3f5f;--g3-secondary:#c46327;--g3-good:#2a857a;",
+      "--g3-warn:#c89a3b;--g3-bad:#a23b3b;--g3-neutral:#5d667a;",
+      "--g3-highlight:#f7c08a;",
+      "--g3-paper:#fbf6ee;--g3-paper2:#f1e8da;--g3-ink:#0d121b;",
+      "--g3-line:rgba(13,18,27,.10);--g3-line-strong:rgba(13,18,27,.18);",
+      "--g3-radius-sm:8px;--g3-radius:14px;--g3-radius-lg:24px;",
+      "--g3-gap-xs:8px;--g3-gap-sm:12px;--g3-gap:18px;",
+      "--g3-gap-lg:32px;--g3-gap-xl:64px;",
+      "--g3-shadow-sm:0 4px 12px rgba(13,18,27,.06);",
+      "--g3-shadow:0 16px 40px rgba(13,18,27,.08);",
+      "--g3-shadow-lg:0 24px 64px rgba(13,18,27,.12);",
+      "--g3-fs-display:clamp(48px,7vw,96px);",
+      "--g3-fs-h1:clamp(34px,4.4vw,56px);",
+      "--g3-fs-h2:clamp(28px,3.4vw,44px);",
+      "--g3-fs-h3:clamp(20px,2.4vw,28px);",
+      "--g3-fs-body:16px;--g3-fs-meta:13px;--g3-fs-tiny:11.5px;",
+      "--g3-track-tight:.02em;--g3-track-wide:.18em;",
+      "--g3-line-h-tight:1.12;--g3-line-h:1.55;--g3-line-h-loose:1.75;",
+    "}",
+    "html[data-theme='dark']{",
+      "--g3-paper:#0f141e;--g3-paper2:#161c2a;--g3-ink:#e7e9ee;",
+      "--g3-line:rgba(255,255,255,.10);--g3-line-strong:rgba(255,255,255,.20);",
+      "--g3-shadow:0 16px 40px rgba(0,0,0,.45);",
+      "--g3-shadow-lg:0 24px 64px rgba(0,0,0,.6);",
+    "}",
+
+    # ---- 排版（防溢出 / 中英文混排）----------------------------------
+    ".ghs-v3 *,.ghs-v3 *:before,.ghs-v3 *:after{box-sizing:border-box;min-width:0}",
+    ".ghs-v3{font-family:'Inter','Noto Sans CJK SC','Microsoft YaHei',system-ui,sans-serif;color:var(--g3-ink);line-height:var(--g3-line-h)}",
+    ".ghs-v3 p,.ghs-v3 li,.ghs-v3 dd,.ghs-v3 td{word-break:keep-all;overflow-wrap:anywhere;hyphens:none}",
+    ".ghs-v3 h1,.ghs-v3 h2,.ghs-v3 h3,.ghs-v3 h4{font-family:'Source Serif 4','Inter',serif;line-height:var(--g3-line-h-tight);margin:0}",
+    ".ghs-v3 a{color:var(--g3-primary);text-underline-offset:3px}",
+    ".ghs-v3 img,.ghs-v3 svg,.ghs-v3 iframe,.ghs-v3 video,.ghs-v3 canvas{max-width:100%;height:auto;min-width:0}",
+
+    # ---- 章节头 ---------------------------------------------------
+    ".ghs-section-head{display:flex;flex-direction:column;gap:8px;max-width:920px;margin:0 0 28px}",
+    ".ghs-section-head[data-align='center']{margin-left:auto;margin-right:auto;text-align:center;align-items:center}",
+    ".ghs-kicker{display:inline-block;font-size:var(--g3-fs-tiny);letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);font-weight:800}",
+    ".ghs-section-title{font-size:var(--g3-fs-h2);color:var(--g3-ink);margin:0}",
+    ".ghs-section-lead{font-size:18px;color:var(--g3-neutral);max-width:780px;margin:0;line-height:1.55}",
+
+    # ---- KPI 条 / strip ------------------------------------------
+    ".ghs-stat-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--g3-gap);margin:24px 0}",
+    ".ghs-stat-cell{padding:18px 20px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);min-width:0}",
+    ".ghs-stat-value{font-family:'Source Serif 4',serif;font-size:30px;font-weight:700;color:var(--g3-primary);line-height:1.05}",
+    ".ghs-stat-label{margin-top:6px;color:var(--g3-neutral);font-size:13px}",
+
+    # ---- KPI 卡 ---------------------------------------------------
+    ".ghs-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g3-gap)}",
+    ".ghs-kpi{position:relative;padding:22px 20px;border:1px solid var(--g3-line);border-radius:var(--g3-radius);background:var(--g3-paper2);box-shadow:var(--g3-shadow-sm);overflow:hidden;min-width:0}",
+    ".ghs-kpi:before{content:'';position:absolute;left:0;top:0;width:5px;height:100%;background:var(--tone,var(--g3-primary))}",
+    ".ghs-kpi-value{font-family:'Source Serif 4',serif;font-size:34px;font-weight:700;color:var(--g3-primary);line-height:1.05}",
+    ".ghs-kpi-label{margin-top:8px;font-weight:700;font-size:13.5px;letter-spacing:var(--g3-track-tight);display:flex;align-items:center;justify-content:space-between;gap:8px}",
+    ".ghs-kpi-trend{font-weight:700;font-size:12.5px;font-family:'Source Serif 4',serif}",
+    ".ghs-kpi-hint{margin-top:6px;font-size:12px;color:var(--g3-neutral);line-height:1.5}",
+
+    # ---- callout (4 tones) ----------------------------------------
+    ".ghs-callout{display:flex;flex-direction:column;gap:6px;padding:14px 18px 16px 22px;border-radius:var(--g3-radius);background:var(--g3-paper2);border-left:4px solid var(--bar,var(--g3-primary));box-shadow:var(--g3-shadow-sm);font-size:14px;color:var(--g3-ink)}",
+    ".ghs-callout-title{display:block;font-weight:800;font-size:13.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--bar,var(--g3-primary))}",
+    ".ghs-callout-body{line-height:1.65;color:var(--g3-ink)}",
+    ".ghs-callout-good{--bar:var(--g3-good)}",
+    ".ghs-callout-warn{--bar:var(--g3-warn);background:#fff8ec}",
+    "html[data-theme='dark'] .ghs-callout-warn{background:#2a2415}",
+    ".ghs-callout-bad{--bar:var(--g3-bad);background:#fdf0ee}",
+    "html[data-theme='dark'] .ghs-callout-bad{background:#2a1818}",
+
+    # ---- finding card -------------------------------------------
+    ".ghs-finding{padding:96px 0;border-top:1px solid var(--g3-line)}",
+    ".ghs-finding:nth-of-type(odd){background:linear-gradient(180deg,var(--g3-paper) 0%,var(--g3-paper2) 100%)}",
+    ".ghs-finding-head{display:grid;grid-template-columns:96px 1fr;gap:24px;align-items:start;margin-bottom:32px}",
+    ".ghs-finding-num{font-family:'Source Serif 4',serif;font-size:72px;line-height:1;color:var(--g3-secondary);font-weight:800}",
+    ".ghs-finding-meta{display:flex;flex-direction:column;gap:8px}",
+    ".ghs-finding-title{font-size:var(--g3-fs-h2);line-height:1.05;color:var(--g3-ink)}",
+    ".ghs-finding-lead{font-size:18px;color:var(--g3-neutral);max-width:760px;line-height:1.55}",
+
+    ".ghs-chip-row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}",
+    ".ghs-chip{display:inline-flex;align-items:baseline;gap:8px;padding:7px 14px;border-radius:999px;border:1px solid var(--g3-line-strong);background:var(--g3-paper);font-size:13px}",
+    ".ghs-chip b{color:var(--g3-neutral);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em}",
+    ".ghs-chip i{font-style:normal;font-weight:800;color:var(--g3-ink)}",
+    ".ghs-chip[data-tone='primary'] i{color:var(--g3-primary)}",
+    ".ghs-chip[data-tone='good'] i{color:var(--g3-good)}",
+    ".ghs-chip[data-tone='warn'] i{color:var(--g3-warn)}",
+    ".ghs-chip[data-tone='bad'] i{color:var(--g3-bad)}",
+
+    # ---- figure grids -------------------------------------------
+    ".ghs-fig-grid{display:grid;gap:var(--g3-gap);margin:18px 0}",
+    ".ghs-fig-grid-2{grid-template-columns:repeat(2,1fr)}",
+    ".ghs-fig-grid-3{grid-template-columns:repeat(3,1fr)}",
+    ".ghs-fig-grid-4{grid-template-columns:repeat(4,1fr)}",
+    ".ghs-fig-card{background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);padding:14px;min-width:0;overflow:hidden}",
+    ".ghs-fig-card figure{margin:0}",
+    ".ghs-fig-card figcaption{margin-top:8px;font-size:13px;color:var(--g3-neutral);line-height:1.55}",
+
+    # ---- deep dive 6 卡 -----------------------------------------
+    ".ghs-deep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--g3-gap);margin:32px 0;padding:24px;background:var(--g3-paper2);border-radius:var(--g3-radius-lg);border:1px solid var(--g3-line)}",
+    ".ghs-deep-card{background:var(--g3-paper);border:1px solid var(--g3-line);border-radius:var(--g3-radius);padding:18px 20px;min-width:0}",
+    ".ghs-deep-card h4{font-family:'Inter',sans-serif;font-size:11.5px;letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);margin:0 0 10px;font-weight:800}",
+    ".ghs-deep-card p{font-size:13.5px;line-height:1.7;color:var(--g3-ink);margin:0}",
+    ".ghs-deep-card.tone-data h4{color:var(--g3-primary)}",
+    ".ghs-deep-card.tone-method h4{color:var(--g3-good)}",
+    ".ghs-deep-card.tone-assume h4{color:var(--g3-secondary)}",
+    ".ghs-deep-card.tone-limit h4{color:var(--g3-warn)}",
+    ".ghs-deep-card.tone-sens h4{color:var(--g3-neutral)}",
+    ".ghs-deep-card.tone-policy h4{color:var(--g3-bad)}",
+
+    # ---- sticky 右侧 TOC ----------------------------------------
+    ".ghs-with-toc{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:var(--g3-gap-xl);align-items:start}",
+    ".ghs-toc{position:sticky;top:96px;align-self:start;display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--g3-line);padding:6px 0 6px 18px;font-size:12.5px;color:var(--g3-neutral);max-height:calc(100vh - 120px);overflow-y:auto}",
+    ".ghs-toc a{display:block;color:var(--g3-neutral);text-decoration:none;padding:4px 8px;border-radius:6px;transition:color .2s,background .2s}",
+    ".ghs-toc a.active,.ghs-toc a:hover{color:var(--g3-primary);background:var(--g3-paper2)}",
+    ".ghs-toc .ghs-toc-group{font-size:11px;letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);font-weight:800;margin-top:8px;padding:0 8px}",
+
+    # ---- 数据血缘可视化（用于 data lineage 章节）-----------------
+    ".ghs-lineage{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g3-gap);margin:24px 0}",
+    ".ghs-lineage-step{position:relative;padding:18px 20px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);min-width:0}",
+    ".ghs-lineage-step:not(:last-child):after{content:'\u2192';position:absolute;right:-18px;top:50%;transform:translateY(-50%);color:var(--g3-secondary);font-size:24px;font-weight:800;z-index:2}",
+    ".ghs-lineage-stage{font-size:11px;letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);font-weight:800;margin-bottom:6px}",
+    ".ghs-lineage-name{font-family:'Source Serif 4',serif;font-weight:700;font-size:18px;color:var(--g3-ink);margin-bottom:4px}",
+    ".ghs-lineage-meta{font-size:12px;color:var(--g3-neutral);line-height:1.5}",
+
+    # ---- reading paths ------------------------------------------
+    ".ghs-paths{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--g3-gap);margin:24px 0}",
+    ".ghs-path-card{padding:24px;background:var(--g3-paper);border:1px solid var(--g3-line);border-radius:var(--g3-radius-lg);box-shadow:var(--g3-shadow-sm);display:flex;flex-direction:column;gap:10px;min-width:0}",
+    ".ghs-path-card[data-tone='primary']{border-top:4px solid var(--g3-primary)}",
+    ".ghs-path-card[data-tone='good']{border-top:4px solid var(--g3-good)}",
+    ".ghs-path-card[data-tone='secondary']{border-top:4px solid var(--g3-secondary)}",
+    ".ghs-path-icon{font-size:28px;line-height:1}",
+    ".ghs-path-title{font-family:'Source Serif 4',serif;font-weight:700;font-size:22px;color:var(--g3-ink)}",
+    ".ghs-path-lead{font-size:14px;color:var(--g3-neutral);line-height:1.6}",
+    ".ghs-path-list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}",
+    ".ghs-path-list li{font-size:13px;padding:6px 10px;background:var(--g3-paper2);border-radius:8px}",
+    ".ghs-path-list li a{color:var(--g3-ink);text-decoration:none}",
+    ".ghs-path-list li a:hover{color:var(--g3-primary)}",
+
+    # ---- sources / citations ------------------------------------
+    ".ghs-sources{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--g3-gap);margin:24px 0}",
+    ".ghs-source-card{padding:16px 20px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);font-size:13.5px;line-height:1.55;min-width:0}",
+    ".ghs-source-card b{display:block;color:var(--g3-primary);font-weight:800;margin-bottom:4px}",
+    ".ghs-source-card span{color:var(--g3-neutral)}",
+
+    # ---- robustness / sensitivity table -------------------------
+    ".ghs-sens-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--g3-gap);margin:18px 0}",
+    ".ghs-sens-card{padding:16px 18px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);min-width:0}",
+    ".ghs-sens-title{font-weight:800;color:var(--g3-primary);font-size:13.5px;margin:0 0 6px}",
+    ".ghs-sens-value{font-family:'Source Serif 4',serif;font-size:24px;color:var(--g3-ink);font-weight:700}",
+    ".ghs-sens-note{font-size:12px;color:var(--g3-neutral);margin-top:4px;line-height:1.5}",
+
+    # ---- limitations / policy bullets ---------------------------
+    ".ghs-bullet-list{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px}",
+    ".ghs-bullet-list li{position:relative;padding:12px 16px 12px 38px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);font-size:14px;line-height:1.65}",
+    ".ghs-bullet-list li:before{content:'';position:absolute;left:14px;top:18px;width:14px;height:14px;border-radius:50%;background:var(--bullet,var(--g3-primary))}",
+    ".ghs-bullet-list li[data-tone='good']:before{background:var(--g3-good)}",
+    ".ghs-bullet-list li[data-tone='warn']:before{background:var(--g3-warn)}",
+    ".ghs-bullet-list li[data-tone='bad']:before{background:var(--g3-bad)}",
+    ".ghs-bullet-list li b{color:var(--g3-primary);font-weight:800;display:block;margin-bottom:4px;font-size:13px;text-transform:uppercase;letter-spacing:.04em}",
+
+    # ---- 响应断点 -----------------------------------------------
+    "@media(max-width:1280px){.ghs-with-toc{grid-template-columns:1fr;gap:var(--g3-gap-lg)}.ghs-toc{display:none}}",
+    "@media(max-width:1024px){.ghs-stat-strip{grid-template-columns:repeat(2,1fr)}.ghs-kpi-grid{grid-template-columns:repeat(2,1fr)}.ghs-fig-grid-3,.ghs-fig-grid-4{grid-template-columns:repeat(2,1fr)}.ghs-deep-grid{grid-template-columns:repeat(2,1fr)}.ghs-paths{grid-template-columns:1fr}.ghs-lineage{grid-template-columns:repeat(2,1fr)}.ghs-lineage-step:nth-child(2n):after{display:none}.ghs-sources{grid-template-columns:1fr}}",
+    "@media(max-width:768px){.ghs-finding-head{grid-template-columns:1fr}.ghs-finding-num{font-size:54px}.ghs-fig-grid-2,.ghs-fig-grid-3,.ghs-fig-grid-4{grid-template-columns:1fr}.ghs-deep-grid{grid-template-columns:1fr;padding:18px}.ghs-finding{padding:64px 0}.ghs-section-title{font-size:32px}.ghs-sens-grid{grid-template-columns:1fr}}",
+    "@media(max-width:420px){.ghs-stat-strip,.ghs-kpi-grid{grid-template-columns:1fr}.ghs-finding-head{gap:14px}.ghs-finding-num{font-size:42px}.ghs-deep-card{padding:14px 16px}.ghs-lineage{grid-template-columns:1fr}.ghs-lineage-step:after{display:none}}"
+  ), collapse = "")
+}
+
+# =============================================================================
+# 章节 / 卡片渲染辅助（为 phase B/E/F 准备）
+# -----------------------------------------------------------------------------
+# 这些函数被 .ghs_render() 内的新章节调用；每个返回完整 HTML 字符串。
+# 命名前缀统一 .ghs_v3_。
+# =============================================================================
+
+#' 章节头（带 kicker / title / lead 三层）
+.ghs_v3_section_head <- function(kicker, title, lead = NULL,
+                                 align = "left") {
+  lead_html <- if (!is.null(lead) && nzchar(lead))
+    sprintf("<p class='ghs-section-lead'>%s</p>", .ghs_e(lead))
+  else ""
+  sprintf(
+    paste0("<header class='ghs-section-head' data-align='%s'>",
+           "<span class='ghs-kicker'>%s</span>",
+           "<h2 class='ghs-section-title'>%s</h2>%s</header>"),
+    .ghs_e(align), .ghs_e(kicker), .ghs_e(title), lead_html)
+}
+
+#' v3 章节包裹器：<section class='section ghs-v3' id=...><div class='wrap'>...
+.ghs_v3_section <- function(id, kicker, title, body,
+                            lead = NULL, extra_class = "") {
+  sprintf(
+    paste0("<section class='section ghs-v3 %s' id='%s'>",
+           "<div class='wrap'>%s%s</div></section>"),
+    .ghs_e(extra_class), .ghs_e(id),
+    .ghs_v3_section_head(kicker, title, lead),
+    body)
+}
+
+#' KPI 卡（语义 tone 6 选 1）
+.ghs_v3_kpi <- function(value, label, hint = NULL, trend = NULL,
+                        tone = "primary") {
+  tone_color <- switch(tone,
+    primary = "var(--g3-primary)", secondary = "var(--g3-secondary)",
+    good = "var(--g3-good)", warn = "var(--g3-warn)", bad = "var(--g3-bad)",
+    "var(--g3-neutral)")
+  trend_html <- ""
+  if (!is.null(trend) && is.finite(trend)) {
+    arr <- if (trend > 0) "\u2197" else if (trend < 0) "\u2198" else "\u2192"
+    col <- if (trend > 0) "var(--g3-good)"
+           else if (trend < 0) "var(--g3-bad)"
+           else "var(--g3-neutral)"
+    trend_html <- sprintf(
+      "<span class='ghs-kpi-trend' style='color:%s'>%s %+0.1f%%</span>",
+      col, arr, trend * 100)
+  }
+  hint_html <- if (!is.null(hint) && nzchar(hint))
+    sprintf("<div class='ghs-kpi-hint'>%s</div>", .ghs_e(hint))
+  else ""
+  sprintf(
+    paste0("<div class='ghs-kpi' style='--tone:%s'>",
+           "<div class='ghs-kpi-value'>%s</div>",
+           "<div class='ghs-kpi-label'>%s%s</div>%s</div>"),
+    tone_color, .ghs_e(value), .ghs_e(label), trend_html, hint_html)
+}
+
+#' KPI 网格（4 列 / 自动响应）
+.ghs_v3_kpi_grid <- function(cards) {
+  sprintf("<div class='ghs-kpi-grid ghs-v3'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' stat strip（横向数据条）
+.ghs_v3_stat_strip <- function(items) {
+  if (!length(items)) return("")
+  cards <- vapply(seq_along(items), function(i) {
+    it <- items[[i]]
+    sprintf(
+      paste0("<div class='ghs-stat-cell'>",
+             "<div class='ghs-stat-value'>%s</div>",
+             "<div class='ghs-stat-label'>%s</div></div>"),
+      .ghs_e(it$value %||% "\u2014"),
+      .ghs_e(it$label %||% ""))
+  }, character(1))
+  sprintf("<div class='ghs-stat-strip'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' callout（4 tones）
+.ghs_v3_callout <- function(text, tone = "info", title = NULL) {
+  title_html <- if (!is.null(title) && nzchar(title))
+    sprintf("<strong class='ghs-callout-title'>%s</strong>",
+            .ghs_e(title))
+  else ""
+  sprintf(
+    paste0("<aside class='ghs-callout ghs-callout-%s'>",
+           "%s<div class='ghs-callout-body'>%s</div></aside>"),
+    .ghs_e(tone), title_html, text)
+}
+
+#' deep-dive 六卡（数据 / 方法 / 假设 / 局限 / 敏感性 / 政策）
+.ghs_v3_deep_dive <- function(data = "", method = "", assume = "",
+                              limit = "", sens = "", policy = "") {
+  card <- function(tone, label, body) {
+    sprintf(
+      paste0("<div class='ghs-deep-card tone-%s'>",
+             "<h4>%s</h4><p>%s</p></div>"),
+      tone, .ghs_e(label), body)
+  }
+  cards <- paste(
+    card("data",   "\u6570\u636e",   data),
+    card("method", "\u65b9\u6cd5",   method),
+    card("assume", "\u5047\u8bbe",   assume),
+    card("limit",  "\u5c40\u9650",   limit),
+    card("sens",   "\u654f\u611f\u6027", sens),
+    card("policy", "\u653f\u7b56\u542b\u4e49", policy),
+    sep = "")
+  sprintf("<div class='ghs-deep-grid'>%s</div>", cards)
+}
+
+#' figure 卡（base64 嵌入 / 外链取决于 mode）
+.ghs_v3_fig_card <- function(path, caption, mode = "submission") {
+  if (!file.exists(path))
+    return(sprintf("<div class='ghs-fig-card'><p class='muted'>missing: %s</p></div>",
+                   .ghs_e(basename(path))))
+  src <- if (mode == "submission") .ghs_b64(path) else basename(path)
+  sprintf(
+    paste0("<figure class='ghs-fig-card'>",
+           "<img src='%s' alt='%s' loading='lazy'>",
+           "<figcaption>%s</figcaption></figure>"),
+    src, .ghs_e(caption), .ghs_e(caption))
+}
+
+#' figure grid（n 列）
+.ghs_v3_fig_grid <- function(figs, ncol = 2) {
+  cls <- paste0("ghs-fig-grid ghs-fig-grid-", ncol)
+  sprintf("<div class='%s'>%s</div>", cls, paste(figs, collapse = ""))
+}
+
+#' chip 行（统计芯片）
+.ghs_v3_chips <- function(chips) {
+  if (!length(chips)) return("")
+  pills <- vapply(seq_along(chips), function(i) {
+    c <- chips[[i]]
+    tone <- c$tone %||% "primary"
+    sprintf("<span class='ghs-chip' data-tone='%s'><b>%s</b><i>%s</i></span>",
+            .ghs_e(tone), .ghs_e(c$label), .ghs_e(c$value))
+  }, character(1))
+  sprintf("<div class='ghs-chip-row'>%s</div>", paste(pills, collapse = ""))
+}
+
+#' finding 卡（完整结构：num/kicker/title/lead/chips/figs/widgets/deep/policy）
+.ghs_v3_finding <- function(id, num, kicker, title, lead,
+                             chips_html = "", figs_html = "",
+                             widgets_html = "", deep_html = "",
+                             policy_html = "") {
+  sprintf(
+    paste0("<section class='ghs-finding ghs-v3' id='%s'><div class='wrap'>",
+           "<header class='ghs-finding-head'>",
+           "<span class='ghs-finding-num'>%s</span>",
+           "<div class='ghs-finding-meta'>",
+           "<span class='ghs-kicker'>%s</span>",
+           "<h2 class='ghs-finding-title'>%s</h2>",
+           "<p class='ghs-finding-lead'>%s</p>%s</div></header>",
+           "%s%s%s%s</div></section>"),
+    .ghs_e(id), .ghs_e(num), .ghs_e(kicker),
+    .ghs_e(title), .ghs_e(lead),
+    chips_html, figs_html, widgets_html, deep_html, policy_html)
+}
+
+#' reading-path 三卡（评阅 / 政策 / 数据科学）
+.ghs_v3_reading_paths <- function(paths) {
+  cards <- vapply(seq_along(paths), function(i) {
+    p <- paths[[i]]
+    items <- paste(vapply(p$items, function(it) {
+      sprintf("<li><a href='#%s'>%s</a></li>",
+              .ghs_e(it$anchor), .ghs_e(it$label))
+    }, character(1)), collapse = "")
+    sprintf(
+      paste0("<article class='ghs-path-card' data-tone='%s'>",
+             "<div class='ghs-path-icon'>%s</div>",
+             "<h3 class='ghs-path-title'>%s</h3>",
+             "<p class='ghs-path-lead'>%s</p>",
+             "<ul class='ghs-path-list'>%s</ul></article>"),
+      .ghs_e(p$tone %||% "primary"),
+      .ghs_e(p$icon %||% "\u25b8"),
+      .ghs_e(p$title), .ghs_e(p$lead), items)
+  }, character(1))
+  sprintf("<div class='ghs-paths'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' 数据血缘（4 步流水线可视化）
+.ghs_v3_lineage <- function(steps) {
+  cards <- vapply(seq_along(steps), function(i) {
+    s <- steps[[i]]
+    sprintf(
+      paste0("<div class='ghs-lineage-step'>",
+             "<div class='ghs-lineage-stage'>%s</div>",
+             "<div class='ghs-lineage-name'>%s</div>",
+             "<div class='ghs-lineage-meta'>%s</div></div>"),
+      .ghs_e(s$stage), .ghs_e(s$name), .ghs_e(s$meta %||% ""))
+  }, character(1))
+  sprintf("<div class='ghs-lineage'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' sources / citations 网格
+.ghs_v3_sources <- function(sources) {
+  cards <- vapply(seq_along(sources), function(i) {
+    s <- sources[[i]]
+    sprintf(
+      paste0("<div class='ghs-source-card'>",
+             "<b>%s</b><span>%s</span></div>"),
+      .ghs_e(s$name), .ghs_e(s$desc %||% ""))
+  }, character(1))
+  sprintf("<div class='ghs-sources'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' sensitivity card 网格（每个 finding 的稳健性）
+.ghs_v3_sens_grid <- function(items) {
+  cards <- vapply(seq_along(items), function(i) {
+    it <- items[[i]]
+    sprintf(
+      paste0("<div class='ghs-sens-card'>",
+             "<div class='ghs-sens-title'>%s</div>",
+             "<div class='ghs-sens-value'>%s</div>",
+             "<div class='ghs-sens-note'>%s</div></div>"),
+      .ghs_e(it$title), .ghs_e(it$value),
+      .ghs_e(it$note %||% ""))
+  }, character(1))
+  sprintf("<div class='ghs-sens-grid'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' bullet list（带语义色圆点的项目列表）
+.ghs_v3_bullets <- function(bullets) {
+  items <- vapply(seq_along(bullets), function(i) {
+    b <- bullets[[i]]
+    title_html <- if (!is.null(b$title) && nzchar(b$title))
+      sprintf("<b>%s</b>", .ghs_e(b$title))
+    else ""
+    sprintf("<li data-tone='%s'>%s%s</li>",
+            .ghs_e(b$tone %||% "primary"),
+            title_html,
+            b$body %||% "")
+  }, character(1))
+  sprintf("<ul class='ghs-bullet-list'>%s</ul>", paste(items, collapse = ""))
+}
+
 # ---- 7. 主合成 / 入口 ----------------------------------------------------
 
 .ghs_render <- function(master, fig_dir, widget_dir, programs_dir, models_dir,
@@ -2319,6 +2747,11 @@ if (!exists("%||%", mode = "function")) {
     .ghs_robustness(master, models_dir),
     .ghs_gallery(fig_dir),
     .ghs_widgets(widget_dir, mode, repo_url),
+    # F \u9636\u6bb5\uff1a\u9644\u52a0 6 \u4e2a\u65b0\u7ae0\u8282\uff08\u7ae0\u8282\u603b\u6570 18 \u2192 24+\uff09
+    if (exists("ghs_sections_extra", mode = "function")) {
+      ghs_sections_extra(master, fig_dir, models_dir, widget_dir,
+                          mode = mode, repo_url = repo_url)
+    } else "",
     .ghs_glossary(),
     .ghs_repro(repo_url),
     .ghs_session_info(),
@@ -2328,70 +2761,51 @@ if (!exists("%||%", mode = "function")) {
     "<div class='modal' id='fig-modal' onclick='closeFigure()'><button type='button'>\u5173\u95ed</button><div class='modal-title' id='modal-title'></div><img id='modal-img' alt='figure preview'></div>"
   )
   sprintf(
-    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 22 \u8282\u6574\u5408\u5206\u6790</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis with R code and 10 deep findings, plus country / regional / inequality / simulator / robustness sections.'><style>%s</style></head><body>%s<script>%s</script></body></html>",
-    .ghs_css(), body, .ghs_js()
+    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u987d\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 18-module Shiny dashboard, full reproducibility and quality-gate evidence.'><style>%s%s</style></head><body>%s<script>%s</script></body></html>",
+    .ghs_css(), .ghs_css_v3(), body, .ghs_js()
   )
 }
 
 .ghs_write_rmd <- function(path) {
+  html_path <- sub("[.]Rmd$", ".html", path)
+  if (!file.exists(html_path)) {
+    stop("Missing HTML for Rmd synchronization: ", html_path)
+  }
+  html <- readChar(html_path, nchars = file.info(html_path)[["size"]], useBytes = TRUE)
+  extract_part <- function(pattern, text, label) {
+    m <- regexec(pattern, text, perl = TRUE)
+    hit <- regmatches(text, m)[[1]]
+    if (length(hit) < 2L) stop("Cannot extract ", label, " from generated HTML")
+    hit[2]
+  }
+  style <- extract_part("(?is)<style>(.*?)</style>", html, "style")
+  body <- extract_part("(?is)<body>(.*)<script>.*</script></body></html>\\s*$", html, "body")
+  script <- extract_part("(?is)<script>(.*)</script></body></html>\\s*$", html, "script")
+  body <- gsub("><", ">\n<", body, fixed = TRUE)
+  style <- gsub("}", "}\n", style, fixed = TRUE)
+  script <- gsub(";", ";\n", script, fixed = TRUE)
   lines <- c(
     "---",
-    "title: \"\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023\uff1a\u6574\u5408\u5206\u6790\u4e0e\u6df1\u5ea6\u53d1\u73b0\"",
-    "subtitle: \"\u5e84\u9882\uff0820241334\uff09\u00b7 R \u5927\u4f5c\u4e1a\u00b7 GHED + WDI\"",
-    "author: \"\u5e84\u9882 20241334\"",
+    "title: \"全球卫生支出 2000–2023：整合分析与核心发现\"",
+    "subtitle: \"庄颂（20241334）· R 大作业 · GHED + WDI\"",
+    "author: \"庄颂 20241334\"",
     "date: \"`r format(Sys.Date(), '%Y-%m-%d')`\"",
     "output:",
     "  html_document:",
-    "    self_contained: true",
+    "    self_contained: false",
     "    toc: false",
+    "    theme: null",
     "---",
     "",
-    "```{r setup, include=FALSE}",
-    "knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)",
-    "root <- normalizePath(file.path(dirname(knitr::current_input(dir = TRUE)), '..'), mustWork = FALSE)",
-    "for (f in list.files(file.path(root, '\u7a0b\u5e8f'), pattern = '\\\\.R$', full.names = TRUE)) source(f, encoding = 'UTF-8')",
-    "```",
+    "<style>",
+    strsplit(style, "\n", fixed = TRUE)[[1]],
+    "</style>",
     "",
-    "## \u63d0\u4ea4\u8bf4\u660e",
+    strsplit(body, "\n", fixed = TRUE)[[1]],
     "",
-    "\u672c Rmd \u662f\u8bfe\u7a0b\u63d0\u4ea4\u7684\u552f\u4e00\u5165\u53e3\uff0cknit \u540e\u4f1a\u8c03\u7528 `generate_static_showcase()` \u751f\u6210\u4e24\u4efd\u540c\u6e90\u4ea7\u7269\uff1a",
-    "",
-    "1. `\u8bfe\u7a0b\u63d0\u4ea4/\u5e84\u9882_20241334.html` \u2014 \u8bfe\u7a0b\u63d0\u4ea4\u7248\uff08\u56fe\u8868 base64 \u5185\u5d4c\uff0c\u4ea4\u4e92\u7ec4\u4ef6\u8d70\u76f8\u5bf9\u8def\u5f84/\u8fdc\u7a0b\u8fde\u6388\uff09",
-    "2. `\u7f51\u7ad9\u53d1\u5e03/index.html` \u2014 GitHub Pages \u9996\u9875\uff08\u4e0e\u63d0\u4ea4\u7248\u540c\u6e90\uff09",
-    "",
-    "\u4e24\u4efd\u4ea7\u7269\u540c\u6e90\u4e8e\u4e00\u5957\u751f\u6210\u5668 `\u7a0b\u5e8f/21_static_showcase.R`\u3002\u9875\u9762\u542b\uff1a8 \u9879\u6838\u5fc3\u53d1\u73b0\uff08\u6bcf\u9879\u90fd\u6709\u7814\u7a76\u95ee\u9898\u3001\u65b9\u6cd5\u3001R \u4ee3\u7801\u3001\u539f\u56fe\u3001\u8868\u683c\u3001\u6df1\u5ea6\u89e3\u8bfb\uff09 \u00b7 \u6570\u636e\u4e0e\u65b9\u6cd5\u00b7 44 \u5f20\u9759\u6001\u56fe\u00b7 24 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6\u00b7 \u590d\u73b0\u8bf4\u660e\u00b7 \u7ed3\u8bba\u4e0e\u653f\u7b56\u3002",
-    "",
-    "## \u4e00\u952e\u751f\u6210",
-    "",
-    "```{r build, results='hide'}",
-    "out <- generate_static_showcase(root = root)",
-    "knitr::kable(data.frame(\u4ea7\u7269 = basename(out), \u8def\u5f84 = out))",
-    "```",
-    "",
-    "## \u73b0\u573a\u5d4c\u5165\u9884\u89c8",
-    "",
-    "```{r preview, echo=FALSE, results='asis'}",
-    "html_path <- file.path(root, '\u8bfe\u7a0b\u63d0\u4ea4', '\u5e84\u9882_20241334.html')",
-    "if (file.exists(html_path)) {",
-    "  cat(sprintf(\"\u63d0\u4ea4\u4e3b\u4ef6\u5df2\u751f\u6210\uff1a `%s` \uff08%.1f MB\uff09\u3002\u5728\u6d4f\u89c8\u5668\u6253\u5f00\u67e5\u770b\u5b8c\u6574\u5185\u5bb9\u3002\\n\\n\",",
-    "                html_path, file.info(html_path)$size / 1024^2))",
-    "} else {",
-    "  cat(\"\u8bf7\u5148\u8fd0\u884c `Rscript \u6784\u5efa.R submission` \u751f\u6210 HTML\u3002\\n\\n\")",
-    "}",
-    "```",
-    "",
-    "## \u590d\u73b0\u547d\u4ee4",
-    "",
-    "```bash",
-    "# \u5b89\u88c5\u4f9d\u8d56\u00b7\u6784\u5efa\u6570\u636e\u4e0e\u4ea7\u7269",
-    "Rscript \u5b89\u88c5\u4f9d\u8d56.R",
-    "Rscript \u6784\u5efa.R data",
-    "Rscript \u6784\u5efa.R figures",
-    "Rscript \u6784\u5efa.R widgets",
-    "Rscript \u6784\u5efa.R models",
-    "Rscript \u6784\u5efa.R submission     # \u751f\u6210\u8bfe\u7a0b\u63d0\u4ea4 HTML \u4e0e GitHub Pages \u9996\u9875",
-    "Rscript \u542f\u52a8\u4eea\u8868\u76d8.R 4848 # \u672c\u5730\u8fd0\u884c Shiny \u4eea\u8868\u76d8",
-    "```"
+    "<script>",
+    strsplit(script, "\n", fixed = TRUE)[[1]],
+    "</script>"
   )
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(lines, path, useBytes = TRUE)

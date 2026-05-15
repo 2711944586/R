@@ -1,5 +1,5 @@
-# tests/testthat/自动测试/testthat/test-v2-widgets.R
-# v2 程序/17-18 widget 工厂烟雾测试
+﻿# tests/testthat/自动测试/testthat/test-v2-widgets.R
+# 程序/17-18 widget 工厂烟雾测试
 
 read_master_local <- function() {
   for (p in c("派生数据/处理结果/master_enriched.rds",

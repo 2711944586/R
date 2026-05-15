@@ -1,5 +1,5 @@
-# 开发脚本/构建拓展产物.R
-# 一次跑完 v2 静态图 + widget + 数据质量 + 部署整合
+﻿# 开发脚本/构建拓展产物.R
+# 一次跑完静态图 + widget + 数据质量 + 部署整合
 # 用法：Rscript 开发脚本/构建拓展产物.R
 
 cat("[build_v2] start\n")
@@ -10,12 +10,12 @@ for (f in list.files("程序", pattern = "\\.R$", full.names = TRUE)) {
 }
 cat("[build_v2] all 程序/ sourced\n")
 
-# v2 全局主题 + 字体 → 让所有 ggplot 自动应用 theme_ghs2
+# 全局主题 + 字体
 suppressWarnings(suppressMessages({
   register_brand_fonts()
   ggplot2::theme_set(theme_ghs2())
 }))
-cat("[build_v2] v2 theme set + fonts registered\n")
+cat("[build] theme set + fonts registered\n")
 
 cache <- file.path("派生数据", "处理结果", "master_enriched.rds")
 if (file.exists(cache)) {
@@ -33,23 +33,23 @@ world_sf <- tryCatch(load_world_sf("medium", 0.08), error = function(e) NULL)
 cat("[build_v2] world_sf:",
     if (is.null(world_sf)) "NULL" else paste(nrow(world_sf), "polygons"), "\n")
 
-# 1) v2 主题深度图（8 张）
-cat("\n========== v2 thematic figures ==========\n")
+# 1) 主题深度图（8 张）
+cat("\n========== thematic figures ==========\n")
 n_thematic <- tryCatch(ghs_export_v2_thematic(master),
                        error = function(e) { message(e); 0L })
 
-# 2) v2 数据新闻级图（6 张）
-cat("\n========== v2 dataviz figures ==========\n")
+# 2) 数据新闻级图（6 张）
+cat("\n========== dataviz figures ==========\n")
 n_dataviz <- tryCatch(ghs_export_v2_dataviz(master, world_sf = world_sf),
                       error = function(e) { message(e); 0L })
 
-# 3) v2 plotly widget（8 个）
-cat("\n========== v2 plotly widgets ==========\n")
+# 3) plotly widget（8 个）
+cat("\n========== plotly widgets ==========\n")
 n_plotly <- tryCatch(ghs_export_v2_widgets_plotly(master),
                      error = function(e) { message(e); 0L })
 
-# 4) v2 其他 widget（5 个）
-cat("\n========== v2 other widgets ==========\n")
+# 4) 其他 widget（5 个）
+cat("\n========== other widgets ==========\n")
 n_other <- tryCatch(ghs_export_v2_widgets_other(master, world_sf = world_sf),
                     error = function(e) { message(e); 0L })
 

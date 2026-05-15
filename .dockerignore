@@ -7,11 +7,12 @@
 .Rdata
 .Ruserdata
 *.Rproj
+庄颂_20241334/
 网站发布/
 派生数据/处理结果/
 分析输出/交互组件/
 分析输出/图表/*.svg
-分析输出/报告/
+分析输出/质量报告/
 renv/library/
 renv/staging/
 renv/python/

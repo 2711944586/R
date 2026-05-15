@@ -1,40 +1,43 @@
-# R session data
+# =============================================================================
+# .gitignore  ·  Global Health Spending 项目
+# 设计原则：
+#   - 源代码、原始数据、外部数据缓存（gho/imf）、tracked 部署 bundle 全部入仓
+#   - 大型派生缓存（master_enriched.rds、wdi_panel.rds 等）不入仓，由 构建.R 重建
+#   - 网站静态产物（widgets/_files、shinylive 仪表盘）不入仓，由 CI 或本地构建生成
+#   - secret 与本地 IDE 状态绝不入仓
+# =============================================================================
+
+# ---- R session / IDE -------------------------------------------------------
 .Rhistory
 .Rapp.history
 .RData
 .RDataTmp
 .Ruserdata
-*.Rproj.user/
 *.Rproj
-
-# RStudio / VSCode / IDE
+*.Rproj.user/
 .Rproj.user
 .vscode/
 !.vscode/extensions.json
 
-# Output / build
+# ---- Build outputs ---------------------------------------------------------
 *_cache/
+*.knit.md
+*.utf8.md
+
+# 默认忽略 widget 依赖的 *_files/，但保留构建出来的对外资源目录
 *_files/
 !分析输出/交互组件/**/*_files/
 !分析输出/交互组件/**/*_files/**
 !网站发布/**/*_files/
 !网站发布/**/*_files/**
-*.knit.md
-*.utf8.md
-# 图表导出保留（用于 README/Shiny www/ 等对外展示）
-# 分析输出/图表/*.png
-# 分析输出/图表/*.pdf
-# 分析输出/图表/*.svg
-!分析输出/图表/.gitkeep
-分析输出/报告/*.html
-分析输出/报告/*.docx
-!分析输出/报告/.gitkeep
+!庄颂_20241334/**/*_files/
+!庄颂_20241334/**/*_files/**
 
-# targets pipeline
+# ---- targets pipeline ------------------------------------------------------
 _targets/
 _targets_r/
 
-# renv library (but keep the lock file and activate script)
+# ---- renv（保留 activate.R / .lock，忽略本地 library） --------------------
 renv/library/
 renv/local/
 renv/cellar/
@@ -43,79 +46,61 @@ renv/staging/
 renv/python/
 renv/sandbox/
 
-# Data caches
+# ---- 派生数据缓存 ---------------------------------------------------------
+# 原始缓存：WDI/世界地图/收入组等外部数据缓存，体积可观且可由 构建.R data 重建
 派生数据/原始缓存/*.rds
 派生数据/原始缓存/*.parquet
-派生数据/中间数据/*
-派生数据/处理结果/*
 !派生数据/原始缓存/.gitkeep
-!派生数据/中间数据/.gitkeep
+# 处理结果：master_enriched 等核心派生表，由 构建.R features 重建
+派生数据/处理结果/*
 !派生数据/处理结果/.gitkeep
+# 外部数据：gho/imf 缓存有意入仓以保证离线复现，不忽略
 
-# Quarto site build 分析输出 (published via gh-pages branch)
-报告书/_报告书/
-报告书/.quarto/
-报告书/_freeze/
-报告书/*.html
-报告书/data/
-/_site/
-/.quarto/
+# ---- 分析产物 -------------------------------------------------------------
+# 质量门禁报告由 构建.R quality 生成
+分析输出/质量报告/
 
-# Shiny rsconnect deployment metadata
+# ---- Shiny 部署中间产物 ---------------------------------------------------
+# rsconnect 元数据含账号；snapshot 与程序库副本由 构建.R shinylive 重建
 rsconnect/
 仪表盘/数据快照/snapshot.rds
 仪表盘/程序库/
 
-# Generated quality-gate reports
-分析输出/质量报告/
+# ---- 网站发布中间产物 -----------------------------------------------------
+# 仅入仓核心入口与跨用户共享的 widget 副本；shinylive 与 _files 资源每次重建
+网站发布/site_libs/
+网站发布/search.json
+网站发布/sitemap.xml
 
-# OS
+# ---- 最终交付包（默认每次重新生成） --------------------------------------
+庄颂_20241334.zip
+庄颂_20241334/
+
+# ---- 操作系统副产物 -------------------------------------------------------
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Logs
+# ---- 日志 / 临时 ----------------------------------------------------------
 *.log
 logs/
+quarto-render.log
+shiny.log
+shiny.err
+fig_log*.txt
+_diag.qmd
+_diag.html
+_diag_files/
 
-# Packaging
+# ---- 打包 / 课程原题副本 --------------------------------------------------
 *.zip
 !网站发布/**/*.zip
 /2026作业_*.docx
 
-# 网站发布：仅托管 index.html、交互组件/ 与 仪表盘/（由 CI 注入）
-网站发布/交互组件/
-网站发布/仪表盘/
-网站发布/01-*.html
-网站发布/02-*.html
-网站发布/03-*.html
-网站发布/04-*.html
-网站发布/05-*.html
-网站发布/06-*.html
-网站发布/07-*.html
-网站发布/08-*.html
-网站发布/09-*.html
-网站发布/10-*.html
-网站发布/11-*.html
-网站发布/12-*.html
-网站发布/A0-*.html
-网站发布/references.html
-网站发布/search.json
-网站发布/site_libs/
-网站发布/*_files/
-网站发布/完整静态展示.html
+# ---- 课程提交中间产物 -----------------------------------------------------
 课程提交/*完整静态展示.html
 
-# Secrets
+# ---- Secrets --------------------------------------------------------------
 .env
 .Renviron
 .Rprofile.local
-
-quarto-render.log
-_diag.qmd
-_diag.html
-_diag_files/
-shiny.log
-shiny.err
-fig_log*.txt
-派生数据/raw/world_sf_*.rds

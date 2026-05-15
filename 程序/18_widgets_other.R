@@ -1,5 +1,5 @@
 # =============================================================================
-# 程序/18_widgets_other.R  ·  v2 leaflet / reactable / networkD3 / DT widget（6 个）
+# 程序/18_widgets_other.R  ·  leaflet / reactable / networkD3 / DT widget（6 个）
 # -----------------------------------------------------------------------------
 
 #' W3.1 · leaflet 主世界地图（5 指标可切换）
@@ -263,7 +263,7 @@ widget_v2_kpi_grid <- function(master, year = 2022) {
 
 # ---- 批量导出 -------------------------------------------------------------
 
-#' v2 其他 widget（4 个支持 saveWidget）批量保存
+#' 其他 widget（4 个支持 saveWidget）批量保存
 #' @export
 ghs_export_v2_widgets_other <- function(master, world_sf = NULL,
                                          out_dir = file.path("分析输出", "交互组件"),

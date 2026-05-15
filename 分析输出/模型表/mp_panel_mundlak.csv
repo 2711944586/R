@@ -1,0 +1,3 @@
+"stats::coef(summary(result))","term"
+0.791674347020077,"lgdp"
+0.307431580972604,"mean_lgdp"

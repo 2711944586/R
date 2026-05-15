@@ -1,8 +1,8 @@
 # =============================================================================
-# 程序/17_widgets_plotly.R  ·  v2 高级 plotly widget（8 个）
+# 程序/17_widgets_plotly.R  ·  高级 plotly widget（8 个）
 # -----------------------------------------------------------------------------
 # - 全部返回 plotly object，可独立保存为 standalone HTML
-# - 字体使用 Inter（v2 设计系统），背景透明，hover 模式 unified
+# - 字体使用 Inter，背景透明，hover 模式 unified
 # =============================================================================
 
 .plotly_v2_layout <- function(p, title = NULL, subtitle = NULL,
@@ -312,7 +312,7 @@ widget_v2_scenarios <- function(master, country_iso = "CHN") {
 
 # ---- 批量导出 -------------------------------------------------------------
 
-#' v2 plotly widget（8 个）批量保存为 standalone HTML
+#' plotly widget（8 个）批量保存为 standalone HTML
 #' @export
 ghs_export_v2_widgets_plotly <- function(master,
                                           out_dir = file.path("分析输出", "交互组件"),

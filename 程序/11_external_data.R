@@ -1,5 +1,5 @@
 # =============================================================================
-# 程序/11_external_data.R  ---  v2 多源外部数据
+# 程序/11_external_data.R  ---  多源外部数据
 # -----------------------------------------------------------------------------
 # 拉取 + 缓存 5 个外部数据源，全部带 offline fallback：
 #   D2  WB WDI 扩展（30 指标：人口/GDP/老龄化/寿命/U5MR/CHE-GDP/教育...）
@@ -297,7 +297,7 @@ load_external_all <- function(force_online = FALSE) {
 
 # ---- 7. master_panel: 合并 GHED + 外部 ------------------------------------
 
-#' 把 master_enriched 与外部数据合并为 master_panel（v2 主面板）
+#' 把 master_enriched 与外部数据合并为 master_panel（主面板）
 #'
 #' @param master_enriched build 自 v1 的 enrich_master() 结果
 #' @param external load_external_all() 结果

@@ -1,5 +1,5 @@
 ## 开发脚本/生成分析输出.R
-## 一键产出 25+ 静态图、12 个交互 widget、所有模型表（写到 分析输出/）
+## 一键产出 94 张静态图、42 个交互 widget、所有模型表（写到 分析输出/）
 ## 用法（在仓库根目录）：
 ##   Rscript 开发脚本/生成分析输出.R [figures|widgets|models|all]
 ##
@@ -56,15 +56,58 @@ cat(sprintf("[run_all_分析输出] world_sf %s\n",
 res <- list()
 if (mode %in% c("all", "figures")) {
   cat("\n=== STAGE: figures ===\n")
-  res$figures <- ghs_export_all_static(master, world_sf = world_sf_obj)
+  res$figures <- list()
+  if (exists("ghs_export_all_static", mode = "function")) {
+    res$figures$base <- ghs_export_all_static(master, world_sf = world_sf_obj)
+  }
+  if (exists("ghs_export_v2_thematic", mode = "function")) {
+    res$figures$thematic <- ghs_export_v2_thematic(master,
+                                                   out_dir = file.path("分析输出", "图表"),
+                                                   verbose = TRUE)
+  }
+  if (exists("ghs_export_v2_dataviz", mode = "function")) {
+    res$figures$dataviz <- ghs_export_v2_dataviz(master, world_sf_obj,
+                                                 out_dir = file.path("分析输出", "图表"),
+                                                 verbose = TRUE)
+  }
+  if (exists("ghs_export_extra", mode = "function")) {
+    res$figures$extra <- ghs_export_extra(master, world_sf_obj,
+                                          outputs_dir = file.path("分析输出", "图表"),
+                                          verbose = TRUE)
+  }
+  if (exists("ghs_export_more", mode = "function")) {
+    res$figures$more <- ghs_export_more(master,
+                                        outputs_dir = file.path("分析输出", "图表"),
+                                        verbose = TRUE)
+  }
   cat(sprintf("[run_all_分析输出] figures saved: %d files\n",
-               length(res$figures)))
+              length(list.files(file.path("分析输出", "图表"),
+                                pattern = "[.](png|svg)$"))))
 }
 if (mode %in% c("all", "widgets")) {
   cat("\n=== STAGE: widgets ===\n")
-  res$widgets <- ghs_export_all_widgets(master, world_sf = world_sf_obj)
+  res$widgets <- list()
+  if (exists("ghs_export_all_widgets", mode = "function")) {
+    res$widgets$base <- ghs_export_all_widgets(master, world_sf = world_sf_obj)
+  }
+  if (exists("ghs_export_v2_widgets_plotly", mode = "function")) {
+    res$widgets$plotly <- ghs_export_v2_widgets_plotly(master,
+                                                       out_dir = file.path("分析输出", "交互组件"),
+                                                       verbose = TRUE)
+  }
+  if (exists("ghs_export_v2_widgets_other", mode = "function")) {
+    res$widgets$other <- ghs_export_v2_widgets_other(master, world_sf_obj,
+                                                     out_dir = file.path("分析输出", "交互组件"),
+                                                     verbose = TRUE)
+  }
+  if (exists("ghs_export_widgets_more", mode = "function")) {
+    res$widgets$more <- ghs_export_widgets_more(master,
+                                                out_dir = file.path("分析输出", "交互组件"),
+                                                verbose = TRUE)
+  }
   cat(sprintf("[run_all_分析输出] widgets saved: %d files\n",
-               length(res$widgets)))
+              length(list.files(file.path("分析输出", "交互组件"),
+                                pattern = "[.]html$"))))
 }
 if (mode %in% c("all", "models")) {
   cat("\n=== STAGE: models ===\n")

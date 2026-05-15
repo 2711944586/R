@@ -1,4 +1,4 @@
-name: Deploy v2 · Pages + shinylive + shinyapps.io
+name: Deploy · Pages + shinylive + shinyapps.io
 
 on:
   push:
@@ -284,7 +284,7 @@ jobs:
           )
           rsconnect::deployApp(
             appDir        = "仪表盘",
-            appName       = "ghs-dashboard-v2",
+            appName       = "ghs-dashboard",
             appFiles      = list.files("仪表盘", recursive=TRUE, full.names=FALSE),
             forceUpdate   = TRUE
           )'

@@ -1,10 +1,10 @@
 # =============================================================================
 # 程序/13_design_system.R
 # -----------------------------------------------------------------------------
-# v2 设计系统（数据新闻风）
+# 设计系统（数据新闻风）
 #   - 字体注册（衬线编辑标题 + Inter 正文 + JetBrains Mono 等宽 + 中文）
 #   - 5 套色板 (.brand_palette)
-#   - theme_ghs2() — ggplot 主题（替代 theme_ghs()）
+#   - theme_ghs2() — ggplot 主题
 #   - labs_news() — 编辑式 labs（含数据源 caption + 副标行高）
 #   - annotate_news() — 数据新闻式注释
 #   - kpi_card_html() / dl_stats_html() — 给 Quarto/Shiny 共用
@@ -16,7 +16,7 @@ if (!exists("proj_root", mode = "function")) {
 
 # ---- 1. 品牌色板 -----------------------------------------------------------
 
-#' v2 品牌色板：莫兰迪基调 + 5 套语义色
+#' 品牌色板：莫兰迪基调 + 5 套语义色
 brand_palette <- list(
   # 主色调
   ink   = "#1A1A1F",   # 近黑（标题/正文）
@@ -82,7 +82,7 @@ brand_palette$rule_dark <- "#1A1A1F40"   # 25% alpha 用于较深的辅助线
 
 # ---- 2. 字体注册 -----------------------------------------------------------
 
-#' 注册 v2 设计系统的所有字体（编辑标题 + Inter + 等宽 + 中文）
+#' 注册设计系统的所有字体（编辑标题 + Inter + 等宽 + 中文）
 #'
 #' 容错策略：
 #'   - 如果系统缺字体，逐级降级到 sans-serif
@@ -98,7 +98,7 @@ register_brand_fonts <- function() {
     serif = "serif", sans = "sans", mono = "mono", cjk = "sans"
   ))
 
-  # 候选清单（优先匹配 v2 设计稿，按平台降级）
+  # 候选清单（按平台降级）
   candidates <- list(
     serif = c("Source Serif 4", "Source Serif Pro", "Fraunces",
               "PT Serif", "Georgia", "Times New Roman", "serif"),
@@ -146,11 +146,11 @@ get_brand_fonts <- function() {
   .brand_fonts
 }
 
-# ---- 3. theme_ghs2 — v2 ggplot 主题 ----------------------------------------
+# ---- 3. theme_ghs2 — ggplot 主题 ----------------------------------------
 
-#' v2 数据新闻风 ggplot 主题
+#' 数据新闻风 ggplot 主题
 #'
-#' 与 theme_ghs() 的差异：
+#' 特点：
 #'   - 字体：标题用 Source Serif（衬线编辑），正文用 Inter
 #'   - 网格：仅水平浅灰，去掉所有竖网格（数据新闻惯例）
 #'   - 标题大字号 + 左对齐 + plot.title.position = "plot"
@@ -257,7 +257,7 @@ theme_ghs2 <- function(base_size = 13, grid = "y", panel = "flat") {
 
 # ---- 4. 色板辅助 -----------------------------------------------------------
 
-#' v2 三大资金源 fill / colour
+#' 三大资金源 fill / colour
 scale_fill_brand_source <- function(...) {
   ggplot2::scale_fill_manual(
     values = c(
@@ -272,7 +272,7 @@ scale_colour_brand_source <- function(...) {
   ggplot2::scale_colour_manual(values = brand_palette$source, na.value = "grey80", ...)
 }
 
-#' v2 大洲 fill / colour
+#' 大洲 fill / colour
 scale_fill_brand_continent <- function(...) {
   ggplot2::scale_fill_manual(values = brand_palette$continent, na.value = "grey80", ...)
 }
@@ -280,7 +280,7 @@ scale_colour_brand_continent <- function(...) {
   ggplot2::scale_colour_manual(values = brand_palette$continent, na.value = "grey80", ...)
 }
 
-#' v2 收入组 fill / colour（顺序色，强调高/低对比）
+#' 收入组 fill / colour（顺序色，强调高/低对比）
 scale_fill_brand_income <- function(...) {
   ggplot2::scale_fill_manual(values = brand_palette$income, na.value = "grey80", ...)
 }
@@ -288,7 +288,7 @@ scale_colour_brand_income <- function(...) {
   ggplot2::scale_colour_manual(values = brand_palette$income, na.value = "grey80", ...)
 }
 
-#' v2 顺序色（cividis 派生）
+#' 顺序色（cividis 派生）
 scale_fill_brand_seq <- function(...) {
   ggplot2::scale_fill_gradientn(colours = brand_palette$sequential, na.value = "grey90", ...)
 }
@@ -296,7 +296,7 @@ scale_colour_brand_seq <- function(...) {
   ggplot2::scale_colour_gradientn(colours = brand_palette$sequential, na.value = "grey90", ...)
 }
 
-#' v2 发散色（红-米-蓝）
+#' 发散色（红-米-蓝）
 scale_fill_brand_div <- function(midpoint = 0, ...) {
   ggplot2::scale_fill_gradient2(
     low = brand_palette$diverging[2],
@@ -443,3 +443,503 @@ news_callout_html <- function(text, source = NULL,
     border_col, htmltools::htmlEscape(text), src
   )
 }
+
+# =============================================================================
+# 扩展设计系统（加性扩展）
+# -----------------------------------------------------------------------------
+# 设计目标：
+#   1. 引入语义色槽（primary / secondary / good / warn / bad / neutral / highlight / muted）
+#   2. light / dark 双模主题
+#   3. 离散 12 色 + 顺序 9 色 + 发散 11 色
+#   4. 三类 ggplot 变体：default(默认) / data(数据密集) / editorial(编辑大字)
+#   5. 跨组件统一：plotly / leaflet / reactable / DT / gt 共享品牌
+#
+# 原则：
+#   - 不破坏现有 API（brand_palette / theme_ghs2 / scale_*_brand_*）
+#   - 新模块（30+ / 36+ / 38+）默认使用扩展色板
+#   - 旧函数保持可用，可在阶段 B7 渐进迁移
+# =============================================================================
+
+# ---- 语义色槽 --------------------------------------------------------------
+
+#' 语义色板（slot → light / dark 双值）
+#'
+#' 供所有新模块以"语义"取色，避免硬编码 HEX。
+ghs3_slots <- list(
+  primary    = list(light = "#1d3f5f", dark = "#7aa9d6"),
+  secondary  = list(light = "#c46327", dark = "#e8a070"),
+  good       = list(light = "#2a857a", dark = "#5dc4b6"),
+  warn       = list(light = "#c89a3b", dark = "#e7c46a"),
+  bad        = list(light = "#a23b3b", dark = "#e08585"),
+  neutral    = list(light = "#5d667a", dark = "#a8b0c0"),
+  highlight  = list(light = "#f7c08a", dark = "#f7c08a"),
+  muted      = list(light = "#0d121b99",
+                    dark  = "#e7e9ee99"),
+  ink        = list(light = "#0d121b", dark = "#e7e9ee"),
+  paper      = list(light = "#fbf6ee", dark = "#0f141e"),
+  paper2     = list(light = "#f1e8da", dark = "#161c2a"),
+  # 线条色：使用 8 位 hex（含 alpha）方便 grid / ggplot 直接识别
+  line       = list(light = "#0d121b1a",
+                    dark  = "#e7e9ee24"),
+  line_strong = list(light = "#0d121b2e",
+                     dark  = "#e7e9ee3d"),
+  code_bg    = list(light = "#0c1424", dark = "#06090f"),
+  code_ink   = list(light = "#e6efff", dark = "#cfd6e2")
+)
+
+#' 取语义色：palette_ghs3("primary") / palette_ghs3("good", mode="dark")
+palette_ghs3 <- function(slot = "primary", mode = c("light", "dark")) {
+  mode <- match.arg(mode)
+  if (!slot %in% names(ghs3_slots))
+    stop("Unknown slot: ", slot,
+         "\nValid: ", paste(names(ghs3_slots), collapse = ", "))
+  ghs3_slots[[slot]][[mode]]
+}
+
+# ---- 2 数据色板 --------------------------------------------------------
+
+#' 离散 12 色（品牌排序，用于多类别图）
+#'
+#' 顺序：primary, secondary, good, warn, bad, 蓝绿, 紫, 橙黄, 草绿, 玫红,
+#'       灰, 海蓝（饱和度递减）。色盲检验通过 deuteranopia / protanopia。
+ghs3_palette_discrete <- c(
+  "#1d3f5f",  # 1 primary
+  "#c46327",  # 2 secondary
+  "#2a857a",  # 3 good
+  "#c89a3b",  # 4 warn
+  "#a23b3b",  # 5 bad
+  "#5b8aa6",  # 6
+  "#7c5b9a",  # 7
+  "#e0904c",  # 8
+  "#86a062",  # 9
+  "#b85578",  # 10
+  "#7e8aa0",  # 11 neutral
+  "#3a6e8f"   # 12
+)
+
+palette_ghs3_discrete <- function(n = 12) {
+  if (n <= length(ghs3_palette_discrete)) {
+    ghs3_palette_discrete[seq_len(n)]
+  } else {
+    grDevices::colorRampPalette(ghs3_palette_discrete)(n)
+  }
+}
+
+#' 顺序色（9 级）：默认 cividis 派生 + ember / ocean / sage 三套备选
+ghs3_palette_sequential_sets <- list(
+  default = c("#fbf6ee", "#f1deae", "#e7c178", "#d99a4d",
+              "#c46327", "#9d4416", "#6e2c0d", "#3f1505", "#1a0500"),
+  ember   = c("#fff7e6", "#ffd9a8", "#ffb56f", "#f7903f",
+              "#e0671c", "#b54311", "#7e2c0a", "#481603", "#1a0500"),
+  ocean   = c("#f0f7fb", "#cce0ee", "#9bc1dc", "#6ba2c8",
+              "#3f7fae", "#1d5e8c", "#0e406b", "#062648", "#031224"),
+  sage    = c("#f4faf6", "#d4ecd9", "#a9d6b4", "#7dbf90",
+              "#54a772", "#35895a", "#1f6943", "#114a2e", "#062a18"),
+  blueorange = c("#0a3055", "#1d4f7a", "#3771a0", "#6896c0",
+                 "#a3bfd9", "#f1d2a9", "#e6a368", "#cc6f24", "#7e3c0d")
+)
+
+palette_ghs3_sequential <- function(n = 9, palette = "default") {
+  set <- ghs3_palette_sequential_sets[[palette]] %||%
+    ghs3_palette_sequential_sets$default
+  if (n == length(set)) return(set)
+  grDevices::colorRampPalette(set)(n)
+}
+
+#' 发散色（11 级，红-米-蓝，色盲友好）
+ghs3_palette_diverging_set <- c(
+  "#67001f", "#b2182b", "#d6604d", "#f4a582", "#fddbc7",
+  "#f7f7f7",
+  "#d1e5f0", "#92c5de", "#4393c3", "#2166ac", "#053061"
+)
+
+palette_ghs3_diverging <- function(n = 11) {
+  if (n == length(ghs3_palette_diverging_set))
+    return(ghs3_palette_diverging_set)
+  grDevices::colorRampPalette(ghs3_palette_diverging_set)(n)
+}
+
+# ---- 字体（命名包装） --------------------------------------------
+
+#' 字体注册（语义包装；调用 register_brand_fonts）
+ghs_register_fonts <- function() get_brand_fonts()
+
+# ---- ggplot 主题（扩展） ---------------------------------------------------
+
+#' ggplot 主题（支持 light/dark/print 三模式）
+#'
+#' @param base_size 基准字号（13 / 14 / 16）
+#' @param mode 配色模式："light"（默认）/"dark"/"print"
+#' @param variant 主题变体：
+#'   - "default"   : 通用，moderate 网格
+#'   - "data"      : 数据密集（更小留白、强网格）
+#'   - "editorial" : 编辑大字（衬线标题、轴最简）
+#' @param grid 网格："y"（默认）/ "x" / "xy" / FALSE
+theme_ghs3 <- function(base_size = 13,
+                        mode = c("light", "dark", "print"),
+                        variant = c("default", "data", "editorial"),
+                        grid = "y") {
+  ensure_pkgs(c("ggplot2"))
+  mode <- match.arg(mode)
+  variant <- match.arg(variant)
+
+  fonts <- get_brand_fonts()
+  serif_fam <- if (!is.null(fonts$cjk) && nchar(fonts$cjk) &&
+                  !identical(fonts$cjk, "sans"))
+                 fonts$cjk else fonts$serif
+  sans_fam  <- if (!is.null(fonts$cjk) && nchar(fonts$cjk) &&
+                  !identical(fonts$cjk, "sans"))
+                 fonts$cjk else fonts$sans
+
+  ink   <- palette_ghs3("ink",   if (mode == "dark") "dark" else "light")
+  muted <- palette_ghs3("neutral", if (mode == "dark") "dark" else "light")
+  paper <- if (mode == "print") "#ffffff"
+           else palette_ghs3("paper", if (mode == "dark") "dark" else "light")
+  line_col <- if (mode == "dark") "#ffffff20" else "#0d121b1c"
+
+  title_size  <- switch(variant,
+    editorial = base_size * 1.85,
+    data      = base_size * 1.30,
+    base_size * 1.55)
+  sub_size    <- switch(variant,
+    editorial = base_size * 1.10,
+    data      = base_size * 0.95,
+    base_size * 1.02)
+  axis_size   <- switch(variant,
+    data = base_size * 0.82, base_size * 0.86)
+
+  th <- ggplot2::theme_minimal(base_size = base_size, base_family = sans_fam) +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(
+        family = serif_fam, face = "bold",
+        size = title_size, colour = ink, lineheight = 1.12,
+        margin = ggplot2::margin(b = 6)),
+      plot.subtitle = ggplot2::element_text(
+        family = sans_fam, size = sub_size,
+        colour = muted, lineheight = 1.4,
+        margin = ggplot2::margin(b = if (variant == "editorial") 18 else 14)),
+      plot.caption = ggplot2::element_text(
+        family = sans_fam, size = base_size * 0.78,
+        colour = muted, hjust = 0, lineheight = 1.3,
+        margin = ggplot2::margin(t = 14)),
+      plot.title.position = "plot",
+      plot.caption.position = "plot",
+      plot.margin = ggplot2::margin(
+        t = if (variant == "editorial") 24 else 18,
+        r = 16,
+        b = 12,
+        l = if (variant == "editorial") 14 else 10),
+      plot.background  = ggplot2::element_rect(fill = paper, colour = NA),
+      panel.background = ggplot2::element_rect(fill = paper, colour = NA),
+      panel.border     = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_blank(),
+      panel.grid.minor   = ggplot2::element_blank(),
+      panel.grid.major.y = ggplot2::element_line(colour = line_col,
+                                                  linewidth = 0.35),
+      axis.title  = ggplot2::element_text(family = sans_fam,
+                                           colour = muted,
+                                           size = base_size * 0.92),
+      axis.text   = ggplot2::element_text(family = sans_fam,
+                                           colour = ink,
+                                           size = axis_size),
+      axis.ticks  = ggplot2::element_blank(),
+      axis.line.x = ggplot2::element_line(colour = ink, linewidth = 0.45),
+      axis.line.y = ggplot2::element_blank(),
+      strip.background = ggplot2::element_rect(
+        fill = if (mode == "dark") "#ffffff10" else "#0d121b08",
+        colour = NA),
+      strip.text = ggplot2::element_text(
+        family = sans_fam, face = "bold", colour = ink,
+        size = base_size * 0.92,
+        margin = ggplot2::margin(4, 4, 4, 4)),
+      legend.position    = if (variant == "editorial") "bottom" else "top",
+      legend.justification = "left",
+      legend.title       = ggplot2::element_text(
+        family = sans_fam, face = "bold", colour = ink,
+        size = base_size * 0.86),
+      legend.text        = ggplot2::element_text(
+        family = sans_fam, colour = ink, size = base_size * 0.86),
+      legend.background  = ggplot2::element_rect(fill = NA, colour = NA),
+      legend.key         = ggplot2::element_rect(fill = NA, colour = NA),
+      legend.margin      = ggplot2::margin(0, 0, 8, 0)
+    )
+
+  if (identical(grid, FALSE)) {
+    th <- th + ggplot2::theme(panel.grid.major.y = ggplot2::element_blank())
+  } else if (identical(grid, "x")) {
+    th <- th + ggplot2::theme(
+      panel.grid.major.y = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_line(colour = line_col,
+                                                  linewidth = 0.35),
+      axis.line.x = ggplot2::element_blank(),
+      axis.line.y = ggplot2::element_line(colour = ink, linewidth = 0.45))
+  } else if (identical(grid, "xy") || identical(grid, "both")) {
+    th <- th + ggplot2::theme(
+      panel.grid.major.x = ggplot2::element_line(colour = line_col,
+                                                  linewidth = 0.35))
+  }
+  th
+}
+
+# ---- 5 ggplot 通用 scale 助手 ------------------------------------------
+
+#' 离散填充：scale_fill_ghs3(n)
+scale_fill_ghs3 <- function(...) {
+  ggplot2::scale_fill_manual(values = ghs3_palette_discrete, na.value = "grey80", ...)
+}
+scale_colour_ghs3 <- function(...) {
+  ggplot2::scale_colour_manual(values = ghs3_palette_discrete, na.value = "grey80", ...)
+}
+#' 顺序色：scale_fill_ghs3_seq(palette = "ember"). 可通过 ... 覆盖 na.value。
+scale_fill_ghs3_seq <- function(palette = "default", ...) {
+  dots <- list(...)
+  if (is.null(dots$na.value)) dots$na.value <- "grey90"
+  do.call(ggplot2::scale_fill_gradientn,
+    c(list(colours = palette_ghs3_sequential(9, palette)), dots))
+}
+scale_colour_ghs3_seq <- function(palette = "default", ...) {
+  dots <- list(...)
+  if (is.null(dots$na.value)) dots$na.value <- "grey90"
+  do.call(ggplot2::scale_colour_gradientn,
+    c(list(colours = palette_ghs3_sequential(9, palette)), dots))
+}
+#' 发散色：scale_fill_ghs3_div(midpoint = 0). 可通过 ... 覆盖 na.value。
+scale_fill_ghs3_div <- function(midpoint = 0, ...) {
+  dots <- list(...)
+  if (is.null(dots$na.value)) dots$na.value <- "grey90"
+  if (is.null(dots$rescaler)) {
+    dots$rescaler <- function(x, to = c(0, 1), from = NULL) {
+      scales::rescale_mid(x, to = to, mid = midpoint, from = from)
+    }
+  }
+  do.call(ggplot2::scale_fill_gradientn,
+    c(list(colours = palette_ghs3_diverging(11)), dots))
+}
+
+# ---- 6 plotly 主题包装 ------------------------------------------------
+
+#' 给 plotly 对象套上品牌 layout
+#'
+#' @param p plotly 对象
+#' @param theme "light" / "dark"
+#' @param margin 上下左右留白
+ghs_plotly_layout <- function(p, theme = c("light", "dark"),
+                              margin = list(l = 60, r = 24, t = 56, b = 60),
+                              show_modebar = FALSE) {
+  if (!requireNamespace("plotly", quietly = TRUE)) return(p)
+  theme <- match.arg(theme)
+  paper <- palette_ghs3("paper", theme)
+  ink   <- palette_ghs3("ink",   theme)
+  muted <- palette_ghs3("neutral", theme)
+  line_col <- if (theme == "dark") "rgba(255,255,255,0.12)"
+              else "rgba(13,18,27,0.10)"
+  fonts <- get_brand_fonts()
+  body_fam  <- paste0("'", fonts$sans, "', 'Inter', 'Helvetica', sans-serif")
+  title_fam <- paste0("'", fonts$serif, "', 'Source Serif 4', serif")
+
+  p2 <- plotly::layout(
+    p,
+    paper_bgcolor = paper,
+    plot_bgcolor  = paper,
+    font = list(family = body_fam, size = 13, color = ink),
+    margin = margin,
+    title = list(font = list(family = title_fam, size = 18, color = ink),
+                 x = 0, xanchor = "left", y = 0.97),
+    xaxis = list(linecolor = ink, gridcolor = line_col,
+                 zerolinecolor = line_col,
+                 tickfont = list(family = body_fam, size = 12, color = ink),
+                 titlefont = list(family = body_fam, size = 12, color = muted)),
+    yaxis = list(linecolor = ink, gridcolor = line_col,
+                 zerolinecolor = line_col,
+                 tickfont = list(family = body_fam, size = 12, color = ink),
+                 titlefont = list(family = body_fam, size = 12, color = muted)),
+    legend = list(orientation = "h", x = 0, y = -0.18,
+                  font = list(family = body_fam, size = 12, color = ink),
+                  bgcolor = "rgba(0,0,0,0)")
+  )
+  plotly::config(p2,
+                 displaylogo = FALSE,
+                 displayModeBar = show_modebar,
+                 modeBarButtonsToRemove = c("lasso2d", "select2d",
+                                            "autoScale2d", "toggleSpikelines"))
+}
+
+# ---- 7 leaflet 主题 -----------------------------------------------------
+
+#' 给 leaflet 套上品牌底图（CartoDB Positron / DarkMatter）
+ghs_leaflet_provider <- function(map = NULL, theme = c("light", "dark")) {
+  theme <- match.arg(theme)
+  if (!requireNamespace("leaflet", quietly = TRUE))
+    stop("leaflet not available")
+  prov <- if (theme == "dark") "CartoDB.DarkMatter" else "CartoDB.Positron"
+  if (is.null(map)) map <- leaflet::leaflet()
+  map <- leaflet::addProviderTiles(map, prov,
+                                   options = leaflet::providerTileOptions(
+                                     noWrap = FALSE, opacity = 1))
+  map <- leaflet::setView(map, lng = 0, lat = 20, zoom = 2)
+  map
+}
+
+# ---- 8 reactable / DT / gt 主题 ----------------------------------------
+
+#' reactable 通用主题（list 形式，传给 reactable(theme = ghs_reactable_theme())）
+ghs_reactable_theme <- function(mode = c("light", "dark")) {
+  mode <- match.arg(mode)
+  if (!requireNamespace("reactable", quietly = TRUE)) return(NULL)
+  ink <- palette_ghs3("ink", mode)
+  paper <- palette_ghs3("paper", mode)
+  paper2 <- palette_ghs3("paper2", mode)
+  muted <- palette_ghs3("neutral", mode)
+  line <- if (mode == "dark") "rgba(255,255,255,0.10)" else "rgba(13,18,27,0.08)"
+  reactable::reactableTheme(
+    color = ink, backgroundColor = paper,
+    borderColor = line, stripedColor = paper2, highlightColor = paper2,
+    cellPadding = "10px 12px",
+    style = list(fontFamily = "'Inter','Noto Sans CJK SC',sans-serif",
+                 fontSize = 13.5),
+    headerStyle = list(
+      backgroundColor = paper2,
+      color = ink, fontWeight = 700, borderBottom = paste0("2px solid ", ink)),
+    rowGroupStyle = list(fontWeight = 700, color = ink),
+    inputStyle = list(backgroundColor = paper2, color = ink),
+    paginationStyle = list(color = muted),
+    pageButtonHoverStyle = list(backgroundColor = paper2),
+    pageButtonActiveStyle = list(backgroundColor = palette_ghs3("primary", mode),
+                                 color = "#ffffff")
+  )
+}
+
+#' DT 通用 options
+ghs_dt_options <- function() {
+  list(
+    dom = "frtip",
+    pageLength = 12,
+    autoWidth = FALSE,
+    scrollX = TRUE,
+    language = list(
+      search = "\u641c\u7d22:",
+      paginate = list(`previous` = "\u4e0a\u4e00\u9875",
+                       `next` = "\u4e0b\u4e00\u9875"),
+      info = "\u7b2c _START_ \u2013 _END_ \u6761 / \u5171 _TOTAL_ \u6761",
+      lengthMenu = "\u6bcf\u9875 _MENU_ \u6761"
+    )
+  )
+}
+
+#' gt 通用主题（仅在 gt 已安装时生效）
+ghs_gt_theme <- function(g) {
+  if (!requireNamespace("gt", quietly = TRUE)) return(g)
+  g |>
+    gt::tab_options(
+      table.font.names = "Inter, 'Noto Sans CJK SC', sans-serif",
+      table.font.size = 13,
+      heading.title.font.size = 18,
+      heading.subtitle.font.size = 13,
+      column_labels.font.weight = "bold",
+      column_labels.background.color = palette_ghs3("paper2"),
+      table.border.top.color = palette_ghs3("ink"),
+      table.border.top.width = 2,
+      heading.align = "left",
+      table_body.hlines.color = palette_ghs3("line")
+    )
+}
+
+# ---- 9 卡片 / 章节头 HTML 组件 ----------------------------------------
+
+#' KPI 卡片（更紧凑、更分层、可选 trend）
+ghs_kpi_card <- function(value, label, hint = NULL, trend = NULL,
+                         tone = c("primary", "secondary", "good",
+                                   "warn", "bad", "neutral")) {
+  tone <- match.arg(tone)
+  bar <- palette_ghs3(tone)
+  trend_html <- ""
+  if (!is.null(trend) && is.finite(trend)) {
+    arr <- if (trend > 0) "\u2197" else if (trend < 0) "\u2198" else "\u2192"
+    col <- if (trend > 0) palette_ghs3("good")
+           else if (trend < 0) palette_ghs3("bad")
+           else palette_ghs3("neutral")
+    trend_html <- sprintf(
+      "<span class='ghs-kpi-trend' style='color:%s'>%s %+0.1f%%</span>",
+      col, arr, trend * 100)
+  }
+  hint_html <- if (!is.null(hint) && nchar(hint))
+    sprintf("<div class='ghs-kpi-hint'>%s</div>",
+            htmltools::htmlEscape(hint))
+  else ""
+  sprintf(
+    paste0("<div class='ghs-kpi' style='--tone:%s'>",
+           "<div class='ghs-kpi-value'>%s</div>",
+           "<div class='ghs-kpi-label'>%s%s</div>%s",
+           "</div>"),
+    bar,
+    htmltools::htmlEscape(value),
+    htmltools::htmlEscape(label),
+    trend_html,
+    hint_html)
+}
+
+#' 章节头（kicker + h2 + lead）
+ghs_section_head <- function(kicker, title, lead = NULL,
+                              align = c("left", "center")) {
+  align <- match.arg(align)
+  lead_html <- if (!is.null(lead) && nchar(lead))
+    sprintf("<p class='ghs-section-lead'>%s</p>",
+            htmltools::htmlEscape(lead))
+  else ""
+  sprintf(
+    paste0("<header class='ghs-section-head' data-align='%s'>",
+           "<span class='ghs-kicker'>%s</span>",
+           "<h2 class='ghs-section-title'>%s</h2>%s</header>"),
+    align,
+    htmltools::htmlEscape(kicker),
+    htmltools::htmlEscape(title),
+    lead_html)
+}
+
+#' stat strip（横向数据条；breaks 用于换行）
+ghs_stat_strip <- function(items) {
+  if (!length(items)) return("")
+  cards <- vapply(seq_along(items), function(i) {
+    it <- items[[i]]
+    sprintf(
+      paste0("<div class='ghs-stat-cell'>",
+             "<div class='ghs-stat-value'>%s</div>",
+             "<div class='ghs-stat-label'>%s</div></div>"),
+      htmltools::htmlEscape(it$value %||% "\u2014"),
+      htmltools::htmlEscape(it$label %||% ""))
+  }, character(1))
+  sprintf("<div class='ghs-stat-strip'>%s</div>", paste(cards, collapse = ""))
+}
+
+#' callout（4 个语义色：info / good / warn / bad）
+ghs_callout <- function(text, tone = c("info", "good", "warn", "bad"),
+                         title = NULL) {
+  tone <- match.arg(tone)
+  bar <- switch(tone,
+    info = palette_ghs3("primary"),
+    good = palette_ghs3("good"),
+    warn = palette_ghs3("warn"),
+    bad  = palette_ghs3("bad"))
+  title_html <- if (!is.null(title) && nchar(title))
+    sprintf("<strong class='ghs-callout-title'>%s</strong>",
+            htmltools::htmlEscape(title))
+  else ""
+  sprintf(
+    paste0("<aside class='ghs-callout ghs-callout-%s' style='--bar:%s'>",
+           "%s<div class='ghs-callout-body'>%s</div></aside>"),
+    tone, bar, title_html, text)
+}
+
+# ---- 10 模块标识 ------------------------------------------------------
+
+#' 当前设计系统 + 元数据
+GHS3_VERSION <- "3.0.0"
+GHS3_META <- list(
+  version = GHS3_VERSION,
+  released = "2026-05-12",
+  required_pkgs = c("ggplot2", "scales", "showtext", "sysfonts",
+                    "htmltools", "plotly", "leaflet"),
+  optional_pkgs = c("reactable", "DT", "gt", "echarts4r", "highcharter",
+                    "ggrepel", "ggdist", "ggridges", "ggbump", "ggh4x",
+                    "gganimate", "crosstalk", "Synth", "forecast", "prophet")
+)

@@ -75,7 +75,7 @@ income_group_fallback <- function() {
 #' 获取收入组映射：优先 WDI，失败则用 fallback
 fetch_income_group <- function(iso_vec = NULL, use_cache = TRUE) {
   ensure_pkgs(c("dplyr"))
-  cache_path <- file.path(proj_root(), "派生数据", "raw", "wb_income_group.rds")
+  cache_path <- file.path(proj_root(), "派生数据", "原始缓存", "wb_income_group.rds")
   if (isTRUE(use_cache) && file.exists(cache_path)) {
     logi("income group cache hit")
     ig <- readRDS(cache_path)
@@ -103,7 +103,7 @@ fetch_income_group <- function(iso_vec = NULL, use_cache = TRUE) {
 #' 拉取 World Bank WDI 指标：人口、人均 GDP、预期寿命、U5MR
 fetch_wdi_panel <- function(start = 2000, end = 2023, use_cache = TRUE) {
   ensure_pkgs(c("dplyr"))
-  cache_path <- file.path(proj_root(), "派生数据", "raw", "wdi_panel.rds")
+  cache_path <- file.path(proj_root(), "派生数据", "原始缓存", "wdi_panel.rds")
   if (isTRUE(use_cache) && file.exists(cache_path)) {
     logi("wdi cache hit")
     return(readRDS(cache_path))
@@ -169,7 +169,7 @@ load_world_sf <- function(scale = c("medium", "small", "large"),
                           simplify_keep = 0.08) {
   scale <- match.arg(scale)
   ensure_pkgs(c("sf", "rnaturalearth", "rnaturalearthdata", "dplyr"))
-  cache_path <- file.path(proj_root(), "派生数据", "raw",
+  cache_path <- file.path(proj_root(), "派生数据", "原始缓存",
                           paste0("world_sf_", scale, ".rds"))
   if (file.exists(cache_path)) return(readRDS(cache_path))
   world <- rnaturalearth::ne_countries(scale = scale, returnclass = "sf")

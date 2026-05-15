@@ -1,6 +1,6 @@
 # 部署教程 · GitHub Pages 发布整合静态站
 
-> 目标：把本项目的 **唯一整合静态首页 + shinylive 仪表盘 + 24 个交互组件** 自动发布成一个可公开访问的网站。
+> 目标：把本项目的 **唯一整合静态首页 + shinylive 仪表盘 + 42 个交互组件** 自动发布成一个可公开访问的网站。
 > 最终 URL：<https://2711944586.github.io/R/>
 > **零本地运行**：用户只需点链接就能看到全部发现、代码、图表和交互组件。
 >
@@ -68,7 +68,7 @@ https://<username>.github.io/<repo-name>/
 
 打开后你应该看到：
 
-- **整合首页**（`/index.html`）— Hero · KPI · 数据与方法 · 8 项发现 · 44 张静态图 · 24 个交互组件 · 复现说明 · 结论与政策。
+- **整合首页**（`/index.html`）— Hero · KPI · 数据与方法 · 14 项发现 · 94 张静态图 · 42 个交互组件 · 复现说明 · 结论与政策。
 - **浏览器 Shiny**（`/仪表盘/`）— shinylive 编译的 Shiny（12 个模块）。
 - **交互组件**（`/交互组件/`）— standalone HTML widgets 及依赖。
 
@@ -104,8 +104,8 @@ https://<username>.github.io/<repo-name>/
 
 `deploy.yml` 已预装 `fonts-noto-cjk`，应该不会。如果仍有问题：
 
-1. 在 `报告书/_setup.R` 开头加 `showtext::showtext_auto()` 与 `register_brand_fonts()`。
-2. `knitr::opts_chunk$set(dev = "ragg_png")`。
+1. 在生成图表前调用 `showtext::showtext_auto()` 注册中文字体。
+2. 在 ggsave 前设置 `options(ragg.default_device = "ragg_png")` 或 `knitr::opts_chunk$set(dev = "ragg_png")`。
 
 ### ❌ Actions 配额耗尽
 

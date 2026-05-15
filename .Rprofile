@@ -33,7 +33,7 @@ local({
   if (interactive()) {
     msg <- paste(
       "================================================",
-      "  Global Health Spending 20x Analysis",
+      "  Global Health Spending Analysis",
       "  Author: 庄颂 (20241334)",
       "  Repo:   https://github.com/2711944586/R",
       "------------------------------------------------",

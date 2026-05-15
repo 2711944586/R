@@ -10,14 +10,14 @@ mod_about_ui <- function(id) {
     htmltools::div(
       class = "panel-content",
       style = "max-width: 880px; margin: 0 auto;",
-      htmltools::h2("Global Health Spending · v2 仪表盘"),
+      htmltools::h2("Global Health Spending · 仪表盘"),
       htmltools::p(class = "text-muted",
         "WHO Global Health Expenditure Database (GHED) · 数据新闻级分析"),
       htmltools::tags$hr(),
 
       htmltools::h3("项目概述"),
       htmltools::p(
-        "本仪表盘基于 WHO GHED 2024-12 release，分析 ",
+        "基于 WHO GHED 2024-12 release，分析 ",
         htmltools::strong("195 个国家 / 24 年（2000–2023）"),
         " 的卫生支出结构演化。共集成 ", htmltools::strong("6 个数据源"),
         "（GHED + WB WDI + WHO GHO + IMF GFS + OECD + IHME）, ",
@@ -63,7 +63,7 @@ mod_about_ui <- function(id) {
       htmltools::pre(
         "World Health Organization (2024). Global Health Expenditure Database 2024.\n",
         "https://apps.who.int/nha/database\n\n",
-        "庄颂 (2026). Global Health Spending Dashboard v2.\n",
+        "庄颂 (2026). Global Health Spending Dashboard.\n",
         "https://2711944586.github.io/R/"
       ),
 
