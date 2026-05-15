@@ -2761,7 +2761,7 @@ if (!exists("%||%", mode = "function")) {
     "<div class='modal' id='fig-modal' onclick='closeFigure()'><button type='button'>\u5173\u95ed</button><div class='modal-title' id='modal-title'></div><img id='modal-img' alt='figure preview'></div>"
   )
   sprintf(
-    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u987d\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 18-module Shiny dashboard, full reproducibility and quality-gate evidence.'><style>%s%s</style></head><body>%s<script>%s</script></body></html>",
+    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u9876\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 36-module Shiny dashboard, full reproducibility and quality-gate evidence.'><style>%s%s</style></head><body>%s<script>%s</script></body></html>",
     .ghs_css(), .ghs_css_v3(), body, .ghs_js()
   )
 }
