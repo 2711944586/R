@@ -232,7 +232,7 @@ GitHub Pages 同源发布目录。
 
 ### 4.8 `仪表盘/`
 
-Shiny v2 应用，分本地与云端两套部署。
+Shiny 应用，分本地与云端两套部署。
 
 | 路径 | 作用 |
 |---|---|
@@ -267,7 +267,7 @@ Shiny v2 应用，分本地与云端两套部署。
 | `运行自动测试.R` | 调用 testthat 跑 `自动测试/` 全部用例。 |
 | `测试仪表盘模块.R` | 单独跑 Shiny 模块单元测试。 |
 | `生成分析输出.R` | 顺次生成图表、widget、模型表的便捷脚本。 |
-| `构建拓展产物.R` | 生成 v2 拓展静态图与交互组件。 |
+| `构建拓展产物.R` | 生成拓展静态图与交互组件。 |
 | `质量门禁.R` | 质量门禁主入口（被 `构建.R quality` 调用）。 |
 | `部署Shiny云端.R` | 本地准备并 `rsconnect::deployApp` 推到 shinyapps.io。 |
 | `启动仪表盘开发版.R` | 本地以开发模式启动 Shiny。 |
@@ -283,10 +283,10 @@ testthat 测试套件，对应 `程序/` 中的关键函数：
 | `test-metrics.R` | `04_metrics.R`：不平等指标。 |
 | `test-models.R` | `05_models.R`：PCA / 聚类 / 面板模型。 |
 | `test-plots.R` | `07_plot_static.R`：静态图返回 ggplot 对象。 |
-| `test-v2-design.R` | `13_design_system.R`：设计系统。 |
-| `test-v2-feature-mart.R` | `23_feature_mart.R`：特征表。 |
-| `test-v2-plots.R` / `test-v2-plots-more.R` | `14/15/22/24_*.R`：拓展图。 |
-| `test-v2-widgets.R` / `test-v2-widgets-more.R` | `17/18/25_widgets_*.R`：交互组件。 |
+| `test-design.R` | `13_design_system.R`：设计系统。 |
+| `test-feature-mart.R` | `23_feature_mart.R`：特征表。 |
+| `test-plots-ext.R` / `test-plots-more.R` | `14/15/22/24_*.R`：拓展图。 |
+| `test-widgets-ext.R` / `test-widgets-more.R` | `17/18/25_widgets_*.R`：交互组件。 |
 
 运行：
 

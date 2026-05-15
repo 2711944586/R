@@ -50,7 +50,6 @@ suppressPackageStartupMessages({
 })
 
 # ---- 3b. 设计系统 -------------------------------------------------------
-# 字体 + theme_ghs 一并注册，所有模块图表都会自动应用品牌主题
 suppressWarnings(suppressMessages({
   if (exists("register_brand_fonts", mode = "function"))
     register_brand_fonts()
@@ -59,6 +58,8 @@ suppressWarnings(suppressMessages({
                                    variant = "default"))
   } else if (exists("theme_ghs2", mode = "function")) {
     ggplot2::theme_set(theme_ghs2(base_size = 11))
+  } else if (exists("theme_ghs", mode = "function")) {
+    ggplot2::theme_set(theme_ghs(base_size = 11))
   }
 }))
 

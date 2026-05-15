@@ -1,196 +1,302 @@
 # =============================================================================
-# 仪表盘/ui.R  ---  Shiny 仪表盘 UI · bslib::page_navbar + 12 模块化 nav_panel
+# 仪表盘/ui.R
+# Shiny 仪表盘 UI · bslib::page_navbar + 36 模块化 nav_panel
 # =============================================================================
 
-# 视觉补丁（在 bslib 主题之上的最终覆盖）
+# 前端样式系统
 v2_css <- htmltools::tags$style(htmltools::HTML("
-  /* 整体节奏 */
-  body { background: #FAF7F2; color: #1A1A1F;
-         font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  h1, h2, h3, h4 { font-family: 'Source Serif 4', Georgia, serif;
-                    color: #1A1A1F; }
-  /* 卡片 */
+  /* ---- 基础排版 ---- */
+  body {
+    background: #fbf6ee; color: #0d121b;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: #0d121b; font-weight: 700;
+  }
+
+  /* ---- 卡片系统 ---- */
   .panel-content {
-    background: #FFFFFF;
-    padding: 18px 20px;
-    border-radius: 10px;
-    border: 1px solid #1A1A1F12;
-    margin-bottom: 18px;
+    background: #fff;
+    padding: 20px 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(13,18,27,.08);
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(13,18,27,.04);
+    transition: box-shadow .15s ease;
+  }
+  .panel-content:hover {
+    box-shadow: 0 6px 20px rgba(13,18,27,.07);
   }
   .panel-content h4 {
-    margin: 0 0 12px 0;
+    margin: 0 0 10px 0;
     font-size: 1.05rem;
-    font-weight: 600;
-    color: #1A1A1F;
+    font-weight: 700;
+    color: #0d121b;
+    letter-spacing: -0.01em;
   }
-  .panel-hero {
-    margin-bottom: 18px;
-  }
-  .panel-hero h2 {
-    font-size: 1.7rem; font-weight: 700; margin: 0 0 6px 0;
-  }
-  /* KPI 卡片（6 色变体） */
+
+  /* ---- KPI 卡片 ---- */
   .kpi-card {
-    background: #FFFFFF;
+    background: #fff;
     padding: 16px 18px;
-    border-radius: 10px;
-    border: 1px solid #1A1A1F12;
+    border-radius: 14px;
+    border: 1px solid rgba(13,18,27,.08);
     margin-bottom: 12px;
     transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(26,26,31,0.07);
-  }
-  .kpi-label { color: #5A5A65; font-size: 12px; letter-spacing: 0.05em;
-                text-transform: uppercase; font-weight: 600; }
-  .kpi-value { font-size: 24px; font-weight: 700; color: #1B5E88;
-                margin-top: 4px; font-family: 'Source Serif 4', serif; }
-  .kpi-sublabel { color: #5A5A65; font-size: 12px; margin-top: 2px; }
-  .kpi-primary .kpi-value { color: #1B5E88; }
-  .kpi-success .kpi-value { color: #6B8E5A; }
-  .kpi-danger  .kpi-value { color: #C46B27; }
-  .kpi-warning .kpi-value { color: #E07B00; }
-  .kpi-muted   .kpi-value { color: #5A5A65; }
-  /* navbar */
-  .navbar { border-bottom: 1px solid #1A1A1F12;
-            background: #FAF7F2 !important; }
-  .navbar-brand { font-family: 'Source Serif 4', serif !important;
-                   font-weight: 700 !important; color: #1A1A1F !important; }
-  .nav-link.active { font-weight: 600; color: #1B5E88 !important; }
-  /* 滚动条优化 */
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background: #1A1A1F33; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #1A1A1F66; }
-
-  /* hero（总览页大标题） */
-  .ghs-hero {
-    background: linear-gradient(135deg, #1B5E88 0%, #224a6f 50%, #2c3e50 100%);
-    color: #fff;
-    border-radius: 16px;
-    padding: 40px 44px;
-    margin: -8px 0 22px;
-    box-shadow: 0 18px 44px rgba(13,18,27,0.16);
     position: relative;
     overflow: hidden;
   }
-  .ghs-hero::after {
+  .kpi-card::before {
     content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 78% 18%, rgba(224,123,0,0.18), transparent 38%),
-      radial-gradient(circle at 14% 82%, rgba(255,255,255,0.06), transparent 42%);
+    position: absolute; left: 0; top: 0;
+    width: 4px; height: 100%;
+    background: var(--kpi-accent, #1d3f5f);
+  }
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,18,27,.08);
+  }
+  .kpi-label {
+    color: #5d667a; font-size: 11.5px; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .kpi-value {
+    font-size: 26px; font-weight: 700; color: #1d3f5f;
+    margin-top: 4px; font-family: 'Source Serif 4', serif;
+    line-height: 1.1;
+  }
+  .kpi-sublabel { color: #5d667a; font-size: 11.5px; margin-top: 4px; }
+  .kpi-primary { --kpi-accent: #1d3f5f; }
+  .kpi-primary .kpi-value { color: #1d3f5f; }
+  .kpi-success { --kpi-accent: #2a857a; }
+  .kpi-success .kpi-value { color: #2a857a; }
+  .kpi-danger { --kpi-accent: #a23b3b; }
+  .kpi-danger .kpi-value { color: #a23b3b; }
+  .kpi-warning { --kpi-accent: #c89a3b; }
+  .kpi-warning .kpi-value { color: #c89a3b; }
+  .kpi-muted { --kpi-accent: #5d667a; }
+  .kpi-muted .kpi-value { color: #5d667a; }
+
+  /* ---- 导航栏 ---- */
+  .navbar {
+    border-bottom: none !important;
+    box-shadow: 0 1px 3px rgba(13,18,27,.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .navbar-brand {
+    font-family: 'Source Serif 4', serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em;
+  }
+  .nav-link {
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    transition: background .12s ease, color .12s ease;
+  }
+  .nav-link:hover {
+    background: rgba(255,255,255,.12) !important;
+  }
+  .nav-link.active {
+    font-weight: 700 !important;
+    background: rgba(255,255,255,.15) !important;
+  }
+  .dropdown-menu {
+    border-radius: 12px !important;
+    border: 1px solid rgba(13,18,27,.08) !important;
+    box-shadow: 0 12px 40px rgba(13,18,27,.12) !important;
+    padding: 8px !important;
+    backdrop-filter: blur(16px);
+  }
+  .dropdown-item {
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 13.5px !important;
+    transition: background .1s ease;
+  }
+  .dropdown-item:hover {
+    background: rgba(29,63,95,.06) !important;
+  }
+
+  /* ---- 滚动条 ---- */
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(13,18,27,.18); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(13,18,27,.35); }
+
+  /* ---- Hero ---- */
+  .ghs-hero {
+    background: linear-gradient(135deg, #0d121b 0%, #1d3f5f 60%, #2a857a 100%);
+    color: #f7eedf;
+    border-radius: 0 0 20px 20px;
+    padding: 44px 48px;
+    margin: -16px -12px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ghs-hero::before {
+    content: '';
+    position: absolute; right: -60px; top: -60px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(247,192,138,.15) 0%, transparent 70%);
     pointer-events: none;
   }
-  .ghs-hero-inner { position: relative; z-index: 1; max-width: 980px; }
+  .ghs-hero::after {
+    content: '';
+    position: absolute; left: 10%; bottom: -40px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(42,133,122,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .ghs-hero-inner { position: relative; z-index: 2; max-width: 1000px; }
   .ghs-hero-kicker {
     display: inline-block; padding: 5px 14px; border-radius: 999px;
-    background: rgba(255,255,255,0.14); color: #ffd9a8;
+    background: rgba(255,255,255,.1); color: rgba(247,192,138,.9);
     font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
     text-transform: uppercase;
   }
   .ghs-hero-title {
-    color: #fff !important;
-    font-size: 34px;
-    line-height: 1.2;
-    margin: 16px 0 10px;
+    color: #f7eedf !important;
+    font-size: clamp(28px, 3.5vw, 38px);
+    line-height: 1.15;
+    margin: 14px 0 10px;
     font-family: 'Source Serif 4', Georgia, serif;
     font-weight: 700;
   }
   .ghs-hero-lead {
-    color: rgba(255,255,255,0.86);
-    font-size: 16px;
-    line-height: 1.7;
-    margin: 0 0 18px;
-    max-width: 780px;
+    color: rgba(247,238,223,.78);
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin: 0 0 16px;
+    max-width: 760px;
   }
   .ghs-hero-meta {
-    display: flex; flex-wrap: wrap; gap: 8px 14px;
-    color: rgba(255,255,255,0.72); font-size: 13px;
+    display: flex; flex-wrap: wrap; gap: 6px 12px;
+    color: rgba(247,238,223,.55); font-size: 12.5px;
   }
-  .ghs-hero-meta a { color: #ffd9a8; text-decoration: underline; }
-  .ghs-hero-meta a:hover { color: #fff; }
+  .ghs-hero-meta a {
+    color: rgba(247,192,138,.85); text-decoration: none;
+    border-bottom: 1px dotted rgba(247,192,138,.4);
+  }
+  .ghs-hero-meta a:hover { color: #fff; border-color: #fff; }
 
-  /* KPI grid */
+  /* ---- KPI grid (overview) ---- */
   .ghs-kpi-grid-top {
     display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
     margin-bottom: 20px;
   }
-  @media (max-width: 1100px) {
-    .ghs-kpi-grid-top { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 600px) {
-    .ghs-kpi-grid-top { grid-template-columns: repeat(2, 1fr); }
-  }
 
-  /* card-note：每个图卡上方的引导句 */
+  /* ---- card-note ---- */
   .card-note {
-    color: #5A5A65; font-size: 13px; line-height: 1.6;
-    margin: -4px 0 12px; padding: 0;
+    color: #5d667a; font-size: 13px; line-height: 1.6;
+    margin: -2px 0 12px; padding: 0;
+    border-left: 3px solid rgba(29,63,95,.15);
+    padding-left: 10px;
   }
 
-  /* section head */
-  .ghs-section-head-nav {
-    margin: 28px 0 14px;
-  }
+  /* ---- section head ---- */
+  .ghs-section-head-nav { margin: 32px 0 16px; }
   .ghs-section-head-nav h3 {
     font-family: 'Source Serif 4', serif;
-    font-size: 22px; margin: 0 0 6px; color: #1A1A1F;
+    font-size: 22px; margin: 0 0 6px; color: #0d121b;
   }
   .ghs-section-lead {
-    color: #5A5A65; font-size: 14px; line-height: 1.7; margin: 0;
+    color: #5d667a; font-size: 14px; line-height: 1.65; margin: 0;
     max-width: 760px;
   }
 
-  /* 模块卡片导航 */
+  /* ---- 模块卡片导航 ---- */
   .module-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-    margin-bottom: 20px;
-  }
-  @media (max-width: 1100px) {
-    .module-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 720px) {
-    .module-grid { grid-template-columns: repeat(2, 1fr); }
+    margin-bottom: 24px;
   }
   .module-card {
     text-align: left;
-    background: #FFFFFF;
-    border: 1px solid #1A1A1F12;
-    border-radius: 12px;
-    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid rgba(13,18,27,.08);
+    border-radius: 14px;
+    padding: 18px 20px;
     cursor: pointer;
     transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
     display: flex; flex-direction: column; gap: 6px;
-    min-height: 118px;
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0;
+    width: 4px; height: 100%;
+    background: #c46327;
+    opacity: 0;
+    transition: opacity .15s ease;
   }
   .module-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(13,18,27,0.10);
-    border-color: #1B5E88;
+    box-shadow: 0 12px 32px rgba(13,18,27,.09);
+    border-color: rgba(29,63,95,.2);
   }
+  .module-card:hover::before { opacity: 1; }
   .module-card .module-kicker {
-    color: #E07B00; font-size: 11px; font-weight: 800;
-    letter-spacing: 0.12em; text-transform: uppercase;
+    color: #c46327; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
   }
   .module-card .module-title {
-    color: #1A1A1F; font-family: 'Source Serif 4', serif;
-    font-size: 17px; font-weight: 600;
+    color: #0d121b; font-family: 'Source Serif 4', serif;
+    font-size: 16px; font-weight: 700;
   }
   .module-card .module-desc {
-    color: #5A5A65; font-size: 12.5px; line-height: 1.55;
+    color: #5d667a; font-size: 12px; line-height: 1.55;
   }
+
+  /* ---- 响应式断点 ---- */
+  @media (max-width: 1280px) {
+    .module-grid { grid-template-columns: repeat(3, 1fr); }
+    .ghs-kpi-grid-top { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 1024px) {
+    .module-grid { grid-template-columns: repeat(2, 1fr); }
+    .ghs-hero { padding: 32px 28px; }
+  }
+  @media (max-width: 768px) {
+    .ghs-kpi-grid-top { grid-template-columns: repeat(2, 1fr); }
+    .ghs-hero-title { font-size: 24px; }
+  }
+  @media (max-width: 480px) {
+    .module-grid { grid-template-columns: 1fr; }
+    .ghs-kpi-grid-top { grid-template-columns: 1fr; }
+    .ghs-hero { padding: 24px 18px; margin: -16px -8px 16px; }
+  }
+
+  /* ---- Sidebar 优化 ---- */
+  .bslib-sidebar-layout > .sidebar {
+    border-right: 1px solid rgba(13,18,27,.06) !important;
+    background: #f8f4ed !important;
+  }
+  .bslib-sidebar-layout > .main {
+    padding: 16px 20px !important;
+  }
+
+  /* ---- 表格优化 ---- */
+  .rt-table { font-size: 13px; }
+  .rt-th { font-weight: 700 !important; }
 "))
 
 bslib::page_navbar(
   title = htmltools::tagList(
     htmltools::HTML("&#127973; "),
-    "Global Health Spending"
+    htmltools::span("GHS", style = "font-weight:800;letter-spacing:.04em;"),
+    htmltools::span(" \u00b7 Global Health Spending",
+                    style = "font-weight:400;opacity:.8;font-size:14px;margin-left:4px;")
   ),
   id          = "main_nav",
   theme       = ghs_theme,
-  window_title = "GHED \u00b7 Global Health Spending Dashboard",
+  window_title = "Global Health Spending \u00b7 195 Countries \u00b7 2000\u20132023",
   fillable    = FALSE,
   navbar_options = bslib::navbar_options(bg = "#0d121b", theme = "dark"),
   header      = htmltools::tags$head(v2_css, ghs_v3_shiny_css),
@@ -259,13 +365,27 @@ bslib::page_navbar(
 
   # 页脚
   footer = htmltools::div(
-    style = "color: #5A5A65; font-size: 12px; padding: 12px 16px;
-              border-top: 1px solid #1A1A1F12; margin-top: 24px;",
-    htmltools::HTML(paste0(
-      "&copy; 2026 \u00b7 \u5e84\u9882 (20241334) \u00b7 ",
-      "\u6570\u636e: WHO GHED 2024-12 \u00b7 ",
-      "\u6e90\u7801: ",
-      "<a href='https://github.com/2711944586/R' target='_blank'>",
-      "github.com/2711944586/R</a>"))
+    style = paste0(
+      "color: #5d667a; font-size: 12px; padding: 16px 24px;",
+      "border-top: 1px solid rgba(13,18,27,.06); margin-top: 32px;",
+      "display: flex; justify-content: space-between; align-items: center;",
+      "flex-wrap: wrap; gap: 8px;"
+    ),
+    htmltools::span(
+      htmltools::HTML(paste0(
+        "&copy; 2026 \u00b7 \u5e84\u9882 (20241334) \u00b7 ",
+        "\u6570\u636e: WHO GHED 2024-12 + WDI"))
+    ),
+    htmltools::span(
+      htmltools::tags$a(
+        href = "https://github.com/2711944586/R", target = "_blank",
+        style = "color:#1d3f5f;text-decoration:none;font-weight:600;",
+        "GitHub"),
+      htmltools::HTML(" \u00b7 "),
+      htmltools::tags$a(
+        href = "https://2711944586.github.io/R/", target = "_blank",
+        style = "color:#1d3f5f;text-decoration:none;font-weight:600;",
+        "\u9759\u6001\u62a5\u544a")
+    )
   )
 )
