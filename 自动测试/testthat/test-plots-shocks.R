@@ -1,4 +1,4 @@
-# 自动测试/testthat/test-v3-plots-shocks.R
+# 自动测试/testthat/test-plots-shocks.R
 # B6: 冲击与变点图集 plot_shock_*
 
 skip_unless_master <- function() {

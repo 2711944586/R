@@ -1,4 +1,4 @@
-# 自动测试/testthat/test-v3-maps-advanced.R
+# 自动测试/testthat/test-maps-advanced.R
 # B2 高级地图集 plot_map_*
 
 .proj_root <- (function() {

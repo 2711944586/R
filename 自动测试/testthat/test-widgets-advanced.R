@@ -1,4 +1,4 @@
-# 自动测试/testthat/test-v3-widgets-advanced.R
+# 自动测试/testthat/test-widgets-advanced.R
 # C2: 高级交互组件 iadv_*
 
 skip_unless_master <- function() {

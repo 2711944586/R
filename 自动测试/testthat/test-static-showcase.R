@@ -1,4 +1,4 @@
-﻿# 自动测试/testthat/test-v3-static-showcase.R
+# 自动测试/testthat/test-static-showcase.R
 # 静态页扩展：CSS overlay + 章节/卡片渲染助手
 
 test_that("ghs_css 输出包含全部语义 token", {

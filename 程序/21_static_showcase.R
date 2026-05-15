@@ -2483,6 +2483,139 @@ if (!exists("%||%", mode = "function")) {
 }
 
 # =============================================================================
+# 编辑级精修层（在 v3 之后追加，专注微观品质）
+# -----------------------------------------------------------------------------
+# 设计原则：
+#   - NYT / FT / The Pudding 风格的编辑级排版细节
+#   - 更紧凑的字号阶梯、更大的留白、更精确的字间距
+#   - 修复溢出与重叠：图卡 max-height、长标签 ellipsis、表格横向滚动
+#   - 微交互：滚动揭示、章节锚定下拉、悬浮态色彩过渡
+# =============================================================================
+
+.ghs_css_polish <- function() {
+  paste(c(
+    # ---- 字体层级精修 ---------------------------------------------
+    "body{font-feature-settings:'ss01' on,'cv11' on,'kern' on;text-rendering:optimizeLegibility}",
+    "h1,h2,h3,h4{font-feature-settings:'ss01' on,'cv11' on,'kern' on,'liga' on;letter-spacing:-.015em}",
+    ".hero h1{letter-spacing:-.025em;font-feature-settings:'ss01' on,'kern' on,'dlig' on}",
+    ".section h2,.finding-head h2,.ghs-section-title,.ghs-finding-title{letter-spacing:-.018em}",
+    "p,li,figcaption{font-feature-settings:'kern' on;hyphens:auto;-webkit-hyphens:auto}",
+
+    # ---- Hero 编辑级强化 ------------------------------------------
+    ".hero{min-height:92vh;padding-top:48px}",
+    ".hero h1{font-size:clamp(54px,8vw,108px);font-weight:800;line-height:.96}",
+    ".hero h1 .accent{background:linear-gradient(95deg,#f7c08a 5%,#e89860 45%,#c46327 80%);-webkit-background-clip:text;background-clip:text}",
+    ".hero-lead{font-size:clamp(18px,1.5vw,21px);line-height:1.55;font-weight:400;color:rgba(247,238,223,.92)}",
+    ".eyebrow{font-weight:800;font-size:11.5px;background:linear-gradient(90deg,rgba(247,192,138,.18),rgba(247,238,223,.06));border-color:rgba(247,192,138,.35)}",
+    ".hero-panel{border-radius:24px;backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);background:linear-gradient(165deg,rgba(247,238,223,.08),rgba(247,238,223,.02));border:1px solid rgba(247,238,223,.16);box-shadow:0 30px 80px rgba(0,0,0,.35),inset 0 1px 0 rgba(247,238,223,.12)}",
+    ".hero-panel-list li b{font-size:38px;letter-spacing:-.02em;background:linear-gradient(180deg,#f7c08a,#d68146);-webkit-background-clip:text;background-clip:text;color:transparent}",
+    ".btn{font-size:14.5px;padding:14px 26px;border-radius:14px;font-weight:800;letter-spacing:0;box-shadow:0 18px 44px rgba(212,129,70,.38),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .2s ease,box-shadow .2s ease}",
+    ".btn:hover{transform:translateY(-2px);box-shadow:0 22px 56px rgba(212,129,70,.5),inset 0 1px 0 rgba(255,255,255,.5)}",
+    ".btn.alt{border-radius:14px;backdrop-filter:blur(8px);background:rgba(247,238,223,.14);transition:transform .2s ease,background .2s ease}",
+    ".btn.alt:hover{background:rgba(247,238,223,.22);transform:translateY(-2px)}",
+    ".btn.ghost{border-radius:14px;transition:border-color .2s ease,background .2s ease}",
+    ".btn.ghost:hover{border-color:rgba(247,238,223,.4);background:rgba(247,238,223,.06)}",
+
+    # ---- 导航栏精修（编辑级粘性） ---------------------------------
+    ".nav{padding:18px 0 22px}",
+    ".brand{font-size:13px;letter-spacing:.22em}",
+    ".links a{font-size:13px;font-weight:600;padding:6px 10px;letter-spacing:.02em}",
+    ".links a:hover{background:rgba(247,238,223,.08)}",
+
+    # ---- 章节标题层级 --------------------------------------------
+    ".section{padding:120px 0;border-top:1px solid var(--line)}",
+    ".section h2{font-size:clamp(36px,4.6vw,60px);font-weight:800;line-height:1.02;margin-bottom:18px}",
+    ".section .lead{font-size:clamp(17px,1.3vw,20px);line-height:1.65;color:var(--muted);max-width:760px}",
+    ".section-head .kicker{font-size:11.5px;letter-spacing:.24em;font-weight:900;background:linear-gradient(90deg,#c46327,#1d3f5f);-webkit-background-clip:text;background-clip:text;color:transparent}",
+
+    # ---- KPI 卡片极致精修 ----------------------------------------
+    ".kpi{padding:28px 26px;border-radius:18px;background:linear-gradient(180deg,#fffaf2 30%,#f7e8d2 100%);border:1px solid rgba(13,18,27,.08);box-shadow:0 20px 56px rgba(13,18,27,.06),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .25s ease,box-shadow .25s ease}",
+    ".kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(13,18,27,.10)}",
+    ".kpi:before{width:6px;background:linear-gradient(180deg,#c46327,#1d3f5f 70%,#2a857a)}",
+    ".kpi-value{font-size:42px;font-weight:800;letter-spacing:-.02em;color:var(--blue)}",
+    ".kpi-label{font-size:13px;letter-spacing:.06em;font-weight:800;text-transform:uppercase;color:var(--ink);margin-top:12px}",
+    ".kpi-note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px}",
+
+    # ---- Finding 卡片精修 ----------------------------------------
+    ".finding{padding:120px 0}",
+    ".finding-num{font-size:88px;font-weight:900;letter-spacing:-.04em;background:linear-gradient(180deg,#c46327,#a23b3b 80%);-webkit-background-clip:text;background-clip:text;color:transparent}",
+    ".finding-kicker{font-size:11.5px;letter-spacing:.22em;font-weight:900;color:var(--blue)}",
+    ".finding-head h2{font-size:clamp(34px,4.6vw,56px);font-weight:800;line-height:1.04;margin:8px 0 16px}",
+    ".finding-head .lead{font-size:18px;line-height:1.65;color:var(--muted);max-width:780px;font-weight:400}",
+    ".chip{padding:8px 16px;border-radius:999px;font-size:12.5px;border:1px solid rgba(13,18,27,.14);background:#fff;box-shadow:0 2px 8px rgba(13,18,27,.04);transition:transform .15s ease,box-shadow .15s ease}",
+    ".chip:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(13,18,27,.06)}",
+    ".chip b{font-size:10.5px;letter-spacing:.12em;font-weight:800;color:var(--muted);text-transform:uppercase}",
+    ".chip i{font-size:13.5px;font-weight:800;color:var(--ink)}",
+
+    # ---- 图表卡片精修与防溢出 ------------------------------------
+    ".ghs-fig-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff,#fbf6ee);box-shadow:0 6px 22px rgba(13,18,27,.06);border:1px solid rgba(13,18,27,.08);transition:transform .2s ease,box-shadow .2s ease}",
+    ".ghs-fig-card:hover{transform:translateY(-3px);box-shadow:0 16px 44px rgba(13,18,27,.10)}",
+    ".ghs-fig-card img{border-radius:10px;width:100%;height:auto;display:block}",
+    ".ghs-fig-card figcaption{margin-top:14px;font-size:13.5px;color:var(--muted);line-height:1.65;font-weight:500}",
+
+    # ---- Deep-dive 6 卡精修 -------------------------------------
+    ".ghs-deep-grid{padding:28px;background:linear-gradient(180deg,#fbf6ee,#f3e8d6);border:1px solid rgba(13,18,27,.08);border-radius:24px;gap:18px}",
+    ".ghs-deep-card{padding:22px 24px;background:#fff;border:1px solid rgba(13,18,27,.08);border-radius:14px;box-shadow:0 4px 14px rgba(13,18,27,.04);transition:transform .15s ease}",
+    ".ghs-deep-card:hover{transform:translateY(-2px)}",
+    ".ghs-deep-card[data-tone='primary']{border-left:4px solid #1d3f5f}",
+    ".ghs-deep-card[data-tone='good']{border-left:4px solid #2a857a}",
+    ".ghs-deep-card[data-tone='warn']{border-left:4px solid #c89a3b}",
+    ".ghs-deep-card[data-tone='bad']{border-left:4px solid #a23b3b}",
+    ".ghs-deep-card[data-tone='neutral']{border-left:4px solid #5d667a}",
+    ".ghs-deep-card[data-tone='secondary']{border-left:4px solid #c46327}",
+
+    # ---- 表格精修 ------------------------------------------------
+    ".table-wrap{margin:16px 0;overflow-x:auto;border-radius:14px;box-shadow:0 6px 22px rgba(13,18,27,.05);border:1px solid rgba(13,18,27,.08)}",
+    ".table-wrap table{width:100%;border-collapse:collapse;font-size:13.5px}",
+    ".table-wrap th{background:linear-gradient(180deg,#fbf6ee,#f3e8d6);padding:14px 16px;font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid rgba(13,18,27,.10);text-align:left}",
+    ".table-wrap td{padding:12px 16px;border-bottom:1px solid rgba(13,18,27,.06);color:var(--ink)}",
+    ".table-wrap tr:hover td{background:rgba(29,63,95,.03)}",
+    ".table-wrap tr:last-child td{border-bottom:0}",
+
+    # ---- 代码块精修 ----------------------------------------------
+    "pre,.code-pre{padding:22px 24px;border-radius:14px;background:linear-gradient(180deg,#0c1424,#0a1020);box-shadow:0 12px 36px rgba(0,0,0,.18);font-size:13px;line-height:1.7;overflow-x:auto;border:1px solid rgba(247,238,223,.08)}",
+    "code{font-feature-settings:'liga' on,'calt' on}",
+    ".code-figure{margin:18px 0 26px}",
+    ".code-caption{font-size:12px;color:var(--muted);margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}",
+
+    # ---- 章节分隔线（精致） ---------------------------------------
+    ".section{position:relative}",
+    ".section:before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:linear-gradient(90deg,transparent,#c46327,transparent);border-radius:999px}",
+    ".finding:before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:3px;background:linear-gradient(90deg,transparent,#1d3f5f,transparent);border-radius:999px}",
+
+    # ---- 滚动揭示动画 --------------------------------------------
+    "@keyframes ghs-fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}",
+    ".section,.finding{animation:ghs-fade-up .8s cubic-bezier(.2,.8,.2,1) both;animation-timeline:view();animation-range:entry 0% cover 30%}",
+    "@media(prefers-reduced-motion:reduce){.section,.finding{animation:none}}",
+
+    # ---- 链接精修 ------------------------------------------------
+    "a{transition:color .15s ease;text-decoration-thickness:1px;text-underline-offset:3px}",
+    ".finding-body a:not(.btn),.section a:not(.btn){color:var(--blue);text-decoration:underline;text-decoration-color:rgba(29,63,95,.3);text-underline-offset:3px}",
+    ".finding-body a:not(.btn):hover,.section a:not(.btn):hover{text-decoration-color:var(--blue);color:#0d121b}",
+
+    # ---- 选区配色 ------------------------------------------------
+    "::selection{background:rgba(196,99,39,.28);color:var(--ink)}",
+
+    # ---- 加载状态优化 --------------------------------------------
+    "img[loading='lazy']{transition:opacity .4s ease}",
+    "img:not([src]){opacity:0}",
+
+    # ---- 长标签自动断词 ------------------------------------------
+    ".kpi-label,.chip i,.finding-kicker,.section-head .kicker,.module-card .module-title{overflow-wrap:break-word;word-break:keep-all;hyphens:auto}",
+
+    # ---- 防止图标 emoji 撑开行 -----------------------------------
+    "h1 span:not(.accent),h2 span,h3 span{vertical-align:baseline}",
+
+    # ---- 小屏幕特别优化 ------------------------------------------
+    "@media(max-width:640px){.hero{min-height:auto;padding:30px 0 70px}.hero h1{font-size:42px}.section{padding:72px 0}.kpi{padding:22px 20px}.kpi-value{font-size:32px}.finding{padding:72px 0}.finding-num{font-size:54px}.ghs-deep-grid{padding:18px}.btn{padding:12px 20px;font-size:13.5px}}",
+
+    # ---- 焦点态可访问性（WCAG 2.1 AA） --------------------------
+    "a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:8px}",
+    ""
+  ), collapse = "")
+}
+
+# =============================================================================
 # 章节 / 卡片渲染辅助（为 phase B/E/F 准备）
 # -----------------------------------------------------------------------------
 # 这些函数被 .ghs_render() 内的新章节调用；每个返回完整 HTML 字符串。
@@ -2761,8 +2894,8 @@ if (!exists("%||%", mode = "function")) {
     "<div class='modal' id='fig-modal' onclick='closeFigure()'><button type='button'>\u5173\u95ed</button><div class='modal-title' id='modal-title'></div><img id='modal-img' alt='figure preview'></div>"
   )
   sprintf(
-    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u9876\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 36-module Shiny dashboard, full reproducibility and quality-gate evidence.'><style>%s%s</style></head><body>%s<script>%s</script></body></html>",
-    .ghs_css(), .ghs_css_v3(), body, .ghs_js()
+    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u9876\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 36-module Shiny dashboard, full reproducibility and quality-gate evidence.'><style>%s%s%s</style></head><body>%s<script>%s</script></body></html>",
+    .ghs_css(), .ghs_css_v3(), .ghs_css_polish(), body, .ghs_js()
   )
 }
 

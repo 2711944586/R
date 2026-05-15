@@ -1,4 +1,4 @@
-﻿# 自动测试/testthat/test-v3-design.R
+# 自动测试/testthat/test-design.R
 # 设计系统扩展层的烟雾测试
 # helper-source.R 已自动加载 程序/13_design_system.R
 

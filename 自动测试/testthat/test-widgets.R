@@ -1,4 +1,4 @@
-﻿# tests/testthat/自动测试/testthat/test-v2-widgets.R
+# tests/testthat/自动测试/testthat/test-widgets.R
 # 程序/17-18 widget 工厂烟雾测试
 
 read_master_local <- function() {

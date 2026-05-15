@@ -1,4 +1,4 @@
-# 自动测试/testthat/test-v3-plots-advanced.R
+# 自动测试/testthat/test-plots-advanced.R
 # B1: 高级图集 plot_adv_*
 
 skip_unless_master <- function() {
