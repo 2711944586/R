@@ -90,32 +90,32 @@ if (!exists("%||%", mode = "function")) {
   list(
     list(group = "1 \u6982\u89c8", items = list(
       list(id = "executive", label = "1.1 \u6458\u8981"),
-      list(id = "kpi", label = "1.2 KPI")
+      list(id = "methods", label = "1.2 \u6570\u636e\u5904\u7406"),
+      list(id = "dq", label = "1.3 \u6570\u636e\u8d28\u91cf"),
+      list(id = "codebook", label = "1.4 \u53d8\u91cf\u53e3\u5f84"),
+      list(id = "kpi", label = "1.5 KPI")
     )),
-    list(group = "2 \u65b9\u6cd5", items = list(
-      list(id = "methods", label = "2.1 \u6570\u636e\u4e0e\u65b9\u6cd5")
+    list(group = "2 \u53d1\u73b0", items = list(
+      list(id = "findings", label = "2.1 \u6838\u5fc3\u53d1\u73b0"),
+      list(id = "countries", label = "2.2 \u56fd\u5bb6"),
+      list(id = "regional", label = "2.3 \u533a\u57df"),
+      list(id = "period", label = "2.4 \u5206\u671f")
     )),
-    list(group = "3 \u53d1\u73b0", items = list(
-      list(id = "findings", label = "3.1 \u6838\u5fc3\u53d1\u73b0"),
-      list(id = "countries", label = "3.2 \u56fd\u5bb6"),
-      list(id = "regional", label = "3.3 \u533a\u57df"),
-      list(id = "period", label = "3.4 \u5206\u671f")
+    list(group = "3 \u4e13\u9898", items = list(
+      list(id = "sdg3", label = "3.1 SDG-3"),
+      list(id = "lifeexp", label = "3.2 \u5bff\u547d"),
+      list(id = "atlas", label = "3.3 \u4e0d\u5e73\u7b49"),
+      list(id = "cluster-detail", label = "3.4 \u805a\u7c7b"),
+      list(id = "extreme", label = "3.5 \u6781\u503c")
     )),
-    list(group = "4 \u4e13\u9898", items = list(
-      list(id = "sdg3", label = "4.1 SDG-3"),
-      list(id = "lifeexp", label = "4.2 \u5bff\u547d"),
-      list(id = "atlas", label = "4.3 \u4e0d\u5e73\u7b49"),
-      list(id = "cluster-detail", label = "4.4 \u805a\u7c7b"),
-      list(id = "extreme", label = "4.5 \u6781\u503c")
+    list(group = "4 \u5de5\u5177", items = list(
+      list(id = "simulator", label = "4.1 \u4eff\u771f"),
+      list(id = "figure-index", label = "4.2 \u56fe\u8868"),
+      list(id = "widgets", label = "4.3 \u4ea4\u4e92")
     )),
-    list(group = "5 \u5de5\u5177", items = list(
-      list(id = "simulator", label = "5.1 \u4eff\u771f"),
-      list(id = "figure-index", label = "5.2 \u56fe\u8868"),
-      list(id = "widgets", label = "5.3 \u4ea4\u4e92")
-    )),
-    list(group = "6 \u9644\u5f55", items = list(
-      list(id = "repro", label = "6.1 \u590d\u73b0"),
-      list(id = "conclusion", label = "6.2 \u7ed3\u8bba")
+    list(group = "5 \u9644\u5f55", items = list(
+      list(id = "repro", label = "5.1 \u590d\u73b0"),
+      list(id = "conclusion", label = "5.2 \u7ed3\u8bba")
     ))
   )
 }
@@ -582,7 +582,7 @@ if (!exists("%||%", mode = "function")) {
     .ghs_kpi(.ghs_n(n_widget, 0), "\u4ea4\u4e92\u7ec4\u4ef6",
              "plotly / leaflet / reactable / DT")
   )
-  sprintf("<section class='section kpi-section' id='kpi'><div class='wrap'><header class='section-head'><span class='kicker'>02 \u00b7 Snapshot</span><h2>\u4e00\u9875\u5927\u5c40\uff1a12 \u5f20 KPI \u5361\u7247</h2><p class='lead'>\u4ee5\u4e0b 12 \u5f20\u5361\u7247\u4ece\u603b\u91cf\u3001\u589e\u901f\u3001\u4eba\u5747\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u8d22\u653f\u7a7a\u95f4\u3001\u5916\u90e8\u4f9d\u8d56\u4e94\u4e2a\u7ef4\u5ea6\u7ed9\u51fa\u6240\u6709\u53d1\u73b0\u7684\u5f00\u573a\u6570\u503c\uff1b\u4e0b\u6587 F1\u2013F10 \u4f1a\u9010\u4e00\u63ed\u793a\u5176\u80cc\u540e\u7684\u65b9\u6cd5\u4e0e\u4ee3\u7801\u3002</p></header><div class='kpi-grid'>%s</div></div></section>",
+  sprintf("<section class='section kpi-section' id='kpi'><div class='wrap'><header class='section-head'><span class='kicker'>05 \u00b7 KPI</span><h2>KPI</h2><p class='lead'>\u4ee5\u4e0b 12 \u5f20\u5361\u7247\u4ece\u603b\u91cf\u3001\u589e\u901f\u3001\u4eba\u5747\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u8d22\u653f\u7a7a\u95f4\u3001\u5916\u90e8\u4f9d\u8d56\u4e94\u4e2a\u7ef4\u5ea6\u7ed9\u51fa\u6240\u6709\u53d1\u73b0\u7684\u5f00\u573a\u6570\u503c\u3002</p></header><div class='kpi-grid'>%s</div></div></section>",
           cards)
 }
 
@@ -647,7 +647,7 @@ if (!exists("%||%", mode = "function")) {
       "\u4e00\u81f4\u6027\u68c0\u67e5\uff08\u603b\u989d \u2261 \u6765\u6e90\u4e4b\u548c\uff09", 8))
   if (!nzchar(cards))
     cards <- "<p class='muted'>\u672a\u68c0\u6d4b\u5230 data_quality_*.csv\uff0c\u8bf7\u5148 Rscript \u6784\u5efa.R models\u3002</p>"
-  sprintf("<section class='section dq' id='dq'><div class='wrap'><header class='section-head'><span class='kicker'>04 \u00b7 DATA QUALITY</span><h2>\u6570\u636e\u8d28\u91cf\u00b7\u7f3a\u5931\u00b7\u4e00\u81f4\u6027</h2><p class='lead'>\u6240\u6709\u540e\u7eed\u53d1\u73b0\u8865\u5145\u4e8e\u540c\u4e00\u4efd\u9762\u677f\uff1b\u672c\u8282\u4ee5 4 \u5f20\u8868\u5448\u73b0\u539f\u59cb\u8d28\u91cf\u8bca\u65ad\uff08\u51fa\u81ea <code>\u5206\u6790\u8f93\u51fa/\u6a21\u578b\u8868/data_quality_*.csv</code>\uff09\u3002</p></header><div class='dq-grid'>%s</div></div></section>",
+  sprintf("<section class='section dq' id='dq'><div class='wrap'><header class='section-head'><span class='kicker'>03 \u00b7 DATA QUALITY</span><h2>\u6570\u636e\u8d28\u91cf</h2><p class='lead'>\u6240\u6709\u540e\u7eed\u53d1\u73b0\u8865\u5145\u4e8e\u540c\u4e00\u4efd\u9762\u677f\uff1b\u672c\u8282\u4ee5 4 \u5f20\u8868\u5448\u73b0\u539f\u59cb\u8d28\u91cf\u8bca\u65ad\uff08\u51fa\u81ea <code>\u5206\u6790\u8f93\u51fa/\u6a21\u578b\u8868/data_quality_*.csv</code>\uff09\u3002</p></header><div class='dq-grid'>%s</div></div></section>",
           cards)
 }
 
@@ -678,7 +678,7 @@ if (!exists("%||%", mode = "function")) {
   }))
   body <- .ghs_table(df,
     "master_enriched \u4e3b\u8981\u53d8\u91cf\u5b57\u5178", 20)
-  sprintf("<section class='section codebook' id='codebook'><div class='wrap'><header class='section-head'><span class='kicker'>05 \u00b7 CODEBOOK</span><h2>\u53d8\u91cf\u5b57\u5178\u4e0e\u53e3\u5f84\u8bf4\u660e</h2><p class='lead'>\u4ee5\u4e0b\u662f master \u5bbd\u8868\u4e3b\u8981\u5b57\u6bb5\u7684\u63cf\u8ff0\u3001\u5355\u4f4d\u4e0e\u6765\u6e90\uff1b\u6240\u6709\u540e\u7eed\u53d1\u73b0\u53ea\u8bfb\u53d6\u8be5\u8868\u3002</p></header>%s</div></section>",
+  sprintf("<section class='section codebook' id='codebook'><div class='wrap'><header class='section-head'><span class='kicker'>04 \u00b7 CODEBOOK</span><h2>\u53d8\u91cf\u4e0e\u53e3\u5f84\u8bf4\u660e</h2><p class='lead'>\u4ee5\u4e0b\u662f master \u5bbd\u8868\u4e3b\u8981\u5b57\u6bb5\u7684\u63cf\u8ff0\u3001\u5355\u4f4d\u4e0e\u6765\u6e90\uff1b\u6240\u6709\u540e\u7eed\u53d1\u73b0\u53ea\u8bfb\u53d6\u8be5\u8868\u3002</p></header>%s</div></section>",
           body)
 }
 
@@ -714,7 +714,7 @@ if (!exists("%||%", mode = "function")) {
       "\u53ef\u89c6\u5316\u5c42\u9762\uff1a\u5171\u7528 theme_ghs() \u7edf\u4e00\u4e3b\u9898\u3001palette_ghs() \u8bed\u4e49\u8272\u677f\u3001400 DPI / 12 inch \u5bfc\u51fa\u89c4\u683c\u3002\u4ea4\u4e92\u7ec4\u4ef6\u7edf\u4e00\u4f7f\u7528 ghs_plotly_layout() \u5e94\u7528\u54c1\u724c\u5b57\u4f53\u3001\u80cc\u666f\u4e0e\u5e03\u5c40\u3002"
     )
   )
-  sprintf("<section class='section methods' id='methods'><div class='wrap'><header class='section-head'><span class='kicker'>03 \u00b7 DATA &amp; METHODS</span><h2>\u539f\u59cb\u6570\u636e\u5904\u7406</h2><p class='lead'>\u6240\u6709\u5206\u6790\u5171\u4eab\u540c\u4e00\u4efd master \u5bbd\u8868\uff1b\u4e0b\u6e38\u6a21\u578b\u4e0e\u56fe\u8868\u53ea\u8bfb\u53d6\u6b64\u7f13\u5b58\uff0c\u786e\u4fdd\u7ed3\u679c\u53ef\u590d\u73b0\u3002</p></header>%s</div></section>",
+  sprintf("<section class='section methods' id='methods'><div class='wrap'><header class='section-head'><span class='kicker'>02 \u00b7 DATA PROCESSING</span><h2>\u539f\u59cb\u6570\u636e\u5904\u7406</h2><p class='lead'>\u6240\u6709\u5206\u6790\u5171\u4eab\u540c\u4e00\u4efd master \u5bbd\u8868\uff1b\u4e0b\u6e38\u6a21\u578b\u4e0e\u56fe\u8868\u53ea\u8bfb\u53d6\u6b64\u7f13\u5b58\uff0c\u786e\u4fdd\u7ed3\u679c\u53ef\u590d\u73b0\u3002</p></header>%s</div></section>",
           body)
 }
 
@@ -2574,6 +2574,9 @@ if (!exists("%||%", mode = "function")) {
     ".hero h1{letter-spacing:-.025em;font-feature-settings:'ss01' on,'kern' on,'dlig' on}",
     ".section h2,.finding-head h2,.ghs-section-title,.ghs-finding-title{letter-spacing:-.018em}",
     "p,li,figcaption{font-feature-settings:'kern' on;hyphens:auto;-webkit-hyphens:auto}",
+    ".section p{font-size:15.5px;line-height:1.75;color:#44403c;max-width:780px;margin-bottom:16px}",
+    ".section p b,.section p strong{color:#1c1917;font-weight:700}",
+    ".section p code{background:rgba(0,0,0,.04);padding:2px 6px;border-radius:4px;font-size:13px}",
 
     # ---- Hero 编辑级强化 ------------------------------------------
     ".hero{min-height:92vh;padding-top:48px}",
@@ -2642,7 +2645,7 @@ if (!exists("%||%", mode = "function")) {
     # ---- 表格精修 ------------------------------------------------
     ".table-wrap{margin:16px 0;overflow-x:auto;border-radius:14px;box-shadow:0 6px 22px rgba(13,18,27,.05);border:1px solid rgba(13,18,27,.08)}",
     ".table-wrap table{width:100%;border-collapse:collapse;font-size:13.5px}",
-    ".table-wrap th{background:linear-gradient(180deg,#fbf6ee,#f3e8d6);padding:14px 16px;font-weight:800;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid rgba(13,18,27,.10);text-align:left}",
+    ".table-wrap th{background:#f0ebe1;padding:14px 16px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#78716c;border-bottom:1px solid rgba(0,0,0,.08);text-align:left}",
     ".table-wrap td{padding:12px 16px;border-bottom:1px solid rgba(13,18,27,.06);color:var(--ink)}",
     ".table-wrap tr:hover td{background:rgba(29,63,95,.03)}",
     ".table-wrap tr:last-child td{border-bottom:0}",
