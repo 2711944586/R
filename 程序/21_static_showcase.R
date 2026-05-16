@@ -815,13 +815,13 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u4f7f\u7528 financing scheme \u7ef4\u5ea6\uff08hf1\u2013hfnec\uff09\u7684\u5360 CHE \u6bd4\u4f8b\u3002OOPS = hf3_che \u662f\u8861\u91cf\u8d22\u52a1\u4fdd\u62a4\u7684\u6838\u5fc3\u4fe1\u53f7\u3002"
     )),
     .ghs_code(f2_code, "r", "OOPS \u56fd\u5bb6\u6392\u884c\uff08Top10 / Bottom10\uff09"),
-    .ghs_fig(file.path(fig_dir, "02_oops_ranking_2023.png"),
+    .ghs_fig(file.path(fig_dir, "002_oops_ranking_2023.png"),
              sprintf("%d \u5e74\u5c45\u6c11\u81ea\u4ed8\u5360 CHE \u56fd\u5bb6\u6392\u884c", s$cur_year),
              "Figure 2A \u00b7 OOPS \u6392\u884c"),
-    .ghs_fig(file.path(fig_dir, "v2_fiscal_ghe_share.png"),
+    .ghs_fig(file.path(fig_dir, "046_fiscal_ghe_share.png"),
              "GGHED\uff08\u653f\u5e9c\u5f3a\u5236\u7b79\u8d44\uff09\u5360 CHE \u4efd\u989d",
              "Figure 2B \u00b7 \u653f\u5e9c\u7b79\u8d44"),
-    .ghs_fig(file.path(fig_dir, "v2_aid_dependency.png"),
+    .ghs_fig(file.path(fig_dir, "031_aid_dependency.png"),
              "\u5916\u63f4\u4f9d\u8d56\u5ea6\uff1a\u54ea\u4e9b\u56fd\u5bb6 EXT > 20%",
              "Figure 2C \u00b7 \u5916\u63f4\u4f9d\u8d56"),
     sprintf("<div class='two-col'>%s%s</div>",
@@ -879,13 +879,13 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u5bf9\u6bcf\u5e74\u7684\u4eba\u5747 CHE\uff08USD 2023\uff09\u5e8f\u5217\u8ba1\u7b97\u4e09\u4e2a\u4e92\u8865\u7684\u4e0d\u5e73\u7b49\u6307\u6807\uff1aGini\u3001Theil-T\u3001Atkinson(\u03b5)\uff0c\u5168\u90e8\u4f7f\u7528\u4eba\u53e3\u52a0\u6743\u3002"
     )),
     .ghs_code(f3_code, "r", "04_metrics.R \u00b7 \u4e09\u4e2a\u4e0d\u5e73\u7b49\u6307\u6570\u7684\u5b9e\u73b0"),
-    .ghs_fig(file.path(fig_dir, "11_inequality_timeseries.png"),
+    .ghs_fig(file.path(fig_dir, "013_inequality_timeseries.png"),
              "Gini / Theil / Atkinson \u4e09\u6307\u6807\u957f\u671f\u6f14\u5316",
              "Figure 3A \u00b7 \u4e0d\u5e73\u7b49\u65f6\u5e8f"),
-    .ghs_fig(file.path(fig_dir, "v2_equity_lorenz.png"),
+    .ghs_fig(file.path(fig_dir, "043_equity_lorenz.png"),
              "\u6d1b\u4f26\u5179\u66f2\u7ebf\uff1a2000 vs 2023",
              "Figure 3B \u00b7 \u6d1b\u4f26\u5179\u66f2\u7ebf"),
-    .ghs_fig(file.path(fig_dir, "v2_equity_indices.png"),
+    .ghs_fig(file.path(fig_dir, "042_equity_indices.png"),
              "\u4e0d\u5e73\u7b49\u6307\u6570\u9762\u677f",
              "Figure 3C \u00b7 \u591a\u6307\u6807\u5bf9\u6bd4"),
     f3_table,
@@ -933,10 +933,10 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u5b9a\u4e49 base = 2019\u3001shock = 2020\u20132022 \u5e73\u5747\uff1b\u5bf9\u6bcf\u4e2a\u56fd\u5bb6\u8ba1\u7b97 CHE \u76f8\u5bf9\u53d8\u5316\u4e0e OOPS \u767e\u5206\u70b9\u53d8\u5316\u3002"
     )),
     .ghs_code(covid_code, "r", "04_metrics.R \u00b7 COVID \u51b2\u51fb\u5ea6\u91cf"),
-    .ghs_fig(file.path(fig_dir, "v2_covid_dumbbell.png"),
+    .ghs_fig(file.path(fig_dir, "009_covid_dumbbell.png"),
              "OOPS \u5728 2019 vs 2020\u20132022 \u7684\u56fd\u5bb6\u7ea7\u53d8\u5316\uff08\u54d1\u94c3\u56fe\uff09",
              "Figure 4A \u00b7 OOPS \u54d1\u94c3"),
-    .ghs_fig(file.path(fig_dir, "09_covid_scatter.png"),
+    .ghs_fig(file.path(fig_dir, "010_covid_scatter.png"),
              "CHE \u589e\u91cf vs OOPS \u589e\u91cf\u6563\u70b9",
              "Figure 4B \u00b7 CHE \u4e0e OOPS \u8054\u52a8"),
     covid_table_html,
@@ -987,7 +987,7 @@ if (!exists("%||%", mode = "function")) {
       beta_text
     )),
     .ghs_code(f5_code, "r", "05_models.R \u00b7 \u03b2-\u6536\u655b\u56de\u5f52"),
-    .ghs_fig(file.path(fig_dir, "23_beta_convergence.png"),
+    .ghs_fig(file.path(fig_dir, "026_beta_convergence.png"),
              "\u03b2-\u6536\u655b\u6563\u70b9 + \u56de\u5f52\u7ebf",
              "Figure 5 \u00b7 \u03b2-\u6536\u655b"),
     .ghs_callout("\u89e3\u8bfb \u00b7 \u6536\u655b\u4e0e\u5f02\u8d28\u6027",
@@ -1061,10 +1061,10 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u5bf9\u6700\u8fd1\u4e00\u5e74\u7684\u622a\u9762\u505a PCA\uff08\u4e2d\u5fc3\u5316 + \u6807\u51c6\u5316\uff09\uff0c\u4fdd\u7559\u524d\u4e24\u4e3b\u6210\u5206\uff0c\u518d\u7528 k-means(k=4, nstart=25) \u805a\u7c7b\u3002"
     )),
     .ghs_code(f7_code, "r", "05_models.R \u00b7 PCA + k-means"),
-    .ghs_fig(file.path(fig_dir, "12_pca_cluster_2022.png"),
+    .ghs_fig(file.path(fig_dir, "015_pca_cluster_2022.png"),
              sprintf("PCA + k-means \u622a\u9762\uff08%d \u5e74\uff09", s$cur_year),
              "Figure 7A \u00b7 \u56fd\u5bb6\u7ec4\u5408"),
-    .ghs_fig(file.path(fig_dir, "22_inequality_pca.png"),
+    .ghs_fig(file.path(fig_dir, "025_inequality_pca.png"),
              "PCA \u4e3b\u6210\u5206\u8f7d\u8377\uff08financing \u7ef4\u5ea6\uff09",
              "Figure 7B \u00b7 \u4e3b\u6210\u5206\u8f7d\u8377"),
     .ghs_callout("\u89e3\u8bfb \u00b7 4 \u7c7b\u5178\u578b archetype",
@@ -1112,7 +1112,7 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u5bf9\u6bcf\u56fd 2000\u20132023 \u7684 che_pc_usd2023 \u5e8f\u5217\u62df\u5408 auto.arima\uff0c\u8f93\u51fa 5 \u5e74\u70b9\u9884\u6d4b\u4e0e 80%/95% \u533a\u95f4\u3002"
     )),
     .ghs_code(f8_code, "r", "05_models.R \u00b7 ARIMA \u9884\u6d4b"),
-    .ghs_fig(file.path(fig_dir, "24_forecast_fan.png"),
+    .ghs_fig(file.path(fig_dir, "027_forecast_fan.png"),
              "5 \u5e74 ARIMA \u9884\u6d4b\u6247\u5f62\u56fe",
              "Figure 8 \u00b7 \u9884\u6d4b\u6247\u5f62"),
     fc_table_html,
@@ -1166,10 +1166,10 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u53d6 GHED financing source \u4e2d\u7684 EXT (External transfer schemes) \u5360 CHE \u4efd\u989d\uff0c\u8de8\u8054 OOPS / GGHED \u4e0e\u4eba\u5747 CHE\uff0c\u91cd\u70b9\u8bc6\u522b\u54ea\u4e9b LIC \u4ecd\u5904\u4e8e\u8f93\u8840\u578b\u9636\u6bb5\u3002"
     )),
     .ghs_code(f9_code, "r", "EXT > 20% \u9ad8\u4f9d\u8d56\u56fd\u5bb6\u6392\u884c"),
-    .ghs_fig(file.path(fig_dir, "v2_aid_dependency.png"),
+    .ghs_fig(file.path(fig_dir, "031_aid_dependency.png"),
              sprintf("\u5916\u63f4\u4f9d\u8d56\u5ea6\u9762\u677f\uff08%d\uff09", yr),
              "Figure 9A \u00b7 EXT \u4f9d\u8d56\u5ea6"),
-    .ghs_fig(file.path(fig_dir, "17_ext_density.png"),
+    .ghs_fig(file.path(fig_dir, "020_ext_density.png"),
              "EXT \u5360\u6bd4\u8de8\u56fd\u5206\u5e03\u5bc6\u5ea6",
              "Figure 9B \u00b7 EXT \u5206\u5e03"),
     if (!is.null(ext_top)) .ghs_table(ext_top,
@@ -1240,10 +1240,10 @@ if (!exists("%||%", mode = "function")) {
              eff_text)
     )),
     .ghs_code(f10_code, "r", "\u201c\u82b1\u5f97\u66f4\u591a\uff0c\u4e0d\u4e00\u5b9a\u7b49\u4e8e\u66f4\u957f\u5bff\u201d \u00b7 \u7b80\u6790\u62df\u5408"),
-    .ghs_fig(file.path(fig_dir, "v2_efficiency_dea.png"),
+    .ghs_fig(file.path(fig_dir, "041_efficiency_dea.png"),
              "DEA \u6548\u7387\u524d\u6cbf\uff1a\u4eba\u5747 CHE \u00b7 U5MR / \u9884\u671f\u5bff\u547d",
              "Figure 10A \u00b7 \u6548\u7387\u524d\u6cbf"),
-    .ghs_fig(file.path(fig_dir, "v2_outcomes_elasticity.png"),
+    .ghs_fig(file.path(fig_dir, "051_outcomes_elasticity.png"),
              "\u4eba\u5747 CHE \u4e0e \u9884\u671f\u5bff\u547d / U5MR \u7684\u5f39\u6027",
              "Figure 10B \u00b7 \u8f93\u5165 \u00b7 \u8f93\u51fa"),
     eff_table_html,
@@ -1319,7 +1319,7 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u53d6 2000 / 2010 / 2023 \u4e09\u5e74\u4eba\u5747 CHE \u6392\u540d\uff0c\u8ba1\u7b97 \u0394rank\uff1b\u8dc3\u8fc1\u8d8a\u5927\u8868\u793a\u8d22\u653f\u00b7\u589e\u957f\u52a8\u5458\u8d8a\u5f3a\u3002"
     )),
     .ghs_code(f11_code, "r", "\u4eba\u5747 CHE Top 25 \u6392\u540d\u53d8\u8fc1"),
-    .ghs_fig(file.path(fig_dir, "v2_rank_change.png"),
+    .ghs_fig(file.path(fig_dir, "055_rank_change.png"),
              "Top 25 \u4eba\u5747 CHE \u8de8\u671f\u6392\u540d\u8de8\u8d8a\u3002",
              "Figure 11A \u00b7 \u6392\u540d bump"),
     f11_table,
@@ -1371,10 +1371,10 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u65b9\u6cd5\uff1a</b>\u62df\u5408 life_exp ~ log(CHE_pc)\uff1b\u659c\u7387 \u00d7 ln(2) \u8868\u793a\u4eba\u5747\u8d44\u91d1\u7ffb\u500d\u4e0e\u9884\u671f\u5bff\u547d\u589e\u52a0\u4e4b\u95f4\u7684\u5bf9\u6570\u5f39\u6027\u3002"
     )),
     .ghs_code(f12_code, "r", "log-linear \u62df\u5408"),
-    .ghs_fig(file.path(fig_dir, "v2_lifeexp_elasticity.png"),
+    .ghs_fig(file.path(fig_dir, "047_lifeexp_elasticity.png"),
              "ln(CHE_pc) \u2192 life_exp \u62df\u5408\u4e0e\u6781\u503c\u70b9\u3002",
              "Figure 12A \u00b7 \u9884\u671f\u5bff\u547d\u5f39\u6027"),
-    .ghs_fig(file.path(fig_dir, "v2_corr_matrix.png"),
+    .ghs_fig(file.path(fig_dir, "038_corr_matrix.png"),
              "\u4e3b\u8981\u8d22\u653f\u00b7\u4ea7\u51fa\u00b7\u4eba\u53e3\u53d8\u91cf\u7684\u76f8\u5173\u3002",
              "Figure 12B \u00b7 \u591a\u53d8\u91cf\u76f8\u5173"),
     .ghs_callout("\u89e3\u8bfb \u00b7 \u9012\u51cf\u8fb9\u9645",
@@ -1405,10 +1405,10 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u95ee\u9898\uff1a</b>SDG-3 \u201c\u4fdd\u969c\u5065\u5eb7\u751f\u6d3b\u201d \u8fdb\u5c55\u5982\u4f55\uff1f\u4ec0\u4e48\u56fd\u5bb6\u53d6\u5f97\u4e86\u6700\u591a\u5bff\u547d\u589e\u91cf\uff1f",
       "<b>\u65b9\u6cd5\uff1a</b>\u53d6 2000 / 2023 \u4e24\u5e74\u9884\u671f\u5bff\u547d\u589e\u52a0\u91cf\u4e0e U5MR \u4e0b\u964d\u91cf\uff1b\u96f7\u8fbe\u4ee5\u9884\u671f\u5bff\u547d\u00b7U5MR\u00b7OOPS \u00b7GGHED\u00b7CHE_pc \u4e94\u8f74\u591a\u56fd\u5bf9\u6bd4\u3002"
     )),
-    .ghs_fig(file.path(fig_dir, "v2_sdg3_progress.png"),
+    .ghs_fig(file.path(fig_dir, "056_sdg3_progress.png"),
              "23 \u5e74\u9884\u671f\u5bff\u547d\u589e\u52a0\u6700\u591a\u7684 20 \u56fd \u00b7 -U5MR \u540c\u671f\u4e0b\u964d\u3002",
              "Figure 13A \u00b7 \u9884\u671f\u5bff\u547d\u63d0\u5347 Top 20"),
-    .ghs_fig(file.path(fig_dir, "v2_sdg3_radar.png"),
+    .ghs_fig(file.path(fig_dir, "057_sdg3_radar.png"),
              "6 \u56fd\u591a\u8f74\u96f7\u8fbe\uff1a\u9884\u671f\u5bff\u547d / U5MR\u53cd / OOPS\u53cd / GGHED / CHE_pc\u3002",
              "Figure 13B \u00b7 SDG-3 \u96f7\u8fbe"),
     .ghs_callout("\u89e3\u8bfb \u00b7 SDG-3 \u201c\u8d70\u5feb\u8005\u201d",
@@ -1438,10 +1438,10 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u95ee\u9898\uff1a</b>\u4eba\u5747 CHE \u6700\u5feb / \u6700\u6162\u589e\u957f\u7684\u56fd\u5bb6\u662f\u8c01\uff1f\u5168\u7403\u603b\u989d\u662f\u5426\u5b58\u5728\u53d8\u70b9\uff1f",
       "<b>\u65b9\u6cd5\uff1a</b>1) \u9009\u8d77\u70b9 \u2265 50 \u7f8e\u5143\u7684\u56fd\u5bb6\u6309 2023/2000 \u500d\u6570\u6392\u5e8f\uff0c\u4e0a\u4e0b\u5404 8\uff1b 2) \u7528 changepoint \u8de8\u9762\u68c0\u6d4b\u5168\u7403 CHE \u589e\u901f\u53d8\u70b9\u3002"
     )),
-    .ghs_fig(file.path(fig_dir, "v2_extreme_waterfall.png"),
+    .ghs_fig(file.path(fig_dir, "044_extreme_waterfall.png"),
              "\u8df3\u8dc3\u589e\u957f vs \u589e\u901f\u6700\u6162\u4e24\u7aef\u5404 8 \u56fd\u3002",
              "Figure 14A \u00b7 \u4eba\u5747 CHE \u8df3\u8dc3"),
-    .ghs_fig(file.path(fig_dir, "v2_changepoint.png"),
+    .ghs_fig(file.path(fig_dir, "033_changepoint.png"),
              "\u5168\u7403 CHE \u5e74\u589e\u901f\u4e0e\u53d8\u70b9\u3002",
              "Figure 14B \u00b7 \u53d8\u70b9\u68c0\u6d4b"),
     .ghs_callout("\u89e3\u8bfb \u00b7 \u4e24\u7aef\u4e0e\u53d8\u70b9",
@@ -1478,10 +1478,10 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_country_profiles <- function(master, fig_dir,
                                   iso_list = c("CHN", "USA", "IND", "BRA"),
-                                  fig_map = list(CHN = "06_profile_china.png",
-                                                 USA = "07_profile_usa.png",
-                                                 IND = "08_profile_india.png",
-                                                 BRA = "v2_profile_brazil.png")) {
+                                  fig_map = list(CHN = "006_profile_china.png",
+                                                 USA = "007_profile_usa.png",
+                                                 IND = "008_profile_india.png",
+                                                 BRA = "053_profile_brazil.png")) {
   cards <- vapply(iso_list, function(iso) {
     b <- .ghs_country_brief(master, iso)
     if (is.null(b)) return("")
@@ -1534,10 +1534,10 @@ if (!exists("%||%", mode = "function")) {
       8, 2)
   }
   fig_html <- paste0(
-    .ghs_fig(file.path(fig_dir, "v2_continent_stream.png"),
+    .ghs_fig(file.path(fig_dir, "037_continent_stream.png"),
              "\u5404\u5927\u6d32 CHE \u603b\u91cf\u6d41\u53d8 (USD2023)",
              "Figure R1 \u00b7 \u5927\u6d32\u6d41"),
-    .ghs_fig(file.path(fig_dir, "14_continent_radar.png"),
+    .ghs_fig(file.path(fig_dir, "017_continent_radar.png"),
              "\u5927\u6d32\u96f7\u8fbe\uff1aOOPS / GGHED / PVTD / EXT / CHE_pc",
              "Figure R2 \u00b7 \u5927\u6d32\u96f7\u8fbe")
   )
@@ -1557,12 +1557,12 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_inequality_atlas <- function(fig_dir) {
   pics <- c(
-    "v2_equity_lorenz.png",
-    "v2_equity_indices.png",
-    "11_inequality_timeseries.png",
-    "v2_combined_ridges.png",
-    "v2_oops_violin.png",
-    "v2_oops_heatmap_grid.png"
+    "043_equity_lorenz.png",
+    "042_equity_indices.png",
+    "013_inequality_timeseries.png",
+    "035_combined_ridges.png",
+    "050_oops_violin.png",
+    "048_oops_heatmap_grid.png"
   )
   parts <- vapply(pics, function(f) {
     p <- file.path(fig_dir, f)
@@ -1607,7 +1607,7 @@ if (!exists("%||%", mode = "function")) {
     .ghs_table(nice,
       "S15 \u00b7 \u4e09\u5b50\u671f \u00d7 \u5927\u6d32 \u00b7 \u4eba\u5747 CHE \u4e0e OOPS \u5747\u503c", 7, 1)
   } else ""
-  fig_html <- .ghs_fig(file.path(fig_dir, "v2_period_compare.png"),
+  fig_html <- .ghs_fig(file.path(fig_dir, "052_period_compare.png"),
     "\u5404\u5927\u6d32\u4eba\u5747 CHE \u4e0e OOPS \u8de8\u4e09\u5b50\u671f\u8d70\u52bf\u3002",
     "Figure S15 \u00b7 \u5206\u671f\u8de8\u5927\u6d32")
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u4e09\u4e2a\u9636\u6bb5",
@@ -1641,10 +1641,10 @@ if (!exists("%||%", mode = "function")) {
   table_top <- .ghs_table(utils::head(o, 12),
     "S16 \u00b7 \u5bff\u547d\u589e\u91cf Top 12 \u4e0e U5MR \u540c\u671f\u4e0b\u964d", 12, 4)
   fig_html <- paste0(
-    .ghs_fig(file.path(fig_dir, "v2_sdg3_progress.png"),
+    .ghs_fig(file.path(fig_dir, "056_sdg3_progress.png"),
              "23 \u5e74\u9884\u671f\u5bff\u547d\u589e\u91cf\u6700\u591a Top 20 \u56fd\u3002",
              "Figure S16A \u00b7 \u5bff\u547d\u589e\u91cf"),
-    .ghs_fig(file.path(fig_dir, "v2_sdg3_radar.png"),
+    .ghs_fig(file.path(fig_dir, "057_sdg3_radar.png"),
              "6 \u56fd\u591a\u8f74\u96f7\u8fbe\u00b7 SDG-3 \u8f6e\u5ed3\u3002",
              "Figure S16B \u00b7 \u96f7\u8fbe")
   )
@@ -1665,10 +1665,10 @@ if (!exists("%||%", mode = "function")) {
   cf <- stats::coef(fit)
   rsq <- summary(fit)$r.squared
   fig_html <- paste0(
-    .ghs_fig(file.path(fig_dir, "v2_lifeexp_elasticity.png"),
+    .ghs_fig(file.path(fig_dir, "047_lifeexp_elasticity.png"),
              "ln(CHE_pc) \u2192 \u9884\u671f\u5bff\u547d\u62df\u5408\u3002",
              "Figure S17A \u00b7 \u5bf9\u6570\u5f39\u6027"),
-    .ghs_fig(file.path(fig_dir, "v2_quantile_reg.png"),
+    .ghs_fig(file.path(fig_dir, "054_quantile_reg.png"),
              "GDP_pc \u2192 CHE_pc \u4e09\u5206\u4f4d\u62df\u5408\u3002",
              "Figure S17B \u00b7 \u5206\u4f4d\u56de\u5f52")
   )
@@ -1685,10 +1685,10 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_cluster_detail <- function(master, fig_dir) {
   fig_html <- paste0(
-    .ghs_fig(file.path(fig_dir, "v2_cluster_archetype.png"),
+    .ghs_fig(file.path(fig_dir, "034_cluster_archetype.png"),
              "4 \u7c7b archetype \u96f7\u8fbe\uff1a GGHED / PVTD / EXT / OOPS / CHE_pc z \u5f97\u5206\u3002",
              "Figure S55A \u00b7 archetype \u96f7\u8fbe"),
-    .ghs_fig(file.path(fig_dir, "12_pca_cluster_2022.png"),
+    .ghs_fig(file.path(fig_dir, "015_pca_cluster_2022.png"),
              "PCA + k-means \u622a\u9762\u3002",
              "Figure S55B \u00b7 PCA \u6295\u5f71")
   )
@@ -1711,10 +1711,10 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_extreme_cases <- function(master, fig_dir) {
   fig_html <- paste0(
-    .ghs_fig(file.path(fig_dir, "v2_extreme_waterfall.png"),
+    .ghs_fig(file.path(fig_dir, "044_extreme_waterfall.png"),
              "\u8df3\u8dc3\u589e\u957f vs \u589e\u901f\u6700\u6162\u4e24\u7aef\u5404 8 \u56fd\u3002",
              "Figure S56A \u00b7 \u4e24\u7aef\u8df3\u8dc3"),
-    .ghs_fig(file.path(fig_dir, "v2_changepoint.png"),
+    .ghs_fig(file.path(fig_dir, "033_changepoint.png"),
              "\u5168\u7403 CHE \u603b\u989d\u5e74\u5316\u589e\u901f\u4e0e\u53d8\u70b9\u3002",
              "Figure S56B \u00b7 \u53d8\u70b9\u68c0\u6d4b")
   )
