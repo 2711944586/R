@@ -647,7 +647,7 @@ if (!exists("%||%", mode = "function")) {
       "\u4e00\u81f4\u6027\u68c0\u67e5\uff08\u603b\u989d \u2261 \u6765\u6e90\u4e4b\u548c\uff09", 8))
   if (!nzchar(cards))
     cards <- "<p class='muted'>\u672a\u68c0\u6d4b\u5230 data_quality_*.csv\uff0c\u8bf7\u5148 Rscript \u6784\u5efa.R models\u3002</p>"
-  sprintf("<section class='section dq' id='dq'><div class='wrap'><header class='section-head'><span class='kicker'>04 \u00b7 Data Quality</span><h2>\u6570\u636e\u8d28\u91cf\u00b7\u7f3a\u5931\u00b7\u4e00\u81f4\u6027</h2><p class='lead'>\u6240\u6709\u540e\u7eed\u53d1\u73b0\u8865\u5145\u4e8e\u540c\u4e00\u4efd\u9762\u677f\uff1b\u672c\u8282\u4ee5 4 \u5f20\u8868\u5448\u73b0\u539f\u59cb\u8d28\u91cf\u8bca\u65ad\uff08\u51fa\u81ea <code>\u5206\u6790\u8f93\u51fa/\u6a21\u578b\u8868/data_quality_*.csv</code>\uff09\u3002</p></header><div class='dq-grid'>%s</div></div></section>",
+  sprintf("<section class='section dq' id='dq'><div class='wrap'><header class='section-head'><span class='kicker'>04 \u00b7 DATA QUALITY</span><h2>\u6570\u636e\u8d28\u91cf\u00b7\u7f3a\u5931\u00b7\u4e00\u81f4\u6027</h2><p class='lead'>\u6240\u6709\u540e\u7eed\u53d1\u73b0\u8865\u5145\u4e8e\u540c\u4e00\u4efd\u9762\u677f\uff1b\u672c\u8282\u4ee5 4 \u5f20\u8868\u5448\u73b0\u539f\u59cb\u8d28\u91cf\u8bca\u65ad\uff08\u51fa\u81ea <code>\u5206\u6790\u8f93\u51fa/\u6a21\u578b\u8868/data_quality_*.csv</code>\uff09\u3002</p></header><div class='dq-grid'>%s</div></div></section>",
           cards)
 }
 
@@ -678,7 +678,7 @@ if (!exists("%||%", mode = "function")) {
   }))
   body <- .ghs_table(df,
     "master_enriched \u4e3b\u8981\u53d8\u91cf\u5b57\u5178", 20)
-  sprintf("<section class='section codebook' id='codebook'><div class='wrap'><header class='section-head'><span class='kicker'>05 \u00b7 Codebook</span><h2>\u53d8\u91cf\u5b57\u5178\u4e0e\u53e3\u5f84\u8bf4\u660e</h2><p class='lead'>\u4ee5\u4e0b\u662f master \u5bbd\u8868\u4e3b\u8981\u5b57\u6bb5\u7684\u63cf\u8ff0\u3001\u5355\u4f4d\u4e0e\u6765\u6e90\uff1b\u6240\u6709\u540e\u7eed\u53d1\u73b0\u53ea\u8bfb\u53d6\u8be5\u8868\u3002</p></header>%s</div></section>",
+  sprintf("<section class='section codebook' id='codebook'><div class='wrap'><header class='section-head'><span class='kicker'>05 \u00b7 CODEBOOK</span><h2>\u53d8\u91cf\u5b57\u5178\u4e0e\u53e3\u5f84\u8bf4\u660e</h2><p class='lead'>\u4ee5\u4e0b\u662f master \u5bbd\u8868\u4e3b\u8981\u5b57\u6bb5\u7684\u63cf\u8ff0\u3001\u5355\u4f4d\u4e0e\u6765\u6e90\uff1b\u6240\u6709\u540e\u7eed\u53d1\u73b0\u53ea\u8bfb\u53d6\u8be5\u8868\u3002</p></header>%s</div></section>",
           body)
 }
 
@@ -700,7 +700,7 @@ if (!exists("%||%", mode = "function")) {
     ),
     .ghs_code(metrics_code, "r", "04_metrics.R \u00b7 \u4e0d\u5e73\u7b49\u6307\u6570\uff1a\u52a0\u6743 Gini / Theil-T / Atkinson")
   )
-  sprintf("<section class='section methods' id='methods'><div class='wrap'><header class='section-head'><span class='kicker'>02 \u00b7 Data &amp; Methods</span><h2>\u4ece\u539f\u59cb\u6570\u636e\u5230\u53ef\u5efa\u6a21\u9762\u677f</h2><p class='lead'>\u6240\u6709\u5206\u6790\u5171\u4eab\u540c\u4e00\u4efd master \u5bbd\u8868\uff1b\u4e0b\u6e38\u6a21\u578b\u4e0e\u56fe\u8868\u53ea\u8bfb\u53d6\u6b64\u7f13\u5b58\uff0c\u786e\u4fdd\u7ed3\u679c\u53ef\u590d\u73b0\u3002</p></header>%s</div></section>",
+  sprintf("<section class='section methods' id='methods'><div class='wrap'><header class='section-head'><span class='kicker'>03 \u00b7 DATA &amp; METHODS</span><h2>\u4ece\u539f\u59cb\u6570\u636e\u5230\u53ef\u5efa\u6a21\u9762\u677f</h2><p class='lead'>\u6240\u6709\u5206\u6790\u5171\u4eab\u540c\u4e00\u4efd master \u5bbd\u8868\uff1b\u4e0b\u6e38\u6a21\u578b\u4e0e\u56fe\u8868\u53ea\u8bfb\u53d6\u6b64\u7f13\u5b58\uff0c\u786e\u4fdd\u7ed3\u679c\u53ef\u590d\u73b0\u3002</p></header>%s</div></section>",
           body)
 }
 
@@ -2295,7 +2295,8 @@ if (!exists("%||%", mode = "function")) {
     ".exec-tldr .kicker{display:inline-block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#78716c;font-weight:800}",
     ".tldr-list{margin:0;padding:0 0 0 22px;display:grid;gap:10px;font-size:15.5px;line-height:1.65}",
     ".tldr-list li b{color:#292524}",
-    ".btn-light{align-self:start;display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:999px;background:transparent;color:#292524;text-decoration:none;font-weight:700;font-size:13.5px;border:1px solid var(--line-strong)}",
+    ".btn-light{align-self:start;display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:8px;background:transparent;color:#78716c;text-decoration:none;font-weight:600;font-size:13px;border:1px solid rgba(0,0,0,.08);transition:all .15s}",
+    ".btn-light:hover{color:#292524;border-color:rgba(0,0,0,.15);background:rgba(0,0,0,.02)}",
     ".dq-grid{display:grid;gap:18px}",
     ".dq-grid .table-wrap caption{background:linear-gradient(90deg,#fbeede,#fff)}",
     ".codebook .table-wrap{max-height:520px;overflow:auto}",
