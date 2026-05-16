@@ -87,33 +87,65 @@ if (!exists("%||%", mode = "function")) {
 }
 
 .ghs_nav_items <- function() {
-  data.frame(
-    id = c("executive", "kpi", "methods", "findings", "countries",
-           "regional", "period", "sdg3", "lifeexp", "atlas",
-           "cluster-detail", "extreme", "simulator", "figure-index",
-           "gallery", "widgets", "repro", "conclusion"),
-    label = c("\u6458\u8981", "KPI", "\u65b9\u6cd5", "\u53d1\u73b0",
-              "\u56fd\u5bb6", "\u533a\u57df", "\u5206\u671f", "SDG-3",
-              "\u5bff\u547d", "\u4e0d\u5e73\u7b49", "\u96c6\u7fa4",
-              "\u6781\u503c", "\u4eff\u771f", "\u7d22\u5f15",
-              "\u56fe\u5e93", "\u4ea4\u4e92", "\u590d\u73b0", "\u7ed3\u8bba"),
-    stringsAsFactors = FALSE
+  # 总分结构：大类（group）+ 子项（id/label）
+  list(
+    list(group = "\u6982\u89c8", items = list(
+      list(id = "executive", label = "\u6458\u8981"),
+      list(id = "kpi", label = "KPI")
+    )),
+    list(group = "\u65b9\u6cd5", items = list(
+      list(id = "methods", label = "\u6570\u636e\u4e0e\u65b9\u6cd5")
+    )),
+    list(group = "\u53d1\u73b0", items = list(
+      list(id = "findings", label = "F1\u2013F14 \u6838\u5fc3"),
+      list(id = "countries", label = "\u56fd\u5bb6\u6863\u6848"),
+      list(id = "regional", label = "\u533a\u57df\u4e13\u9898"),
+      list(id = "period", label = "\u5206\u671f\u5bf9\u6bd4")
+    )),
+    list(group = "\u4e13\u9898", items = list(
+      list(id = "sdg3", label = "SDG-3"),
+      list(id = "lifeexp", label = "\u5bff\u547d\u5f39\u6027"),
+      list(id = "atlas", label = "\u4e0d\u5e73\u7b49"),
+      list(id = "cluster-detail", label = "\u805a\u7c7b"),
+      list(id = "extreme", label = "\u6781\u503c\u4e0e\u51b2\u51fb")
+    )),
+    list(group = "\u5de5\u5177", items = list(
+      list(id = "simulator", label = "\u60c5\u666f\u4eff\u771f"),
+      list(id = "figure-index", label = "\u56fe\u8868\u7d22\u5f15"),
+      list(id = "widgets", label = "\u4ea4\u4e92\u7ec4\u4ef6")
+    )),
+    list(group = "\u9644\u5f55", items = list(
+      list(id = "repro", label = "\u590d\u73b0"),
+      list(id = "conclusion", label = "\u7ed3\u8bba")
+    ))
   )
 }
 
 .ghs_nav_links <- function(class = NULL) {
   nav <- .ghs_nav_items()
   cls <- if (!is.null(class) && nzchar(class)) sprintf(" class='%s'", .ghs_e(class)) else ""
-  links <- paste(vapply(seq_len(nrow(nav)), function(i) {
-    sprintf("<a href='#%s' data-nav-id='%s'>%s</a>",
-            .ghs_e(nav$id[i]), .ghs_e(nav$id[i]), .ghs_e(nav$label[i]))
-  }, character(1)), collapse = "")
-  sprintf("<nav%s>%s</nav>", cls, links)
+  groups <- vapply(nav, function(g) {
+    items <- vapply(g$items, function(it) {
+      sprintf("<a href='#%s' data-nav-id='%s'>%s</a>",
+              .ghs_e(it$id), .ghs_e(it$id), .ghs_e(it$label))
+    }, character(1))
+    sprintf("<span class='nav-group'><span class='nav-group-label'>%s</span>%s</span>",
+            .ghs_e(g$group), paste(items, collapse = ""))
+  }, character(1))
+  sprintf("<nav%s>%s</nav>", cls, paste(groups, collapse = ""))
 }
 
 .ghs_mobile_toc <- function() {
-  sprintf("<details class='mobile-toc' id='mobile-toc'><summary>\u76ee\u5f55 \u00b7 Sections</summary>%s</details>",
-          .ghs_nav_links("mobile-toc-links"))
+  nav <- .ghs_nav_items()
+  links <- vapply(nav, function(g) {
+    items <- vapply(g$items, function(it) {
+      sprintf("<a href='#%s'>%s</a>", .ghs_e(it$id), .ghs_e(it$label))
+    }, character(1))
+    sprintf("<div class='mobile-toc-group'><span class='mobile-toc-group-label'>%s</span><div class='mobile-toc-items'>%s</div></div>",
+            .ghs_e(g$group), paste(items, collapse = ""))
+  }, character(1))
+  sprintf("<details class='mobile-toc' id='mobile-toc'><summary>\u76ee\u5f55 \u00b7 Sections</summary><div class='mobile-toc-body'>%s</div></details>",
+          paste(links, collapse = ""))
 }
 
 .ghs_decode_unicode_escapes <- function(s) {
@@ -2007,12 +2039,12 @@ if (!exists("%||%", mode = "function")) {
     "a{color:var(--blue)}",
     ".hero{position:relative;min-height:88vh;padding:30px 0 90px;color:#f7eedf;background:radial-gradient(circle at 18% 0%,#1d3f5f 0%,#0d121b 60%),radial-gradient(circle at 90% 110%,rgba(212,129,70,.45),transparent 55%);overflow:hidden}",
     ".hero:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(212,200,180,.18),transparent 45%),radial-gradient(circle at 30% 80%,rgba(255,255,255,.08),transparent 50%);pointer-events:none}",
-    ".nav{display:flex;justify-content:space-between;align-items:center;padding:6px 0 16px;position:relative}",
-    ".brand{font-weight:800;letter-spacing:.16em;font-size:14px;color:#f7eedf;text-decoration:none}",
-    ".links{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.links a{color:rgba(247,238,223,.7);font-size:13.5px;text-decoration:none;letter-spacing:.04em;padding:4px 6px;border-radius:6px;transition:color .2s}.links a:hover{color:#fff}.links a.active{color:#fff;background:rgba(247,238,223,.12)}",
-    ".mobile-toc{display:none;position:relative;z-index:4;width:min(1200px,92vw);margin:8px auto 0;border:1px solid rgba(247,238,223,.22);border-radius:18px;background:rgba(247,238,223,.08);backdrop-filter:blur(14px);color:#f7eedf;overflow:hidden}",
+    ".nav{display:flex;justify-content:space-between;align-items:center;padding:10px 0 18px;position:relative}",
+    ".brand{font-weight:800;letter-spacing:.16em;font-size:13px;color:#f7eedf;text-decoration:none}",
+    ".links{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.links .nav-group{display:flex;align-items:center;gap:2px;padding:0 8px;position:relative}.links .nav-group-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,238,223,.45);padding:4px 6px;pointer-events:none;white-space:nowrap}.links .nav-group:after{content:'';width:1px;height:16px;background:rgba(247,238,223,.18);margin-left:6px}.links .nav-group:last-child:after{display:none}.links a{color:rgba(247,238,223,.75);font-size:12.5px;text-decoration:none;letter-spacing:.02em;padding:5px 8px;border-radius:6px;transition:color .15s,background .15s;font-weight:500}.links a:hover{color:#fff;background:rgba(247,238,223,.1)}.links a.active{color:#fff;background:rgba(247,238,223,.14);font-weight:700}",
+    ".mobile-toc{display:none;position:relative;z-index:4;width:min(1200px,92vw);margin:8px auto 0;border:1px solid rgba(247,238,223,.2);border-radius:16px;background:rgba(13,18,27,.4);backdrop-filter:blur(16px);color:#f7eedf;overflow:hidden}",
     ".mobile-toc summary{cursor:pointer;padding:12px 16px;font-weight:900;letter-spacing:.08em;list-style:none}.mobile-toc summary::-webkit-details-marker{display:none}",
-    ".mobile-toc-links{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 12px 14px}.mobile-toc-links a{color:rgba(247,238,223,.74);text-decoration:none;border:1px solid rgba(247,238,223,.14);border-radius:999px;padding:7px 10px;font-size:12px;text-align:center}.mobile-toc-links a.active{color:#fff;background:rgba(247,238,223,.16);border-color:rgba(247,238,223,.32)}",
+    ".mobile-toc-body{padding:0 14px 16px}.mobile-toc-group{margin-bottom:12px}.mobile-toc-group-label{display:block;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,192,138,.7);padding:4px 0 6px}.mobile-toc-items{display:flex;flex-wrap:wrap;gap:6px}.mobile-toc-items a{color:rgba(247,238,223,.74);text-decoration:none;border:1px solid rgba(247,238,223,.14);border-radius:999px;padding:6px 12px;font-size:12px;transition:all .15s}.mobile-toc-items a:hover,.mobile-toc-items a.active{color:#fff;background:rgba(247,238,223,.14);border-color:rgba(247,238,223,.3)}",
     ".hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:48px;align-items:end;padding-top:72px;position:relative}",
     ".eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid rgba(247,238,223,.28);border-radius:999px;background:rgba(247,238,223,.06);font-size:12px;letter-spacing:.18em;text-transform:uppercase}",
     ".hero h1{font-size:clamp(48px,7vw,96px);line-height:1.02;margin:24px 0 22px;font-weight:700}",
@@ -2161,7 +2193,7 @@ if (!exists("%||%", mode = "function")) {
     ".modal-title{position:absolute;left:28px;top:22px;color:#fff;font-weight:900;font-family:'Source Serif 4',serif;font-size:18px}",
     "@media(max-width:1080px){.hero-grid,.widget-lab{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.gallery-grid{grid-template-columns:repeat(2,1fr)}.conclusion-grid{grid-template-columns:repeat(2,1fr)}.cmd-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.widget-frame-wrap{position:static}.foot-grid{grid-template-columns:1fr}.country-grid,.atlas-grid{grid-template-columns:1fr}.exec-big-grid{grid-template-columns:repeat(2,1fr)}.sim-grid{grid-template-columns:1fr}.figure-index-list{grid-template-columns:1fr}}",
     "@media(max-width:760px){.links{display:none}.mobile-toc{display:block}.mobile-toc-links{grid-template-columns:repeat(2,1fr)}.figure-index-tools{align-items:stretch;flex-direction:column}.figure-index-row{grid-template-columns:34px 1fr auto}.figure-index-row small{display:none}.widget-lab{grid-template-columns:1fr;gap:14px}.widget-list{max-height:none;padding-right:0}.widget-frame-wrap{position:static}.widget-frame-wrap iframe{height:520px}.hero-actions{align-items:stretch;flex-direction:column}.hero-actions .btn{justify-content:center;width:100%;box-sizing:border-box}.eyebrow{border-radius:18px;line-height:1.5;white-space:normal}.hero-panel-list li{align-items:flex-start}.hero-panel-list li b{min-width:54px;font-size:30px}.code-pre{font-size:12px;padding:14px 16px}}",
-    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}.hero h1{font-size:clamp(40px,13vw,58px)}.hero-lead{font-size:16.5px}.section{padding:68px 0}.widget-frame-wrap iframe{height:460px}}",
+    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}.hero h1{font-size:clamp(40px,13vw,58px)}.hero-lead{font-size:16.5px}.section{padding:68px 0}.widget-frame-wrap iframe{height:460px}.links{display:none}.mobile-toc{display:block}}",
     "@media(max-width:420px){.wrap{width:min(100% - 24px,1180px)}.kpi-grid{grid-template-columns:1fr}.mobile-toc-links{grid-template-columns:1fr}.figure-index-row{grid-template-columns:30px 1fr}.figure-index-row em{display:none}.hero-panel{padding:18px}.widget-frame-wrap{padding:10px;border-radius:18px}.widget-frame-wrap iframe{height:420px;border-radius:12px}}",
     ".top-bar{position:fixed;left:0;right:0;top:0;height:3px;background:rgba(13,18,27,.06);z-index:60;pointer-events:none}",
     "#read-progress{height:100%;width:0;background:linear-gradient(90deg,#c46327,#1d3f5f);transition:width .12s linear}",
@@ -2296,7 +2328,7 @@ if (!exists("%||%", mode = "function")) {
     "function toggleTheme(){var html=document.documentElement;var cur=html.getAttribute('data-theme')||'light';var nxt=cur==='light'?'dark':'light';html.setAttribute('data-theme',nxt);try{localStorage.setItem('ghs-theme',nxt);}catch(e){}var btn=document.querySelector('.theme-toggle');if(btn)btn.textContent=nxt==='dark'?'\u263d':'\u2600';}",
     "(function(){try{var t=localStorage.getItem('ghs-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var btn=document.querySelector('.theme-toggle');if(btn)btn.textContent='\u263d';}}catch(e){}})();",
     "(function(){var bar=document.getElementById('read-progress');if(!bar)return;function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;bar.style.width=(s/max*100)+'%';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.links a[href^=\"#\"],.mobile-toc-links a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+140;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('mobile-toc');if(d)d.open=false;});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
+    "(function(){var links=document.querySelectorAll('.links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+140;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('mobile-toc');if(d)d.open=false;});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",
@@ -2517,10 +2549,11 @@ if (!exists("%||%", mode = "function")) {
     ".btn.ghost:hover{border-color:rgba(247,238,223,.4);background:rgba(247,238,223,.06)}",
 
     # ---- 导航栏精修（编辑级粘性） ---------------------------------
-    ".nav{padding:18px 0 22px}",
-    ".brand{font-size:13px;letter-spacing:.22em}",
-    ".links a{font-size:13px;font-weight:600;padding:6px 10px;letter-spacing:.02em}",
-    ".links a:hover{background:rgba(247,238,223,.08)}",
+    ".nav{padding:12px 0 20px}",
+    ".brand{font-size:12px;letter-spacing:.24em}",
+    ".links a{font-size:12px;font-weight:600;padding:5px 9px;letter-spacing:.02em}",
+    ".links a:hover{background:rgba(247,238,223,.1)}",
+    ".links .nav-group-label{font-size:10px;color:rgba(247,238,223,.38)}",
 
     # ---- 章节标题层级 --------------------------------------------
     ".section{padding:120px 0;border-top:1px solid var(--line)}",
