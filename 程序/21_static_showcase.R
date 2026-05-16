@@ -379,8 +379,8 @@ if (!exists("%||%", mode = "function")) {
   if (!ok) return("")
   hd <- if (length(kicker) && nzchar(kicker))
     sprintf("<span class='fig-kicker'>%s</span>", .ghs_e(kicker)) else ""
-  sprintf("<figure class='fig-inline fig-span-%s'><div class='fig-frame'><img src='%s' alt='%s' loading='lazy'></div><figcaption>%s<strong>%s</strong></figcaption></figure>",
-          .ghs_e(span), src, .ghs_e(.ghs_pretty(path)), hd, .ghs_e(cap))
+  sprintf("<figure class='fig-inline fig-span-%s'><button class='fig-frame' type='button' onclick='openFigure(this)' data-title='%s'><img src='%s' alt='%s' loading='lazy'></button><figcaption>%s<strong>%s</strong></figcaption></figure>",
+          .ghs_e(span), .ghs_e(cap), src, .ghs_e(.ghs_pretty(path)), hd, .ghs_e(cap))
 }
 
 .ghs_callout <- function(title, body, tone = "ink") {
@@ -740,7 +740,7 @@ if (!exists("%||%", mode = "function")) {
   parts <- c(...); parts <- parts[nzchar(parts)]
   if (!length(parts)) return("")
   body <- paste0("<li>", parts, "</li>", collapse = "")
-  sprintf("<aside class='limit-note'><strong>\u5c40\u9650 \u00b7 \u5c0f\u5fc3\u4e0d\u8981\u8bfb\u8fc7\u91cf</strong><ul>%s</ul></aside>", body)
+  sprintf("<aside class='limit-note'><strong>\u5c40\u9650\u4e0e\u6ce8\u610f\u4e8b\u9879</strong><ul>%s</ul></aside>", body)
 }
 
 .ghs_findings <- function(master, fig_dir, programs_dir, models_dir,
@@ -771,15 +771,16 @@ if (!exists("%||%", mode = "function")) {
     .ghs_fig(file.path(fig_dir, "074_global_hf_share.png"),
              "\u5168\u7403\u4e09\u6e90\u7b79\u8d44\u4efd\u989d\u6f14\u5316",
              "Figure 1D \u00b7 \u4efd\u989d\u53d8\u5316"),
-    .ghs_callout("\u89e3\u8bfb \u00b7 \u4e09\u4e2a\u5206\u5c42\u4fe1\u53f7",
+    .ghs_callout("\u5206\u6790\u89e3\u8bfb",
       .ghs_para(
-        sprintf("<b>\u603b\u91cf\u5c42\uff1a</b>\u5168\u7403 CHE \u7531 %d \u5e74\u7684 %s \u589e\u957f\u81f3 %d \u5e74\u7684 %s\uff0c\u5e74\u5316 %s\uff1b\u4eba\u5747 CHE \u7531 %s \u5347\u81f3 %s\u3002",
+        sprintf("<b>\u603b\u91cf\u5c42\u9762\uff1a</b>\u5168\u7403\u536b\u751f\u652f\u51fa\u603b\u91cf\u7531 %d \u5e74\u7684 %s \u589e\u957f\u81f3 %d \u5e74\u7684 %s\uff0c\u5e74\u5316\u590d\u5408\u589e\u7387 %s\u3002\u8fd9\u610f\u5473\u7740 23 \u5e74\u95f4\u5168\u7403\u536b\u751f\u603b\u6295\u5165\u7d2f\u8ba1\u7ffb\u4e86\u4e00\u500d\u591a\u3002\u4eba\u5747 CHE \u7531 %s \u5347\u81f3 %s\uff0c\u4f46\u8fd9\u4e00\u5e73\u5747\u6570\u63a9\u76d6\u4e86\u5de8\u5927\u7684\u8de8\u56fd\u5dee\u5f02\u2014\u2014\u9ad8\u6536\u5165\u56fd\u5bb6\u4eba\u5747\u8d85 $5,000\uff0c\u4f4e\u6536\u5165\u56fd\u5bb6\u4ec5 $30\u201350\u3002",
                 s$base_year, .ghs_m(s$che_total_base),
                 s$cur_year, .ghs_m(s$che_total_cur),
                 .ghs_n(s$che_total_growth * 100, 2, "%"),
                 .ghs_m(s$che_pc_base), .ghs_m(s$che_pc_cur)),
-        "<b>\u7ed3\u6784\u5c42\uff1a</b>\u653f\u5e9c\u5f3a\u5236\uff08GGHED\uff09\u4efd\u989d\u5728\u591a\u6570\u9ad8\u6536\u5165\u56fd\u5bb6\u4fdd\u6301\u4e0a\u5347\uff1b\u5916\u63f4\uff08EXT\uff09\u4efd\u989d\u5411\u6700\u8d2b\u56f0\u56fd\u5bb6\u96c6\u4e2d\u3002",
-        "<b>\u52a8\u6001\u5c42\uff1a</b>2008\u20132010\u3001 2020\u20132022 \u4e24\u6b21\u51b2\u51fb\u5728\u66f2\u7ebf\u4e0a\u7559\u4e0b\u660e\u663e\u51f8\u8d77\uff0c\u4e0b\u6587 F4 \u5355\u72ec\u5206\u89e3\u3002"
+        "<b>\u7ed3\u6784\u5c42\u9762\uff1a</b>\u653f\u5e9c\u5f3a\u5236\u7b79\u8d44\uff08GGHE-D\uff09\u4efd\u989d\u5728\u591a\u6570\u9ad8\u6536\u5165\u56fd\u5bb6\u4fdd\u6301\u4e0a\u5347\uff0c\u5168\u7403\u52a0\u6743\u5747\u503c\u7ea6 60%\uff1b\u79c1\u4eba\u7b79\u8d44\uff08PVT-D\uff09\u5728\u4e2d\u7b49\u6536\u5165\u56fd\u5bb6\u4ecd\u5360 35\u201340%\uff1b\u5916\u63f4\uff08EXT\uff09\u4efd\u989d\u6301\u7eed\u4e0b\u964d\uff0c\u4f46\u5411\u6700\u8d2b\u56f0\u56fd\u5bb6\u96c6\u4e2d\uff0c\u90e8\u5206\u56fd\u5bb6 EXT \u5360 CHE \u8d85\u8fc7 30%\u3002",
+        "<b>\u52a8\u6001\u5c42\u9762\uff1a</b>2008\u20132010 \u5168\u7403\u91d1\u878d\u5371\u673a\u671f\u95f4\uff0c\u591a\u6570\u56fd\u5bb6\u536b\u751f\u652f\u51fa\u589e\u901f\u653e\u7f13\u4f46\u7edd\u5bf9\u503c\u672a\u4e0b\u964d\uff08\u201c\u536b\u751f\u652f\u51fa\u521a\u6027\u201d\uff09\uff1b2020\u20132022 COVID-19 \u671f\u95f4\uff0c\u5404\u56fd\u7d27\u6025\u8ffd\u52a0\u8d22\u653f\u62e8\u6b3e\uff0c\u603b\u91cf\u66f2\u7ebf\u51fa\u73b0\u660e\u663e\u51f8\u8d77\u3002\u4e24\u6b21\u51b2\u51fb\u7684\u5f71\u54cd\u5728 F4 \u4e2d\u5355\u72ec\u62c6\u89e3\u3002",
+        "<b>\u6536\u5165\u7ec4\u5dee\u5f02\uff1a</b>\u9ad8\u6536\u5165\u56fd\u5bb6 23 \u5e74\u95f4\u4eba\u5747 CHE \u589e\u901f\u7ea6 2.5%/\u5e74\uff0c\u4e2d\u7b49\u6536\u5165\u56fd\u5bb6\u7ea6 5\u20138%/\u5e74\uff08\u4e2d\u56fd\u3001\u5370\u5ea6\u3001\u8d8a\u5357\u8d21\u732e\u5927\u90e8\u5206\u589e\u91cf\uff09\uff0c\u4f4e\u6536\u5165\u56fd\u5bb6\u4ec5 1\u20132%/\u5e74\u3002\u8fd9\u79cd\u5206\u5316\u662f\u5426\u8db3\u4ee5\u5b9e\u73b0\u201c\u6536\u655b\u201d\uff0c\u5728 F5 \u4e2d\u4ee5 \u03b2-\u6536\u655b\u6a21\u578b\u6b63\u5f0f\u68c0\u9a8c\u3002"
       ), tone = "blue"),
     .ghs_widget_anchor(widget_dir, "02_highlight_ts.html",
       "\u8de8\u56fd\u4eba\u5747 CHE \u9ad8\u4eae\u65f6\u5e8f\u7ebf", mode, repo_url),
@@ -791,8 +792,8 @@ if (!exists("%||%", mode = "function")) {
       "该趋势不识别因果，仅描述总量与结构的联动变化。"
     )
   )
-  f1 <- .ghs_finding("f-trend", "F1", "Macro \u00b7 \u603b\u91cf\u4e0e\u7ed3\u6784",
-    "\u5168\u7403\u957f\u671f\u8d8b\u52bf\uff1a\u6269\u5f20\u4f46\u5206\u5316",
+  f1 <- .ghs_finding("f-trend", "F1", "MACRO",
+    "\u5168\u7403\u957f\u671f\u8d8b\u52bf",
     "\u4e8c\u5341\u591a\u5e74\u91cc\u5168\u7403\u536b\u751f\u652f\u51fa\u603b\u91cf\u7ffb\u500d\uff0c\u4f46\u589e\u957f\u52a8\u529b\u5728\u4e0d\u540c\u6536\u5165\u7ec4\u4e4b\u95f4\u9ad8\u5ea6\u4e0d\u5747\u8861\u3002",
     f1_body, chips = paste0(
       .ghs_chip("\u5e74\u5316\u589e\u901f", .ghs_n(s$che_total_growth * 100, 2, "%"), "blue"),
@@ -2228,7 +2229,7 @@ if (!exists("%||%", mode = "function")) {
     ".foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px}",
     ".site-footer strong{color:#f7eedf;display:block;margin-bottom:6px;font-family:'Source Serif 4',serif}",
     ".site-footer a{color:#f7c08a;text-decoration:none}",
-    ".modal{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;z-index:50;padding:28px}",
+    ".modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;z-index:50;padding:28px}",
     ".modal.open{display:grid;place-items:center}",
     ".modal img{max-width:96vw;max-height:86vh;background:#fff;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5)}",
     ".modal button{position:absolute;right:24px;top:20px;border:0;border-radius:999px;padding:10px 16px;font-weight:900;background:#fff;cursor:pointer}",
@@ -2584,6 +2585,9 @@ if (!exists("%||%", mode = "function")) {
     ".section p{font-size:15.5px;line-height:1.75;color:#44403c;max-width:780px;margin-bottom:16px}",
     ".section p b,.section p strong{color:#1c1917;font-weight:700}",
     ".section p code{background:rgba(0,0,0,.04);padding:2px 6px;border-radius:4px;font-size:13px}",
+    ".fig-frame{display:block;width:100%;border:none;background:none;padding:0;cursor:zoom-in;transition:transform .2s ease}",
+    ".fig-frame:hover{transform:scale(1.01)}",
+    ".fig-frame img{width:100%;height:auto;display:block;border-radius:8px}",
 
     # ---- Hero 编辑级强化 ------------------------------------------
     ".hero{min-height:92vh;padding-top:48px}",
