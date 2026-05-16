@@ -107,6 +107,40 @@ mod_overview_ui <- function(id) {
     ),
     htmltools::div(
       class = "ghs-section-head-nav",
+      htmltools::h3("\u63a8\u8350\u9605\u8bfb\u8def\u5f84 · Guided Paths"),
+      htmltools::p(class = "ghs-section-lead",
+                   "\u6839\u636e\u4f60\u7684\u65f6\u95f4\u548c\u5174\u8da3\uff0c\u9009\u62e9\u4e00\u6761\u63a2\u7d22\u8def\u7ebf\uff1a")
+    ),
+    htmltools::div(
+      class = "module-grid",
+      style = "grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 28px;",
+      htmltools::div(
+        class = "module-card",
+        style = "cursor:default;",
+        htmltools::span(class = "module-kicker", "\u23f1\ufe0f 3 \u5206\u949f\u901f\u89c8"),
+        htmltools::strong(class = "module-title", "\u5feb\u901f\u4e86\u89e3\u5168\u5c40"),
+        htmltools::span(class = "module-desc",
+          "\u603b\u89c8 KPI \u2192 F1 \u5168\u7403\u4e09\u6e90\u8d8b\u52bf \u2192 \u7ed3\u8bba\u4e0e\u653f\u7b56\u5efa\u8bae")
+      ),
+      htmltools::div(
+        class = "module-card",
+        style = "cursor:default;",
+        htmltools::span(class = "module-kicker", "\ud83c\udfdb\ufe0f \u653f\u7b56\u5206\u6790"),
+        htmltools::strong(class = "module-title", "\u516c\u5e73\u4e0e\u6548\u7387\u4e13\u9898"),
+        htmltools::span(class = "module-desc",
+          "\u516c\u5e73\u6a21\u5757 \u2192 \u6548\u7387\u6a21\u5757 \u2192 \u653f\u7b56\u5efa\u8bae\u6a21\u5757")
+      ),
+      htmltools::div(
+        class = "module-card",
+        style = "cursor:default;",
+        htmltools::span(class = "module-kicker", "\ud83d\udd2c \u6df1\u5ea6\u7814\u7a76"),
+        htmltools::strong(class = "module-title", "\u5168\u90e8 36 \u6a21\u5757\u6df1\u5165\u63a2\u7d22"),
+        htmltools::span(class = "module-desc",
+          "\u6240\u6709\u53d1\u73b0 \u2192 \u7a33\u5065\u6027\u68c0\u9a8c \u2192 \u65b9\u6cd5\u8bba\u9644\u5f55")
+      )
+    ),
+    htmltools::div(
+      class = "ghs-section-head-nav",
       htmltools::h3("\u9009\u62e9\u4f60\u611f\u5174\u8da3\u7684\u4e3b\u9898 \u00b7 36 \u4e2a\u4ea4\u4e92\u6a21\u5757"),
       htmltools::p(class = "ghs-section-lead",
                    paste("\u70b9\u51fb\u5361\u7247\u53ef\u76f4\u63a5\u8df3\u8f6c\u3002",

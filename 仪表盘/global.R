@@ -17,6 +17,9 @@
   start  # fallback
 }
 proj_root_env <- .find_proj_root()
+# setwd() 说明：shinyapps.io 部署时 cwd 被设为 app 目录（仪表盘/），
+# 但项目函数库与数据缓存位于上层项目根。此处 setwd() 确保 source() 和
+# readRDS() 的相对路径在本地 runApp() 与云端部署中都能正确解析。
 if (!identical(normalizePath(getwd(), mustWork = FALSE),
                 normalizePath(proj_root_env, mustWork = FALSE))) {
   setwd(proj_root_env)

@@ -23,6 +23,25 @@ target <- if (length(args)) args[[1]] else "audit"
 cat("[make] target =", target, "\n")
 cat("[make] cwd    =", getwd(), "\n")
 
+# ---- GHS_STRICT 模式：错误即停止，用于 release 构建 --------------------------
+.ghs_strict <- isTRUE(as.logical(Sys.getenv("GHS_STRICT", "FALSE")))
+if (.ghs_strict) {
+  cat("[make] GHS_STRICT=TRUE: errors will stop() instead of continuing\n")
+  options(warn = 2)  # warnings → errors
+}
+.ghs_try <- function(expr, label = "") {
+
+  if (.ghs_strict) {
+    tryCatch(expr, error = function(e) {
+      stop(sprintf("[STRICT FAIL] %s: %s", label, conditionMessage(e)))
+    })
+  } else {
+    tryCatch(expr, error = function(e) {
+      cat(sprintf("[make] %s err: %s\n", label, conditionMessage(e)))
+    })
+  }
+}
+
 # ---- common ---------------------------------------------------------------
 source_all_r <- function() {
   for (f in list.files("程序", pattern = "\\.R$", full.names = TRUE)) {
@@ -112,44 +131,32 @@ target_figures <- function() {
   # B1: 高级静态图集
   if (exists("ghs_export_advanced", mode = "function")) {
     cat("[make] ghs_export_advanced (B1)\n")
-    tryCatch(ghs_export_advanced(master,
-                                  fig_dir = file.path("分析输出", "图表")),
-              error = function(e) cat("[make]   B1 err: ", conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_advanced(master, fig_dir = file.path("分析输出", "图表")), "B1")
   }
   # B2: 地图集
   if (exists("ghs_export_maps_advanced", mode = "function")) {
     cat("[make] ghs_export_maps_advanced (B2)\n")
-    tryCatch(ghs_export_maps_advanced(master, world_sf,
-                                       fig_dir = file.path("分析输出", "图表")),
-              error = function(e) cat("[make]   B2 err: ", conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_maps_advanced(master, world_sf, fig_dir = file.path("分析输出", "图表")), "B2")
   }
   # B3: 产出图集
   if (exists("ghs_export_outcomes", mode = "function")) {
     cat("[make] ghs_export_outcomes (B3)\n")
-    tryCatch(ghs_export_outcomes(master, world_sf,
-                                  fig_dir = file.path("分析输出", "图表")),
-              error = function(e) cat("[make]   B3 err: ", conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_outcomes(master, world_sf, fig_dir = file.path("分析输出", "图表")), "B3")
   }
   # B4: 不平等图集
   if (exists("ghs_export_equity", mode = "function")) {
     cat("[make] ghs_export_equity (B4)\n")
-    tryCatch(ghs_export_equity(master,
-                                fig_dir = file.path("分析输出", "图表")),
-              error = function(e) cat("[make]   B4 err: ", conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_equity(master, fig_dir = file.path("分析输出", "图表")), "B4")
   }
   # B5: 国家专题图集
   if (exists("ghs_export_country", mode = "function")) {
     cat("[make] ghs_export_country (B5)\n")
-    tryCatch(ghs_export_country(master,
-                                 fig_dir = file.path("分析输出", "图表")),
-              error = function(e) cat("[make]   B5 err: ", conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_country(master, fig_dir = file.path("分析输出", "图表")), "B5")
   }
   # B6: 冲击图集
   if (exists("ghs_export_shocks", mode = "function")) {
     cat("[make] ghs_export_shocks (B6)\n")
-    tryCatch(ghs_export_shocks(master,
-                                fig_dir = file.path("分析输出", "图表")),
-              error = function(e) cat("[make]   B6 err: ", conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_shocks(master, fig_dir = file.path("分析输出", "图表")), "B6")
   }
   invisible(NULL)
 }
@@ -182,19 +189,12 @@ target_widgets <- function() {
   # C1: leaflet/plotly 地图 widget (~20)
   if (exists("ghs_export_widgets_map", mode = "function")) {
     cat("[make] ghs_export_widgets_map (C1)\n")
-    tryCatch(ghs_export_widgets_map(master, world_sf,
-                                       out_dir = file.path("分析输出", "交互组件")),
-              error = function(e) cat("[make]   C1 err: ",
-                                        conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_widgets_map(master, world_sf, out_dir = file.path("分析输出", "交互组件")), "C1")
   }
   # C2: 高级 widget (~80)
   if (exists("ghs_export_widgets_advanced", mode = "function")) {
     cat("[make] ghs_export_widgets_advanced (C2)\n")
-    tryCatch(ghs_export_widgets_advanced(master,
-                                            out_dir = file.path("分析输出",
-                                                                  "交互组件")),
-              error = function(e) cat("[make]   C2 err: ",
-                                        conditionMessage(e), "\n"))
+    .ghs_try(ghs_export_widgets_advanced(master, out_dir = file.path("分析输出", "交互组件")), "C2")
   }
   invisible(NULL)
 }

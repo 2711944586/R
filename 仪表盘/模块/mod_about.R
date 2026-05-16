@@ -1,6 +1,6 @@
 # =============================================================================
 # 仪表盘/模块/mod_about.R
-# Tab 12 · About：项目说明 + 数据源 + 引用 + 致谢
+# Tab 12 · 关于（About）：项目说明 + 数据源 + 引用 + 致谢
 # =============================================================================
 
 mod_about_ui <- function(id) {
@@ -21,7 +21,7 @@ mod_about_ui <- function(id) {
         htmltools::strong("195 个国家 / 24 年（2000–2023）"),
         " 的卫生支出结构演化。共集成 ", htmltools::strong("6 个数据源"),
         "（GHED + WB WDI + WHO GHO + IMF GFS + OECD + IHME）, ",
-        htmltools::strong("12 个分析维度"),
+        htmltools::strong("36 个分析模块"),
         "（公平 / 财政 / 效率 / 预防 / 援助 / 韧性 ...）。"),
 
       htmltools::h3("数据来源"),
@@ -52,11 +52,11 @@ mod_about_ui <- function(id) {
 
       htmltools::h3("产出"),
       htmltools::tags$ul(
-        htmltools::tags$li("44 张静态图（PNG + SVG，可印刷）"),
-        htmltools::tags$li("24 个交互 widget（plotly / leaflet / reactable / DT）"),
-        htmltools::tags$li("12 张表（数据质量报告 + 模型结果）"),
+        htmltools::tags$li("300 张静态图（PNG + SVG，可印刷）"),
+        htmltools::tags$li("133 个交互 widget（plotly / leaflet / reactable / DT）"),
+        htmltools::tags$li("81 个统计模型（面板回归 / DEA / 聚类 / 预测）"),
         htmltools::tags$li("Quarto Book 12 章 + 方法学附录"),
-        htmltools::tags$li("Shiny 仪表盘 12 tab（本页面）")
+        htmltools::tags$li("Shiny 仪表盘 36 模块（本页面）")
       ),
 
       htmltools::h3("引用"),
