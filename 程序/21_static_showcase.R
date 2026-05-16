@@ -2151,8 +2151,8 @@ if (!exists("%||%", mode = "function")) {
     ".methods .code-figure{margin:14px 0 22px}",
     ".finding{padding:104px 0;border-top:none}",
     ".finding:nth-of-type(odd){background:var(--paper)}",
-    ".finding-head{display:grid;grid-template-columns:96px 1fr;gap:24px;align-items:start;margin-bottom:36px}",
-    ".finding-num{font-family:'Source Serif 4',serif;font-size:72px;line-height:1;color:#111827;font-weight:800}",
+    ".finding-head{display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start;margin-bottom:36px}",
+    ".finding-num{font-family:'Source Serif 4',serif;font-size:56px;line-height:1;color:#111827;font-weight:800}",
     ".finding-kicker{display:inline-block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#374151;margin-bottom:6px;font-weight:800}",
     ".finding-head h2{font-size:clamp(32px,4.4vw,52px);line-height:1.05;margin:0 0 12px}",
     ".finding-head .lead{font-size:18px;color:var(--muted);max-width:760px}",
@@ -2321,7 +2321,7 @@ if (!exists("%||%", mode = "function")) {
     ".widget-embed strong{font-size:13px;color:#292524;font-weight:700}",
     ".widget-embed .widget-meta{font-size:11.5px;color:#a8a29e;font-weight:500}",
     ".widget-embed-frame{position:relative;background:#fff;height:0;overflow:hidden;transition:height .3s ease}",
-    ".widget-embed[open] .widget-embed-frame{height:600px;border-top:1px solid var(--line)}",
+    ".widget-embed[open] .widget-embed-frame{height:640px;border-top:1px solid var(--line)}",
     ".widget-embed iframe{width:100%;height:100%;border:0;background:#fff}",
     ".widget-embed-links{display:flex;gap:12px;padding:10px 18px 12px;font-size:12px;border-top:1px solid var(--line)}.widget-embed-links a{color:#78716c;text-decoration:none}.widget-embed-links a:hover{color:#292524}",
     "html[data-theme='dark'] .widget-embed-links{background:#11161f}",
@@ -2655,7 +2655,7 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- Finding 卡片精修 ----------------------------------------
     ".finding{padding:120px 0}",
-    ".finding-num{font-size:88px;font-weight:900;letter-spacing:-.04em;background:linear-gradient(180deg,#c46327,#a23b3b 80%);-webkit-background-clip:text;background-clip:text;color:transparent}",
+    ".finding-num{font-size:60px;font-weight:900;letter-spacing:-.03em;color:#292524}",
     ".finding-kicker{font-size:11.5px;letter-spacing:.22em;font-weight:900;color:var(--blue)}",
     ".finding-head h2{font-size:clamp(34px,4.6vw,56px);font-weight:800;line-height:1.04;margin:8px 0 16px}",
     ".finding-head .lead{font-size:18px;line-height:1.65;color:var(--muted);max-width:780px;font-weight:400}",
