@@ -2047,7 +2047,7 @@ if (!exists("%||%", mode = "function")) {
     "h1,h2,h3{font-family:'Source Serif 4',Georgia,'Noto Serif SC',serif;letter-spacing:-.01em}",
     "code,pre{font-family:'JetBrains Mono','Fira Code',Consolas,monospace}",
     "a{color:var(--blue)}",
-    ".hero{position:relative;min-height:100vh;padding:0;display:flex;align-items:center;justify-content:center;background:#f0ebe1;overflow:hidden}",
+    ".hero{position:relative;min-height:110vh;padding:0;display:flex;align-items:center;justify-content:center;background:#f0ebe1;overflow:hidden}",
     ".hero:before{content:'';position:absolute;inset:0;background:none;pointer-events:none}",
     ".hero:after{content:'';position:absolute;inset:0;background:none;pointer-events:none}",
     ".hero-center{position:relative;z-index:2;text-align:left;max-width:1100px;width:min(1100px,88vw);padding:0}",
@@ -2084,9 +2084,9 @@ if (!exists("%||%", mode = "function")) {
     "img,svg,iframe,video,canvas{max-width:100%}",
     "pre,code,.table-wrap,.figure-index,.widget-card,.gallery-card,.hero-panel,.method-block,.callout{min-width:0;overflow-wrap:anywhere}",
     ".hero-panel-list li span,.hero-lead,.section .lead,.finding-head .lead{min-width:0;overflow-wrap:anywhere}",
-    ".section{padding:96px 0;border-top:1px solid var(--line)}",
+    ".section{padding:96px 0;border-top:none}",
     ".section:first-of-type{border-top:none}",
-    ".kpi-section{background:linear-gradient(180deg,#f0ebe1,#e8e2d8)}",
+    ".kpi-section{background:var(--paper)}",
     ".section-head{margin-bottom:42px;max-width:880px}",
     ".section-head .kicker{display:inline-block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#374151;margin-bottom:10px;font-weight:800}",
     ".section h2{font-size:clamp(34px,4.4vw,56px);line-height:1.05;margin:0 0 16px}",
@@ -2098,8 +2098,8 @@ if (!exists("%||%", mode = "function")) {
     ".kpi-label{margin-top:10px;font-weight:800;font-size:13px;letter-spacing:.04em;color:#374151}",
     ".kpi-note{margin-top:6px;font-size:12.5px;color:#6b7280;line-height:1.55}",
     ".methods .code-figure{margin:14px 0 22px}",
-    ".finding{padding:104px 0;border-top:1px solid var(--line)}",
-    ".finding:nth-of-type(odd){background:linear-gradient(180deg,#ece7dd,#e8e2d8)}",
+    ".finding{padding:104px 0;border-top:none}",
+    ".finding:nth-of-type(odd){background:var(--paper)}",
     ".finding-head{display:grid;grid-template-columns:96px 1fr;gap:24px;align-items:start;margin-bottom:36px}",
     ".finding-num{font-family:'Source Serif 4',serif;font-size:72px;line-height:1;color:#111827;font-weight:800}",
     ".finding-kicker{display:inline-block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#374151;margin-bottom:6px;font-weight:800}",
@@ -2349,7 +2349,7 @@ if (!exists("%||%", mode = "function")) {
     "function toggleDock(){var dock=document.getElementById('ghs-dock');dock.classList.toggle('open');}",
     "(function(){try{var t=localStorage.getItem('ghs-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.querySelectorAll('.theme-toggle').forEach(function(btn){btn.textContent='\u263d';});}}catch(e){}})();",
     "(function(){var bar=document.getElementById('read-progress');var dbar=document.getElementById('dock-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=s/max;if(bar)bar.style.width=(pct*100)+'%';if(dbar)dbar.style.transform='scaleX('+pct+')';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+140;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
+    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+200;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el){var top=el.offsetTop-80;window.scrollTo({top:top,behavior:'smooth'});}var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",
@@ -2632,10 +2632,8 @@ if (!exists("%||%", mode = "function")) {
     ".code-figure{margin:18px 0 26px}",
     ".code-caption{font-size:12px;color:var(--muted);margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}",
 
-    # ---- 章节分隔线（精致） ---------------------------------------
+    # ---- 章节分隔（无装饰线） ----------------------------------------
     ".section{position:relative}",
-    ".section:before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:linear-gradient(90deg,transparent,#c46327,transparent);border-radius:999px}",
-    ".finding:before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:3px;background:linear-gradient(90deg,transparent,#1d3f5f,transparent);border-radius:999px}",
 
     # ---- 滚动揭示动画 --------------------------------------------
     "@keyframes ghs-fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}",
