@@ -759,12 +759,18 @@ if (!exists("%||%", mode = "function")) {
               .ghs_n(s$che_total_growth * 100, 2, "%"))
     )),
     .ghs_code(f1_code, "r", "07_plot_static.R \u00b7 \u6784\u5efa\u5168\u7403-\u5e74\u9762\u677f\u4e0e\u5806\u53e0\u9762\u79ef\u56fe"),
-    .ghs_fig(file.path(fig_dir, "01_global_sources_area.png"),
+    .ghs_fig(file.path(fig_dir, "001_global_sources_area.png"),
              "\u5168\u7403\u536b\u751f\u652f\u51fa\u6765\u6e90\u7ed3\u6784 2000\u20132023\uff08USD 2023 \u4e0d\u53d8\u4ef7\uff09",
              "Figure 1A \u00b7 \u5168\u7403\u603b\u989d\u4e0e\u6765\u6e90"),
-    .ghs_fig(file.path(fig_dir, "v2_continent_stream.png"),
+    .ghs_fig(file.path(fig_dir, "023_stream_continent.png"),
              "\u6309\u5927\u6d32\u5206\u89e3\u7684 CHE \u6d41\u53d8\u56fe",
              "Figure 1B \u00b7 \u5927\u6d32\u5206\u89e3"),
+    .ghs_fig(file.path(fig_dir, "073_global_che_total.png"),
+             "\u5168\u7403 CHE \u603b\u91cf\u65f6\u5e8f\u53d8\u5316",
+             "Figure 1C \u00b7 \u603b\u91cf\u8d8b\u52bf"),
+    .ghs_fig(file.path(fig_dir, "074_global_hf_share.png"),
+             "\u5168\u7403\u4e09\u6e90\u7b79\u8d44\u4efd\u989d\u6f14\u5316",
+             "Figure 1D \u00b7 \u4efd\u989d\u53d8\u5316"),
     .ghs_callout("\u89e3\u8bfb \u00b7 \u4e09\u4e2a\u5206\u5c42\u4fe1\u53f7",
       .ghs_para(
         sprintf("<b>\u603b\u91cf\u5c42\uff1a</b>\u5168\u7403 CHE \u7531 %d \u5e74\u7684 %s \u589e\u957f\u81f3 %d \u5e74\u7684 %s\uff0c\u5e74\u5316 %s\uff1b\u4eba\u5747 CHE \u7531 %s \u5347\u81f3 %s\u3002",
@@ -776,7 +782,9 @@ if (!exists("%||%", mode = "function")) {
         "<b>\u52a8\u6001\u5c42\uff1a</b>2008\u20132010\u3001 2020\u20132022 \u4e24\u6b21\u51b2\u51fb\u5728\u66f2\u7ebf\u4e0a\u7559\u4e0b\u660e\u663e\u51f8\u8d77\uff0c\u4e0b\u6587 F4 \u5355\u72ec\u5206\u89e3\u3002"
       ), tone = "blue"),
     .ghs_widget_anchor(widget_dir, "02_highlight_ts.html",
-      "跨国人均 CHE 高亮时序线", mode, repo_url),
+      "\u8de8\u56fd\u4eba\u5747 CHE \u9ad8\u4eae\u65f6\u5e8f\u7ebf", mode, repo_url),
+    .ghs_widget_anchor(widget_dir, "01_gapminder_animated.html",
+      "\u52a8\u6001\u6c14\u6ce1\u56fe\uff1aCHE \u00d7 GDP \u00d7 \u4eba\u53e3", mode, repo_url),
     .ghs_limit(
       "全球加总受 USD2023 不变价调整，与各国本币发布口径存在领域差异。",
       "GGHED / PVTD / EXT 占比年代间不严格合计 100%（PVD 与 PHI 定义调整）。",
@@ -2643,11 +2651,11 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-deep-card[data-tone='secondary']{border-left:4px solid #c46327}",
 
     # ---- 表格精修 ------------------------------------------------
-    ".table-wrap{margin:16px 0;overflow-x:auto;border-radius:14px;box-shadow:0 6px 22px rgba(13,18,27,.05);border:1px solid rgba(13,18,27,.08)}",
+    ".table-wrap{margin:16px 0;overflow-x:auto;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.06)}",
     ".table-wrap table{width:100%;border-collapse:collapse;font-size:13.5px}",
-    ".table-wrap th{background:#f0ebe1;padding:14px 16px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#78716c;border-bottom:1px solid rgba(0,0,0,.08);text-align:left}",
-    ".table-wrap td{padding:12px 16px;border-bottom:1px solid rgba(13,18,27,.06);color:var(--ink)}",
-    ".table-wrap tr:hover td{background:rgba(29,63,95,.03)}",
+    ".table-wrap th{background:#f0ebe1;padding:14px 16px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#78716c;border-bottom:1px solid rgba(0,0,0,.08);text-align:left;position:sticky;top:0;z-index:2}",
+    ".table-wrap td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--ink)}",
+    ".table-wrap tr:hover td{background:rgba(0,0,0,.02)}",
     ".table-wrap tr:last-child td{border-bottom:0}",
 
     # ---- 代码块精修 ----------------------------------------------
