@@ -623,7 +623,7 @@ if (!exists("%||%", mode = "function")) {
     "<li><b>\u8ffd\u8d76\u4e0d\u662f\u81ea\u52a8\u7684</b>\uff1a\u03b2-\u6536\u655b\u6210\u7acb\u4f46\u534a\u6536\u655b\u5e74\u8de8\u5927\u6d32\u5dee\u5f02\u663e\u8457\uff1b\u53cc\u5411 FE \u5f39\u6027\u7ea6 0.8 < 1\uff0c\u4ec5\u9760 GDP \u589e\u957f\u4e0d\u8db3\u4ee5\u9a71\u52a8 UHC\uff08F5\u3001F6\uff09\u3002</li>",
     "</ol>"
   )
-  sprintf("<section class='section executive' id='executive'><div class='wrap'><header class='section-head'><span class='kicker'>01 \u00b7 Executive Summary</span><h2>\u6458\u8981 \u00b7 \u4e94\u53e5\u8bdd\u8bfb\u5b8c\u672c\u9879\u76ee</h2><p class='lead'>\u672c\u8282\u4ee5 4 \u5f20\u5927\u5b57\u6570\u5b57\u5361\u7247 + 5 \u6761 TLDR \u7ed3\u8bba\u63d0\u4f9b\u4e00\u4e2a 90 \u79d2\u5185\u53ef\u8bfb\u5b8c\u7684\u9879\u76ee\u603b\u89c8\uff1b\u4e0b\u6587\u662f\u5176\u80cc\u540e\u7684\u4ee3\u7801\u4e0e\u8bc1\u636e\u3002</p></header><div class='exec-big-grid'>%s</div><div class='exec-tldr'><span class='kicker'>TLDR \u00b7 \u6838\u5fc3\u53d1\u73b0</span>%s<a class='btn-light' href='#findings'>\u8df3\u5230 10 \u9879\u53d1\u73b0 \u2193</a></div></div></section>",
+  sprintf("<section class='section executive' id='executive'><div class='wrap'><header class='section-head'><span class='kicker'>01 \u00b7 EXECUTIVE SUMMARY</span><h2>\u6458\u8981</h2></header><div class='exec-big-grid'>%s</div><div class='exec-tldr'><span class='kicker'>TLDR \u00b7 \u6838\u5fc3\u53d1\u73b0</span>%s<a class='btn-light' href='#findings'>\u8df3\u5230\u53d1\u73b0 \u2193</a></div></div></section>",
           bigs, tldr)
 }
 
@@ -2279,7 +2279,12 @@ if (!exists("%||%", mode = "function")) {
     "html[data-theme='dark'] .widget-embed-links a{color:#f7c08a;border-bottom-color:#f7c08a}",
     ".executive{background:var(--paper)}",
     ".exec-big-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:30px}",
-    ".exec-big{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:24px 22px;box-shadow:0 2px 8px rgba(0,0,0,.03);display:grid;gap:6px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s}",
+    ".exec-big{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:24px 22px;box-shadow:0 2px 8px rgba(0,0,0,.03);display:grid;gap:6px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s;animation:ghs-card-enter .7s cubic-bezier(.16,1,.3,1) both}",
+    ".exec-big:nth-child(1){animation-delay:.1s}",
+    ".exec-big:nth-child(2){animation-delay:.2s}",
+    ".exec-big:nth-child(3){animation-delay:.3s}",
+    ".exec-big:nth-child(4){animation-delay:.4s}",
+    "@keyframes ghs-card-enter{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}",
     ".exec-big:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.06)}",
     ".exec-big:before{content:none}",
     ".exec-big.tone-orange:before{content:none}",
