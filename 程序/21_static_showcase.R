@@ -87,36 +87,35 @@ if (!exists("%||%", mode = "function")) {
 }
 
 .ghs_nav_items <- function() {
-  # 总分结构：大类（group）+ 子项（id/label）
   list(
-    list(group = "\u6982\u89c8", items = list(
-      list(id = "executive", label = "\u6458\u8981"),
-      list(id = "kpi", label = "KPI")
+    list(group = "1 \u6982\u89c8", items = list(
+      list(id = "executive", label = "1.1 \u6458\u8981"),
+      list(id = "kpi", label = "1.2 KPI")
     )),
-    list(group = "\u65b9\u6cd5", items = list(
-      list(id = "methods", label = "\u6570\u636e\u4e0e\u65b9\u6cd5")
+    list(group = "2 \u65b9\u6cd5", items = list(
+      list(id = "methods", label = "2.1 \u6570\u636e\u4e0e\u65b9\u6cd5")
     )),
-    list(group = "\u53d1\u73b0", items = list(
-      list(id = "findings", label = "F1\u2013F14 \u6838\u5fc3"),
-      list(id = "countries", label = "\u56fd\u5bb6\u6863\u6848"),
-      list(id = "regional", label = "\u533a\u57df\u4e13\u9898"),
-      list(id = "period", label = "\u5206\u671f\u5bf9\u6bd4")
+    list(group = "3 \u53d1\u73b0", items = list(
+      list(id = "findings", label = "3.1 \u6838\u5fc3\u53d1\u73b0"),
+      list(id = "countries", label = "3.2 \u56fd\u5bb6"),
+      list(id = "regional", label = "3.3 \u533a\u57df"),
+      list(id = "period", label = "3.4 \u5206\u671f")
     )),
-    list(group = "\u4e13\u9898", items = list(
-      list(id = "sdg3", label = "SDG-3"),
-      list(id = "lifeexp", label = "\u5bff\u547d\u5f39\u6027"),
-      list(id = "atlas", label = "\u4e0d\u5e73\u7b49"),
-      list(id = "cluster-detail", label = "\u805a\u7c7b"),
-      list(id = "extreme", label = "\u6781\u503c\u4e0e\u51b2\u51fb")
+    list(group = "4 \u4e13\u9898", items = list(
+      list(id = "sdg3", label = "4.1 SDG-3"),
+      list(id = "lifeexp", label = "4.2 \u5bff\u547d"),
+      list(id = "atlas", label = "4.3 \u4e0d\u5e73\u7b49"),
+      list(id = "cluster-detail", label = "4.4 \u805a\u7c7b"),
+      list(id = "extreme", label = "4.5 \u6781\u503c")
     )),
-    list(group = "\u5de5\u5177", items = list(
-      list(id = "simulator", label = "\u60c5\u666f\u4eff\u771f"),
-      list(id = "figure-index", label = "\u56fe\u8868\u7d22\u5f15"),
-      list(id = "widgets", label = "\u4ea4\u4e92\u7ec4\u4ef6")
+    list(group = "5 \u5de5\u5177", items = list(
+      list(id = "simulator", label = "5.1 \u4eff\u771f"),
+      list(id = "figure-index", label = "5.2 \u56fe\u8868"),
+      list(id = "widgets", label = "5.3 \u4ea4\u4e92")
     )),
-    list(group = "\u9644\u5f55", items = list(
-      list(id = "repro", label = "\u590d\u73b0"),
-      list(id = "conclusion", label = "\u7ed3\u8bba")
+    list(group = "6 \u9644\u5f55", items = list(
+      list(id = "repro", label = "6.1 \u590d\u73b0"),
+      list(id = "conclusion", label = "6.2 \u7ed3\u8bba")
     ))
   )
 }
@@ -2679,15 +2678,15 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-dock.open .dock-icon-open{display:none}",
     ".ghs-dock.open .dock-icon-close{display:inline}",
     ".ghs-dock.open .dock-toggle{background:#78716c;border-radius:50%}",
-    ".dock-panel{position:absolute;bottom:64px;right:0;width:300px;max-height:70vh;overflow-y:auto;background:rgba(250,248,245,.94);backdrop-filter:blur(20px) saturate(130%);-webkit-backdrop-filter:blur(20px) saturate(130%);border:1px solid rgba(0,0,0,.06);border-radius:22px;padding:0;opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .22s cubic-bezier(.4,0,.2,1),transform .22s cubic-bezier(.4,0,.2,1);box-shadow:0 20px 60px rgba(0,0,0,.1),0 3px 10px rgba(0,0,0,.04)}",
+    ".dock-panel{position:absolute;bottom:64px;right:0;width:280px;max-height:75vh;overflow-y:auto;background:rgba(240,235,225,.75);backdrop-filter:blur(28px) saturate(140%);-webkit-backdrop-filter:blur(28px) saturate(140%);border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:0;opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .22s cubic-bezier(.4,0,.2,1),transform .22s cubic-bezier(.4,0,.2,1);box-shadow:0 16px 48px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.03)}",
     ".ghs-dock.open .dock-panel{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}",
-    ".dock-header{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid rgba(0,0,0,.05)}",
-    ".dock-brand{font-family:'Source Serif 4',serif;font-weight:800;font-size:17px;color:#292524;text-decoration:none;letter-spacing:.02em}",
-    ".dock-subtitle{font-size:12px;color:#78716c;flex:1}",
-    ".dock-header .theme-toggle{width:28px;height:28px;font-size:13px;border:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.02);color:#44403c;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}",
-    ".dock-links{padding:12px 14px}.dock-links .nav-group{display:block;margin-bottom:10px}.dock-links .nav-group-label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,0,0,.3);padding:4px 8px 5px}.dock-links .nav-group a{display:inline-block;color:#44403c;font-size:12.5px;text-decoration:none;padding:5px 10px;border-radius:8px;margin:1px;transition:all .12s ease;font-weight:500}.dock-links .nav-group a:hover{color:#1a1a1a;background:rgba(0,0,0,.04)}.dock-links .nav-group a.active{color:#292524;background:rgba(41,37,36,.08);font-weight:700}",
+    ".dock-header{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid rgba(0,0,0,.04)}",
+    ".dock-brand{font-family:'Source Serif 4',serif;font-weight:800;font-size:15px;color:#292524;text-decoration:none;letter-spacing:.02em}",
+    ".dock-subtitle{font-size:11px;color:#a8a29e;flex:1}",
+    ".dock-header .theme-toggle{width:26px;height:26px;font-size:12px;border:1px solid rgba(0,0,0,.06);background:transparent;color:#78716c;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}",
+    ".dock-links{padding:10px 12px}.dock-links .nav-group{display:block;margin-bottom:8px}.dock-links .nav-group-label{display:block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,0,0,.28);padding:3px 6px 4px}.dock-links .nav-group a{display:inline-block;color:#57534e;font-size:11.5px;text-decoration:none;padding:4px 8px;border-radius:6px;margin:1px;transition:all .12s ease;font-weight:500}.dock-links .nav-group a:hover{color:#1c1917;background:rgba(0,0,0,.04)}.dock-links .nav-group a.active{color:#1c1917;background:rgba(41,37,36,.08);font-weight:700}",
     ".dock-links .nav-group:after{display:none}",
-    ".dock-footer{display:flex;gap:8px;padding:12px 20px 16px;border-top:1px solid rgba(0,0,0,.05)}.dock-footer a{font-size:11.5px;color:#78716c;text-decoration:none;padding:4px 10px;border:1px solid rgba(0,0,0,.08);border-radius:8px;transition:all .12s}.dock-footer a:hover{color:#292524;border-color:rgba(0,0,0,.15);background:rgba(0,0,0,.02)}",
+    ".dock-footer{display:flex;gap:6px;padding:10px 16px 12px;border-top:1px solid rgba(0,0,0,.04)}.dock-footer a{font-size:11px;color:#a8a29e;text-decoration:none;padding:3px 8px;border:1px solid rgba(0,0,0,.06);border-radius:6px;transition:all .12s}.dock-footer a:hover{color:#292524;border-color:rgba(0,0,0,.12)}",
     ".dock-progress{position:absolute;bottom:0;left:8px;right:8px;width:auto;height:3px;background:linear-gradient(90deg,#292524,#78716c);border-radius:99px;transition:width .1s linear;z-index:3;pointer-events:none;transform:scaleX(0);transform-origin:left}",
     ".ghs-dock:not(.open) .dock-progress{left:12px;right:12px;bottom:4px;height:2px;border-radius:99px}",
     "@media(max-width:640px){.ghs-dock{bottom:16px;right:16px}.dock-panel{width:calc(100vw - 32px);right:-8px;bottom:60px}.hero-main{font-size:48px}}",
