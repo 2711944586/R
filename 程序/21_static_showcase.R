@@ -503,34 +503,54 @@ if (!exists("%||%", mode = "function")) {
 # ---- 3. Hero / KPI / 数据与方法 ------------------------------------------
 
 .ghs_hero <- function(s, project_url, n_fig, n_widget) {
+  # 浮动导航 dock（替代传统顶栏）
+  dock_nav <- .ghs_nav_links("dock-links")
+  dock_html <- paste0(
+    "<div class='ghs-dock' id='ghs-dock'>",
+    "<div class='dock-progress' id='dock-progress'></div>",
+    "<button class='dock-toggle' id='dock-toggle' type='button' onclick='toggleDock()'>",
+    "<span class='dock-icon-open'>\u2630</span>",
+    "<span class='dock-icon-close'>\u2715</span>",
+    "</button>",
+    "<div class='dock-panel' id='dock-panel'>",
+    "<div class='dock-header'>",
+    "<a href='#top' class='dock-brand'>GHS</a>",
+    "<span class='dock-subtitle'>\u5168\u7403\u536b\u751f\u652f\u51fa</span>",
+    "<button class='theme-toggle' type='button' onclick='toggleTheme()' title='\u5207\u6362\u4e3b\u9898'>\u2600</button>",
+    "</div>",
+    dock_nav,
+    "<div class='dock-footer'>",
+    "<a href='", .ghs_e(project_url), "' target='_blank'>GitHub</a>",
+    "<a href='./\u4eea\u8868\u76d8/'>Shiny</a>",
+    "</div>",
+    "</div>",
+    "</div>"
+  )
   sprintf(
     paste0(
+      "%s",
       "<div class='top-bar'><div id='read-progress'></div></div>",
-      "<header class='hero' id='top'><div class='wrap nav'>",
-      "<a class='brand' href='#top'>GHS \u00b7 2000\u20132023</a>",
-      .ghs_nav_links("links"),
-      "<button class='theme-toggle' type='button' onclick='toggleTheme()' title='\u5207\u6362\u4e3b\u9898'>\u2600</button>",
-      "</div>",
-      .ghs_mobile_toc(),
+      "<header class='hero' id='top'>",
       "<div class='wrap hero-grid'>",
-      "<div><span class='eyebrow'>Final integrated deliverable \u00b7 36 \u4e2a\u5185\u5bb9\u7ae0\u8282 \u00b7 14 \u9879\u6838\u5fc3\u53d1\u73b0 \u00b7 \u5355\u4e00\u6807\u51c6</span>",
+      "<div><span class='eyebrow'>Global Health Expenditure \u00b7 %d countries \u00b7 %d years \u00b7 integrated analysis</span>",
       "<h1>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023\uff1a",
       "<span class='accent'>\u516c\u5e73\u3001\u97e7\u6027\u3001\u672a\u6765</span></h1>",
-      "<p class='hero-lead'>\u672c\u9875\u6574\u5408 GHED + WDI \u957f\u9762\u677f\u7684\u6570\u636e\u5de5\u7a0b\u3001\u7edf\u8ba1\u5efa\u6a21\u3001\u53ef\u89c6\u5316\u3001\u4eff\u771f\u4e0e\u90e8\u7f72\uff1a36 \u4e2a\u5185\u5bb9\u7ae0\u8282\u6db5\u76d6 \u6458\u8981 \u00b7 KPI \u00b7 \u65b9\u6cd5 \u00b7 \u6570\u636e\u8d28\u91cf \u00b7 \u53d8\u91cf\u5b57\u5178 \u00b7 14 \u9879\u6838\u5fc3\u53d1\u73b0 \u00b7 \u56fd\u5bb6\u6863\u6848 \u00b7 \u533a\u57df\u805a\u7126 \u00b7 \u4e0d\u5e73\u7b49\u56fe\u518c \u00b7 \u653f\u7b56\u4eff\u771f\u5668 \u00b7 \u7a33\u5065\u6027 \u00b7 94 \u5f20\u9759\u6001\u56fe \u00b7 42 \u4ea4\u4e92\u7ec4\u4ef6 \u00b7 \u8bcd\u6c47 \u00b7 \u590d\u73b0\u00b7\u7ed3\u8bba\u3002</p>",
+      "<p class='hero-lead'>WHO GHED + WDI \u957f\u9762\u677f\u7684\u6570\u636e\u5de5\u7a0b\u3001\u7edf\u8ba1\u5efa\u6a21\u4e0e\u53ef\u89c6\u5316\u3002%d \u5f20\u9759\u6001\u56fe\u3001%d \u4e2a\u4ea4\u4e92\u7ec4\u4ef6\u300136 \u4e2a Shiny \u6a21\u5757\u3001F1\u2013F14 \u6838\u5fc3\u53d1\u73b0\u3002</p>",
       "<div class='hero-actions'>",
-      "<a class='btn' href='#executive'>90 \u79d2\u8bfb\u6458\u8981 \u2192</a>",
-      "<a class='btn alt' href='#findings'>\u8df3\u5230 14 \u9879\u53d1\u73b0</a>",
-      "<a class='btn ghost' href='%s'>GitHub \u4ed3\u5e93</a>",
-      "<a class='btn ghost' href='./\u4eea\u8868\u76d8/'>\u6d4f\u89c8\u5668\u5185 Shiny</a></div></div>",
+      "<a class='btn' href='#executive'>\u6458\u8981 \u2192</a>",
+      "<a class='btn alt' href='#findings'>14 \u9879\u53d1\u73b0</a>",
+      "<a class='btn ghost' href='%s'>GitHub</a>",
+      "<a class='btn ghost' href='./\u4eea\u8868\u76d8/'>Shiny</a></div></div>",
       "<aside class='hero-panel'><span class='hero-panel-tag'>\u9875\u9762\u6784\u6210</span>",
       "<ul class='hero-panel-list'>",
-      "<li><b>%d</b><span>\u56fd\u5bb6/\u5730\u533a \u00b7 %d \u5e74\u9762\u677f</span></li>",
-      "<li><b>%d</b><span>\u9759\u6001\u56fe\u8868</span></li>",
-      "<li><b>%d</b><span>\u4ea4\u4e92\u7ec4\u4ef6</span></li>",
-      "<li><b>14</b><span>\u6838\u5fc3\u53d1\u73b0 + \u4e8c\u7ea7\u5206\u6790 + \u5b8c\u6574 R \u4ee3\u7801</span></li>",
-      "<li><b>36</b><span>\u5185\u5bb9\u7ae0\u8282\u00b7\u4ece\u6458\u8981\u5230\u590d\u73b0</span></li>",
+      "<li><b>%d</b><span>\u56fd\u5bb6 \u00b7 %d \u5e74\u9762\u677f</span></li>",
+      "<li><b>%d</b><span>\u9759\u6001\u56fe\u8868 (PNG + SVG)</span></li>",
+      "<li><b>%d</b><span>\u4ea4\u4e92\u7ec4\u4ef6 (plotly / leaflet / DT)</span></li>",
+      "<li><b>36</b><span>\u5185\u5bb9\u7ae0\u8282\u00b7\u6458\u8981\u5230\u590d\u73b0</span></li>",
       "</ul></aside></div></header>"
     ),
+    dock_html,
+    s$n_country, s$span, n_fig, n_widget,
     .ghs_e(project_url), s$n_country, s$span, n_fig, n_widget
   )
 }
@@ -2325,10 +2345,11 @@ if (!exists("%||%", mode = "function")) {
     "function closeFigure(){document.getElementById('fig-modal').classList.remove('open');}",
     "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;f.scrollIntoView({behavior:'smooth',block:'center'});}",
     "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFigure();});",
-    "function toggleTheme(){var html=document.documentElement;var cur=html.getAttribute('data-theme')||'light';var nxt=cur==='light'?'dark':'light';html.setAttribute('data-theme',nxt);try{localStorage.setItem('ghs-theme',nxt);}catch(e){}var btn=document.querySelector('.theme-toggle');if(btn)btn.textContent=nxt==='dark'?'\u263d':'\u2600';}",
-    "(function(){try{var t=localStorage.getItem('ghs-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var btn=document.querySelector('.theme-toggle');if(btn)btn.textContent='\u263d';}}catch(e){}})();",
-    "(function(){var bar=document.getElementById('read-progress');if(!bar)return;function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;bar.style.width=(s/max*100)+'%';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+140;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('mobile-toc');if(d)d.open=false;});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
+    "function toggleTheme(){var html=document.documentElement;var cur=html.getAttribute('data-theme')||'light';var nxt=cur==='light'?'dark':'light';html.setAttribute('data-theme',nxt);try{localStorage.setItem('ghs-theme',nxt);}catch(e){}document.querySelectorAll('.theme-toggle').forEach(function(btn){btn.textContent=nxt==='dark'?'\u263d':'\u2600';});}",
+    "function toggleDock(){var dock=document.getElementById('ghs-dock');dock.classList.toggle('open');}",
+    "(function(){try{var t=localStorage.getItem('ghs-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.querySelectorAll('.theme-toggle').forEach(function(btn){btn.textContent='\u263d';});}}catch(e){}})();",
+    "(function(){var bar=document.getElementById('read-progress');var dbar=document.getElementById('dock-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=(s/max*100)+'%';if(bar)bar.style.width=pct;if(dbar)dbar.style.width=pct;}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
+    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+140;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",
@@ -2644,6 +2665,27 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- 焦点态可访问性（WCAG 2.1 AA） --------------------------
     "a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:8px}",
+
+    # ---- 浮动导航 Dock ----------------------------------------
+    ".ghs-dock{position:fixed;bottom:24px;right:24px;z-index:9999;font-family:'Inter',system-ui,sans-serif}",
+    ".dock-toggle{width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#0d121b,#1d3f5f);color:#f7eedf;font-size:20px;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s,background .3s;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}",
+    ".dock-toggle:hover{transform:scale(1.08);box-shadow:0 12px 40px rgba(0,0,0,.3)}",
+    ".dock-icon-close{display:none}",
+    ".ghs-dock.open .dock-icon-open{display:none}",
+    ".ghs-dock.open .dock-icon-close{display:inline}",
+    ".ghs-dock.open .dock-toggle{background:linear-gradient(135deg,#a23b3b,#c46327);transform:rotate(0deg)}",
+    ".dock-panel{position:absolute;bottom:64px;right:0;width:320px;max-height:70vh;overflow-y:auto;background:rgba(13,18,27,.88);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid rgba(247,238,223,.12);border-radius:20px;padding:0;opacity:0;transform:translateY(12px) scale(.95);pointer-events:none;transition:opacity .25s cubic-bezier(.4,0,.2,1),transform .25s cubic-bezier(.4,0,.2,1);box-shadow:0 24px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(247,238,223,.08)}",
+    ".ghs-dock.open .dock-panel{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}",
+    ".dock-header{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid rgba(247,238,223,.08)}",
+    ".dock-brand{font-family:'Source Serif 4',serif;font-weight:800;font-size:18px;color:#f7eedf;text-decoration:none;letter-spacing:.04em}",
+    ".dock-subtitle{font-size:12px;color:rgba(247,238,223,.5);flex:1}",
+    ".dock-header .theme-toggle{width:30px;height:30px;font-size:14px;border:1px solid rgba(247,238,223,.2);background:rgba(247,238,223,.06);color:#f7eedf;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}",
+    ".dock-links{padding:12px 14px}.dock-links .nav-group{display:block;margin-bottom:10px}.dock-links .nav-group-label{display:block;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,192,138,.6);padding:4px 8px 6px}.dock-links .nav-group a{display:inline-block;color:rgba(247,238,223,.72);font-size:12.5px;text-decoration:none;padding:5px 10px;border-radius:8px;margin:2px;transition:all .12s ease;font-weight:500}.dock-links .nav-group a:hover{color:#fff;background:rgba(247,238,223,.1)}.dock-links .nav-group a.active{color:#fff;background:rgba(247,192,138,.2);font-weight:700}",
+    ".dock-links .nav-group:after{display:none}",
+    ".dock-footer{display:flex;gap:10px;padding:12px 20px 16px;border-top:1px solid rgba(247,238,223,.08)}.dock-footer a{font-size:12px;color:rgba(247,238,223,.6);text-decoration:none;padding:4px 10px;border:1px solid rgba(247,238,223,.15);border-radius:999px;transition:all .12s}.dock-footer a:hover{color:#fff;border-color:rgba(247,238,223,.3);background:rgba(247,238,223,.06)}",
+    ".dock-progress{position:absolute;bottom:0;left:0;width:0;height:3px;background:linear-gradient(90deg,#c46327,#2a857a);border-radius:0 0 50px 50px;transition:width .1s linear;z-index:3;pointer-events:none}",
+    ".ghs-dock:not(.open) .dock-progress{bottom:auto;top:0;border-radius:50px 50px 0 0;left:50%;transform:translateX(-50%);width:0;height:3px;max-width:40px}",
+    "@media(max-width:640px){.ghs-dock{bottom:16px;right:16px}.dock-panel{width:calc(100vw - 32px);right:-8px;bottom:60px}}",
     ""
   ), collapse = "")
 }
