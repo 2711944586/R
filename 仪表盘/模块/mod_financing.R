@@ -7,6 +7,7 @@ mod_financing_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128176; Financing"),
+    value = "financing",
     mod_v3_hero(
       kicker = "FINANCING STRUCTURE",
       title = "FINANCING STRUCTURE",

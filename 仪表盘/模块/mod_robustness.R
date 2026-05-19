@@ -7,6 +7,7 @@ mod_robustness_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#129534; \u7a33\u5065\u6027 Robustness"),
+    value = "robustness",
     mod_v3_hero(
       kicker = "ROBUSTNESS & SENSITIVITY",
       title = "\u7a33\u5065\u6027\u4e0e\u654f\u611f\u5ea6\u5206\u6790",

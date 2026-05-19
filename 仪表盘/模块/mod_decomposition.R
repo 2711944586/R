@@ -7,6 +7,7 @@ mod_decomposition_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128300; \u5206\u89e3 Decompose"),
+    value = "decomposition",
     mod_v3_hero(
       kicker = "GROWTH DECOMPOSITION",
       title = "\u536b\u751f\u652f\u51fa\u589e\u957f\u7684\u6765\u6e90\u5206\u89e3",

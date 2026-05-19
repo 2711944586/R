@@ -7,6 +7,7 @@ mod_policy_ui <- function(id, country_choices_named) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127891; \u653f\u7b56 Policy"),
+    value = "policy",
     mod_v3_hero(
       kicker = "POLICY ADVISOR",
       title = "\u653f\u7b56\u5efa\u8bae\u751f\u6210\u5668",

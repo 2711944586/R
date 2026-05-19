@@ -7,6 +7,7 @@ mod_inequality_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#9878; \u4e0d\u5e73\u7b49 Inequality"),
+    value = "inequality",
     mod_v3_hero(
       kicker = "INEQUALITY INDICES",
       title = "\u536b\u751f\u652f\u51fa\u4e0d\u5e73\u7b49\u6307\u6570",

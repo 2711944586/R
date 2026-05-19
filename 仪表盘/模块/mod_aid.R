@@ -7,6 +7,7 @@ mod_aid_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127760; \u5916\u63f4 Aid"),
+    value = "aid",
     mod_v3_hero(
       kicker = "EXTERNAL HEALTH EXPENDITURE",
       title = "\u5916\u90e8\u63f4\u52a9\u4e0e\u536b\u751f\u7b79\u8d44\u4f9d\u8d56",

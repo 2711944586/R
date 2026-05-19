@@ -7,6 +7,7 @@ mod_purpose_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128202; \u7528\u9014 Purpose"),
+    value = "purpose",
     mod_v3_hero(
       kicker = "SPENDING BY PURPOSE (HC)",
       title = "\u536b\u751f\u652f\u51fa\u529f\u80fd\u5206\u7c7b",

@@ -21,6 +21,7 @@ mod_overview_ui <- function(id) {
 
   bslib::nav_panel(
     title = htmltools::HTML("&#127759; \u603b\u89c8 Overview"),
+    value = "overview",
     icon  = NULL,
     htmltools::div(
       class = "ghs-hero",
@@ -148,41 +149,190 @@ mod_overview_ui <- function(id) {
                          "\u9884\u8bbe\u53ef\u590d\u5236\u3001\u4e0e\u9759\u6001\u56fe\u3001",
                          "\u62a5\u544a\u5171\u7528\u4e00\u5957\u6307\u6807\u4f53\u7cfb\u3002"))
     ),
+    # ---- Group 1: 总览 -----------------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u603b\u89c8 Overview \u00b7 3 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
+      module_card("about", "\u9879\u76ee\u8bf4\u660e",
+                  "\u6570\u636e\u53d1\u5e03\u6e90 \u00b7 \u53d8\u91cf\u5b57\u5178 \u00b7 \u590d\u73b0\u547d\u4ee4 \u00b7 \u5f15\u7528\u3002",
+                  "01 About"),
+      module_card("methods", "\u65b9\u6cd5\u624b\u518c",
+                  "\u8be6\u7ec6\u7684\u5206\u6790\u65b9\u6cd5\u3001\u6307\u6807\u53e3\u5f84\u4e0e\u8d28\u91cf\u63a7\u5236\u8bf4\u660e\u3002",
+                  "02 Methods")
+    ),
+    # ---- Group 2: 国家与区域 ----------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u56fd\u5bb6\u4e0e\u533a\u57df Country & Regional \u00b7 4 \u6a21\u5757")
+    ),
     htmltools::div(
       class = "module-grid",
       module_card("country", "\u56fd\u5bb6\u753b\u50cf",
-                  "\u5355\u56fd CHE / OOPS / GGHED / \u9884\u671f\u5bff\u547d 24 \u5e74\u9762\u677f\u4e0e\u9009\u9879\u3002",
-                  "01 Country"),
+                  "\u5355\u56fd CHE / OOPS / GGHED / \u9884\u671f\u5bff\u547d 24 \u5e74\u9762\u677f\u3002",
+                  "03 Country"),
+      module_card("regional", "\u533a\u57df\u5bf9\u6bd4",
+                  "6 \u5927\u6d32 \u00d7 4 \u6536\u5165\u7ec4 \u00b7 \u533a\u57df\u95f4\u8de8\u671f\u5dee\u5f02\u4e0e\u8d8b\u540c\u3002",
+                  "04 Regional"),
+      module_card("ranking", "\u5168\u7403\u6392\u884c",
+                  "\u4eba\u5747 / \u603b\u989d / \u589e\u901f / \u8d8b\u52bf \u00b7 \u591a\u6307\u6807\u6392\u540d\u4e0e\u53d8\u52a8\u3002",
+                  "05 Ranking"),
+      module_card("benchmark", "\u540c\u4f34\u5bf9\u6807",
+                  "\u4ee5\u540c\u6536\u5165\u7ec4 / \u540c\u533a\u57df / \u540c\u4eba\u53e3\u89c4\u6a21\u4f5c\u5750\u6807\u53c2\u7167\u3002",
+                  "06 Benchmark")
+    ),
+    # ---- Group 3: 筹资结构 ------------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u7b79\u8d44\u7ed3\u6784 Financing \u00b7 5 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
+      module_card("financing", "\u7b79\u8d44\u4f53\u7cfb",
+                  "\u793e\u4fdd / \u5546\u4fdd / \u9884\u4ed8 / \u73b0\u91d1 \u00b7 \u5236\u5ea6\u578b\u6001\u8de8\u5e74\u6f14\u5316\u3002",
+                  "07 Financing"),
+      module_card("spending", "\u652f\u51fa\u603b\u91cf",
+                  "\u603b CHE / \u4eba\u5747 / GDP \u5360\u6bd4 \u00b7 \u4e09\u4e2a\u91cf\u7ea7\u540c\u6b65\u8003\u5bdf\u3002",
+                  "08 Spending"),
+      module_card("purpose", "\u652f\u51fa\u7528\u9014",
+                  "HC1\u2013HC9 \u4e5d\u5927\u529f\u80fd\u7ec4 \u00b7 \u6cbb\u7597 / \u9884\u9632 / \u7ba1\u7406\u5360\u6bd4\u3002",
+                  "09 Purpose"),
+      module_card("aid", "\u5916\u63f4\u4e0e\u63f4\u52a9",
+                  "EXT \u4f9d\u8d56\u5ea6 \u00b7 ODA \u6d41\u5411 \u00b7 \u9ad8\u4f9d\u8d56\u56fd\u753b\u50cf\u3002",
+                  "10 Aid"),
+      module_card("fiscal", "\u516c\u5171\u8d22\u653f",
+                  "GGHED / GGE / GDP \u00b7 \u8d22\u653f\u7a7a\u95f4\u4e0e\u501f\u8d37\u6210\u672c\u4ea4\u4e92\u3002",
+                  "11 Fiscal")
+    ),
+    # ---- Group 4: 公平与效率 ----------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u516c\u5e73\u4e0e\u6548\u7387 Equity & Efficiency \u00b7 5 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
       module_card("equity", "\u516c\u5e73\u4e0e\u4e0d\u5e73\u7b49",
-                  "Gini / Theil / Atkinson / Lorenz / \u5728\u7ebf\u91cd\u7b97\uff0c\u8de8\u5e74\u8de8\u6307\u6807\u3002",
-                  "02 Equity"),
+                  "Gini / Theil / Atkinson / Lorenz \u00b7 \u5728\u7ebf\u91cd\u7b97\u3002",
+                  "12 Equity"),
+      module_card("inequality", "\u4e0d\u5e73\u7b49\u5206\u89e3",
+                  "Theil-T \u7ec4\u95f4 / \u7ec4\u5185 \u00b7 between vs within \u8d8b\u52bf\u3002",
+                  "13 Inequality"),
       module_card("efficiency", "\u6548\u7387\u4e0e\u4ea7\u51fa",
-                  "DEA \u524d\u6cbf\u3001CHE\u2192HALE \u5f39\u6027\u3001\u8d56 \u88ab\u88ab\u95f4\u63a5\u6210\u672c\u3002",
-                  "03 Efficiency"),
-      module_card("pandemic", "\u75ab\u60c5\u51b2\u51fb",
-                  "2019 vs 2020\u20132022 \u53d8\u5316\u3001COVID dumbbell\u3001\u540c\u6bd4\u70ed\u56fe\u3002",
-                  "04 Pandemic"),
+                  "DEA \u524d\u6cbf \u00b7 CHE\u2192HALE \u5f39\u6027 \u00b7 \u540c\u8d44\u91d1\u4f4d\u6b8b\u5dee\u3002",
+                  "14 Efficiency"),
+      module_card("convergence", "\u6536\u655b\u5206\u6790",
+                  "\u03b2-\u6536\u655b / \u03c3-\u6536\u655b \u00b7 \u533a\u57df\u4e0e\u6536\u5165\u7ec4\u5185\u8ddf\u5347\u3002",
+                  "15 Convergence"),
+      module_card("decomposition", "\u8d21\u732e\u5206\u89e3",
+                  "Shapley / Theil \u5206\u89e3 \u00b7 \u53d8\u91cf\u8d21\u732e\u4e0e\u589e\u91cf\u53e3\u5f84\u3002",
+                  "16 Decompose")
+    ),
+    # ---- Group 5: 健康产出 ------------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u5065\u5eb7\u4ea7\u51fa Health Outcomes \u00b7 4 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
       module_card("outcomes", "\u8d44\u91d1 \u00b7 \u7ed3\u679c",
                   "U5MR / SDG-3 / \u9884\u671f\u5bff\u547d \u4e0e\u4eba\u5747 CHE \u8054\u52a8\u753b\u50cf\u3002",
-                  "05 Outcomes"),
+                  "17 Outcomes"),
+      module_card("sdg", "SDG-3 \u8fdb\u5c55",
+                  "5 \u4e2a SDG-3 \u5b50\u6307\u6807 \u00b7 \u8de8\u671f\u8f68\u8ff9\u4e0e\u9694\u53e3\u3002",
+                  "18 SDG-3"),
+      module_card("prevention", "\u9884\u9632\u4e0e\u6cbb\u7597",
+                  "HC6 \u9884\u9632\u4e0e HALE/DALY \u00b7 \u9884\u9632\u6027\u62a4\u7406\u8fb9\u9645\u6536\u76ca\u3002",
+                  "19 Prevention"),
+      module_card("aging", "\u8001\u9f84\u5316",
+                  "65+ \u4eba\u53e3\u5360\u6bd4\u4e0e CHE \u538b\u529b \u00b7 OECD vs LMIC \u5bf9\u6bd4\u3002",
+                  "20 Aging")
+    ),
+    # ---- Group 6: 冲击与变化 ----------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u51b2\u51fb\u4e0e\u53d8\u5316 Shocks & Change \u00b7 5 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
+      module_card("pandemic", "\u75ab\u60c5\u51b2\u51fb",
+                  "2019 vs 2020\u20132022 \u00b7 COVID dumbbell \u00b7 \u540c\u6bd4\u70ed\u56fe\u3002",
+                  "21 Pandemic"),
+      module_card("growth", "\u589e\u957f\u52a8\u529b",
+                  "CAGR / \u52a8\u91cf\u00b7\u80fd\u91cf \u00b7 \u589e\u901f\u8de8\u671f\u8de8\u533a\u57df\u3002",
+                  "22 Growth"),
+      module_card("transition", "\u8f6c\u578b\u8def\u5f84",
+                  "OOP\u2192\u9884\u4ed8 / GGHED \u589e\u957f \u00b7 \u8d22\u52a1\u4fdd\u62a4\u8f6c\u578b\u3002",
+                  "23 Transition"),
+      module_card("timeline", "\u65f6\u95f4\u7ebf\u4e8b\u4ef6",
+                  "GFC / COVID / \u901a\u80c0 \u00b7 \u5168\u7403\u4e8b\u4ef6\u4e0e CHE \u53cd\u5e94\u3002",
+                  "24 Timeline"),
+      module_card("extremes", "\u6781\u503c\u4e8b\u4ef6",
+                  "\u9ad8 OOP \u00b7 \u4f4e GGHED \u00b7 \u9ad8\u589e\u957f \u00b7 \u8de8\u95e8\u69db\u8bc6\u522b\u3002",
+                  "25 Extremes")
+    ),
+    # ---- Group 7: 分析工具 ------------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u5206\u6790\u5de5\u5177 Analysis Tools \u00b7 6 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
       module_card("compare", "\u591a\u56fd\u591a\u6307\u6807\u5bf9\u6bd4",
-                  "\u4efb\u610f\u9009 N \u4e2a\u56fd\u5bb6 \u00d7 N \u4e2a\u6307\u6807\uff0c\u5728\u7ebf\u751f\u6210\u70ed\u56fe\u4e0e\u8868\u683c\u3002",
-                  "06 Compare"),
+                  "\u4efb\u610f\u9009 N \u4e2a\u56fd\u5bb6 \u00d7 N \u4e2a\u6307\u6807 \u00b7 \u70ed\u56fe\u4e0e\u8868\u683c\u3002",
+                  "26 Compare"),
       module_card("cluster", "\u805a\u7c7b\u4e0e\u8c61\u9650",
-                  "PCA + KMeans \u5728\u7ebf\u8c03 K\u3001\u5c55\u793a\u8c61\u9650\u4e0e\u4ee3\u8868\u56fd\u3002",
-                  "07 Cluster"),
+                  "PCA + KMeans \u5728\u7ebf\u8c03 K \u00b7 \u8c61\u9650\u4e0e\u4ee3\u8868\u56fd\u3002",
+                  "27 Cluster"),
       module_card("forecast", "\u9884\u6d4b",
-                  "\u6307\u6807 ARIMA / ETS \u9884\u6d4b\uff0c\u542b\u4e0d\u786e\u5b9a\u6027\u533a\u95f4\u4e0e\u8001\u9a8c\u8bc1\u70b9\u3002",
-                  "08 Forecast"),
+                  "ARIMA / ETS \u9884\u6d4b \u00b7 \u4e0d\u786e\u5b9a\u6027\u533a\u95f4\u4e0e\u8001\u9a8c\u8bc1\u3002",
+                  "28 Forecast"),
       module_card("scenarios", "\u60c5\u666f\u4eff\u771f",
-                  "OOPS / GGHED / \u5916\u63f4 \u4e09\u6e90\u53ef\u4eff\u771f\u8c03\u6574\u540e\u7684\u8d22\u52a1\u4fdd\u62a4\u672a\u6765\u3002",
-                  "09 Scenario"),
+                  "OOPS / GGHED / \u5916\u63f4 \u4e09\u6e90\u4eff\u771f \u00b7 \u672a\u6765\u6f14\u53d8\u3002",
+                  "29 Scenario"),
+      module_card("correlation", "\u76f8\u5173\u6027\u5206\u6790",
+                  "\u591a\u53d8\u91cf\u76f8\u5173 \u00b7 \u504f\u76f8\u5173 \u00b7 \u70ed\u56fe\u4e0e\u7f51\u7edc\u3002",
+                  "30 Correlation"),
+      module_card("distribution", "\u5206\u5e03\u53ef\u89c6\u5316",
+                  "\u5bc6\u5ea6\u00b7\u5206\u4f4d\u6570\u00b7\u8108\u7eb9 \u00b7 \u8de8\u5e74\u5206\u5e03\u6f14\u5316\u3002",
+                  "31 Distribution")
+    ),
+    # ---- Group 8: 质量与稳健 ----------------------------------------------
+    htmltools::div(
+      class = "ghs-section-head-nav",
+      style = "margin-top:24px;",
+      htmltools::h3(style = "font-size:18px;",
+                    "\u8d28\u91cf\u4e0e\u7a33\u5065 Quality & Robustness \u00b7 4 \u6a21\u5757")
+    ),
+    htmltools::div(
+      class = "module-grid",
+      module_card("robustness", "\u7a33\u5065\u6027",
+                  "\u591a\u6837\u672c\u00b7\u591a\u95e8\u69db\u00b7\u591a\u53d8\u91cf \u00b7 \u7ed3\u8bba\u7a33\u5065\u6027\u68c0\u9a8c\u3002",
+                  "32 Robustness"),
+      module_card("dataquality", "\u6570\u636e\u8d28\u91cf",
+                  "\u7f3a\u5931\u70ed\u56fe \u00b7 \u4fee\u8ba2\u8bb0\u5f55 \u00b7 \u4e00\u81f4\u6027\u8bca\u65ad\u3002",
+                  "33 Data Quality"),
+      module_card("policy", "\u653f\u7b56\u63a8\u8350",
+                  "\u6309\u98ce\u9669\u67e5\u8be2 \u00b7 \u751f\u6210\u4e2a\u6027\u5316\u653f\u7b56\u5efa\u8bae\u3002",
+                  "34 Policy"),
       module_card("atlas", "\u5168\u7403 Atlas",
-                  "Choropleth \u5730\u56fe + \u53cc\u53d8\u91cf\u4e0a\u8272 + \u63d0\u793a\u6846\u3002",
-                  "10 Atlas"),
-      module_card("about", "\u9879\u76ee\u8bf4\u660e",
-                  "\u6570\u636e\u53d1\u5e03\u6e90 \u00b7 \u53d8\u91cf\u5b57\u5178 \u00b7 \u590d\u73b0\u547d\u4ee4 \u00b7 \u5f15\u7528\u3002",
-                  "12 About")
+                  "Choropleth + \u53cc\u53d8\u91cf\u4e0a\u8272 \u00b7 6 \u5927\u6d32\u00d75 \u6307\u6807\u3002",
+                  "35 Atlas")
     )
   )
 }

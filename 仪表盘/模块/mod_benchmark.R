@@ -7,6 +7,7 @@ mod_benchmark_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127919; \u5bf9\u6807 Benchmark"),
+    value = "benchmark",
     mod_v3_hero(
       kicker = "BENCHMARKING & GAP ANALYSIS",
       title = "\u57fa\u51c6\u5bf9\u6807\u4e0e\u5dee\u8ddd\u5206\u6790",

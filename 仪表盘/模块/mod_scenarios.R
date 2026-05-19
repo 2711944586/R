@@ -7,6 +7,7 @@ mod_scenarios_ui <- function(id, country_choices_named) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127919; \u60c5\u666f Scenarios"),
+    value = "scenarios",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("\u4e09\u6e90\u8c03\u6574 \u00b7 \u8d22\u52a1\u4fdd\u62a4\u4eff\u771f"),

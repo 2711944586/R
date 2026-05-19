@@ -7,6 +7,7 @@ mod_efficiency_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#9881; \u6548\u7387 Efficiency"),
+    value = "efficiency",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("CHE \u2192 \u7ed3\u679c\uff1a\u6548\u7387\u524d\u6cbf\u4e0e\u5f39\u6027"),

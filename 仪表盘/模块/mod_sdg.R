@@ -7,6 +7,7 @@ mod_sdg_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127919; SDG-3"),
+    value = "sdg",
     mod_v3_hero(
       kicker = "SDG-3 HEALTH TARGETS",
       title = "SDG-3 \u5065\u5eb7\u76ee\u6807\u8ffd\u8e2a",

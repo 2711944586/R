@@ -7,6 +7,7 @@ mod_fiscal_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127970; \u8d22\u653f Fiscal"),
+    value = "fiscal",
     mod_v3_hero(
       kicker = "FISCAL SPACE FOR HEALTH",
       title = "\u536b\u751f\u8d22\u653f\u7a7a\u95f4\u4e0e\u4f18\u5148\u7ea7",

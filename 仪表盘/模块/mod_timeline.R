@@ -7,6 +7,7 @@ mod_timeline_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128197; \u65f6\u95f4\u7ebf Timeline"),
+    value = "timeline",
     mod_v3_hero(
       kicker = "24-YEAR TIMELINE",
       title = "\u5168\u7403\u536b\u751f\u652f\u51fa 24 \u5e74\u65f6\u95f4\u7ebf",

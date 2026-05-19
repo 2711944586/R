@@ -7,6 +7,7 @@ mod_forecast_ui <- function(id, country_choices_named, indicator_choices) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128201; \u9884\u6d4b Forecast"),
+    value = "forecast",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("5 \u5e74 ARIMA / ETS \u9884\u6d4b"),

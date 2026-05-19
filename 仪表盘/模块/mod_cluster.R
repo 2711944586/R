@@ -7,6 +7,7 @@ mod_cluster_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128202; \u805a\u7c7b Cluster"),
+    value = "cluster",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("PCA + k-means \u00b7 \u56fd\u5bb6\u8c61\u9650"),

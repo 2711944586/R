@@ -7,6 +7,7 @@ mod_about_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#9432; About"),
+    value = "about",
     htmltools::div(
       class = "panel-content",
       style = "max-width: 880px; margin: 0 auto;",

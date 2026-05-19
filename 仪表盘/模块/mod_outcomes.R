@@ -7,6 +7,7 @@ mod_outcomes_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127973; \u4ea7\u51fa Outcomes"),
+    value = "outcomes",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("\u8d44\u91d1 \u2192 \u5bff\u547d\u7684\u9650\u8fb9\u95ee\u9898"),

@@ -7,6 +7,7 @@ mod_methods_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128218; \u65b9\u6cd5 Methods"),
+    value = "methods",
     mod_v3_hero(
       kicker = "METHODOLOGY",
       title = "\u65b9\u6cd5\u4e0e\u6570\u636e\u8bf4\u660e",

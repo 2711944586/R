@@ -7,6 +7,7 @@ mod_growth_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128200; \u589e\u957f Growth"),
+    value = "growth",
     mod_v3_hero(
       kicker = "GROWTH & ELASTICITY",
       title = "\u536b\u751f\u652f\u51fa\u589e\u957f\u4e0e\u6536\u5165\u5f39\u6027",

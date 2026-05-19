@@ -7,6 +7,7 @@ mod_spending_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128178; \u652f\u51fa Spending"),
+    value = "spending",
     mod_v3_hero(
       kicker = "SPENDING LEVELS & PATTERNS",
       title = "\u536b\u751f\u652f\u51fa\u6c34\u5e73\u4e0e\u6a21\u5f0f",

@@ -7,6 +7,7 @@ mod_correlation_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128279; \u5173\u8054 Correlation"),
+    value = "correlation",
     mod_v3_hero(
       kicker = "VARIABLE ASSOCIATIONS",
       title = "\u6838\u5fc3\u6307\u6807\u95f4\u7684\u5173\u8054\u7ed3\u6784",

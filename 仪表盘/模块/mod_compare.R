@@ -7,6 +7,7 @@ mod_compare_ui <- function(id, country_choices_named, indicator_choices) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128209; \u5bf9\u6bd4 Compare"),
+    value = "compare",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("\u591a\u56fd\u591a\u6307\u6807\u5728\u7ebf\u5bf9\u6bd4"),

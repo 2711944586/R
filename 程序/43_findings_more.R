@@ -1,8 +1,9 @@
 # =============================================================================
-# 程序/41_findings_extra.R
+# 程序/43_findings_more.R
 # -----------------------------------------------------------------------------
-# F15–F36 扩展 findings：22 个新主题的 HTML 生成器。
-# 由 21_static_showcase.R 中的 ghs_findings_extra() 调用。
+# F15–F36 元数据注册表。供 21_static_showcase.R 查询 finding 标题、claim 等。
+# 完整 HTML 生成逻辑在 42_findings_extra.R + 42b_findings_batch.R 中。
+# 注意：本文件不得定义 ghs_findings_extra() 函数，否则会覆盖 42_ 中的实现。
 # =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
@@ -22,15 +23,15 @@ if (!exists("ensure_pkgs", mode = "function")) {
          claim = "\u57ce\u9547\u5316\u901a\u8fc7\u670d\u52a1\u53ef\u53ca\u6027\u4e0e\u9700\u6c42\u7ed3\u6784\u53d8\u5316\u63a8\u9ad8\u536b\u751f\u652f\u51fa\u3002"),
     list(id = "f-fiscal", num = "F17", kicker = "Fiscal Space",
          title = "\u516c\u5171\u8d22\u653f\u7a7a\u95f4",
-         lead = "GGHED \u5360 GDP \u6bd4\u4f8e\u4e8e 2% \u7684\u56fd\u5bb6\u4e2d\uff0c72% \u7684 OOPS \u8d85\u8fc7 40%\u3002",
+         lead = "GGHED \u5360 GDP \u6bd4\u4f4e\u4e8e 2% \u7684\u56fd\u5bb6\u4e2d\uff0c72% \u7684 OOPS \u8d85\u8fc7 40%\u3002",
          claim = "\u8d22\u653f\u7a7a\u95f4\u4e0d\u8db3\u76f4\u63a5\u5bfc\u81f4\u5c45\u6c11\u81ea\u4ed8\u8d1f\u62c5\u8fc7\u91cd\u3002"),
     list(id = "f-price", num = "F18", kicker = "Affordability",
          title = "\u4ef7\u683c\u4e0e\u53ef\u53ca\u6027",
          lead = "\u4f4e\u6536\u5165\u56fd\u5bb6\u7684 OOPS \u5360\u5bb6\u5ead\u6d88\u8d39\u6bd4\u4f8b\u662f\u9ad8\u6536\u5165\u56fd\u5bb6\u7684 3.5 \u500d\u3002",
-         claim = "\u5373\u4f7f OOPS \u5360 CHE \u767e\u5206\u6bd4\u76f8\u540c\uff0c\u5b9e\u9645\u8d22\u52a1\u538b\u529b\u5dee\u5f02\u5de8\u5927\u3002"),
+         claim = "\u5373\u4f7f OOP \u5360 CHE \u767e\u5206\u6bd4\u76f8\u540c\uff0c\u5b9e\u9645\u8d22\u52a1\u538b\u529b\u5dee\u5f02\u5de8\u5927\u3002"),
     list(id = "f-regional", num = "F19", kicker = "Regional Blocs",
          title = "\u533a\u57df\u534f\u8bae\u6548\u5e94",
-         lead = "EU \u6210\u5458\u56fd\u7684 GGHED \u6536\u655b\u901f\u5ea6\u662f\u975e EU \u56fd\u5bb6\u7684 2.1 \u500d\u3002",
+         lead = "EU \u6210\u5458\u56fd\u7684 GGHED \u6536\u655b\u901f\u5ea6\u662f\u975e-EU \u56fd\u5bb6\u7684 2.1 \u500d\u3002",
          claim = "\u533a\u57df\u7ec4\u7ec7\u7684\u653f\u7b56\u534f\u8c03\u52a0\u901f\u4e86\u536b\u751f\u7b79\u8d44\u8d8b\u540c\u3002"),
     list(id = "f-inflation", num = "F20", kicker = "Inflation Shock",
          title = "\u901a\u80c0\u51b2\u51fb",
@@ -42,12 +43,12 @@ if (!exists("ensure_pkgs", mode = "function")) {
          claim = "\u75be\u75c5\u8d1f\u62c5\u4e0e\u652f\u51fa\u7ed3\u6784\u4e4b\u95f4\u5b58\u5728\u7ed3\u6784\u6027\u9519\u914d\u3002"),
     list(id = "f-uhc", num = "F22", kicker = "UHC Coverage",
          title = "UHC \u8986\u76d6",
-         lead = "UHC \u670d\u52a1\u8986\u76d6\u6307\u6570\u6bcf\u63d0\u9ad8 10 \u70b9\uff0cOOPS \u5e73\u5747\u4e0b\u964d 4.2 \u4e2a\u767e\u5206\u70b9\u3002",
+         lead = "UHC \u670d\u52a1\u8986\u76d6\u6307\u6570\u6bcf\u63d0\u9ad8 10 \u70b9\uff0cOOP \u5e73\u5747\u4e0b\u964d 4.2 \u4e2a\u767e\u5206\u70b9\u3002",
          claim = "\u5168\u6c11\u5065\u5eb7\u8986\u76d6\u4e0e\u8d22\u52a1\u4fdd\u62a4\u5b58\u5728\u663e\u8457\u8d1f\u76f8\u5173\u3002"),
     list(id = "f-catastrophic", num = "F23", kicker = "Catastrophic OOP",
          title = "\u707e\u96be\u6027\u652f\u51fa",
          lead = "\u5168\u7403\u7ea6 12% \u7684\u5bb6\u5ead\u9762\u4e34\u707e\u96be\u6027\u536b\u751f\u652f\u51fa\uff0c\u4f4e\u6536\u5165\u56fd\u5bb6\u8fbe 18%\u3002",
-         claim = "\u707e\u96be\u6027\u652f\u51fa\u7684\u53d1\u751f\u7387\u4e0e OOPS \u5360\u6bd4\u5448\u975e\u7ebf\u6027\u5173\u7cfb\u3002"),
+         claim = "\u707e\u96be\u6027\u652f\u51fa\u7684\u53d1\u751f\u7387\u4e0e OOP \u5360\u6bd4\u5448\u975e\u7ebf\u6027\u5173\u7cfb\u3002"),
     list(id = "f-maternal", num = "F24", kicker = "Maternal & Child",
          title = "\u6bcd\u5a74\u5065\u5eb7",
          lead = "\u4eba\u5747 CHE \u6bcf\u7ffb\u500d\uff0cU5MR \u5e73\u5747\u4e0b\u964d 28%\u3002",
@@ -103,49 +104,13 @@ if (!exists("ensure_pkgs", mode = "function")) {
   )
 }
 
-#' 生成 F15–F36 的 HTML（由 21_static_showcase.R 调用）
-ghs_findings_extra <- function(master, fig_dir, programs_dir = NULL,
-                                widget_dir = NULL, mode = "submission",
-                                repo_url = NULL) {
+#' 获取 finding 元数据列表（供外部查询）
+get_findings_meta <- function() .findings_meta()
+
+#' 获取单个 finding 元数据
+get_finding_meta <- function(num) {
   meta <- .findings_meta()
-  html_parts <- vapply(meta, function(f) {
-    # Build chips
-    chips_html <- if (exists(".ghs_v3_chips", mode = "function")) {
-      .ghs_v3_chips(list(
-        list(label = "N", value = "195", tone = "primary"),
-        list(label = "period", value = "2000\u20132023", tone = "neutral"),
-        list(label = "source", value = "GHED+WDI", tone = "good")
-      ))
-    } else ""
-
-    # Build deep-dive
-    deep_html <- if (exists(".ghs_v3_deep_dive", mode = "function")) {
-      .ghs_v3_deep_dive(
-        data = "WHO GHED 2024-12 + WDI 2024-10",
-        method = "\u9762\u677f\u56de\u5f52 / \u622a\u9762\u76f8\u5173",
-        assume = "\u7ebf\u6027\u5173\u7cfb\u3001\u65e0\u9057\u6f0f\u53d8\u91cf",
-        limit = "\u56e0\u679c\u63a8\u65ad\u53d7\u9650\u4e8e\u89c2\u6d4b\u6570\u636e",
-        sens = "\u6539\u53d8\u6837\u672c\u7a97\u53e3\u540e\u7ed3\u8bba\u7a33\u5065",
-        policy = f$claim
-      )
-    } else ""
-
-    # Build finding card
-    if (exists(".ghs_v3_finding", mode = "function")) {
-      .ghs_v3_finding(
-        id = f$id, num = f$num,
-        kicker = f$kicker,
-        title = f$title,
-        lead = f$lead,
-        chips_html = chips_html,
-        figs_html = "",
-        deep_html = deep_html
-      )
-    } else {
-      sprintf("<section class='finding' id='%s'><h2>%s %s</h2><p>%s</p><p>%s</p></section>",
-              f$id, f$num, f$title, f$lead, f$claim)
-    }
-  }, character(1))
-
-  paste(html_parts, collapse = "\n")
+  idx <- which(vapply(meta, function(x) x$num == num, logical(1)))
+  if (length(idx) == 0) return(NULL)
+  meta[[idx[1]]]
 }

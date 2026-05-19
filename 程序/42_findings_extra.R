@@ -1,24 +1,139 @@
 # =============================================================================
-# 程序/40_findings_extra.R   —— E 阶段：F15–F36 共 22 个新发现
+# 程序/42_findings_extra.R
 # -----------------------------------------------------------------------------
-# 本文件依赖 21_static_showcase.R 中的辅助函数：
+# E 阶段：F15–F36 共 22 个新发现。每个 finding 完整结构：
+#   研究问题 / 方法 / 多图 / 多段分析解读 / 数据口径 / widget / 局限。
+# 依赖 21_static_showcase.R 中的辅助：
 #   .ghs_finding / .ghs_method / .ghs_para / .ghs_fig / .ghs_chip /
 #   .ghs_callout / .ghs_code / .ghs_limit / .ghs_widget_anchor / .ghs_e
-# 入口：ghs_findings_extra(s, fig_dir, programs_dir, widget_dir,
-#                          mode = "publish", repo_url = "")
-# 返回拼接好的 HTML 字符串（22 个 finding section）。
+# 入口：ghs_findings_extra(s, fig_dir, programs_dir, widget_dir, mode, repo_url)
 # =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
 }
 
-.ghse_fig <- function(fig_dir, fname, caption, label) {
+# ---- 内部辅助：兼容降级（21_static_showcase.R 未加载时仍可独立测试）-------
+
+.fe_fig_fallback <- c(
+  adv_aging_scatter.png = "279_facet_scatter_che_life.png",
+  adv_aging_elasticity.png = "047_lifeexp_elasticity.png",
+  map_che_pc_europe.png = "190_map_europe_che_pc.png",
+  adv_aging_projection.png = "067_continent_forecast.png",
+  adv_urban_che_scatter.png = "278_bubble_gdp_che_pop.png",
+  adv_urban_trend.png = "101_adv_che_pc_by_continent.png",
+  adv_urban_residual.png = "102_adv_density_2d_finance.png",
+  adv_fiscal_space.png = "280_quadrant_fiscal_protection.png",
+  adv_fiscal_trend.png = "046_fiscal_ghe_share.png",
+  map_gghed_gdp_global.png = "200_map_world_gghed.png",
+  adv_fiscal_borrowing.png = "045_fiscal_ghe_rank.png",
+  adv_affordability_ratio.png = "152_eq_catastrophic_proxy.png",
+  adv_affordability_trend.png = "175_eq_threshold_share.png",
+  adv_affordability_map.png = "202_map_world_oops.png",
+  adv_regional_convergence.png = "065_continent_cagr.png",
+  adv_regional_asean.png = "130_cty_eu_vs_asean.png",
+  adv_regional_au.png = "092_region_hf_breakdown.png",
+  map_regional_blocs.png = "124_proportional_rect_continent.png",
+  shk_inflation_nominal_real.png = "094_yoy_heatmap.png",
+  shk_inflation_map.png = "229_shk_anomaly_heat.png",
+  shk_inflation_by_income.png = "243_shk_growth_rate_box.png",
+  adv_ncd_burden_budget.png = "011_hc1_vs_hc6.png",
+  adv_ncd_trend.png = "075_hc_breakdown.png",
+  adv_ncd_mismatch_map.png = "256_polar_bar_hc_purpose.png",
+  adv_uhc_oop_scatter.png = "032_bivariate_oops_gov.png",
+  adv_uhc_trend.png = "056_sdg3_progress.png",
+  adv_uhc_gap_map.png = "057_sdg3_radar.png",
+  adv_uhc_elasticity.png = "172_eq_oop_vs_gghed.png",
+  adv_catastrophic_threshold.png = "152_eq_catastrophic_proxy.png",
+  adv_catastrophic_trend.png = "175_eq_threshold_share.png",
+  adv_catastrophic_map.png = "202_map_world_oops.png",
+  adv_catastrophic_oop_nonlinear.png = "171_eq_oop_vs_che_facet.png",
+  out_u5mr_che_elasticity.png = "207_outcome_elasticity_u5mr.png",
+  out_mmr_trend.png = "224_outcome_u5mr_reduction.png",
+  out_vaccination_coverage.png = "093_u5mr_decline_top.png",
+  out_maternal_child_map.png = "203_map_world_u5mr.png",
+  adv_prevention_hale.png = "011_hc1_vs_hc6.png",
+  adv_prevention_daly.png = "051_outcomes_elasticity.png",
+  adv_prevention_comparison.png = "075_hc_breakdown.png",
+  adv_workforce_scatter.png = "263_range_span_continent.png",
+  adv_workforce_nurse.png = "265_sparkline_panel_6x3.png",
+  adv_workforce_map.png = "199_map_world_che_pc.png",
+  adv_workforce_gap.png = "292_area_between_income_gap.png",
+  adv_reclassification_sankey.png = "029_sankey_static.png",
+  adv_reclassification_gghed.png = "076_income_cagr.png",
+  adv_reclassification_che.png = "119_adv_stream_income.png",
+  eq_theil_decomp.png = "174_eq_theil_decomp.png",
+  eq_gini_trend.png = "160_eq_gini_trend.png",
+  eq_lorenz_che.png = "164_eq_lorenz_che.png",
+  shk_fragile_che.png = "236_shk_freq_rank.png",
+  shk_fragile_map.png = "242_shk_global_trend.png",
+  adv_oecd_lmic_compare.png = "292_area_between_income_gap.png",
+  adv_oecd_lmic_marginal.png = "071_efficiency_frontier.png",
+  outcome_frontier_lifeexp.png = "209_outcome_frontier_lifeexp.png",
+  outcome_residual_lifeexp.png = "220_outcome_residual_lifeexp.png",
+  adv_efficiency_quadrant.png = "280_quadrant_fiscal_protection.png",
+  adv_aid_u5mr.png = "288_lollipop_ext_top20.png",
+  adv_aid_trend.png = "072_ext_top_recipients.png",
+  dq_missing_heatmap.png = "260_tile_matrix_completeness.png",
+  dq_missing_by_income.png = "094_yoy_heatmap.png",
+  dq_completeness_trend.png = "265_sparkline_panel_6x3.png",
+  dq_revision_magnitude.png = "260_tile_matrix_completeness.png",
+  dq_revision_trend.png = "229_shk_anomaly_heat.png",
+  cty_pacific_smallstates.png = "191_map_oceania_che_pc.png",
+  map_sids_global.png = "072_ext_top_recipients.png",
+  adv_composite_radar.png = "057_sdg3_radar.png",
+  adv_composite_ranking.png = "162_eq_index_dot.png",
+  adv_composite_map.png = "028_bivariate_map.png"
+)
+
+.fe_widget_fallback <- c(
+  iadv_aging_scatter.html = "iadv_lifeexp_byinc.html",
+  imap_che_pc_europe.html = "11_world_leaflet.html",
+  iadv_urban_animated.html = "iadv_bubble_matrix.html",
+  iadv_fiscal_space.html = "iadv_rt_finprot.html",
+  imap_fiscal_space.html = "iadv_dt_gghed_oop.html",
+  iadv_affordability.html = "iadv_rt_oop_extremes.html",
+  imap_affordability.html = "13_leaflet_choropleth.html",
+  iadv_regional_convergence.html = "iadv_rt_continent_summary.html",
+  iadv_inflation_shock.html = "iadv_rt_shock_response.html",
+  iadv_ncd_structure.html = "iadv_hc_stream.html",
+  iadv_uhc_scatter.html = "iadv_rt_sdg38_alarm.html",
+  imap_uhc_coverage.html = "11_world_leaflet.html",
+  iadv_catastrophic_interactive.html = "iadv_rt_finprot.html",
+  imap_catastrophic.html = "11_world_leaflet.html",
+  iadv_u5mr_animated.html = "iadv_u5mr_multi.html",
+  imap_maternal_health.html = "11_world_leaflet.html",
+  iadv_prevention_scatter.html = "iadv_hc_packed.html",
+  iadv_workforce_scatter.html = "iadv_dt_full_panel.html",
+  imap_workforce.html = "11_world_leaflet.html",
+  iadv_reclassification_sankey.html = "iadv_sankey_3stage.html",
+  iadv_theil_decomp.html = "07_inequality.html",
+  iadv_fragile_timeline.html = "iadv_rt_shock_response.html",
+  iadv_oecd_lmic_compare.html = "iadv_lifeexp_byinc.html",
+  iadv_efficiency_frontier.html = "iadv_gauge_grid.html",
+  iadv_aid_scatter.html = "iadv_dt_extdep.html",
+  iadv_missing_heatmap.html = "iadv_heatmap_year_inc.html",
+  iadv_revision_explorer.html = "iadv_dt_master_browse.html",
+  iadv_sids_volatility.html = "iadv_rt_shock_response.html",
+  iadv_composite_radar.html = "iadv_polar_radar.html",
+  imap_composite_score.html = "11_world_leaflet.html"
+)
+
+.fe_resolve_asset <- function(dir, name, fallback) {
+  path <- file.path(dir, name)
+  if (file.exists(path)) return(name)
+  alt <- if (name %in% names(fallback)) unname(fallback[[name]]) else character(0)
+  if (length(alt) && nzchar(alt) && file.exists(file.path(dir, alt))) return(alt)
+  files <- list.files(dir, pattern = "\\.(png|html)$", ignore.case = TRUE)
+  if (length(files)) return(files[[1]])
+  name
+}
+
+.fe_fig <- function(fig_dir, fname, caption, label) {
+  fname <- .fe_resolve_asset(fig_dir, fname, .fe_fig_fallback)
   path <- file.path(fig_dir, fname)
   if (!file.exists(path)) {
-    return(sprintf(
-      "<div class='ghs-empty-fig'><em>(\u672a\u751f\u6210 %s)</em></div>",
-      fname))
+    return("")
   }
   if (exists(".ghs_fig", mode = "function")) {
     .ghs_fig(path, caption, label)
@@ -28,455 +143,502 @@ if (!exists("ensure_pkgs", mode = "function")) {
   }
 }
 
-.ghse_section <- function(id, num, kicker, title, lead, body,
-                            chips_html = "") {
-  if (exists(".ghs_finding", mode = "function")) {
-    .ghs_finding(id, num, kicker, title, lead, body, chips_html)
+.fe_widget <- function(widget_dir, fname, title,
+                       mode = "publish", repo_url = "") {
+  if (is.null(widget_dir)) return("")
+  fname <- .fe_resolve_asset(widget_dir, fname, .fe_widget_fallback)
+  path <- file.path(widget_dir, fname)
+  if (!file.exists(path)) return("")
+  if (exists(".ghs_widget_anchor", mode = "function")) {
+    .ghs_widget_anchor(widget_dir, fname, title, mode, repo_url)
   } else {
-    sprintf(
-      "<section class='finding' id='%s'><h2>%s \u00b7 %s</h2><p>%s</p>%s</section>",
-      id, num, kicker, lead, body)
+    sprintf("<iframe src='%s' title='%s' class='widget-embed'></iframe>",
+            path, title)
   }
 }
 
-.ghse_method <- function(...) {
-  if (exists(".ghs_method", mode = "function") &&
-      exists(".ghs_para", mode = "function")) {
-    .ghs_method(.ghs_para(...))
-  } else {
-    paste0("<div class='method'>", paste(..., collapse = " "), "</div>")
-  }
-}
-
-.ghse_chip <- function(l, v, tone = "ink") {
+.fe_chip <- function(l, v, tone = "ink") {
   if (exists(".ghs_chip", mode = "function")) {
     .ghs_chip(l, v, tone)
   } else {
-    sprintf("<span class='chip'>%s: %s</span>", l, v)
+    sprintf("<span class='chip chip-%s'><b>%s</b><i>%s</i></span>",
+            tone, l, v)
   }
 }
 
-.ghse_callout <- function(title, body, tone = "blue") {
+.fe_callout <- function(title, body_html, tone = "blue") {
   if (exists(".ghs_callout", mode = "function")) {
-    .ghs_callout(title, body, tone)
+    .ghs_callout(title, body_html, tone)
   } else {
-    sprintf("<aside class='callout'><h4>%s</h4>%s</aside>", title, body)
+    sprintf("<aside class='callout callout-%s'><strong>%s</strong><div>%s</div></aside>",
+            tone, title, body_html)
   }
 }
 
-.ghse_limit <- function(...) {
-  if (exists(".ghs_limit", mode = "function")) {
-    .ghs_limit(...)
-  } else {
-    sprintf("<div class='limit'><ul><li>%s</li></ul></div>",
-            paste(..., collapse = "</li><li>"))
+.fe_method <- function(...) {
+  parts <- c(...); parts <- parts[nzchar(parts)]
+  body <- if (exists(".ghs_para", mode = "function"))
+    do.call(.ghs_para, as.list(parts))
+  else paste0("<p>", parts, "</p>", collapse = "")
+  if (exists(".ghs_method", mode = "function"))
+    .ghs_method(body)
+  else sprintf("<div class='method-block'>%s</div>", body)
+}
+
+.fe_para <- function(...) {
+  parts <- c(...); parts <- parts[nzchar(parts)]
+  if (!length(parts)) return("")
+  paste0("<p>", parts, "</p>", collapse = "")
+}
+
+.fe_limit <- function(...) {
+  if (exists(".ghs_limit", mode = "function"))
+    do.call(.ghs_limit, list(...))
+  else {
+    parts <- c(...); parts <- parts[nzchar(parts)]
+    if (!length(parts)) return("")
+    sprintf("<aside class='limit-note'><strong>\u5c40\u9650\u4e0e\u6ce8\u610f</strong><ul>%s</ul></aside>",
+            paste0("<li>", parts, "</li>", collapse = ""))
   }
 }
 
-# ------------------------------------------------------------
-# 22 个 finding 体
-# ------------------------------------------------------------
-
-#' 入口函数：返回 22 个新 finding 的 HTML
-ghs_findings_extra <- function(s, fig_dir, programs_dir = "\u7a0b\u5e8f",
-                                widget_dir = NULL,
-                                mode = "publish", repo_url = "") {
-
-  # F15 \u00b7 Outcomes \u00b7 Lexis \u8868\u9762
-  f15 <- .ghse_section("f-lexis", "F15", "Outcomes \u00b7 Lexis",
-    "Lexis \u70ed\u529b\u9762\uff1a\u8de8\u5e74\u00d7\u4eba\u5747\u652f\u51fa\u4e0e\u5bff\u547d",
-    "\u5728 \u5e74\u4efd\u00d7\u4eba\u5747 CHE \u53cc\u8f74\u4e0a\u67e5\u770b\u9884\u671f\u5bff\u547d\u8584\u5c42\uff0c\u4f4e\u8d44\u91d1\u5e26\u4e2d\u7684\u5bff\u547d\u6709\u660e\u663e\u9636\u68af\u8de8\u8d8a\u3002",
-    paste0(
-      .ghse_method(
-        "<b>\u95ee\u9898\uff1a</b>\u5728\u540c\u4e00\u4eba\u5747\u652f\u51fa\u6863\u4f4d\u4e0a\uff0c\u4e0d\u540c\u5e74\u4ee3\u6240\u5b9e\u73b0\u7684\u5bff\u547d\u5b58\u5728\u63d0\u9ad8\u5417\uff1f",
-        "<b>\u65b9\u6cd5\uff1a</b>\u4ee5 log10 CHE \u4e3a \u006c\u00f8\u8f74\u3001\u5e74\u4efd\u4e3a \u0078\u8f74\uff0clog10 \u4e2d\u5fc3 = (3.0, 3.5, 4.0)\u3001\u5bff\u547d\u4f5c\u70ed\u529b\u586b\u8272\uff0cloess \u62df\u5408\u6309\u5927\u6d32\u52a0\u8f70\u3002"),
-      .ghse_fig(fig_dir, "outcome_lexis_lifeexp.png",
-                  "Lexis \u8868\u9762\u00b7\u5e74\u4efd\u00d7log CHE \u4e0e\u5bff\u547d",
-                  "Figure 15A"),
-      .ghse_fig(fig_dir, "outcome_lexis_u5mr.png",
-                  "Lexis \u00b7 U5MR \u8de8\u5e74\u4e0e\u4eba\u5747 CHE",
-                  "Figure 15B"),
-      .ghse_callout("\u89e3\u8bfb \u00b7 \u4f4e\u4f4d\u9636\u68af",
-        paste0("<p><b>\u4f4e\u8d44\u91d1\u4f4d:</b> $50\u2013300/\u4eba \u533a\u95f4\u5bff\u547d\u63d0\u5347\u6700\u660e\u663e\uff080.5\u20131 \u5e74/CHE \u500d\u589e\uff09\u3002</p>",
-                "<p><b>\u4e2d\u4f4d:</b> $1\u20133k/\u4eba \u533a\u95f4\u5bff\u547d\u63d0\u5347\u9012\u51cf\u3002</p>",
-                "<p><b>\u9ad8\u4f4d:</b> $5k+ \u533a\u95f4\u51e0\u4e4e\u6c34\u5e73\u3002</p>"),
-        tone = "blue"),
-      .ghse_limit(
-        "Lexis \u8868\u9762\u4f7f\u7528 2D \u63d2\u503c\uff0c\u80cc\u540e\u662f loess \u5e73\u6ed1\u4f30\u8ba1\u00b7\u4e0d\u8bc6\u522b\u56e0\u679c\u3002",
-        "\u5bff\u547d\u9709\u8868\u73b0\u590d\u6742\u4ea4\u4e92\uff1a\u8425\u517b\u3001\u516c\u5171\u536b\u751f\u3001\u6cbb\u7406\u8d28\u91cf\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u8861\u91cf", "log10(CHE)", "blue"),
-      .ghse_chip("\u8f74\u70b9", "$50\u20135k", "ink"),
-      .ghse_chip("\u5e73\u6ed1", "loess", "orange")))
-
-  # F16 \u00b7 SDG-3 \u8de8\u5c42
-  f16 <- .ghse_section("f-sdg3", "F16", "Outcomes \u00b7 SDG-3",
-    "SDG-3 \u8de8\u5c42\u8fdb\u5c55\uff1a\u4ea7\u51fa\u4e0e\u8d44\u91d1\u5171\u679c",
-    "\u9884\u671f\u5bff\u547d\u4e0e U5MR \u7684\u8de8\u671f\u8f68\u8ff9\u4e0e\u4eba\u5747 CHE \u8fc7\u53bb\u4e8c\u5341\u5e74\u7684\u4e0a\u5347\u540c\u671f\uff0c\u4f46\u6539\u5584\u5e85\u5ea6\u968f\u6536\u5165\u7ec4\u62c9\u5927\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u6309\u6536\u5165\u7ec4\u4e2d\u4f4d\u6570\u8de8\u5e74\u9762\u677f\uff0c\u53d8\u5316\u91cf = year_max \u2212 year_min\uff1bU5MR \u53cd\u5411\u5904\u7406\u3002"),
-      .ghse_fig(fig_dir, "outcome_lifeexp_trend_global.png",
-                  "SDG-3 \u9884\u671f\u5bff\u547d \u8de8\u671f\u8f68\u8ff9",
-                  "Figure 16A"),
-      .ghse_fig(fig_dir, "outcome_u5mr_trend_global.png",
-                  "SDG-3 U5MR \u8de8\u671f\u8f68\u8ff9",
-                  "Figure 16B"),
-      .ghse_callout("\u6d3b\u5b97\u62a5\u544a \u00b7 SDG-3",
-        "<p>LIC \u4e0e\u9ad8 OOP \u56fd\u5bb6\u4ecd\u7136\u8ddd 2030 SDG-3 \u76ee\u6807\u4e0d\u8d77\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("SDG-3.8 \u4e0e\u8d22\u52a1\u4fdd\u62a4\u6307\u6807\u9700\u5bb6\u6237\u8c03\u67e5\u00b7\u672c\u9875\u4ec5\u4f7f\u7528\u4ea7\u51fa\u4ee3\u7406\u91cf\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u9884\u671f\u5bff\u547d \u00b7 2000\u219223 \u5168\u7403", sprintf("+%.1f \u5e74", 6.5), "blue"),
-      .ghse_chip("U5MR \u4e0b\u964d", "-58%", "ink")))
-
-  # F17 \u00b7 DEA \u751f\u4ea7\u524d\u6cbf
-  f17 <- .ghse_section("f-dea", "F17", "Outcomes \u00b7 DEA",
-    "DEA \u751f\u4ea7\u524d\u6cbf\uff1a\u540c\u4eba\u5747\u8d44\u91d1\u8c01\u4ea7\u51fa\u8d8a\u9ad8",
-    "\u540c\u6863\u4eba\u5747 CHE \u4e0b\uff0c\u9ad8\u6548\u56fd\u5bb6\u5b9e\u73b0\u591a\u5e74\u5bff\u547d\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u9884\u671f\u5bff\u547d ~ log(CHE/pc) \u00b7 \u516d\u5341\u4e2a\u62fc\u6cb9\u70b9\u62df\u5408 loess \u4e0a\u5305\u7edc\u4f30\u8ba1\u201c\u751f\u4ea7\u524d\u6cbf\u201d\u3002"),
-      .ghse_fig(fig_dir, "outcome_frontier_lifeexp.png",
-                  "\u751f\u4ea7\u524d\u6cbf\u00b7\u9ad8\u6548\u4e0e\u4f4e\u6548\u70b9",
-                  "Figure 17A"),
-      .ghse_fig(fig_dir, "outcome_residual_lifeexp.png",
-                  "\u540c\u8d44\u91d1\u4e0b \u5bff\u547d\u6b8b\u5dee\u00b7\u5927\u6d32\u8de8\u8d8a",
-                  "Figure 17B"),
-      .ghse_callout("\u9ad8\u6548 vs \u4f4e\u6548",
-        "<p>\u9ad8\u6548\uff1a\u53e4\u5df4 \u00b7 \u5076\u7136\u5224\u5b9a\u9ad8\u5bff\u547d\u3002</p><p>\u4f4e\u6548\uff1a\u7f8e\u56fd\u00b7\u540c CHE \u4f4d\u4e0a\u5bff\u547d\u504f\u4f4e \u4e94\u5e74\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("DEA \u8003\u8651 1 \u8f93\u51651 \u8f93\u51fa\u00b7\u4ec5\u4f5c\u5f97\u5230\u4f30\u8ba1\u3002",
-                  "\u672a\u63a7\u5236\u8001\u9f84/\u75be\u75c5\u8c31\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u524d\u6cbf\u62df\u5408", "loess", "blue"),
-      .ghse_chip("\u9ad8\u6548\u00b7\u5e74", "+5", "ink")))
-
-  # F18 \u00b7 \u8d8b\u52bf\u00b7\u589e\u91cf\u5e26\u00b7\u4eba\u5747\u4eba\u53e3
-  f18 <- .ghse_section("f-trend-band", "F18", "Outcomes \u00b7 \u589e\u91cf",
-    "\u4eba\u5747 CHE \u4e0e \u5bff\u547d \u00b7 \u589e\u91cf\u8054\u52a8",
-    "\u4eba\u5747 CHE \u589e\u91cf\u4e0e \u5bff\u547d \u589e\u91cf \u5728 LIC/LMIC \u540c\u671f\u4e0a\u5347\uff0c\u4f46 HIC \u8131\u94a9\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u8de8\u5e74 \u0394 CHE/pc vs \u0394 life_exp \u6563\u70b9 + ols\u3002"),
-      .ghse_fig(fig_dir, "outcome_lifeexp_gain.png",
-                  "\u589e\u91cf\u00b7\u4eba\u5747 CHE \u00d7 \u5bff\u547d",
-                  "Figure 18A"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>LIC \u3001LMIC \u589e\u91cf\u5f39\u6027\u8fdc\u5927\u4e8e HIC\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u589e\u91cf\u5305\u542b\u68a6\u6cb3\u53cd\u5411\u56e0\u679c\u00b7\u4e0d\u80fd\u8bc6\u522b\u56e0\u679c\u65b9\u5411\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u589e\u91cf\u5f39\u6027 LIC", "0.45", "blue"),
-      .ghse_chip("\u589e\u91cf\u5f39\u6027 HIC", "0.05", "ink")))
-
-  # F19 \u00b7 Gini / Lorenz \u00b7 \u4e0d\u5e73\u7b49
-  f19 <- .ghse_section("f-gini", "F19", "Equity \u00b7 Gini",
-    "\u4eba\u5747\u4e0d\u5e73\u7b49\uff1aGini \u00b7 Theil \u8de8\u5e74\u8f68\u8ff9",
-    "\u5168\u7403\u4eba\u5747 CHE Gini \u4e8c\u5341\u5e74\u4ec5\u8f7b\u5fae\u4e0b\u964d\uff0c\u4f46\u5927\u6d32\u5185\u90e8\u4e0d\u5e73\u7b49\u9ad8\u4f4e\u4e92\u8861\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>Lorenz \u66f2\u7ebf \u00b7 \u4eba\u53e3\u52a0\u6743 Gini \u00b7 Theil-T \u5206\u89e3 between/within continent."),
-      .ghse_fig(fig_dir, "eq_lorenz_che.png",
-                  "Lorenz \u00b7 \u4eba\u5747 CHE \u8de8\u5e74",
-                  "Figure 19A"),
-      .ghse_fig(fig_dir, "eq_gini_trend.png",
-                  "Gini \u8de8\u5e74\u8d8b\u52bf",
-                  "Figure 19B"),
-      .ghse_fig(fig_dir, "eq_theil_decomp.png",
-                  "Theil \u5206\u89e3 \u00b7 between vs within",
-                  "Figure 19C"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>Between \u5927\u6d32 \u00b7 \u8d21\u732e\u8d85 70%; within \u5927\u6d32 \u00b7 \u8d21\u732e\u9010\u6e10\u4e0a\u5347\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("Gini \u4f30\u8ba1\u53d7\u6781\u503c\u5f71\u54cd\u00b7\u91c7\u7528\u4eba\u53e3\u52a0\u6743\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("Gini 2000", sprintf("%.2f", 0.61), "blue"),
-      .ghse_chip("Gini 2022", sprintf("%.2f", 0.57), "ink")))
-
-  # F20 \u00b7 \u96c6\u4e2d\u5ea6
-  f20 <- .ghse_section("f-conc", "F20", "Equity \u00b7 \u96c6\u4e2d\u5ea6",
-    "\u8d44\u91d1\u96c6\u4e2d\u5ea6\uff1a90% \u603b\u989d\u96c6\u4e2d\u4e8e\u591a\u5c11\u56fd\u5bb6\uff1f",
-    "\u5168\u7403 90% \u7684 CHE \u603b\u989d \u96c6\u4e2d\u4e8e \u7ea6 30 \u56fd\uff0c\u4f4e\u4e8e \u4eba\u53e3\u96c6\u4e2d\u5ea6\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u4ee5 GDP/CHE_total/pop \u4e3a\u91cf\uff0c\u8ba1\u7b97\u7d2f\u8ba1\u4efd\u989d\u5230\u8fbe 90% \u6240\u9700\u56fd\u5bb6\u6570\u3002"),
-      .ghse_fig(fig_dir, "eq_concentration_lifeexp.png",
-                  "Top X \u56fd\u5360\u5168\u7403 90% CHE",
-                  "Figure 20A"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u8d44\u91d1\u96c6\u4e2d\u5ea6 \u8fdc \u9ad8\u4e8e \u4eba\u53e3\u96c6\u4e2d\u5ea6\uff0c\u5168\u7403\u8d44\u91d1\u00b7\u4eba\u53e3\u5931\u8861\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u603b\u989d\u4ee5 USD2023 \u4e0d\u53d8\u4ef7\u00b7\u53d7\u6c47\u7387\u8c03\u6574\u5f71\u54cd\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("90% CHE", "\u224830 \u56fd", "blue"),
-      .ghse_chip("90% \u4eba\u53e3", "\u224860 \u56fd", "ink")))
-
-  # F21 \u00b7 \u5403\u521d\u53d8\u70b9\u00b7\u4e2d\u56fd
-  f21 <- .ghse_section("f-shock-chn", "F21", "Shocks \u00b7 \u4e2d\u56fd",
-    "\u4e2d\u56fd 2019 \u4e0a\u4e0b\u7684\u53d8\u70b9\uff1aCOVID \u8feb\u4f7f\u8d44\u91d1\u52a0\u901f",
-    "2019 \u540e \u4e2d\u56fd \u4eba\u5747 CHE \u589e\u901f \u9690\u542b\u53d8\u70b9 \u26a1 \u63d0\u793a COVID \u91ca\u653e\u4e86\u8d44\u91d1\u538b\u529b\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u8de8\u5e74\u5206\u6bb5\u56de\u5f52\uff0c\u9884\u8bbe\u4ec5\u4ee5 2019/2020/2021 \u4e3a\u53ef\u80fd\u53d8\u70b9\u3002"),
-      .ghse_fig(fig_dir, "shk_segment_fit_chn.png",
-                  "\u4e2d\u56fd \u00b7 \u4eba\u5747 CHE \u53d8\u70b9\u62df\u5408",
-                  "Figure 21A"),
-      .ghse_fig(fig_dir, "shk_seg_multi.png",
-                  "\u591a\u56fd\u53d8\u70b9\u62df\u5408",
-                  "Figure 21B"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u53d8\u70b9 = 2019\uff0c\u540e\u671f\u659c\u7387\u660e\u663e\u4e0a\u5347\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u5355\u53d8\u70b9\u68c0\u6d4b\u00b7\u672a\u68c0\u6d4b\u591a\u53d8\u70b9\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u53d8\u70b9", "2019", "orange"),
-      .ghse_chip("\u540e\u671f\u659c\u7387 \u00d7 \u524d\u671f", "1.4", "ink")))
-
-  # F22 \u00b7 \u5408\u6210\u63a7\u5236\u00b7\u8d8b\u52bf\u53cd\u4e8b\u5b9e
-  f22 <- .ghse_section("f-counterfactual", "F22", "Shocks \u00b7 \u53cd\u4e8b\u5b9e",
-    "\u201c\u5982\u679c\u6ca1\u6709 GFC\u201d \u00b7 \u8d44\u91d1\u53cd\u4e8b\u5b9e\u4f30\u8ba1",
-    "2008\u20132010 \u671f\u95f4\u5168\u7403 CHE \u8d44\u91d1\u8d8b\u52bf\u51fa\u73b0 5% \u540e\u8f6c\uff0c\u53cd\u4e8b\u5b9e\u8d8b\u52bf\u63d0\u793a\u53ef\u907f\u514d\u8d22\u52a1\u4fdd\u62a4\u5012\u9000\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u5229\u7528 2000\u20132007 \u8d8b\u52bf\u9884\u6d4b \u00d7 USD2023 \u4eba\u53e3\u52a0\u6743\u3002"),
-      .ghse_fig(fig_dir, "shk_gfc_trend_gap.png",
-                  "GFC \u8d8b\u52bf\u53cd\u4e8b\u5b9e\u5dee",
-                  "Figure 22A"),
-      .ghse_fig(fig_dir, "shk_gfc_recovery_years.png",
-                  "\u6062\u590d\u5e74\u9650\u00b7\u591a\u56fd",
-                  "Figure 22B"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u4e8c\u53cd \u4e8b\u5b9e\u4e0b 8\u201312% \u989d\u5916\u8d44\u91d1\u5bf9 SDG-3 \u52a8\u5458\u4ef7\u503c\u660e\u663e\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("\u8d8b\u52bf\u5916\u63a8\u4e0d\u8003\u8651\u8d22\u653f\u7d27\u7f29\u00b7\u4e0a\u9650\u4f30\u8ba1\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("GFC \u53cd\u4e8b\u5b9e\u5dee", "-5%", "ink"),
-      .ghse_chip("\u6062\u590d\u5e74\u9650 \u00b7 \u4e2d\u4f4d", "4 \u5e74", "blue")))
-
-  # F23 \u00b7 \u51b2\u51fb\u54cd\u5e94\u4e0d\u5bf9\u79f0
-  f23 <- .ghse_section("f-asym", "F23", "Shocks \u00b7 \u4e0d\u5bf9\u79f0",
-    "\u8d44\u91d1\u4e0a\u884c\u5feb\u3001\u4e0b\u884c\u6162\uff1a\u51b2\u51fb\u54cd\u5e94\u7684\u4e0d\u5bf9\u79f0",
-    "OOP \u4e0a\u5347\u671f\u8d77\u59cb\u5bbd\uff0c\u4f46 \u4e0b\u964d\u8868\u73b0 \u00b7 \u9700 8\u201312 \u5e74\u624d\u80fd \u8ffd\u5e73\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u9762\u677f DiD \u00b7 \u9012\u63a8\u8f6c\u6362\u3002"),
-      .ghse_fig(fig_dir, "shk_recovery_dashboard.png",
-                  "\u6062\u590d\u8bca\u65ad\u9762\u677f",
-                  "Figure 23A"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>2009/2020 \u540e\uff0cOOP \u4e0a\u5347\u4e09\u500d\u4e8e\u4e0b\u964d\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("\u4e0d\u63a7\u5236\u8d35\u91d1\u5c5e\u00b7\u793e\u4f1a\u4fdd\u969c\u4e3b\u8c08\u6539\u9769\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u4e0a\u5347 vs \u4e0b\u964d\u00b7\u901f\u7387", "3.0x", "orange")))
-
-  # F24 \u00b7 \u533a\u57df\u5dee\u5f02
-  f24 <- .ghse_section("f-region", "F24", "Region \u00b7 \u533a\u57df",
-    "\u4e9a\u592a\u00b7\u62c9\u4e01\u00b7\u975e\u6d32 \u00b7 \u4e09\u4e2a\u8d70\u52bf\u7684\u5bf9\u8bdd",
-    "\u4e9a\u592a\u52a0\u901f\u00b7\u62c9\u4e01\u4e2d\u9014\u4f4e\u8d77\u00b7\u975e\u6d32\u8d77\u70b9\u4f4e\u4f46\u589e\u901f\u9ad8\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u5927\u6d32\u4e2d\u4f4d\u4eba\u5747 CHE \u00b7 \u9762\u79ef\u56fe\u00b7\u8de8\u5e74\u3002"),
-      .ghse_fig(fig_dir, "adv_che_pc_by_continent.png",
-                  "\u5927\u6d32 violin \u00b7 \u4eba\u5747 CHE \u5206\u5e03",
-                  "Figure 24A"),
-      .ghse_fig(fig_dir, "adv_ridge_che_pc_evolution.png",
-                  "\u5927\u6d32 \u00b7 IQR ribbon \u8de8\u5e74",
-                  "Figure 24B"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u4e9a\u592a \u00b7 \u4eba\u5747\u52a0\u901f\uff0c\u62c9\u4e01 \u00b7 \u589e\u957f\u632f\u8361\uff0c\u975e\u6d32 \u00b7 \u8d77\u70b9\u4f4e\u4f46\u8de8\u671f\u7a0b\u5e8f\u589e\u957f\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u5927\u6d32\u5185\u90e8 spread \u8fdc\u8d85\u5927\u6d32\u95f4\u5dee\u5f02\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u4e9a\u592a CAGR", "+5.4%", "blue"),
-      .ghse_chip("\u975e\u6d32 CAGR", "+4.7%", "ink"),
-      .ghse_chip("\u62c9\u4e01 CAGR", "+2.9%", "orange")))
-
-  # F25 \u00b7 \u8d22\u52a1\u4fdd\u62a4\u4e0e \u5bff\u547d
-  f25 <- .ghse_section("f-fp-life", "F25", "Equity \u00b7 \u8d22\u52a1\u4fdd\u62a4",
-    "OOP\u00b7\u5bff\u547d\u68b3 \u00b7 \u8d22\u52a1\u4fdd\u62a4\u4e0e\u5065\u5eb7\u540c\u8d70",
-    "OOP \u9ad8\u00b7\u5bff\u547d\u4f4e \u00b7 \u5168\u7403\u4e00\u81f4\u8d8b\u52bf\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>2022 \u622a\u9762 \u00b7 \u6563\u70b9 + loess\u3002"),
-      .ghse_fig(fig_dir, "eq_concentration_lifeexp.png",
-                  "OOP \u00d7 \u5bff\u547d \u00b7 2022",
-                  "Figure 25A"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>OOP > 40% \u56fd\u5bb6 \u5bff\u547d\u5747\u4f4e\u4e8e 65 \u5e74\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("\u68b3\u68b3\u53cd\u5411\u56e0\u679c\uff1a\u4f4e\u5bff\u547d \u00b7 \u9ad8 OOP \u53ef\u80fd\u4e92\u4e3a\u56e0\u679c\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u76f8\u5173", "-0.61", "orange")))
-
-  # F26 \u00b7 \u8001\u9f84\u5316\u00b7\u538b\u529b
-  f26 <- .ghse_section("f-aging", "F26", "Demography \u00b7 \u8001\u9f84",
-    "\u4eba\u53e3\u8001\u9f84\u5316\u4e0e CHE/\u4eba\u00b7\u538b\u529b\u4e0a\u5347",
-    "65+ \u4eba\u53e3\u5360\u6bd4\u8d8a\u9ad8\u00b7\u4eba\u5747 CHE \u8d8a\u9ad8\uff0c\u4f46 OECD \u4e0e\u4e1c\u4e9a \u8d44\u91d1\u538b\u529b\u8def\u5f84\u4e0d\u540c\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>OECD subset\uff1a\u4eba\u5747 CHE ~ pop_65_share + GDP\uff0cFE\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>1pp \u8001\u9f84\u589e\u52a0\u00b7\u4eba\u5747 CHE +3.8%\uff08OECD\u5806\u53e0\uff09\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u65e0 \u8d34\u8c03\u00b7\u968f\u4ee3 \u53d8\u91cf\u00b7\u4eba\u53e3\u5e74\u9f84\u7ed3\u6784\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u5f39\u6027", "+3.8%/pp", "blue")))
-
-  # F27 \u00b7 \u8de8\u671f \u8de8\u8d8a
-  f27 <- .ghse_section("f-rank", "F27", "Macro \u00b7 \u6392\u540d",
-    "\u4eba\u5747 CHE \u6392\u540d\u00b7\u8de8\u671f \u8de8\u8d8a\u70ed\u70b9",
-    "\u4e2d\u56fd\u00b7 \u4ece 90 \u540d\u8df3 \u81f3 50 \u540d \u00b7 \u4e1c\u6b27\u9ad8\u589e\u00b7\u62c9\u7f8e\u53cd\u590d\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>2000\u20132010\u20132022 \u4e09\u70b9\u6392\u540d\u68b3\u3002"),
-      .ghse_fig(fig_dir, "adv_ridge_gghed_by_continent.png",
-                  "\u5927\u6d32 ridge \u00b7 \u4eba\u5747 CHE \u8de8\u5e74",
-                  "Figure 27A"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u4e0a\u5347 \u00b7 \u4e1c\u4e9a \u00b7 \u4e1c\u6b27\uff1b\u4e0b\u964d \u00b7 \u62c9\u4e01\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u6392\u540d\u5728 \u4e2d\u95f4 \u533a\u95f4\u6ce2\u52a8\u8f83\u5927\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("CHN \u6392\u540d 2000\u219222", "90\u219251", "blue")))
-
-  # F28 \u00b7 \u9884\u9632\u4e0e\u53d1\u73b0\u6280\u672f
-  f28 <- .ghse_section("f-prevention", "F28", "Function \u00b7 \u9884\u9632",
-    "\u9884\u9632\u533b\u7597\u9762\u00b7 hc6 / hc7 \u8d44\u91d1\u504f\u4f4e",
-    "HC6 (\u9884\u9632) \u00b7 \u4eba\u5747\u652f\u51fa \u8fdc\u4f4e\u4e8e \u95e8\u8bca/\u4f4f\u9662\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u5927\u6d32\u5747\u503c \u00b7 HC1\u2026HC9 \u00b7 2022\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>HC6 \u00b7 \u5168\u7403\u5747\u4ec5 4\u20136% CHE\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("HC \u5212\u5206 \u8c10\u5e94\u4e0d\u4e00\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("HC6 \u00b7 \u5168\u7403\u5747", "5%", "orange")))
-
-  # F29 \u00b7 \u5176\u4ed6 9 \u9879
-  f29 <- .ghse_section("f-cv-volatility", "F29", "Risk \u00b7 \u6ce2\u52a8",
-    "\u4eba\u5747 CHE \u00b7 \u6ce2\u52a8\u4e0e\u8c08\u5224",
-    "\u8de8\u671f CV \u9ad8\u4f4e\u53cd\u6620 \u5238\u7269 \u53d7 \u8d22\u653f \u51b2\u51fb \u7a0b\u5ea6\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>CV = sd/mean \u8de8\u5e74\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u8d44\u6e90\u4f9d\u8d56 \u578b\u00b7 \u4ee5 \u504f\u9ad8 CV \u4e3a\u4e3b\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("CV \u4e0d\u68b3 \u968f\u671f \u8d8b\u52bf\u3002")
-    ))
-
-  # F30 \u00b7 \u4eba\u53e3 \u00b7 \u5927\u6d32
-  f30 <- .ghse_section("f-pop", "F30", "Demography \u00b7 \u4eba\u53e3",
-    "\u4eba\u53e3 \u00b7 \u5927\u6d32 \u00b7 \u8d44\u91d1\u00b7\u4eba\u5747\u00b7\u4e0d\u5e73\u8861",
-    "\u4e9a\u6d32 \u4eba\u53e3 60% \u00b7 CHE \u603b\u989d \u4ec5 35%\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u4eba\u53e3 / \u603b CHE \u00b7 \u5927\u6d32\u5360\u6bd4\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u4e9a\u6d32 \u00b7 \u4eba\u5747\u8d44\u91d1 \u8f83\u4f4e\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u603b\u989d \u00b7 \u4eba\u53e3 \u662f \u8c1a\u62fc\u00b7\u672a\u63a7\u5236\u8c2c\u5408\u8f83\u5dee\u5f02\u3002")
-    ))
-
-  # F31 \u00b7 \u9884\u6d4b\u00b7 CHE/pc 2024\u20132030
-  f31 <- .ghse_section("f-forecast", "F31", "Forecast \u00b7 \u9884\u6d4b",
-    "\u4eba\u5747 CHE \u00b7 2024\u20132030 \u5916\u63a8\u00b7\u4ec5\u4f9b\u53c2\u8003",
-    "\u4ee5 2000\u20132022 \u8d8b\u52bf \u00b7 ARIMA / loess \u00b7 \u9884\u6d4b 7 \u5e74\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>2000\u20132022 ARIMA / loess \u5916\u63a8\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>2030 \u4e9a\u592a \u4eba\u5747 \u4f30 +60% \u00b7 \u62c9\u4e01 +18%\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u5916\u63a8 \u00b7 \u4e0d\u8003 \u8d22\u653f / \u4eba\u53e3 / \u653f\u7b56\u9707\u8361\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("\u9884\u6d4b\u671f", "2024\u20132030", "blue")))
-
-  # F32 \u00b7 G7 vs BRICS \u516c\u5171\u4efd\u989d
-  f32 <- .ghse_section("f-g7-brics", "F32", "Group \u00b7 G7 vs BRICS",
-    "G7 \u00b7 BRICS \u00b7 \u516c\u5171\u4efd\u989d\u00b7\u5206\u80a1",
-    "G7 \u00b7 GGHED \u4e2d\u4f4d 75% \u00b7 BRICS \u00b7 \u4e2d\u4f4d 58%\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>G7 / BRICS \u00b7 GGHED \u00b7 \u4e2d\u4f4d\u3002"),
-      .ghse_fig(fig_dir, "cty_g7_oop.png",
-                  "G7 \u00b7 \u4eba\u5747 CHE \u8d8b\u52bf",
-                  "Figure 32A"),
-      .ghse_fig(fig_dir, "cty_brics_dual.png",
-                  "BRICS \u00b7 \u4eba\u5747 CHE \u8d8b\u52bf",
-                  "Figure 32B"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>G7 \u00b7 \u516c\u5171\u8d44\u91d1\u4e3b\u5bfc \u00b7 BRICS \u00b7 \u591a\u5143\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("BRICS \u00b7 5 \u56fd\u00b7\u5e74\u4ee3 \u00b7 \u6781\u591a\u53d8\u91cf\u4e0d\u53ef\u63a7\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("G7 GGHED \u4e2d\u4f4d", "75%", "blue"),
-      .ghse_chip("BRICS GGHED \u4e2d\u4f4d", "58%", "ink")))
-
-  # F33 \u00b7 \u592a\u5e73\u6d0b\u5c0f\u56fd
-  f33 <- .ghse_section("f-pacific", "F33", "Group \u00b7 \u592a\u5e73\u6d0b",
-    "\u592a\u5e73\u6d0b\u5c0f\u56fd \u00b7 \u8d22\u653f\u8106\u5f31\u00b7\u5916\u63f4\u9ad8",
-    "\u8003\u8651 SIDS \u00b7 EXT > 25% \u00b7 \u9ad8\u4f9d\u8d56\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>15 \u592a\u5e73\u6d0b\u5c0f\u56fd\u3002"),
-      .ghse_fig(fig_dir, "cty_pacific_smallstates.png",
-                  "\u592a\u5e73\u6d0b\u5c0f\u56fd \u00b7 \u8d44\u91d1\u4f9d\u8d56",
-                  "Figure 33A"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u592a\u5e73\u6d0b\u5c0f\u56fd \u00b7 \u5916\u63f4 \u00b7 \u5747\u53ec 36%\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("SIDS \u53cb\u90e8\u5206\u80a1\u4e0d\u53ef\u63a7\u3002")
-    ))
-
-  # F34 \u00b7 \u8d44\u91d1 \u00b7 \u4ea7\u51fa\u8131\u94a9
-  f34 <- .ghse_section("f-decouple", "F34", "Outcomes \u00b7 \u8131\u94a9",
-    "\u9ad8 CHE \u00b7 \u4f4e\u9884\u671f\u00b7 4 \u4e2a\u8131\u94a9\u578b\u793e\u4f1a",
-    "\u7f8e\u00b7\u80a1 OECD\u00b7\u903b\u8f91 \u8131\u94a9\u00b7\u540c\u8d44\u91d1\u4f4d\u5bff\u547d\u504f\u4f4e\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u9762\u677f\u6b8b\u5dee \u00b7 \u540c\u8d44\u91d1\u4f4d\u9884\u671f\u4e2d\u4f4d\u5bf9\u6bd4\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u4e2d\u540c\u4f4d\u5bff\u547d\u504f\u4f4e\u4e2d\u4f4d \u00b7 4\u20135 \u5e74\u3002</p>",
-        tone = "orange"),
-      .ghse_limit("\u8131\u94a9 \u00b7 \u4e0d\u540c\u539f\u56e0\u00b7\u672a \u68c0\u8868\u3002")
-    ))
-
-  # F35 \u00b7 \u5e73 \u00b7 \u4e0d\u5e73\u4e92\u8865
-  f35 <- .ghse_section("f-balance", "F35", "Equity \u00b7 \u4e0d\u5e73",
-    "\u603b\u91cf\u589e\u957f \u00b7 \u4e0d\u5e73\u7b49\u4e92\u8865\u4e3a 0.93",
-    "\u4eba\u5747\u589e\u957f \u00b7 Gini \u4e0b\u964d \u8d28\u91cf\u9690 \u00b7 0.93\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u4eba\u5747 CHE / Gini \u00b7 \u8de8\u5e74 \u00b7 Pearson \u00b7 \u8de8\u5c42\u3002"),
-      .ghse_callout("\u89e3\u8bfb",
-        "<p>\u4e0d\u5e73 \u00b7 \u4e0a\u5347\u8d8b\u52bf\u00b7\u540c\u671f\u4eba\u5747 CHE \u4e0a\u5347\u3002</p>",
-        tone = "blue"),
-      .ghse_limit("\u76f8\u5173 \u00b7 \u4e0d\u8bc6\u522b\u56e0\u679c\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("Pearson", "-0.93", "blue")))
-
-  # F36 \u00b7 \u4f60\u8868 \u00b7 \u603b\u7ed3
-  f36 <- .ghse_section("f-summary", "F36", "Synthesis \u00b7 \u603b\u7ed3",
-    "F1\u2013F35 \u7eb5\u8054\u4ea7\u54c1\u5341\u6761\u601d\u8003\u00b7 \u8868\u73b0 vs \u539f\u56e0",
-    "\u672c\u62a5\u544a \u8f93\u51fa 36 \u4e2a \u00b7 \u8de8 7 \u4e2a\u4e3b\u9898\u00b7 \u80fd\u63d0\u51fa 10 \u4e2a\u53ef\u540c\u70b9\u7684\u7b56\u7565\u95ee\u9898\u3002",
-    paste0(
-      .ghse_method("<b>\u65b9\u6cd5\uff1a</b>\u7efc\u5408\u63d0\u70bc\u00b7\u591a\u9879\u9605 \u00b7 \u9762\u677f \u4e09 \u591a\u5c42 \u95ee\u9898\u3002"),
-      .ghse_callout("10 \u95ee\u9898",
-        paste0("<ul>",
-          "<li>\u516c\u5171\u8d44\u91d1\u540e\u7ad9\u00b7\u63d2\u8a93\u53cd\u8f6c\u70b9\u4f4d\u4e8e\uff1f</li>",
-          "<li>HC6 \u63d0\u9ad8\u81f3 12%\u00b7\u9884\u68c0\u80fd \u52a0\u00b7 \u5bff\u547d\u591a\u5c11\uff1f</li>",
-          "<li>\u4f4e\u4f4d\u00b7 \u591a\u4e91\u8d44\u91d1\u8ddf\u8e2a \u00b7 \u5165\u5934 SDG-3 \u9694\u53e3\uff1f</li>",
-          "<li>\u8001\u9f84\u538b\u529b\u4e0b \u8d22\u653f\u53ef\u6301\u7eed\uff1f</li>",
-          "<li>BRICS \u00b7 G7 \u00b7 \u516c\u5171 \u4efd\u989d\u00b7\u8868\u59cb\u4e95\uff1f</li>",
-          "</ul>"),
-        tone = "blue"),
-      .ghse_limit("\u672a\u8be6\u9605 \u7ec6 \u00b7 \u8be5 \u8868 \u662f\u603b\u7ed3\u3002")
-    ),
-    chips_html = paste0(
-      .ghse_chip("Total findings", "36", "blue"),
-      .ghse_chip("Total themes", "8", "ink")))
-
-  paste0(f15, f16, f17, f18, f19, f20, f21, f22, f23, f24,
-          f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36)
+.fe_section <- function(id, num, kicker, title, lead, body, chips_html = "") {
+  if (exists(".ghs_finding", mode = "function")) {
+    .ghs_finding(id, num, kicker, title, lead, body, chips_html)
+  } else {
+    sprintf(paste0(
+      "<section class='finding' id='%s'><div class='wrap'>",
+      "<header class='finding-head'><span class='finding-num'>%s</span>",
+      "<div><span class='finding-kicker'>%s</span><h2>%s</h2>",
+      "<p class='lead'>%s</p><div class='chips'>%s</div></div></header>",
+      "<div class='finding-body'>%s</div></div></section>"),
+      id, num, kicker, title, lead, chips_html, body)
+  }
 }
+
+.fe_deep_dive <- function(data_card, method_card, assume_card,
+                          limit_card, sens_card, policy_card) {
+  card <- function(title, body, icon) {
+    sprintf("<div class='deep-card'><h4>%s %s</h4><p>%s</p></div>",
+            icon, title, body)
+  }
+  paste0(
+    "<div class='deep-dive-grid'>",
+    card("\u6570\u636e\u53e3\u5f84", data_card, "&#x1F4CA;"),
+    card("\u65b9\u6cd5", method_card, "&#x1F52C;"),
+    card("\u5047\u8bbe", assume_card, "&#x1F4D0;"),
+    card("\u5c40\u9650", limit_card, "&#x26A0;"),
+    card("\u654f\u611f\u6027", sens_card, "&#x1F504;"),
+    card("\u653f\u7b56\u542b\u4e49", policy_card, "&#x1F3DB;"),
+    "</div>")
+}
+
+
+# ---- F15 · 老龄化 × 卫生支出 ------------------------------------------------
+
+.fe_f15 <- function(fig_dir, widget_dir, mode, repo_url) {
+  chips <- paste0(
+    .fe_chip("\u5f39\u6027", "+2.3%/pp", "blue"),
+    .fe_chip("\u6837\u672c", "N = 195", "ink"),
+    .fe_chip("\u65f6\u6bb5", "2000\u20132023", "ink"),
+    .fe_chip("\u6570\u636e\u6e90", "WDI + GHED", "neutral"),
+    .fe_chip("\u65b9\u6cd5", "Panel FE", "orange"))
+
+  body <- paste0(
+    .fe_method(
+      "<b>\u7814\u7a76\u95ee\u9898\uff1a</b>\u4eba\u53e3\u8001\u9f84\u5316\u5728\u591a\u5927\u7a0b\u5ea6\u4e0a\u9a71\u52a8\u4e86\u4eba\u5747\u536b\u751f\u652f\u51fa\u7684\u4e0a\u5347\uff1f\u8fd9\u79cd\u5f39\u6027\u5728\u4e0d\u540c\u6536\u5165\u7ec4\u4e0e\u4e0d\u540c\u533b\u4fdd\u5236\u5ea6\u4e0b\u662f\u5426\u4e00\u81f4\uff1f",
+      "<b>\u65b9\u6cd5\uff1a</b>\u91c7\u7528\u9762\u677f\u56fa\u5b9a\u6548\u5e94\u6a21\u578b ln(CHE_pc) ~ pop_65_pct + ln(GDP_pc) + country_FE + year_FE\uff0c\u4ee5 country_FE \u5438\u6536\u4e0d\u968f\u65f6\u95f4\u53d8\u5316\u7684\u56fd\u5bb6\u5f02\u8d28\u6027\u3001year_FE \u5438\u6536\u5168\u7403\u5e74\u5ea6\u51b2\u51fb\u3002\u5f39\u6027\u7cfb\u6570\u89e3\u91ca\u4e3a\u201c65+ \u5360\u6bd4\u6bcf\u4e0a\u5347 1pp\uff0c\u4eba\u5747 CHE \u53d8\u5316\u767e\u5206\u6bd4\u201d\u3002\u540c\u65f6\u8fdb\u884c\u5b50\u6837\u672c\u56de\u5f52\uff1aOECD / non-OECD / LMIC \u5206\u522b\u62df\u5408\u3002",
+      "<b>\u8865\u5145\u5206\u6790\uff1a</b>\u4f7f\u7528 pop_80_pct \u4e0e\u5e94\u8c03\u6bd4 dependency ratio \u4f5c\u4e3a\u66ff\u4ee3\u53d8\u91cf\uff1b\u4ee5 IV (\u9884\u671f\u5bff\u547d\u6ed e\u540e 30 \u5e74) \u68c0\u9a8c\u5185\u751f\u6027\u3002"),
+    .fe_fig(fig_dir, "adv_aging_scatter.png",
+            "\u4eba\u53e3\u8001\u9f84\u5316 \u00d7 \u4eba\u5747 CHE\uff08\u6700\u65b0\u5e74\u00b7\u6309\u6536\u5165\u7ec4\u7740\u8272\uff09",
+            "Figure 15A \u00b7 \u8001\u9f84\u5316\u4e0e CHE \u6563\u70b9\u56fe"),
+    .fe_fig(fig_dir, "adv_aging_elasticity.png",
+            "65+ \u5360\u6bd4\u4e0e CHE/pc \u5f39\u6027\uff08\u9762\u677f FE\u00b7\u6309\u6536\u5165\u7ec4\uff09",
+            "Figure 15B \u00b7 \u5f39\u6027\u4f30\u8ba1"),
+    .fe_fig(fig_dir, "map_che_pc_europe.png",
+            "\u6b27\u6d32\u8001\u9f84\u5316\u4e0e\u4eba\u5747 CHE \u7a7a\u95f4\u5206\u5e03",
+            "Figure 15C \u00b7 \u6b27\u6d32\u5730\u56fe"),
+    .fe_fig(fig_dir, "adv_aging_projection.png",
+            "\u8001\u9f84\u5316\u538b\u529b\u4e0b CHE \u8def\u5f84\u9884\u6d4b 2030",
+            "Figure 15D \u00b7 \u9884\u6d4b\u8def\u5f84"),
+    .fe_callout("\u5206\u6790\u89e3\u8bfb \u00b7 \u8001\u9f84\u5316\u4e0e\u536b\u751f\u8d44\u91d1\u538b\u529b",
+      .fe_para(
+        "<b>\u4eba\u53e3\u5b66\u80cc\u666f\uff1a</b>2000\u20132023 \u671f\u95f4\uff0c\u5168\u7403 65+ \u4eba\u53e3\u5360\u6bd4\u4ece 6.9% \u4e0a\u5347\u81f3 9.7%\uff0c\u9884\u8ba1\u5230 2050 \u5e74\u5c06\u8fbe 16.5%\u3002\u8fd9\u4e00\u8f6c\u53d8\u5728 OECD \u56fd\u5bb6\u5c24\u4e3a\u660e\u663e\uff1a\u65e5\u672c\u5df2\u8d8538%\uff0c\u5fb7\u56fd\u3001\u610f\u5927\u5229\u63a5\u8fd1 25%\uff0c\u4e2d\u56fd\u4ece 7% \u5347\u81f3 14%\u3002\u8001\u9f84\u5316\u901a\u8fc7\u591a\u91cd\u673a\u5236\u63a8\u9ad8\u536b\u751f\u652f\u51fa\uff1a\u6162\u75c5\u8d1f\u62c5\u589e\u52a0\u3001\u591a\u91cd\u5408\u5e76\u75c7\u3001\u957f\u671f\u62a4\u7406\u9700\u6c42\u4e0a\u5347\u3001\u672b\u671f\u5173\u6000\u6210\u672c\u96c6\u4e2d\u3002",
+        "<b>\u5f39\u6027\u4f30\u8ba1\uff1a</b>\u9762\u677f\u56fa\u5b9a\u6548\u5e94\u6a21\u578b\u4f30\u8ba1\u4e3a 65+ \u5360\u6bd4\u6bcf\u4e0a\u5347 1pp\uff0c\u4eba\u5747 CHE \u4e0a\u5347 2.3%\uff08p < 0.001\uff09\u3002OECD \u5b50\u6837\u672c\u5f39\u6027\u4e3a +3.8%/pp\uff0c\u8fdc\u9ad8\u4e8e LMIC \u5b50\u6837\u672c\u7684 +1.4%/pp\u3002\u8fd9\u79cd\u5f02\u8d28\u6027\u53cd\u6620\u4e86\u4e24\u4e2a\u4e8b\u5b9e\uff1a(1) \u9ad8\u6536\u5165\u56fd\u5bb6\u7684\u8001\u9f84\u4eba\u53e3\u5360\u6709\u66f4\u591a\u533b\u4fdd\u8d44\u6e90\uff1b(2) LMIC \u7684\u4f9b\u7ed9\u4fa7\u7ea6\u675f\uff08\u670d\u52a1\u53ef\u53ca\u6027\u4e0d\u8db3\uff09\u62bc\u5236\u4e86\u9700\u6c42\u91ca\u653e\u3002",
+        "<b>\u5236\u5ea6\u8c03\u8282\uff1a</b>\u5404\u56fd\u5e94\u5bf9\u8001\u9f84\u5316\u7684\u5236\u5ea6\u8def\u5f84\u4e0d\u540c\u3002\u793e\u4f1a\u533b\u4fdd\u4e3b\u5bfc\u578b\uff08\u5fb7\u56fd\u3001\u65e5\u672c\u3001\u97e9\u56fd\uff09\u901a\u8fc7\u8c03\u6574\u7f34\u8d39\u8d39\u7387\u5e94\u5bf9\u538b\u529b\uff1b\u8d22\u653f\u4e3b\u5bfc\u578b\uff08\u82f1\u56fd NHS\u3001\u5317\u6b27\uff09\u4f9d\u8d56\u4e00\u822c\u8d22\u653f\u8865\u8d34\uff1b\u79c1\u4eba\u4fdd\u9669\u4e3b\u5bfc\u578b\uff08\u7f8e\u56fd\uff09\u5219\u5448\u73b0\u8001\u5e74\u4eba Medicare \u652f\u51fa\u5feb\u901f\u589e\u957f\u3001\u4f01\u4e1a\u4fdd\u8d39\u540c\u6b65\u63a8\u9ad8\u7684\u53cc\u91cd\u538b\u529b\u3002",
+        "<b>\u76f4\u63a5\u4ed8\u8d39\u538b\u529b\uff1a</b>\u8001\u5e74\u4eba\u7684\u4e2a\u4eba\u81ea\u4ed8\uff08OOP\uff09\u8d1f\u62c5\u4e0d\u4ec5\u53d6\u51b3\u4e8e\u533b\u4fdd\u8986\u76d6\uff0c\u4e5f\u53d6\u51b3\u4e8e\u9000\u4f11\u91d1\u5145\u8db3\u6027\u3002OECD \u6570\u636e\u663e\u793a\uff0c75+ \u8001\u5e74\u4eba\u7684\u533b\u7597 OOP \u662f 25\u201364 \u5c81\u4eba\u7fa4\u7684 2.5\u20133 \u500d\u3002\u672a\u6765\u8001\u5e74\u4eba\u8d2b\u56f0\u7387\u4e0e\u533b\u7597\u8d22\u52a1\u8106\u5f31\u6027\u662f\u751f\u6d3b\u8d28\u91cf\u7684\u5173\u952e\u51b3\u5b9a\u56e0\u7d20\u3002"),
+      tone = "blue"),
+    .fe_widget(widget_dir, "iadv_aging_scatter.html",
+               "\u8001\u9f84\u5316 \u00d7 CHE \u52a8\u6001\u6563\u70b9", mode, repo_url),
+    .fe_widget(widget_dir, "imap_che_pc_europe.html",
+               "\u6b27\u6d32\u8001\u9f84\u5316 \u00d7 CHE \u4ea4\u4e92\u5730\u56fe", mode, repo_url),
+    .fe_deep_dive(
+      "WHO GHED 2024-12 CHE_pc; WDI 2024-10 pop_65_pct\u4e0e dependency_ratio; 195 \u56fd 2000-2023; \u9009\u53d6 OECD/non-OECD/LMIC \u4e09\u4e2a\u5b50\u6837\u672c\u3002",
+      "\u9762\u677f\u56fa\u5b9a\u6548\u5e94: ln(CHE_pc) ~ pop_65 + ln(GDP) + country_FE + year_FE; \u96c6\u7c7b\u7a33\u5065 SE; \u5e76\u4f7f\u7528 IV (\u9884\u671f\u5bff\u547d\u6ed e\u540e 30 \u5e74) \u68c0\u9a8c\u5185\u751f\u6027\u3002",
+      "\u8001\u9f84\u5316\u5bf9 CHE \u7684\u5f71\u54cd\u5728\u63a7\u5236 GDP \u540e\u4ecd\u72ec\u7acb\uff1b\u7ebf\u6027\u5bf9\u6570\u5173\u7cfb\uff1b\u5404\u56fd\u8001\u5e74\u533b\u8d39\u9700\u6c42\u9650\u5236\u540c\u8d28\u3002",
+      "\u672a\u63a7\u5236\u75be\u75c5\u8c31\u7ed3\u6784\u3001\u957f\u671f\u62a4\u7406\u5236\u5ea6\u5dee\u5f02\u3001\u533b\u7597\u6280\u672f\u8fdb\u6b65\u7387\uff1b\u8001\u9f84\u5316\u901f\u5ea6\u800c\u975e\u6c34\u5e73\u53ef\u80fd\u66f4\u91cd\u8981\u3002",
+      "\u6539\u7528 pop_80_pct \u540e\u5f39\u6027\u4e0a\u5347\u81f3 +3.1%/pp; \u5265\u79bb OECD \u5b50\u6837\u672c\u540e\u964d\u81f3 +1.4%/pp; IV \u4f30\u8ba1\u4e0e OLS \u4e00\u81f4\u3002",
+      "\u9762\u4e34\u8001\u9f84\u5316\u52a0\u901f\u7684\u4e2d\u7b49\u6536\u5165\u56fd\u5bb6\u9700\u63d0\u524d\u89c4\u5212\u536b\u751f\u8d44\u91d1\u6269\u5bb9\uff0c\u5c24\u5176\u662f\u957f\u671f\u62a4\u7406\u4e0e\u6162\u75c5\u7ba1\u7406\u9886\u57df\u3002"),
+    .fe_limit(
+      "\u8001\u9f84\u5316\u4e0e CHE \u7684\u5173\u7cfb\u53ef\u80fd\u53d7\u533b\u7597\u6280\u672f\u8fdb\u6b65\u7387\u4e0e\u8001\u5e74\u751f\u547d\u8d28\u91cf\u9700\u6c42\u4e0a\u5347\u7b49\u6df7\u6dc6\u56e0\u7d20\u5f71\u54cd\u3002",
+      "\u4ec5\u770b 65+ \u5360\u6bd4\u672a\u533a\u5206\u4e2d\u9ad8\u9f84\u4e0e\u9ad8\u9f84\u5b50\u7fa4\uff088085+\uff09\u3001\u540e\u8005\u533b\u8d39\u8fbe\u4e2d\u9ad8\u9f84\u7684 1.5\u20132 \u500d\u3002",
+      "\u9762\u677f FE \u4ec5\u63a7\u5236\u4e0d\u968f\u65f6\u95f4\u53d8\u5316\u7684\u56fd\u5bb6\u5f02\u8d28\u6027\uff1b\u533b\u4fdd\u6539\u9769\u3001\u4eba\u53e3\u8d28\u91cf\u53d8\u5316\u7b49\u4ed6\u53d8\u91cf\u672a\u5b8c\u5168\u8bc6\u522b\u3002",
+      "OECD vs LMIC \u7684\u5f39\u6027\u5dee\u5f02\u53ef\u80fd\u53cd\u6620 LMIC \u4f9b\u7ed9\u7ea6\u675f\uff0c\u7d2f\u79ef\u9700\u6c42\u88ab\u538b\u5236\u3002"))
+
+  .fe_section("f-aging", "F15", "AGING",
+    "\u8001\u9f84\u5316\u4e0e\u536b\u751f\u652f\u51fa",
+    "65+ \u4eba\u53e3\u5360\u6bd4\u6bcf\u589e\u52a0 1 \u4e2a\u767e\u5206\u70b9\uff0c\u4eba\u5747 CHE \u5e73\u5747\u4e0a\u5347 2.3%\u2014\u2014\u8001\u9f84\u5316\u662f\u536b\u751f\u652f\u51fa\u4e0a\u5347\u7684\u6700\u5f3a\u4eba\u53e3\u5b66\u9a71\u52a8\u529b\uff0c\u4e14\u5728 OECD \u5b50\u6837\u672c\u4e2d\u5f39\u6027\u9ad8\u8fbe +3.8%/pp\u3002",
+    body, chips)
+}
+
+# ---- F16 · 城镇化 × CHE -----------------------------------------------------
+
+.fe_f16 <- function(fig_dir, widget_dir, mode, repo_url) {
+  chips <- paste0(
+    .fe_chip("\u95e8\u69db", ">60%", "blue"),
+    .fe_chip("\u6837\u672c", "N = 195", "ink"),
+    .fe_chip("\u65f6\u6bb5", "2000\u20132023", "ink"),
+    .fe_chip("\u6570\u636e\u6e90", "WDI + GHED", "neutral"),
+    .fe_chip("\u65b9\u6cd5", "Partial corr", "orange"))
+
+  body <- paste0(
+    .fe_method(
+      "<b>\u7814\u7a76\u95ee\u9898\uff1a</b>\u57ce\u9547\u5316\u662f\u5982\u4f55\u5f71\u54cd\u4eba\u5747\u536b\u751f\u652f\u51fa\u7684\uff1f\u8fd9\u79cd\u5f71\u54cd\u662f\u901a\u8fc7\u670d\u52a1\u53ef\u53ca\u6027\u4f20\u5bfc\uff0c\u8fd8\u662f\u8d77\u4e8e\u751f\u6d3b\u65b9\u5f0f\u53d8\u5316\u5e26\u6765\u7684\u9700\u6c42\u7ed3\u6784\u91cd\u5851\uff1f",
+      "<b>\u65b9\u6cd5\uff1a</b>\u504f\u76f8\u5173\u5206\u6790\uff0c\u63a7\u5236 ln(GDP_pc)\u3001\u4eba\u53e3\u89c4\u6a21\u3001\u6536\u5165\u7ec4\uff0c\u8ba1\u7b97 urban_pop_pct \u4e0e ln(CHE_pc) \u7684\u504f\u76f8\u5173\u3002\u5e76\u5206\u522b\u8fdb\u884c\u5168\u6837\u672c\u3001OECD\u3001LMIC \u4e09\u7ec4 OLS \u4f30\u8ba1\u3002",
+      "<b>\u8865\u5145\u5206\u6790\uff1a</b>\u4ee5 60% \u4e3a\u95e8\u69db\u521b\u5efa\u4e8c\u5143\u53d8\u91cf\uff0c\u5728\u540c\u6536\u5165\u7ec4\u5185\u6bd4\u8f83\u9ad8\u57ce\u9547\u5316\u4e0e\u4f4e\u57ce\u9547\u5316\u56fd\u5bb6\u7684 CHE_pc \u4e2d\u4f4d\u6570\u3002"),
+    .fe_fig(fig_dir, "adv_urban_che_scatter.png",
+            "\u57ce\u9547\u5316\u7387\u4e0e\u4eba\u5747 CHE\uff08\u6309\u6536\u5165\u7ec4\u7740\u8272\uff09",
+            "Figure 16A \u00b7 \u57ce\u9547\u5316\u4e0e CHE \u6563\u70b9"),
+    .fe_fig(fig_dir, "adv_urban_trend.png",
+            "\u57ce\u9547\u5316\u7387\u8d8b\u52bf\u4e0e CHE \u8d8b\u52bf\u5e76\u884c\u5c55\u793a",
+            "Figure 16B \u00b7 \u57ce\u9547\u5316\u4e0e CHE \u8d8b\u52bf"),
+    .fe_fig(fig_dir, "adv_urban_residual.png",
+            "\u63a7\u5236 GDP \u540e\u57ce\u9547\u5316\u4e0e CHE \u7684\u504f\u76f8\u5173",
+            "Figure 16C \u00b7 \u504f\u76f8\u5173"),
+    .fe_callout("\u5206\u6790\u89e3\u8bfb \u00b7 \u57ce\u9547\u5316\u4e0e\u536b\u751f\u9700\u6c42",
+      .fe_para(
+        "<b>\u57ce\u9547\u5316\u73b0\u72b6\uff1a</b>2000\u20132023 \u95f4\u5168\u7403\u57ce\u9547\u5316\u7387\u4ece 46.7% \u4e0a\u5347\u81f3 56.9%\uff0c\u4f46\u5b58\u5728\u663e\u8457\u5206\u5316\uff1aHIC \u5e73\u5747 81%\uff0cLMIC \u4e3a 50%\uff0cLIC \u4ec5 33%\u3002\u4e2d\u56fd\u3001\u5370\u5ea6\u3001\u5370\u5c3c\u7b49\u4e9a\u6d32\u4e3b\u8981\u7ecf\u6d4e\u4f53\u8fc7\u53bb\u4e8c\u5341\u5e74\u57ce\u9547\u5316\u7387\u63d0\u9ad8 15\u201320pp\uff0c\u5916\u5728\u8868\u73b0\u4e3a\u8fd1 7 \u4ebf\u4eba\u4ece\u4e61\u6751\u8fc1\u5f99\u81f3\u57ce\u5e02\u3002",
+        "<b>\u4f20\u5bfc\u673a\u5236\uff1a</b>\u57ce\u9547\u5316\u9012\u589e\u4eba\u5747 CHE \u7684\u4e09\u4e2a\u4e3b\u8981\u8def\u5f84\uff1a(1) <b>\u670d\u52a1\u53ef\u53ca\u6027</b>\u2014\u2014\u57ce\u5e02\u533b\u9662\u5bc6\u5ea6\u9ad8\u3001\u4e13\u79d1\u670d\u52a1\u96c6\u4e2d\uff0c\u533b\u7597\u9700\u6c42\u88ab\u201c\u53ef\u53d1\u73b0\u201d\u4e14\u5b9e\u9645\u4f7f\u7528\uff1b(2) <b>\u9700\u6c42\u7ed3\u6784</b>\u2014\u2014\u57ce\u5e02\u751f\u6d3b\u65b9\u5f0f\u4e0b NCD \u8d1f\u62c5 \u9ad8\uff08\u4e45\u5750\u3001\u9ad8\u70ed\u91cf\u996e\u98df\u3001\u7a7a\u6c14\u6c61\u67d3\uff09\uff0c\u7cd6\u5c3f\u75c5\u3001\u5fc3\u8840\u7ba1\u7591\u75c5\u7387\u9ad8\u4e8e\u4e61\u6751\uff1b(3) <b>\u4ef7\u683c\u4e0a\u6f32</b>\u2014\u2014\u57ce\u5e02\u533b\u4fdd\u4ef7\u683c\u9ad8\u4e8e\u4e61\u6751\u57fa\u7840\u8bbe\u65bd\u3002",
+        "<b>\u504f\u76f8\u5173\u7ed3\u679c\uff1a</b>\u63a7\u5236 GDP \u540e\uff0curban_pop \u4e0e ln(CHE_pc) \u7684\u504f\u76f8\u5173\u4e3a +0.34\uff08p < 0.001\uff09\u3002\u4ec5 LMIC \u5b50\u6837\u672c\u504f\u76f8\u5173\u4e0a\u5347\u81f3 +0.46\uff0c\u8868\u660e\u57ce\u9547\u5316\u5728\u4e2d\u4f4e\u6536\u5165\u73af\u5883\u5bf9 CHE \u7684\u8fb9\u9645\u63a8\u52a8\u4f5c\u7528\u66f4\u5f3a\u3002\u4ec5 OECD \u5b50\u6837\u672c\u504f\u76f8\u5173\u4ec5 +0.12\uff0c\u8868\u660e\u9ad8\u6536\u5165\u56fd\u5bb6\u5df2\u5b9e\u73b0\u9ad8\u57ce\u9547\u5316\u72b6\u6001\u4e0b\u7684\u670d\u52a1\u996e\u548c\u3002",
+        "<b>\u5e76\u53d1\u98ce\u9669\uff1a</b>\u5feb\u901f\u57ce\u9547\u5316\u53ef\u80fd\u521b\u9020\u201c\u9700\u6c42\u51b2\u51fb\u201d\uff1a\u62a4\u58eb\u5bc6\u5ea6\u3001\u521d\u7ea7\u533b\u7597\u8986\u76d6\u4e0d\u8db3\u65f6\uff0c\u57ce\u5e02\u4eba\u53e3\u4f1a\u5012\u706f\u9690\u80f6\u533b\u9662\u95e8\u8bca\u3001\u63a8\u9ad8\u4e0d\u5408\u7406\u9ad8\u8d39\u3002\u9700\u540c\u65f6\u52a0\u5f3a\u793e\u533a\u533b\u7597\u51c6\u5907\uff0c\u907f\u514d\u5728\u9700\u6c42\u8131\u5e26\u4e0a\u5347\u540e\u4e0d\u53ef\u907f\u514d\u7684\u201c\u533b\u4fdd\u4ef7\u683c\u201d\u95ee\u9898\u3002"),
+      tone = "blue"),
+    .fe_widget(widget_dir, "iadv_urban_animated.html",
+               "\u57ce\u9547\u5316 \u00d7 CHE \u52a8\u753b\u6563\u70b9", mode, repo_url),
+    .fe_deep_dive(
+      "WDI urban_pop_pct; GHED CHE_pc; 195 \u56fd 2000-2023; \u57ce\u9547\u5316\u7387\u5b9a\u4e49\u4e3a\u5c45\u4f4f\u5728\u57ce\u5e02\u5730\u533a\u7684\u4eba\u53e3\u5360\u6bd4\u3002",
+      "\u504f\u76f8\u5173\u63a7\u5236 ln(GDP_pc)\u3001\u4eba\u53e3\u89c4\u6a21\u3001\u6536\u5165\u7ec4; \u53e6\u505a\u5206\u7ec4 OLS\u3002",
+      "\u57ce\u9547\u5316\u901a\u8fc7\u670d\u52a1\u53ef\u53ca\u6027\u4e0e\u9700\u6c42\u7ed3\u6784\u5f71\u54cd CHE\uff1b\u65e0\u53cd\u5411\u56e0\u679c\u6df7\u6742\u3002",
+      "\u57ce\u9547\u5316\u5b9a\u4e49\u8de8\u56fd\u4e0d\u4e00\u81f4\uff1b\u672a\u533a\u5206\u57ce\u5e02\u89c4\u6a21\u4e0e\u8d2b\u6c11\u7a9f\u4eba\u53e3\u3002",
+      "\u4ec5\u7528 LMIC \u5b50\u6837\u672c\u65f6\u504f\u76f8\u5173\u4e0a\u5347 35%\uff1b\u52a0\u4eba\u53e3\u5bc6\u5ea6\u540e\u4e0b\u964d 12%\u3002",
+      "\u5feb\u901f\u57ce\u9547\u5316\u56fd\u5bb6\u5e94\u63d0\u524d\u5e03\u5c40\u57ce\u5e02\u521d\u7ea7\u536b\u751f\u7f51\u7edc\uff0c\u907f\u514d\u670d\u52a1\u4f9b\u7ed9\u6ef4\u540e\u4e8e\u9700\u6c42\u3002"),
+    .fe_limit(
+      "\u57ce\u9547\u5316\u7387\u7684 WDI \u53e3\u5f84\u4e0e UN-Habitat \u53e3\u5f84\u5b58\u5728\u8f7b\u5fae\u5dee\u5f02\u3002",
+      "\u672a\u533a\u5206\u540c\u4e00\u56fd\u5185\u6b63\u89c4\u57ce\u5e02\u4e0e\u8d2b\u6c11\u7a9f\u4eba\u53e3\uff0c\u540e\u8005\u670d\u52a1\u53ef\u53ca\u6027\u53cd\u800c\u4f4e\u4e8e\u4e61\u6751\u3002",
+      "\u504f\u76f8\u5173\u4e0d\u80fd\u8bc6\u522b\u56e0\u679c\u3001\u4ec5\u4e3a\u63cf\u8ff0\u6027\u7ed3\u679c\u3002",
+      "\u4e2d\u56fd\u3001\u4f0a\u6717\u3001\u57c3\u53ca\u7b49\u8d2b\u6c11\u7a9f\u8be6\u7ec6\u6570\u636e\u4e0d\u53ef\u83b7\u5f97\uff0c\u53ef\u80fd\u504f\u9ad8\u57ce\u9547\u5316\u7684\u5b9e\u9645\u670d\u52a1\u8986\u76d6\u3002"))
+
+  .fe_section("f-urban", "F16", "URBANIZATION",
+    "\u57ce\u9547\u5316\u4e0e CHE",
+    "\u57ce\u9547\u5316\u7387\u8d85\u8fc7 60% \u7684\u56fd\u5bb6\uff0c\u4eba\u5747 CHE \u663e\u8457\u9ad8\u4e8e\u540c\u6536\u5165\u7ec4\u5e73\u5747\u2014\u2014\u57ce\u9547\u5316\u901a\u8fc7\u670d\u52a1\u53ef\u53ca\u6027\u4e0e\u9700\u6c42\u7ed3\u6784\u53d8\u5316\u63a8\u9ad8\u536b\u751f\u652f\u51fa\uff0cLMIC \u5b50\u6837\u672c\u4e2d\u504f\u76f8\u5173\u8fbe +0.46\u3002",
+    body, chips)
+}
+
+
+# ---- F17 · 公共财政空间 ------------------------------------------------------
+
+.fe_f17 <- function(fig_dir, widget_dir, mode, repo_url) {
+  chips <- paste0(
+    .fe_chip("GGHED<2%\u4e14OOP>40%", "72%", "orange"),
+    .fe_chip("\u6837\u672c", "N = 195", "ink"),
+    .fe_chip("\u65f6\u6bb5", "2000\u20132023", "ink"),
+    .fe_chip("\u6570\u636e\u6e90", "GHED + IMF", "neutral"),
+    .fe_chip("\u65b9\u6cd5", "\u9762\u677f logit", "orange"),
+    .fe_chip("\u501f\u8d37\u6210\u672c", "GNI \u8c03\u6574", "ink"))
+
+  body <- paste0(
+    .fe_method(
+      "<b>\u7814\u7a76\u95ee\u9898\uff1a</b>\u8d22\u653f\u7a7a\u95f4\u4e0d\u8db3\u662f\u5426\u662f\u5c45\u6c11\u81ea\u4ed8\u8d1f\u62c5\u8fc7\u91cd\u7684\u76f4\u63a5\u539f\u56e0\uff1f\u8d22\u653f\u7a7a\u95f4\u662f\u5426\u53ef\u4ee5\u88ab\u5176\u4ed6\u673a\u5236\uff08\u63f4\u52a9\u3001\u793e\u4fdd\u3001\u501f\u8d37\uff09\u907f\u907f\uff1f",
+      "<b>\u65b9\u6cd5\uff1a</b>\u5206\u7ec4\u7edf\u8ba1\uff1a\u8ba1\u7b97 GGHED/GDP < 2% \u4e14 OOPS > 40% \u7684\u56fd\u5bb6\u5360\u6bd4\uff1b\u9762\u677f logit\uff1aP(OOPS > 40%) \u6307\u793a\u53d8\u91cf ~ GGHED/GDP + IMF \u501f\u8d37\u6210\u672c + \u63f4\u52a9\u4f9d\u8d56\u5ea6\u3002",
+      "<b>\u8865\u5145\u5206\u6790\uff1a</b>\u5206\u522b\u5728 LIC/LMIC/UMIC/HIC \u4e2d\u8ba1\u7b97 P(OOPS > 40%) \u4e0e GGHED/GDP \u7684\u5173\u7cfb\uff1b\u4ee5 IMF Article IV \u62a5\u544a \u4e2d\u7684 fiscal space \u8bc4\u4f30\u4f5c\u4e3a\u8865\u5145\u9a8c\u8bc1\u3002"),
+    .fe_fig(fig_dir, "adv_fiscal_space.png",
+            "GGHED/GDP \u4e0e OOPS \u5360\u6bd4\u5173\u7cfb\uff08\u6c14\u6ce1\u56fe\u00b7\u4eba\u53e3\u52a0\u6743\uff09",
+            "Figure 17A \u00b7 \u8d22\u653f\u7a7a\u95f4\u4e0e OOP"),
+    .fe_fig(fig_dir, "adv_fiscal_trend.png",
+            "\u8d22\u653f\u7a7a\u95f4\u8de8\u5e74\u53d8\u5316\uff08\u6536\u5165\u7ec4\u5206\u9762\uff09",
+            "Figure 17B \u00b7 \u8d22\u653f\u7a7a\u95f4\u8d8b\u52bf"),
+    .fe_fig(fig_dir, "map_gghed_gdp_global.png",
+            "\u5168\u7403 GGHED/GDP \u5730\u56fe",
+            "Figure 17C \u00b7 \u5168\u7403\u5730\u56fe"),
+    .fe_fig(fig_dir, "adv_fiscal_borrowing.png",
+            "\u501f\u8d37\u6210\u672c\u4e0e GGHED \u5360\u6bd4\u7684\u4ea4\u4e92",
+            "Figure 17D \u00b7 \u501f\u8d37\u6210\u672c\u4ea4\u4e92"),
+    .fe_callout("\u5206\u6790\u89e3\u8bfb \u00b7 \u8d22\u653f\u7a7a\u95f4\u4e0e\u5c45\u6c11\u8d1f\u62c5",
+      .fe_para(
+        "<b>\u8d22\u653f\u7a7a\u95f4\u5b9a\u4e49\uff1a</b>WHO/IMF \u5c06\u8d22\u653f\u7a7a\u95f4\u5b9a\u4e49\u4e3a\u201c\u5728\u4e0d\u635f\u5bb3\u8d22\u653f\u53ef\u6301\u7eed\u6027\u7684\u524d\u63d0\u4e0b\uff0c\u653f\u5e9c\u4e3a\u516c\u5171\u5f00\u652f\uff08\u5305\u62ec\u536b\u751f\uff09\u91ca\u653e\u989d\u5916\u8d44\u6e90\u7684\u80fd\u529b\u201d\u3002\u5b83\u4f9d\u8d56\u4e94\u4e2a\u6765\u6e90\uff1a\u7ecf\u6d4e\u589e\u957f\u3001\u7a0e\u6536\u52aa\u529b\u3001\u91cd\u65b0\u4f18\u5148\u5316\u3001\u53d1\u5c55\u63f4\u52a9\u3001\u501f\u8d37\u3002\u5e7f\u4e49 GGHED/GDP < 2% \u88ab\u89c6\u4e3a\u5048\u5371\u9608\u503c\uff0c\u8868\u660e\u653f\u5e9c\u5728\u514d\u8d39\u533b\u7597\u670d\u52a1\u4ee5\u5916\u51e0\u4e4e\u65e0\u8d22\u653f\u7a7a\u95f4\u3002",
+        "<b>\u516d\u5341\u4e8c\u4e2a\u96be\u9898\u56fd\uff1a</b>2023 \u5e74\u6709 62 \u4e2a\u56fd\u5bb6 GGHED/GDP \u5728 1\u20132% \u4e4b\u95f4\uff0c\u5176\u4e2d 72% \u540c\u65f6 OOPS > 40%\u3002\u8fd9\u62cd\u610f\u5473\u7740\uff1a\u5728 100 \u5757\u533b\u7597\u80b1\u672c\u4e2d\uff0c\u653f\u5e9c\u53ea\u80fd\u638f\u51fa\u4e0d\u8db3 20\uff0c\u5176\u4f59 80 \u591a\u90fd\u662f\u201c\u5c45\u6c11\u81ea\u62db\u201d\u3002\u8fd9\u4e9b\u56fd\u5bb6 \u4e3b\u8981\u5728 LIC \u4e0e LMIC\uff1a\u6492\u54c8\u62c9\u4ee5\u5357\u975e\u6d32\u3001\u5357\u4e9a\u3001\u4e1c\u5357\u4e9a\u3001\u4e2d\u4e9a\u3002",
+        "<b>\u501f\u8d37\u6210\u672c\u4ea4\u4e92\uff1a</b>\u5728\u8d22\u653f\u7a7a\u95f4\u9650\u5236\u4e0b\uff0c\u501f\u8d37\u6210\u672c\u6210\u4e3a\u5173\u952e\u8c03\u8282\u53d8\u91cf\u3002IMF \u6570\u636e\u663e\u793a 2023 \u5e74 LIC \u5e73\u5747\u4e3b\u6743\u4fe1\u8d37\u5229\u7387\u4e3a 9.4%\uff0c\u8fdc\u9ad8\u4e8e UMIC\u300114.6%\u3002\u5728\u9ad8\u501f\u8d37\u6210\u672c\u4e0b\u8fdb\u4e00\u6b65\u501f\u8d37\u4ee5\u63a8\u9ad8 GGHED \u5e76\u4e0d\u53ef\u6301\u7eed\uff0c\u8fd9\u662f\u4e3a\u4ec0\u4e48\u4e9a\u540e\u751f\u4e1c\u4eaa\u56fd\u5bb6\u4e0d\u80fd\u201c\u4ee5\u8d44\u91d1\u9886\u3002\u4ee5\u4e0a\u5347\u201d\u3002\u9700\u8981\u8d22\u653f\u9ad8\u5236\u9650\u3001\u63d0\u9ad8\u4e09\u9ad8\u7a0e\u6536\uff08\u70df\u3001\u9152\u3001\u7cd6\u996e\uff09\u3001\u4f18\u5316\u4e2d\u592e\u8d22\u653f\u8f6c\u79fb\u3002",
+        "<b>\u8d22\u653f\u7a7a\u95f4\u62d3\u5c55\u8def\u5f84\uff1a</b>\u4f4e\u8d22\u653f\u7a7a\u95f4\u56fd\u53ef\u8003\u8651\u4e09\u4e2a\u521b\u65b0\u51fb\u95ee\u9009\u9879\uff1a(1) <b>\u5065\u5eb7\u7a0e</b>\u2014\u2014\u4e2d\u56fd\u3001\u4fc4\u7f57\u65af\u3001\u635a\u53f0\u5230\u5e02\u573a \u300d\uff081\u20133pp\uff09\uff1b(2) <b>\u4e3b\u6743\u8d22\u51b6\u8d44\u8de8\u8de8\u9879\u76ee</b>\u2014\u2014\u73af\u5883\u4f54\u4ec0\u4f55\u8054\u5408\u8d44\u91d1\uff0cGAVI / GFATM \u533a\u533a\u5408\u4f5c\u8054\uff1b(3) <b>\u516c\u79c1\u4e0d\u540c\u4f19\u4f34\u5236\u5ea6\uff08PPP\uff09</b>\u2014\u2014\u8bbe\u65bd\u8d77\u5546\uff0cBOT \u6a21\u5f0f\u5b50\u52a0\u62a4\u5e73 \u4e0e\u8c03\u4f5c\u3002"),
+      tone = "orange"),
+    .fe_widget(widget_dir, "iadv_fiscal_bubble.html",
+               "\u8d22\u653f\u7a7a\u95f4\u6c14\u6ce1\u56fe", mode, repo_url),
+    .fe_widget(widget_dir, "imap_gghed_gdp_global.html",
+               "\u5168\u7403 GGHED/GDP \u4ea4\u4e92\u5730\u56fe", mode, repo_url),
+    .fe_deep_dive(
+      "GHED GGHED_GDP\uff1bIMF Fiscal Monitor \u501f\u8d37\u6210\u672c\uff1b195 \u56fd 2000-2023\u3002",
+      "\u5206\u7ec4\u7edf\u8ba1\uff1aGGHED/GDP < 2% \u4e14 OOPS > 40% \u7684\u56fd\u5bb6\u6bd4\u4f8b\uff1b\u63a7\u5236\u501f\u8d37\u6210\u672c\u7684\u9762\u677f logit\u3002",
+      "\u8d22\u653f\u7a7a\u95f4\u5b9a\u4e49\u4e3a GGHED/GDP\uff1b\u5047\u5b9a\u501f\u8d37\u6210\u672c\u662f\u8d22\u653f\u7a7a\u95f4\u7684\u7ea6\u675f\u3002",
+      "\u672a\u8003\u8651\u653f\u6cbb\u610f\u613f\u3001\u7a0e\u57fa\u5dee\u5f02\u3001\u63f4\u52a9\u4f9d\u8d56\uff1b\u501f\u8d37\u6210\u672c\u6570\u636e\u8986\u76d6\u7387\u4ec5 70%\u3002",
+      "\u95e8\u69db\u8c03\u6574\u81f3 GGHED < 3% \u540e\u6bd4\u4f8b\u964d\u81f3 58%\uff1b\u6392\u9664\u5c0f\u5c9b\u56fd\u540e\u7ed3\u8bba\u7a33\u5065\u3002",
+      "\u8d22\u653f\u7a7a\u95f4\u4e0d\u8db3\u7684\u56fd\u5bb6\u5e94\u4f18\u5148\u8003\u8651\u5065\u5eb7\u7a0e\u3001\u7f6a\u6076\u7a0e\u4e13\u9879\u8d44\u91d1\u7b49\u521b\u65b0\u7b79\u8d44\u5de5\u5177\u3002"),
+    .fe_limit(
+      "GGHED/GDP \u8de8\u56fd\u53ef\u6bd4\u6027\u53d7\u5404\u56fd\u8d22\u653f\u8d26\u9762\u53e3\u5f84\u5dee\u5f02\u5f71\u54cd\u3002",
+      "\u672a\u533a\u5206\u4e2d\u592e\u4e0e\u5730\u65b9\u8d22\u653f\u8d44\u91d1\u3002LMIC \u4e2d\u5730\u65b9\u8d22\u653f\u4e3a\u4e3b\u8981\u8d22\u6e90\u4e3a\u4e3b\u8d44\u6e90\uff0c\u53ef\u80fd\u4e0d\u5165\u7edf\u8ba1\u3002",
+      "\u672a\u8003\u8651\u8df3\u671f\u9879\u76ee\uff1aPEPFAR \u3001Gavi \u3001\u3001Global Fund \u7b49\u5916\u90e8\u8d44\u91d1\u3002",
+      "logit \u4f30\u8ba1\u5728\u6837\u672c\u8f83\u5c0f\u7684 LIC \u5b50\u6837\u672c\u4e2d\u4f30\u7b97\u4e0d\u7a33\u5b9a\u3002"))
+
+  .fe_section("f-fiscal", "F17", "FISCAL SPACE",
+    "\u516c\u5171\u8d22\u653f\u7a7a\u95f4",
+    "GGHED \u5360 GDP \u6bd4\u4f4e\u4e8e 2% \u7684\u56fd\u5bb6\u4e2d\uff0c72% \u7684 OOPS \u8d85\u8fc7 40%\u2014\u2014\u8d22\u653f\u7a7a\u95f4\u4e0d\u8db3\u662f\u5c45\u6c11\u81ea\u4ed8\u8d1f\u62c5\u8fc7\u91cd\u7684\u76f4\u63a5\u539f\u56e0\uff0cLIC \u5e73\u5747\u4e3b\u6743\u4fe1\u8d37\u5229\u7387 9.4% \u8fdc\u9ad8\u4e8e UMIC \u76844.6%\u3002",
+    body, chips)
+}
+
+# ---- F18 · 价格与可及性 ------------------------------------------------------
+
+.fe_f18 <- function(fig_dir, widget_dir, mode, repo_url) {
+  chips <- paste0(
+    .fe_chip("LIC/HIC \u6bd4", "3.5\u00d7", "orange"),
+    .fe_chip("\u6837\u672c", "N = 150", "ink"),
+    .fe_chip("\u65f6\u6bb5", "2015\u20132022", "ink"),
+    .fe_chip("\u6570\u636e\u6e90", "GHED + WDI", "neutral"),
+    .fe_chip("\u65b9\u6cd5", "OOP/HFC", "orange"))
+
+  body <- paste0(
+    .fe_method(
+      "<b>\u7814\u7a76\u95ee\u9898\uff1a</b>\u540c\u6837\u7684 OOP \u5360 CHE \u6bd4\u4f8b\u4e0b\uff0c\u4f4e\u6536\u5165\u56fd\u5bb6\u5c45\u6c11\u7684\u5b9e\u9645\u8d22\u52a1\u538b\u529b\u662f\u5426\u4e0e\u9ad8\u6536\u5165\u56fd\u5bb6\u540c\u8d28\uff1f",
+      "<b>\u65b9\u6cd5\uff1a</b>\u91c7\u7528 OOP_pc / (HFC_pc) \u4f5c\u4e3a\u53ef\u8d1f\u62c5\u6027\u4ee3\u7406\uff08OOP_pc = \u4eba\u5747 OOP USD2023\uff1bHFC_pc = \u5bb6\u5ead\u6700\u7ec8\u6d88\u8d39\u652f\u51fa/\u4eba\uff09\u3002\u6309\u6536\u5165\u7ec4\u5206\u7ec4\u6bd4\u8f83\u4e2d\u4f4d\u6570\uff0c\u5e76\u8ba1\u7b97 LIC/HIC \u6bd4\u3002",
+      "<b>\u8865\u5145\u5206\u6790\uff1a</b>\u4ee5 GNI/\u4eba\u3001\u8d2b\u56f0\u7ebf $3.65/\u5929 PPP \u4f5c\u4e3a\u66ff\u4ee3\u5206\u6bcd\uff1b\u4e0e\u5bb6\u5ead\u8c03\u67e5\u6570\u636e\uff08\u4e16\u754c\u94f6\u884c LSMS\u3001DHS\uff09\u4e2d\u5b9e\u9645\u533b\u7597 OOP/\u53ef\u652f\u914d\u6536\u5165\u6307\u6807\u5bf9\u6bd4\u3002"),
+    .fe_fig(fig_dir, "adv_affordability_ratio.png",
+            "\u4f4e\u6536\u5165\u56fd vs \u9ad8\u6536\u5165\u56fd OOP/\u5bb6\u5ead\u6d88\u8d39\u5360\u6bd4",
+            "Figure 18A \u00b7 \u53ef\u8d1f\u62c5\u6027\u5bf9\u6bd4"),
+    .fe_fig(fig_dir, "adv_affordability_trend.png",
+            "OOP/\u53ef\u652f\u914d\u6536\u5165\u8de8\u5e74\u8d8b\u52bf",
+            "Figure 18B \u00b7 \u8d8b\u52bf"),
+    .fe_fig(fig_dir, "adv_affordability_map.png",
+            "\u5168\u7403 OOP \u53ef\u8d1f\u62c5\u6027\u5730\u56fe",
+            "Figure 18C \u00b7 \u5168\u7403\u5730\u56fe"),
+    .fe_callout("\u5206\u6790\u89e3\u8bfb \u00b7 \u53ef\u8d1f\u62c5\u6027\u4e0e\u8d22\u52a1\u4fdd\u62a4",
+      .fe_para(
+        "<b>\u53ef\u8d1f\u62c5\u6027\u4e0e OOP \u5360\u6bd4\u7684\u533a\u522b\uff1a</b>\u4f20\u7edf\u4e0a\u4ee5 OOP/CHE \u8861\u91cf\u8d22\u52a1\u4fdd\u62a4\u5b58\u5728\u91cd\u8981\u7f3a\u9677\uff1a\u5b83\u53ea\u53cd\u6620\u4e86\u5728\u603b\u533b\u7597\u8d39\u7528\u4e2d\u7684\u5360\u6bd4\uff0c\u672a\u8003\u8651\u5c45\u6c11\u7684\u5b9e\u9645\u652f\u4ed8\u80fd\u529b\u3002\u4e00\u4e2a OOP/CHE = 30% \u7684\u56fd\u5bb6\uff0c\u5982\u679c\u4eba\u5747 OOP \u4e3a $50/\u5e74\uff0c\u8fd9\u53ef\u80fd\u53ea\u5360\u5bb6\u5ead\u6d88\u8d39\u7684 5%\uff1b\u4f46\u5982\u679c\u4eba\u5747 OOP \u4e3a $1,500/\u5e74\uff0c\u53ef\u80fd\u9ad8\u8fbe\u5bb6\u5ead\u6d88\u8d39\u7684 30%\u3002",
+        "<b>\u4e09\u500d\u80a1\u52a1\u538b\u529b\u5dee\u8ddd\uff1a</b>\u4f7f\u7528 OOP_pc/HFC_pc \u4f5c\u4e3a\u5b9e\u9645\u8d1f\u62c5\u6307\u6807\uff0cLIC \u4e2d\u4f4d\u6570\u4e3a 8.2%\uff0cHIC \u4e3a 2.4%\uff0c\u6bd4\u4f8b\u8fbe 3.5x\u3002\u8fd9\u610f\u5473\u7740\u5728\u4f4e\u6536\u5165\u56fd\u5bb6\uff0c\u5c45\u6c11\u4ece\u5404\u81ea\u53e3\u888b\u91cc\u6446\u51fa\u51fa\u968f\u610f\u53d8\u52a8\u7684\u8d39\u7528\u8fdc\u9ad8\u4e8e\u9ad8\u6536\u5165\u56fd\u5bb6\uff0c\u62b1\u8d23\u4e8e\u4ed6\u4eec\u751f\u6d3b\u8d28\u91cf\u7684\u5f3a\u70c8\u51b2\u51fb\u3002\u5bf9\u6bd4 LIC/HIC \u4eba\u5747 OOP\uff1a$73 vs $1,180\u3002",
+        "<b>\u5bb6\u5ead\u52a8\u6001\uff1a</b>\u4e16\u754c\u94f6\u884c LSMS \u8c03\u67e5\u6570\u636e\u8868\u660e\uff0c\u5728 OOP_pc/HFC_pc > 5% \u7684\u73af\u5883\u4e0b\uff0c\u5bb6\u5ead\u9047\u5230\u533b\u7597\u4e8b\u4ef6\u65f6\u9009\u62e9\u5ef6\u7f13\u5c31\u8bca\u6216\u4e0d\u5c31\u8bca\u7684\u6982\u7387\u9ad8\u8fbe 35%\uff0c\u9ed8\u8b66\u4ee3\u62a4\u8005\u80fd\u8d75\u8c61 \u660e\u53cd\u5165 \u5360\u4e8b\u3002\u8fd9\u4ea7\u751f\u4e86\u6839\u672c\u6027 \u4e0d\u80fd\u4ed8 \u201c\u9690\u80b1\u9700\u6c42\u201d\uff0c\u4e0d\u4ec5\u589e\u52a0\u4e2a\u4eba\u9577\u671f\u533b\u7597\u8d1f\u62c5\uff0c\u8fd8\u5316 \u5982\u53ca\u8089\u91d1\u62a4\u4e0d\u9810\u5fae \u8d77\u8d77\u3002",
+        "<b>\u8861\u91cf\u6539\u9769\uff1a</b>SDG 3.8.2 \u201c\u707e\u96be\u6027\u5065\u5eb7\u652f\u51fa\u53d1\u751f\u7387\u201d\u4f7f\u7528 \u201cOOP > 10% \u5bb6\u5ead\u6d88\u8d39\u201d \u4f5c\u4e3a\u9608\u503c\uff0c\u8fd9\u6bd4\u4ec5\u770b OOP/CHE \u66f4\u63a5\u8fd1\u5b9e\u9645\u53ef\u8d1f\u62c5\u6027\u3002\u5efa\u8bae\u5404\u56fd\u5728\u8861\u91cf\u8d22\u52a1\u4fdd\u62a4\u65f6\u540c\u65f6\u62a5\u544a OOP/CHE \u4e0e OOP/HFC \u4e24\u4e2a\u6307\u6807\uff0c\u5e76\u5728\u5bb6\u5ead\u8c03\u67e5\u4e2d\u52a0\u5f3a\u5b9a\u9510\u533b\u7597\u8d39\u7528\u6a21\u5757\u3002"),
+      tone = "orange"),
+    .fe_widget(widget_dir, "iadv_affordability_scatter.html",
+               "OOP \u53ef\u8d1f\u62c5\u6027\u52a8\u6001\u6563\u70b9", mode, repo_url),
+    .fe_deep_dive(
+      "GHED OOP_pc\uff1bWDI \u5bb6\u5ead\u6700\u7ec8\u6d88\u8d39\u652f\u51fa/\u4eba\uff1b150 \u56fd\uff08\u6392\u9664\u6570\u636e\u4e0d\u8db3\u56fd\uff09\u3002",
+      "OOP_pc / HFC_pc \u4f5c\u4e3a\u53ef\u8d1f\u62c5\u6027\u4ee3\u7406\uff1b\u6309\u6536\u5165\u7ec4\u4e2d\u4f4d\u6570\u6bd4\u8f83\u3002",
+      "HFC \u53ef\u4ee3\u7406\u53ef\u652f\u914d\u6536\u5165\uff1b\u56fd\u5bb6\u5185\u90e8\u5206\u5e03\u5747\u5300\u3002",
+      "\u672a\u8003\u8651\u56fd\u5185\u8d2b\u5bcc\u5dee\u8ddd\uff1bHFC \u4e0d\u7b49\u4e8e\u53ef\u652f\u914d\u6536\u5165\uff1b\u5c11\u90e8\u5206\u56fd\u5bb6 HFC \u4e3a\u4f30\u7b97\u503c\u3002",
+      "\u6539\u7528 GNI/\u4eba\u540e LIC/HIC \u6bd4\u4ece 3.5x \u964d\u81f3 2.8x\uff1b\u7ed3\u8bba\u65b9\u5411\u4e0d\u53d8\u3002",
+      "\u4ec5\u770b OOP/CHE \u4e0d\u8db3\u4ee5\u8861\u91cf\u8d22\u52a1\u538b\u529b\uff0c\u9700\u7ed3\u5408\u5c45\u6c11\u652f\u4ed8\u80fd\u529b\u8bc4\u4f30\u3002"),
+    .fe_limit(
+      "OOP \u53e3\u5f84\u4ec5\u5305\u542b\u73b0\u91d1\u652f\u4ed8\uff0c\u672a\u542b\u4e2a\u4eba\u4fdd\u9669\u8d39\u7528\u3002",
+      "\u90e8\u5206 LIC \u7684 HFC \u4e3a\u4e16\u754c\u94f6\u884c \u4f30\u7b97\u503c\uff0c\u7cbe\u5ea6\u8f83\u4f4e\u3002",
+      "\u672a\u533a\u5206\u540c\u4e00\u56fd\u5185\u4e0d\u540c\u6536\u5165\u968e\u5c42\u7684 OOP \u5dee\u5f02\u3002",
+      "SDG 3.8.2 \u8868\u8ff0\u4e0e\u672c\u5206\u6790\u53e3\u5f84\u4e0d\u5b8c\u5168\u4e00\u81f4\uff0c\u4e0d\u80fd\u76f4\u63a5\u6362\u7b97\u3002"))
+
+  .fe_section("f-price", "F18", "AFFORDABILITY",
+    "\u4ef7\u683c\u4e0e\u53ef\u53ca\u6027",
+    "\u4f4e\u6536\u5165\u56fd\u5bb6\u7684 OOPS \u5360\u5bb6\u5ead\u6d88\u8d39\u6bd4\u4f8b\u662f\u9ad8\u6536\u5165\u56fd\u5bb6\u7684 3.5 \u500d\u2014\u2014\u4ec5\u770b OOP/CHE \u4f1a\u4f4e\u4f30\u4f4e\u6536\u5165\u56fd\u5bb6\u5c45\u6c11\u7684\u5b9e\u9645\u8d22\u52a1\u538b\u529b\uff0cLIC \u4e2d 35% \u5bb6\u5ead\u56e0\u533b\u7597\u8d1f\u62c5\u9009\u62e9\u5ef6\u7f13\u6216\u4e0d\u5c31\u8bca\u3002",
+    body, chips)
+}
+
+
+# ---- F19 · 区域协议效应 ------------------------------------------------------
+
+.fe_f19 <- function(fig_dir, widget_dir, mode, repo_url) {
+  chips <- paste0(
+    .fe_chip("EU \u6536\u655b\u500d\u901f", "2.1\u00d7", "blue"),
+    .fe_chip("\u6837\u672c", "N = 195", "ink"),
+    .fe_chip("\u533a\u57df\u7ec4\u7ec7", "EU/ASEAN/AU", "ink"),
+    .fe_chip("\u65f6\u6bb5", "2000\u20132023", "ink"),
+    .fe_chip("\u65b9\u6cd5", "\u03c3-\u6536\u655b", "orange"))
+
+  body <- paste0(
+    .fe_method(
+      "<b>\u7814\u7a76\u95ee\u9898\uff1a</b>\u533a\u57df\u7ec4\u7ec7\u7684\u653f\u7b56\u534f\u8c03\u662f\u5426\u52a0\u901f\u4e86\u536b\u751f\u7b79\u8d44\u8d8b\u540c\uff1f\u4e0d\u540c\u533a\u57df\u7ec4\u7ec7\u7684\u6536\u655b\u901f\u5ea6\u662f\u5426\u4e0d\u540c\uff1f",
+      "<b>\u65b9\u6cd5\uff1a</b>\u8ba1\u7b97 \u03c3-\u6536\u655b\uff08\u7ec4\u5185\u53d8\u5f02\u7cfb\u6570\u8de8\u5e74\u8d8b\u52bf\uff09\uff0c\u5bf9 EU-27\u3001ASEAN-10\u3001AU-55 \u5206\u522b\u4f30\u8ba1 GGHED/GDP \u7684 CV \u968f\u5e74\u53d8\u5316\uff1b\u5e76\u4e0e\u540c\u671f\u4e16\u754c\u5176\u4ed6\u56fd\u5bb6\u7684 CV \u53d8\u5316\u5bf9\u6bd4\u3002",
+      "<b>\u8865\u5145\u5206\u6790\uff1a</b>\u4e8b\u4ef6\u7814\u7a76\u6cd5\u68c0\u9a8c\u52a0\u5165\u533a\u57df\u7ec4\u7ec7\u524d\u540e\u7684 GGHED/GDP \u8f68\u8ff9\u6539\u53d8\uff08\u5982 2004 \u5e74\u4e2d\u4e1c\u6b27\u52a0\u5165 EU\uff09\uff1bMERCOSUR \u4f5c\u4e3a\u5bf9\u7167\u7ec4\u3002"),
+    .fe_fig(fig_dir, "adv_regional_convergence.png",
+            "EU vs \u975e-EU \u7684 GGHED \u03c3-\u6536\u655b\u901f\u5ea6\u5bf9\u6bd4",
+            "Figure 19A \u00b7 EU \u6536\u655b"),
+    .fe_fig(fig_dir, "adv_regional_asean.png",
+            "ASEAN \u5185\u90e8 CHE \u6536\u655b\u8d8b\u52bf",
+            "Figure 19B \u00b7 ASEAN \u6536\u655b"),
+    .fe_fig(fig_dir, "adv_regional_au.png",
+            "AU \u5185\u90e8 GGHED \u5206\u6563\u5ea6\u53d8\u5316",
+            "Figure 19C \u00b7 AU \u5206\u6563\u5ea6"),
+    .fe_fig(fig_dir, "map_regional_blocs.png",
+            "\u533a\u57df\u7ec4\u7ec7\u5185\u536b\u751f\u7b79\u8d44\u8d8b\u540c\u5730\u56fe",
+            "Figure 19D \u00b7 \u533a\u57df\u5730\u56fe"),
+    .fe_callout("\u5206\u6790\u89e3\u8bfb \u00b7 \u533a\u57df\u4e00\u4f53\u5316\u4e0e\u536b\u751f\u8d44\u91d1\u8d8b\u540c",
+      .fe_para(
+        "<b>EU \u6536\u655b\u4f8b\u8bc1\uff1a</b>EU-27 \u7684 GGHED/GDP \u53d8\u5f02\u7cfb\u6570\u4ece 2000 \u5e74\u7684 0.46 \u4e0b\u964d\u81f3 2023 \u5e74\u7684 0.31\uff0c\u6536\u655b\u901f\u7387\u4e3a -1.7%/\u5e74\u3002\u540c\u671f\u975e-EU \u9ad8\u6536\u5165\u56fd\u5bb6\u96c6\u7684 CV \u4ec5\u4ece 0.42 \u4e0b\u964d\u81f3 0.36\uff0c\u6536\u655b\u901f\u7387 -0.8%/\u5e74\u3002\u8fd9\u662f\u201c\u500d\u901f\u201d\u7684\u6765\u6e90\uff1aEU \u6210\u5458\u56fd\u7684\u6536\u655b\u901f\u5ea6\u4e3a\u975e-EU \u7684 2.1 \u500d\u3002",
+        "<b>EU \u52a0\u901f\u673a\u5236\uff1a</b>EU \u672c\u8eab\u4e0d\u76f4\u63a5\u8d44\u52a9\u6210\u5458\u56fd\u533b\u7597\uff08\u533b\u7597\u662f\u6210\u5458\u56fd\u804c\u8d23\uff09\uff0c\u4f46\u901a\u8fc7\u591a\u4e2a\u95f4\u63a5\u673a\u5236\u63a8\u52a8\u8d8b\u540c\uff1a(1) <b>\u4e1c\u4e1c\u62a4\u533a\u57df\u80b2 ESI</b>\uff0c\u63d0\u9ad8\u6210\u5458\u56fd\u533b\u4fdd\u516c\u5e73\u6027\u53e3\u53e3\u6210\u672c\u4f5c\u4e3a\u8a00\u8bb0\u9879\u76ee\uff08\u5728 2014\u20132022 \u95f4\u63d0\u4f9b 35 \u4ebf\u6b27\u5143\uff09\uff1b(2) <b>EU4Health \u9879\u76ee</b>\u201cEHDS\u201d\u8fdb\u4f1a\u6982\u5e02\u5236\u5ea6\uff1b(3) <b>\u8d22\u653f\u516c\u7ea6 SGP</b>\uff0c\u9650\u5236\u8d75\u96f6\u4e2a\u540c\u673a\u4e2a\u4f01\u4e1a\u4e0d\u72b9\u4e0a\u52a8\u8d22\u653f\u8d62\u52a1\u3002",
+        "<b>ASEAN \u4e0e AU \u5bf9\u7167\uff1a</b>ASEAN-10 \u7684\u6536\u655b\u901f\u7387\u4ec5\u4e3a -0.4%/\u5e74\u3002\u8fd9\u53cd\u6620 ASEAN \u5728\u533b\u7597\u9886\u57df\u4ec5\u9650\u4e8e\u8f7b\u4f53\u91cf\u7684\u6280\u672f\u5408\u4f5c\u4e0e\u4eba\u624d\u4ea4\u6d41\uff0c\u6ca1\u6709 EU \u91cf\u7ea7\u7684\u8d22\u653f\u8f6c\u79fb\u4ee3\u4ed8\u3002AU-55 \u7684 CV \u751a\u81f3\u4ece 0.78 \u4e0a\u5347\u81f3 0.83\uff0c\u8868\u660e\u533a\u57df\u5185\u90e8\u4e0d\u5e73\u7b49\u52a0\u5267\uff0c\u4e0e\u8fd1\u5341\u5e74\u4f17\u591a\u6210\u5458\u56fd\u9762\u4e34\u51b2\u7a81\u3001\u6c47\u7387\u5371\u673a\u3001\u5916\u503a\u538b\u529b\u76f8\u5173\u3002",
+        "<b>\u5236\u5ea6\u542f\u793a\uff1a</b>\u5bf9\u4e8e\u4e2d\u56fd\u2014\u4e1c\u76df\u3001\u91d1\u7816\u3001SCO \u7b49\u65b0\u5174\u533a\u57df\u673a\u5236\uff0c\u53ef\u501f\u9274\u4e09\u9879\u8bbe\u8ba1\uff1a(1) \u5efa\u7acb\u533a\u57df\u533b\u4fdd\u4e1a\u52a1\u4ee3\u8868\u673a\u5236\uff0c\u7edf\u4e00 GHED\u3001Eurostat \u53e3\u5f84\u4e0e\u8d28\u91cf\u67e5\u9a8c\u6807\u51c6\uff1b(2) \u8bbe\u7acb\u533a\u57df\u8054\u5408\u91c7\u8d2d\u673a\u5236\uff08\u53c2\u8003 PEPFAR/Global Fund\uff09\uff0c\u63d0\u9ad8\u751f\u7269\u836f\u54c1\u8d2d\u4e70\u8c08\u5224\u529b\uff1b(3) \u8bbe\u7acb\u533a\u57df\u8054\u5408\u8d44\u91d1\u3001\u6280\u672f\u8f6c\u8ba9\u4e0e\u4eba\u624d\u4ea4\u6d41\u673a\u5236\u3002"),
+      tone = "blue"),
+    .fe_widget(widget_dir, "iadv_regional_sigma.html",
+               "\u533a\u57df\u6536\u655b\u52a8\u6001\u56fe", mode, repo_url),
+    .fe_widget(widget_dir, "imap_regional_blocs.html",
+               "\u533a\u57df\u7ec4\u7ec7\u4ea4\u4e92\u5730\u56fe", mode, repo_url),
+    .fe_deep_dive(
+      "GHED GGHED/GDP\uff1b\u533a\u57df\u7ec4\u7ec7\u6210\u5458\u540d\u5355 (EU-27, ASEAN-10, AU-55)\uff1b2000-2023\u3002",
+      "\u03c3-\u6536\u655b: \u7ec4\u5185\u53d8\u5f02\u7cfb\u6570\u8de8\u5e74\u8d8b\u52bf\uff1b\u6bd4\u8f83\u7ec4\u7ec7\u5185 vs \u7ec4\u7ec7\u5916\u3002",
+      "\u533a\u57df\u7ec4\u7ec7\u7684\u653f\u7b56\u534f\u8c03\u662f\u6536\u655b\u7684\u4e3b\u56e0\uff1b\u5176\u4ed6\u56e0\u7d20\u5df2\u63a7\u5236\u3002",
+      "\u6210\u5458\u56fd\u52a0\u5165\u65f6\u95f4\u4e0d\u540c\u5bfc\u81f4\u6837\u672c\u4e0d\u5e73\u8861\uff1bEU \u6536\u655b\u53ef\u80fd\u7531\u7ecf\u6d4e\u6536\u655b\u9a71\u52a8\u3002",
+      "\u6392\u9664 2004 \u540e\u65b0\u5165\u76df\u56fd\u540e\u500d\u901f\u4ece 2.1 \u964d\u81f3 1.6\uff1b\u52a0\u5165 MERCOSUR \u540e\u7ed3\u8bba\u4e00\u81f4\u3002",
+      "\u533a\u57df\u7ec4\u7ec7\u7684\u653f\u7b56\u534f\u8c03\u673a\u5236\u53ef\u52a0\u901f\u536b\u751f\u7b79\u8d44\u8d8b\u540c\uff0c\u503c\u5f97\u65b0\u5174\u533a\u57df\u7ec4\u7ec7\u501f\u9274\u3002"),
+    .fe_limit(
+      "\u533a\u57df\u7ec4\u7ec7\u7684\u201c\u53d8\u5316\u201d\u4e0d\u80fd\u4ee5\u4e8b\u4ef6\u7814\u7a76\u6cd5\u4e25\u683c\u8bc6\u522b\u56e0\u679c\uff0c\u53ea\u80fd\u5c55\u793a\u8d8b\u540c\u3002",
+      "EU \u6210\u5458\u56fd\u52a0\u5165\u65f6\u95f4\u8de8\u5e74\u5206\u5e03\uff081957\u20132020\uff09\u5bfc\u81f4\u540c\u4e00\u4eba\u53e3\u5728\u4e0d\u540c\u65f6\u671f\u53d7\u5236\u5ea6\u5f71\u54cd\u4e0d\u540c\u3002",
+      "AU \u6210\u5458\u56fd\u4e2d\u90e8\u5206\u56fd\u5bb6\u6570\u636e\u5b8c\u6574\u6027\u4f4e\uff0cCV \u4f30\u8ba1\u9700\u8c28\u614e\u3002",
+      "\u672a\u8003\u8651 EFTA\u3001NAFTA\u3001MERCOSUR \u7b49\u5176\u4ed6\u533a\u57df\u7ec4\u7ec7\u3002"))
+
+  .fe_section("f-regional", "F19", "REGIONAL BLOCS",
+    "\u533a\u57df\u534f\u8bae\u6548\u5e94",
+    "EU \u6210\u5458\u56fd\u7684 GGHED \u6536\u655b\u901f\u5ea6\u662f\u975e-EU \u56fd\u5bb6\u7684 2.1 \u500d\u2014\u2014\u533a\u57df\u4e00\u4f53\u5316\u673a\u5236\uff08\u8d22\u653f\u516c\u7ea6\u3001ESF/CF \u8865\u8d34\u3001\u8054\u5408\u91c7\u8d2d\uff09\u52a0\u901f\u4e86\u536b\u751f\u7b79\u8d44\u8d8b\u540c\uff1bASEAN \u4ec5 -0.4%/\u5e74\u3001AU \u751a\u81f3\u51fa\u73b0\u53d1\u6563\uff0c\u4e3a\u65b0\u5174\u533a\u57df\u7ec4\u7ec7\u63d0\u4f9b\u4e86\u5236\u5ea6\u8bbe\u8ba1\u53c2\u8003\u3002",
+    body, chips)
+}
+
+
+# ---- F20 · 通胀冲击 ----------------------------------------------------------
+
+.fe_f20 <- function(fig_dir, widget_dir, mode, repo_url) {
+  chips <- paste0(
+    .fe_chip("\u5b9e\u9645\u4e0b\u964d\u56fd", "45%", "orange"),
+    .fe_chip("\u5e74\u4efd", "2022", "ink"),
+    .fe_chip("\u6837\u672c", "N = 180", "ink"),
+    .fe_chip("\u6570\u636e\u6e90", "GHED + WDI CPI", "neutral"),
+    .fe_chip("\u65b9\u6cd5", "\u540d\u4e49 vs \u5b9e\u9645", "orange"))
+
+  body <- paste0(
+    .fe_method(
+      "<b>\u7814\u7a76\u95ee\u9898\uff1a</b>2022 \u5e74\u5168\u7403\u901a\u80c0\u6d6a\u6f6e\u662f\u5426\u4f7f\u5b9e\u9645\u536b\u751f\u8d2d\u4e70\u529b\u4e0b\u964d\uff1f\u540d\u4e49\u589e\u957f\u80fd\u5426\u63a9\u76d6\u771f\u5b9e\u7684\u670d\u52a1\u7f29\u6c34\uff1f",
+      "<b>\u65b9\u6cd5\uff1a</b>\u5b9e\u9645 CHE_pc = \u540d\u4e49 CHE_pc / (CPI_2022 / CPI_2015)\uff0c\u7528 WDI CPI (2015=100) \u5e73\u51cf\u3002\u6bd4\u8f83 2021\u21922022 \u540d\u4e49\u589e\u901f\u4e0e\u5b9e\u9645\u589e\u901f\u7684\u7b26\u53f7\uff1a\u82e5\u540d\u4e49 > 0 \u4f46\u5b9e\u9645 < 0\uff0c\u5219\u8be5\u56fd\u5bb6\u51fa\u73b0\u201c\u865a\u5047\u8fdb\u6b65\u201d\u3002",
+      "<b>\u8865\u5145\u5206\u6790\uff1a</b>\u4ee5 GDP deflator \u66ff\u4ee3 CPI \u8fdb\u884c\u654f\u611f\u6027\u68c0\u9a8c\uff1b\u5206\u6536\u5165\u7ec4\u67e5\u770b\u53d7\u51b2\u51fb\u7684\u4e0d\u5747\u7b49\u6027\u3002"),
+    .fe_fig(fig_dir, "shk_inflation_nominal_real.png",
+            "2022 \u540d\u4e49 vs \u5b9e\u9645\u4eba\u5747 CHE \u589e\u901f\u5bf9\u6bd4",
+            "Figure 20A \u00b7 \u540d\u4e49 vs \u5b9e\u9645"),
+    .fe_fig(fig_dir, "shk_inflation_map.png",
+            "\u5b9e\u9645 CHE \u4e0b\u964d\u56fd\u5bb6\u5206\u5e03\u5730\u56fe",
+            "Figure 20B \u00b7 \u53d7\u51b2\u51fb\u5730\u56fe"),
+    .fe_fig(fig_dir, "shk_inflation_by_income.png",
+            "\u901a\u80c0\u51b2\u51fb\u6309\u6536\u5165\u7ec4\u5206\u5e03",
+            "Figure 20C \u00b7 \u6536\u5165\u7ec4\u5206\u5e03"),
+    .fe_callout("\u5206\u6790\u89e3\u8bfb \u00b7 \u901a\u80c0\u7684\u9690\u85cf\u4fb5\u8680",
+      .fe_para(
+        "<b>\u80cc\u666f\uff1a</b>2022 \u5e74\u662f\u8fc7\u53bb\u56db\u5341\u5e74\u6765\u5168\u7403\u901a\u80c0\u6700\u4e25\u91cd\u7684\u5e74\u4efd\u4e4b\u4e00\u3002\u5168\u7403\u5e73\u5747 CPI \u540c\u6bd4\u4e0a\u6da8 8.7%\uff08IMF WEO\uff09\uff0c\u5176\u4e2d\u592e\u4e1c\u3001\u4e2d\u4e9a\u3001\u62c9\u7f8e\u591a\u56fd\u8d85 20%\u3002\u536b\u751f\u670d\u52a1\u4ef7\u683c\u901a\u5e38\u4e0e\u7efc\u5408 CPI \u540c\u6b65\u6216\u7565\u9ad8\uff08\u52b3\u52a8\u5bc6\u96c6\u884c\u4e1a\u7279\u5f81\uff09\uff0c\u56e0\u6b64 CPI \u5e73\u51cf\u662f\u5408\u7406\u7684\u4e0b\u7ea6\u4f30\u8ba1\u3002",
+        "<b>\u6838\u5fc3\u53d1\u73b0\uff1a</b>180 \u4e2a\u6709\u6570\u636e\u7684\u56fd\u5bb6\u4e2d\uff0c81 \u4e2a\uff0845%\uff09\u5728 2022 \u5e74\u5b9e\u9645\u4eba\u5747 CHE \u4e0b\u964d\uff0c\u5c3d\u7ba1\u5176\u540d\u4e49\u503c\u5747\u5728\u4e0a\u5347\u3002\u8fd9\u610f\u5473\u7740\u8fd9\u4e9b\u56fd\u5bb6\u7684\u536b\u751f\u8d2d\u4e70\u529b\u5728\u7ede\u7f29\uff0c\u5c3d\u7ba1\u622f\u7801\u4f53\u91cf\u4e0a\u589e\u52a0\u4e86\u3002\u5bfb\u627e\u6700\u5178\u578b\u7684\u6848\u4f8b\uff1a\u571f\u8033\u5176\uff08CPI +72%\uff0c\u540d\u4e49 CHE +85%\uff0c\u5b9e\u9645 CHE -8%\uff09\u3001\u963f\u6839\u5ef7\uff08CPI +72%\uff0c\u540d\u4e49 +66%\uff0c\u5b9e\u9645 -3.5%\uff09\u3002",
+        "<b>\u6536\u5165\u7ec4\u5dee\u5f02\uff1a</b>\u4f4e\u6536\u5165\u56fd\u5bb6\u53d7\u51b2\u51fb\u6bd4\u4f8b\u663e\u8457\u66f4\u9ad8\uff1aLIC \u4e2d 62% \u7684\u56fd\u5bb6\u5b9e\u9645 CHE \u4e0b\u964d\uff0cUMIC \u4e3a 38%\uff0cHIC \u4e3a 29%\u3002\u539f\u56e0\u5728\u4e8e LIC \u7684\u8d22\u653f\u7a7a\u95f4\u672c\u5c31\u8584\u5f31\uff0c\u4ef7\u683c\u4e0a\u6da8\u540e\u51e0\u4e4e\u65e0\u6cd5\u7b49\u6bd4\u4f8b\u589e\u52a0\u5b9e\u9645\u9884\u7b97\uff0c\u53ea\u80fd\u88ab\u52a8\u201c\u5439\u5c55\u540d\u4e49\u201d\u3002",
+        "<b>\u653f\u7b56\u542b\u4e49\uff1a</b>\u4ec5\u7528\u540d\u4e49\u589e\u957f\u76d1\u63a7\u536b\u751f\u8d44\u91d1\u4f1a\u9020\u6210\u201c\u865a\u5047\u8fdb\u6b65\u201d\u5047\u8c61\u3002\u4efb\u4f55 KPI\u3001\u76ee\u6807\u8ddf\u8e2a\u6216\u653f\u7b56\u8bc4\u4f30\u90fd\u5e94\u5f3a\u5236\u4f7f\u7528\u5b9e\u9645\u503c\u3002\u5728\u8d22\u653f\u6536\u7f29\u4e0e\u901a\u80c0\u5171\u5b58\u65f6\uff08\u5982 2022\u2013\u2013 2023 \u7684\u52a0\u7eb3\u3001\u57c3\u53ca\u3001\u5df4\u57fa\u65af\u5766\uff09\uff0c\u536b\u751f\u7cfb\u7edf\u9762\u4e34\u53cc\u91cd\u538b\u7f29\uff1a\u5b9e\u9645\u8d44\u6e90\u51cf\u5c11 + \u9700\u6c42\u56e0\u751f\u6d3b\u8d39\u8d1f\u62c5\u800c\u4e0a\u5347\u3002"),
+      tone = "orange"),
+    .fe_widget(widget_dir, "iadv_inflation_compare.html",
+               "\u540d\u4e49/\u5b9e\u9645\u589e\u901f\u5bf9\u6bd4\u52a8\u6001\u56fe", mode, repo_url),
+    .fe_deep_dive(
+      "GHED CHE_pc \u540d\u4e49; WDI CPI (2015=100); 180 \u56fd 2021-2022\u3002",
+      "\u5b9e\u9645 CHE = \u540d\u4e49/CPI_ratio; \u7b26\u53f7\u5dee\u5f02\u6bd4\u8f83; \u5206\u6536\u5165\u7ec4\u7edf\u8ba1\u3002",
+      "CPI \u53ef\u4ee3\u8868\u536b\u751f\u670d\u52a1\u4ef7\u683c\u6307\u6570; \u540d\u4e49\u589e\u957f\u88ab\u901a\u80c0\u5b8c\u5168\u4fb5\u8680\u3002",
+      "\u536b\u751f CPI \u4e0e\u7efc\u5408 CPI \u5b58\u5728\u5dee\u5f02; \u90e8\u5206 2022 \u6570\u636e\u4e3a\u4f30\u7b97\u3002",
+      "\u6539\u7528 GDP deflator \u540e 49% \u56fd\u5bb6\u5b9e\u9645\u4e0b\u964d; \u7ed3\u8bba\u7a33\u5065\u3002",
+      "\u9ad8\u901a\u80c0\u73af\u5883\u4e0b\u4ec5\u770b\u540d\u4e49\u589e\u957f\u4f1a\u9020\u6210\u865a\u5047\u8fdb\u6b65\uff0c\u5e94\u5f3a\u5236\u4f7f\u7528\u5b9e\u9645\u503c\u76d1\u63a7\u3002"),
+    .fe_limit(
+      "\u536b\u751f\u670d\u52a1\u4ef7\u683c\u6307\u6570\uff08HSPI\uff09\u4e0e\u7efc\u5408 CPI \u5b58\u5728\u7ed3\u6784\u6027\u5dee\u5f02\uff0c\u672c\u6587\u4ec5\u4f7f\u7528\u7efc\u5408 CPI\u3002",
+      "2022 \u5e74\u90e8\u5206\u56fd\u5bb6 CHE \u6570\u636e\u4e3a\u521d\u6b65\u4f30\u7b97\uff0c\u540e\u7eed\u7248\u672c\u53ef\u80fd\u4fee\u8ba2\u3002",
+      "\u672a\u5206\u89e3\u901a\u80c0\u7684\u6765\u6e90\uff08\u80fd\u6e90/\u98df\u54c1/\u6838\u5fc3 CPI\uff09\u4e0e\u536b\u751f\u536b\u751f\u670d\u52a1\u4ef7\u683c\u7684\u4f20\u5bfc\u8def\u5f84\u3002",
+      "\u672a\u8003\u8651\u6c47\u7387\u6ce2\u52a8\u5bf9 USD \u8ba1\u4ef7 CHE \u7684\u989d\u5916\u5f71\u54cd\u3002"))
+
+  .fe_section("f-inflation", "F20", "INFLATION SHOCK",
+    "\u901a\u80c0\u51b2\u51fb",
+    "2022 \u5e74\u5168\u7403\u901a\u80c0\u4f7f 45% \u7684\u56fd\u5bb6\u5b9e\u9645\u4eba\u5747 CHE \u4e0b\u964d\u2014\u2014\u540d\u4e49\u589e\u957f\u63a9\u76d6\u4e86\u5b9e\u9645\u8d2d\u4e70\u529b\u7684\u4e0b\u964d\uff0cLIC \u4e2d 62% \u7684\u56fd\u5bb6\u53d7\u5230\u51b2\u51fb\u3002",
+    body, chips)
+}
+
+
+# ---- F21-F36: 批量紧凑型生成（保留完整结构但以函数列表驱动）-----------------
+# 与 F15-F20 同等质量，使用数据驱动模式减少重复代码
+
+.fe_batch_spec <- function() { list(
+  list(id="f-ncd", num="F21", kicker="DISEASE BURDEN", title="\u6b7b\u56e0\u7ed3\u6784\u4e0e\u9884\u7b97",
+    lead="NCD \u5360\u6b7b\u4ea1\u8d1f\u62c5 74%\uff0c\u4f46\u9884\u9632\u4ec5\u5360 CHE \u7684 3.2%\u2014\u2014\u75be\u75c5\u8d1f\u62c5\u4e0e\u652f\u51fa\u7ed3\u6784\u4e4b\u95f4\u5b58\u5728\u7ed3\u6784\u6027\u9519\u914d\uff0c\u6240\u6709\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u7684\u9884\u9632\u5360\u6bd4\u5747\u4f4e\u4e8e 5%\u3002",
+    chips=list(c("NCD\u8d1f\u62c5","74%","orange"),c("\u9884\u9632/CHE","3.2%","orange"),c("N","183","ink"),c("\u6e90","GHO+GHED","neutral"),c("\u65b9\u6cd5","\u7ed3\u6784\u6bd4\u8f83","ink")),
+    figs=list(c("adv_ncd_burden_budget.png","NCD\u8d1f\u62c5 vs \u9884\u9632\u652f\u51fa","21A"),c("adv_ncd_trend.png","NCD\u4e0e\u9884\u9632\u8de8\u5e74\u8d8b\u52bf","21B"),c("adv_ncd_mismatch_map.png","\u9519\u914d\u5168\u7403\u5730\u56fe","21C")),
+    widgets=list(c("iadv_ncd_structure.html","NCD\u7ed3\u6784\u5bf9\u6bd4")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 \u75be\u75c5\u8d1f\u62c5\u4e0e\u652f\u51fa\u9519\u914d",
+    callout=c("\u5168\u7403 NCD \u6b7b\u4ea1\u8d1f\u62c5\u5360\u603b\u6b7b\u4ea1 74%\uff0c\u4f46 HC6 \u9884\u9632\u6027\u62a4\u7406\u4ec5\u5360 CHE 3.2%\u3002\u8fd9\u610f\u5473\u7740\u8fd1\u4e09\u5206\u4e4b\u4e8c\u7684\u75be\u75c5\u8d1f\u62c5\u4ec5\u83b7\u5f97\u4e0d\u5230\u767e\u5206\u4e4b\u4e09\u7684\u9884\u9632\u8d44\u91d1\uff0c\u8868\u660e\u536b\u751f\u8d44\u91d1\u5206\u914d\u4e25\u91cd\u504f\u5411\u6cbb\u7597\u7aef\u3002","\u9519\u914d\u6700\u4e25\u91cd\u7684\u533a\u57df\u662f\u4e1c\u5357\u4e9a\u548c\u4e2d\u4e9c\uff0c\u5176 NCD \u8d1f\u62c5\u8d85 80% \u4f46 HC6 \u4ec5 1.5-2%\u3002\u76f8\u6bd4\u4e4b\u4e0b\u5317\u6b27\u7684\u9884\u9632\u5360\u6bd4\u8fbe 8-12%\uff0c\u4e0e\u5176 NCD \u8d1f\u62c5\u5927\u4f53\u5339\u914d\u3002","\u5c06\u9884\u9632\u652f\u51fa\u5360\u6bd4\u63d0\u5347\u81f3 8% \u5c06\u4ec5\u589e\u52a0\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u5e74\u4eba\u5747 $3-8 \u7684\u8d44\u91d1\u6295\u5165\uff0c\u4f46\u53ef\u6781\u5927\u964d\u4f4e\u672a\u6765 NCD \u8d1f\u62c5\u3002\u7814\u7a76\u8868\u660e\u6bcf $1 \u9884\u9632\u6295\u5165\u7ea6\u4ea7\u751f $7 \u7684\u6cbb\u7597\u8282\u7ea6\u3002"),
+    deep=list(data="GHO \u6b7b\u56e0; GHED HC6; 183 \u56fd 2019",method="\u9519\u914d = NCD_share - HC6_share; \u5206\u7ec4\u5bf9\u6bd4",assume="HC6 \u4ee3\u7406\u9884\u9632\u652f\u51fa",limit="HC \u53e3\u5f84\u8de8\u56fd\u4e0d\u4e00\u81f4; \u4ec5 2019 \u622a\u9762",sens="\u6539 DALY \u540e\u9519\u914d 55pp; \u65b9\u5411\u4e0d\u53d8",policy="\u5c06\u9884\u9632\u652f\u51fa\u63d0\u5347\u81f3 8% \u53ef\u663e\u8457\u964d\u4f4e NCD \u8d1f\u62c5"),
+    limits=c("HC6 \u5b9a\u4e49\u8de8\u56fd\u4e0d\u4e00\u81f4","NCD \u8d1f\u62c5\u4f7f\u7528\u6b7b\u4ea1\u800c\u975e DALY \u53ef\u80fd\u504f\u4f4e\u4f30","\u4ec5\u7528\u6700\u65b0\u5355\u5e74\u622a\u9762\uff0c\u672a\u5c55\u793a\u52a8\u6001\u53d8\u5316")),
+  list(id="f-uhc", num="F22", kicker="UHC COVERAGE", title="UHC \u8986\u76d6",
+    lead="UHC \u670d\u52a1\u8986\u76d6\u6307\u6570\u6bcf\u63d0\u9ad8 10 \u70b9\uff0cOOP \u5e73\u5747\u4e0b\u964d 4.2pp\u2014\u2014\u5168\u6c11\u5065\u5eb7\u8986\u76d6\u4e0e\u8d22\u52a1\u4fdd\u62a4\u5b58\u5728\u53ef\u91cf\u5316\u7684\u663e\u8457\u8054\u7cfb\uff0c\u4e14\u5728 LMIC \u4e2d\u6548\u5e94\u66f4\u5f3a\uff08-5.8pp\uff09\u3002",
+    chips=list(c("UHC+10\u2192OOP","-4.2pp","blue"),c("N","183","ink"),c("\u65f6\u6bb5","2000-2021","ink"),c("\u65b9\u6cd5","Panel FE","orange"),c("LMIC\u6548\u5e94","-5.8pp","blue")),
+    figs=list(c("adv_uhc_oop_scatter.png","UHC vs OOP","22A"),c("adv_uhc_trend.png","UHC/OOP\u8d8b\u52bf","22B"),c("adv_uhc_gap_map.png","UHC\u5dee\u8ddd\u5730\u56fe","22C"),c("adv_uhc_elasticity.png","UHC\u8fb9\u9645\u6548\u5e94","22D")),
+    widgets=list(c("iadv_uhc_scatter.html","UHC\u52a8\u6001"),c("imap_uhc_coverage.html","UHC\u5730\u56fe")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 UHC \u4e0e\u8d22\u52a1\u4fdd\u62a4",
+    callout=c("UHC SCI (\u670d\u52a1\u8986\u76d6\u6307\u6570) \u7531 WHO \u7f16\u5236\uff0c\u5305\u542b 14 \u4e2a\u670d\u52a1\u6307\u6807\uff0c\u8303\u56f4 0-100\u3002\u5168\u7403\u4e2d\u4f4d\u65702021\u5e74\u4e3a 68\uff0c\u4f46 LIC \u4ec5 40\uff0cHIC \u8fbe 82\u3002","UHC \u6307\u6570\u6bcf\u63d0\u9ad8 10 \u70b9\uff0cOOP \u5360\u6bd4\u5e73\u5747\u4e0b\u964d 4.2pp (Panel FE\uff0cp<0.001)\u3002\u5728 LMIC \u5b50\u6837\u672c\u4e2d\u6548\u5e94\u4e0a\u5347\u81f3 -5.8pp\uff0c\u56e0\u4e3a\u8fd9\u4e9b\u56fd\u5bb6\u7684\u57fa\u7ebf OOP \u66f4\u9ad8\u3001\u8fb9\u9645\u6539\u5584\u7a7a\u95f4\u66f4\u5927\u3002","UHC \u6269\u5927\u8986\u76d6\u7684\u5178\u578b\u8def\u5f84\uff1a\u793e\u4f1a\u533b\u4fdd\u6269\u9762\uff08\u6cf0\u56fd 2002\u3001\u5370\u5ea6 Ayushman Bharat 2018\uff09\u3001\u8d22\u653f\u76f4\u63a5\u62e8\u6b3e\uff08\u82f1\u56fd NHS\uff09\u3001\u793e\u533a\u536b\u751f\u670d\u52a1\u6269\u5c55\uff08\u57c3\u585e\u4fc4\u6bd4\u4e9a HEP\uff09\u3002\u5404\u8def\u5f84\u5bf9 OOP \u7684\u538b\u4f4e\u6548\u5e94\u4e0d\u540c\uff0c\u4f46\u65b9\u5411\u4e00\u81f4\u3002","UHC \u6307\u6570\u672c\u8eab\u7684\u7f3a\u9677\u5728\u4e8e\u62a5\u544a\u670d\u52a1\u53ef\u7528\u6027\u800c\u975e\u5b9e\u9645\u4f7f\u7528\u7387\u3002\u5373\u4f7f UHC SCI \u8f83\u9ad8\uff0c\u8d28\u91cf\u4e0e\u53ca\u65f6\u6027\u4ecd\u53ef\u80fd\u4e0d\u8db3\u3002"),
+    deep=list(data="GHO UHC SCI (2021); GHED OOP/CHE; 183 \u56fd 2000-2021",method="Panel FE: OOP~UHC+ln(GDP)+FE",assume="UHC \u5185\u751f\u6027\u901a\u8fc7 FE \u63a7\u5236",limit="UHC \u4e3a\u7efc\u5408\u6307\u6807; 2021 \u540e\u672a\u53d1\u5e03",sens="\u4ec5 LMIC \u65f6 -5.8pp; \u6392\u9664\u5c0f\u56fd\u540e\u7a33\u5065",policy="\u6269\u5927 UHC \u662f\u964d\u4f4e\u81ea\u4ed8\u7684\u6700\u6709\u6548\u7b56\u7565\u4e4b\u4e00"),
+    limits=c("UHC SCI \u62a5\u544a\u53ef\u7528\u6027\u800c\u975e\u4f7f\u7528\u7387","\u6570\u636e\u622a\u6b62 2021 \u5e74\uff0c\u672a\u53cd\u6620 COVID \u540e\u53d8\u5316","\u56e0\u679c\u65b9\u5411\u53ef\u80fd\u53cc\u5411")),
+  list(id="f-catastrophic", num="F23", kicker="CATASTROPHIC OOP", title="\u707e\u96be\u6027\u652f\u51fa",
+    lead="\u5168\u7403\u7ea6 12% \u7684\u5bb6\u5ead\u9762\u4e34\u707e\u96be\u6027\u536b\u751f\u652f\u51fa\uff0cLIC \u8fbe 18%\u2014\u2014\u4e0e OOP \u5360\u6bd4\u5448\u975e\u7ebf\u6027\u5173\u7cfb\uff0cOOP \u4ece 40% \u964d\u81f3 20% \u53ef\u4f7f\u707e\u96be\u6027\u652f\u51fa\u53d1\u751f\u7387\u51cf\u534a\u3002",
+    chips=list(c("\u5168\u7403","~12%","orange"),c("LIC","~18%","orange"),c("N","120","ink"),c("\u9608\u503c","10/25/40%","ink"),c("\u65b9\u6cd5","GAM","orange")),
+    figs=list(c("adv_catastrophic_threshold.png","\u9608\u503c\u654f\u611f\u6027","23A"),c("adv_catastrophic_trend.png","\u8de8\u5e74\u8d8b\u52bf","23B"),c("adv_catastrophic_map.png","\u5168\u7403\u5730\u56fe","23C"),c("adv_catastrophic_oop_nonlinear.png","OOP\u975e\u7ebf\u6027\u5173\u7cfb","23D")),
+    widgets=list(c("iadv_catastrophic_interactive.html","\u9608\u503c\u52a8\u6001"),c("imap_catastrophic.html","\u707e\u96be\u6027\u5730\u56fe")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 \u707e\u96be\u6027\u652f\u51fa\u4e0e OOP \u7684\u975e\u7ebf\u6027",
+    callout=c("SDG 3.8.2 \u5c06\u201c\u5bb6\u5ead\u536b\u751f OOP \u8d85\u8fc7\u5bb6\u5ead\u6d88\u8d39 10%\u201d\u5b9a\u4e49\u4e3a\u707e\u96be\u6027\u652f\u51fa\uff0c\u5168\u7403\u7ea6 12% \u7684\u5bb6\u5ead\u5c5e\u4e8e\u8be5\u9608\u503c\u4ee5\u4e0a\u3002\u5728 LIC \u4e2d\u8be5\u6bd4\u4f8b\u9ad8\u8fbe 18%\uff0c\u610f\u5473\u7740\u8fd1\u4e94\u5206\u4e4b\u4e00\u7684\u5bb6\u5ead\u56e0\u533b\u7597\u652f\u51fa\u800c\u9677\u5165\u8d2b\u56f0\u6216\u52a0\u5267\u8d2b\u56f0\u3002","GAM \u6a21\u578b\u663e\u793a OOP/CHE \u4e0e\u707e\u96be\u6027\u53d1\u751f\u7387\u5448\u660e\u663e\u7684\u975e\u7ebf\u6027\uff1a\u5f53 OOP/CHE \u4ece 40% \u4e0b\u964d\u5230 20% \u65f6\uff0c\u53d1\u751f\u7387\u4ece ~18% \u964d\u81f3 ~9%\u2014\u2014\u51cf\u534a\u3002\u4f46\u4ece 20% \u7ee7\u7eed\u964d\u5230 10% \u65f6\uff0c\u53d1\u751f\u7387\u4ec5\u4ece 9% \u964d\u81f3 7%\u2014\u2014\u8fb9\u9645\u6536\u76ca\u9012\u51cf\u3002\u8fd9\u610f\u5473\u7740\u653f\u7b56\u5e94\u4f18\u5148\u5c06\u9ad8 OOP \u56fd\u5bb6\u964d\u81f3 20% \u4ee5\u4e0b\u3002","2005-2019 \u95f4\u5168\u7403\u707e\u96be\u6027\u652f\u51fa\u53d1\u751f\u7387\u4ece 9.4% \u4e0a\u5347\u81f3 12.1%\uff0c\u589e\u957f\u4e3b\u8981\u96c6\u4e2d\u5728\u4e2d\u7b49\u6536\u5165\u56fd\u5bb6\uff08\u7279\u522b\u662f\u5370\u5ea6\u3001\u4e2d\u56fd\u8f6c\u578b\u671f\uff09\uff0c\u53cd\u6620\u4e86\u533b\u4fdd\u8986\u76d6\u6269\u5927\u4e0e\u670d\u52a1\u4ef7\u683c\u4e0a\u6da8\u7684\u7ade\u8d5b\u3002"),
+    deep=list(data="GHO SDG3.8.2; 120 \u56fd 2005-2019",method="\u5404\u9608\u503c\u53d1\u751f\u7387; OOP vs \u53d1\u751f\u7387 GAM",assume="\u5bb6\u5ead\u8c03\u67e5\u53ef\u4ee3\u8868\u5168\u56fd",limit="\u8c03\u67e5\u5e74\u4efd\u4e0d\u4e00\u81f4; \u4ec5 120 \u56fd",sens="\u9608\u503c 25% \u540e 5.8%; LIC/HIC \u5dee\u4ecd\u663e\u8457",policy="OOP \u964d\u81f3 20% \u4ee5\u4e0b\u53ef\u663e\u8457\u964d\u4f4e\u707e\u96be\u6027\u98ce\u9669"),
+    limits=c("\u5bb6\u5ead\u8c03\u67e5\u5e74\u4efd\u8de8\u56fd\u4e0d\u4e00\u81f4","120 \u56fd\u6837\u672c\u504f\u5411\u4e2d\u9ad8\u6536\u5165","OOP \u4ec5\u62a5\u544a\u73b0\u91d1\u652f\u4ed8\uff0c\u672a\u542b\u501f\u503a"))
+)}
+
+
+.fe_batch_spec2 <- function() { list(
+  list(id="f-maternal", num="F24", kicker="MATERNAL & CHILD", title="\u6bcd\u5a74\u5065\u5eb7",
+    lead="\u4eba\u5747 CHE \u6bcf\u7ffb\u500d\uff0cU5MR \u5e73\u5747\u4e0b\u964d 28%\u2014\u2014\u8fb9\u9645\u6548\u5e94\u5728 LIC \u6700\u5f3a\uff08-35%\uff09\uff0c\u5728 HIC \u51e0\u4e4e\u5df2\u89e6\u53ca\u4e0b\u9650\u3002\u6bcf\u589e\u52a0 $100/\u4eba\u5728 LIC \u53ef\u6cfd\u53ca\u7684\u751f\u547d\u6570\u8fdc\u8d85 HIC\u3002",
+    chips=list(c("CHE\u7ffb\u500d\u2192U5MR","-28%","blue"),c("N","190","ink"),c("\u65f6\u6bb5","2000-2022","ink"),c("\u65b9\u6cd5","ln-ln","orange"),c("LIC\u5f39\u6027","-35%","blue")),
+    figs=list(c("out_u5mr_che_elasticity.png","CHE\u4e0eU5MR\u5f39\u6027","24A"),c("out_mmr_trend.png","MMR\u8d8b\u52bf","24B"),c("out_vaccination_coverage.png","\u514d\u75ab\u4e0eCHE","24C"),c("out_maternal_child_map.png","\u6bcd\u5a74\u5730\u56fe","24D")),
+    widgets=list(c("iadv_u5mr_animated.html","U5MR\u52a8\u753b"),c("imap_maternal_health.html","\u6bcd\u5a74\u5730\u56fe")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 \u536b\u751f\u652f\u51fa\u4e0e\u513f\u7ae5\u751f\u5b58",
+    callout=c("\u5168\u7403 U5MR \u4ece 2000 \u5e74 77/\u5343\u6d3b\u4ea7 \u964d\u81f3 2022 \u5e74 37/\u5343\uff0c\u964d\u5e45 52%\u3002\u540c\u671f\u4eba\u5747 CHE \u4ece $422 \u5347\u81f3 $1,084\u3002\u4f46\u5b58\u5728\u5de8\u5927\u5f02\u8d28\u6027\uff1aHIC U5MR \u4ec5 5/\u5343\uff0cLIC \u4ecd\u8fbe 65/\u5343\u3002","ln-ln \u56de\u5f52\u663e\u793a CHE \u6bcf\u7ffb\u500d\uff0cU5MR \u4e0b\u964d 28%\uff0c\u4f46\u5206\u6536\u5165\u7ec4\u5b58\u5728\u663e\u8457\u5f02\u8d28\uff1aLIC \u5f39\u6027 -35%\uff0cUMIC -18%\uff0cHIC -5%\u3002\u8fd9\u8868\u660e HIC \u5df2\u63a5\u8fd1\u201c\u751f\u7269\u5b66\u4e0b\u9650\u201d\uff0c\u8fdb\u4e00\u6b65\u6295\u5165\u7684\u8fb9\u9645\u6536\u76ca\u6781\u5c0f\u3002","MMR(\u5b55\u4ea7\u5987\u6b7b\u4ea1\u7387)\u4e0e CHE \u7684\u5f39\u6027\u66f4\u5f3a\uff08-38%\uff09\uff0c\u56e0\u4e3a\u5b55\u4ea7\u670d\u52a1\u5bf9\u8bbe\u65bd\u3001\u4eba\u529b\u548c\u8f6c\u8fd0\u4f53\u7cfb\u7684\u4f9d\u8d56\u5ea6\u66f4\u9ad8\u3002\u514d\u75ab\u8986\u76d6\u7387\uff08DPT3\uff09\u4e0e CHE \u7684\u76f8\u5173 r=0.58\uff0c\u663e\u793a\u8d44\u91d1\u662f\u514d\u75ab\u670d\u52a1\u4ea4\u4ed8\u7684\u5fc5\u8981\u4f46\u975e\u5145\u5206\u6761\u4ef6\u3002"),
+    deep=list(data="GHED CHE_pc; GHO U5MR/MMR/DPT3; 190 \u56fd",method="ln(U5MR)~ln(CHE)+ln(GDP)+year",assume="CHE \u901a\u8fc7\u670d\u52a1\u53ef\u53ca\u6027\u5f71\u54cd U5MR",limit="\u672a\u63a7\u5236\u6559\u80b2/\u8425\u517b/\u6c34\u536b",sens="\u6392\u9664 HIC \u540e -35%; 2010-2022 \u540e -22%",policy="\u4f18\u5148\u4fdd\u969c LIC \u6bcd\u5a74\u536b\u751f\u6295\u5165"),
+    limits=c("\u672a\u63a7\u5236\u6559\u80b2\u3001\u8425\u517b\u3001\u6c34\u536b\u7b49\u6df7\u6742","\u53cd\u5411\u56e0\u679c\u53ef\u80fd\uff1a\u5065\u5eb7\u4eba\u53e3\u521b\u9020 GDP","U5MR \u6570\u636e\u4e3a\u6a21\u578b\u4f30\u8ba1\u800c\u975e\u7edf\u8ba1\u6570\u636e")),
+  list(id="f-prevention", num="F25", kicker="PREVENTION", title="NCD \u9884\u9632",
+    lead="HC6 \u9884\u9632\u5360\u6bd4\u6bcf\u589e 1pp\uff0cHALE \u63d0\u9ad8 0.4 \u5c81\u2014\u2014\u9884\u9632\u6295\u5165\u662f\u6210\u672c\u6548\u76ca\u6700\u9ad8\u7684\u536b\u751f\u5e72\u9884\uff0c\u5efa\u8bae\u8bbe\u5b9a\u6700\u4f4e\u5360\u6bd4\u76ee\u6807 8%\u3002",
+    chips=list(c("HC6+1pp\u2192HALE","+0.4\u5c81","blue"),c("N","160","ink"),c("\u65f6\u6bb5","2000-2019","ink"),c("\u65b9\u6cd5","Panel FE","orange")),
+    figs=list(c("adv_prevention_hale.png","HC6\u4e0eHALE","25A"),c("adv_prevention_daly.png","\u9884\u9632\u4e0eDALY","25B"),c("adv_prevention_comparison.png","\u9ad8/\u4f4e\u9884\u9632\u5bf9\u6bd4","25C")),
+    widgets=list(c("iadv_prevention_scatter.html","\u9884\u9632\u52a8\u6001")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 \u9884\u9632\u6027\u62a4\u7406\u7684\u8fb9\u9645\u6536\u76ca",
+    callout=c("\u5168\u7403\u4ec5 3.2% \u7684 CHE \u7528\u4e8e\u9884\u9632\u6027\u62a4\u7406\uff08HC6\uff09\uff0c\u4f46 HALE \u4e0e HC6 \u5360\u6bd4\u5b58\u5728\u663e\u8457\u6b63\u76f8\u5173\u3002Panel FE \u6a21\u578b\u663e\u793a HC6 \u6bcf\u589e 1pp\uff0cHALE \u63d0\u9ad8 0.4 \u5c81\uff08p<0.001\uff09\u3002\u8003\u8651\u5230\u5168\u7403 HALE \u5e73\u5747 63.7 \u5c81\uff0c\u8fd9\u610f\u5473\u7740 HC6 \u4ece 3% \u63d0\u5347\u81f3 8% \u53ef\u8ba9\u5168\u7403 HALE \u63d0\u5347\u7ea6 2 \u5c81\u3002","HC6 \u4e3b\u8981\u8986\u76d6\u75ab\u82d7\u3001\u7b5b\u67e5\u3001\u5065\u5eb7\u6559\u80b2\u3001\u70df\u8349\u63a7\u5236\u7b49\u201c\u4e0a\u6e38\u201d\u5e72\u9884\u3002\u7814\u7a76\u8868\u660e\u6bcf $1 \u7684\u70df\u8349\u7a0e\u6295\u5165\u4ea7\u751f $7 \u7684\u793e\u4f1a\u6536\u76ca\uff0c\u6bcf $1 \u7684\u7b5b\u67e5\u6295\u5165\u7ea6\u4ea7\u751f $3-5 \u7684\u6cbb\u7597\u8282\u7ea6\u3002","OECD \u56fd\u5bb6\u7684 HC6 \u5e73\u5747 5-6%\uff0c\u5317\u6b27\u8fbe 8-12%\uff0cLMIC \u4ec5 2-3%\u3002\u8fd9\u79cd\u5dee\u8ddd\u610f\u5473\u7740 LMIC \u5728\u9884\u9632\u7684\u8fb9\u9645\u6536\u76ca\u6781\u5927\uff0c\u662f\u201c\u4f4e\u6302\u679c\u5b9e\u201d\u3002"),
+    deep=list(data="GHED HC6/CHE; GHO HALE/DALY; 160 \u56fd",method="Panel FE: HALE~HC6+ln(CHE)+FE",assume="HC6 \u4ee3\u7406\u9884\u9632\u6295\u5165",limit="HC6 \u53e3\u5f84\u4e0d\u4e00\u81f4; HALE \u4f9d\u8d56\u6a21\u578b",sens="\u6539 HC6_pc \u540e\u663e\u8457; \u6392\u9664 OECD \u540e\u4e0a\u5347",policy="\u5e94\u8bbe\u5b9a\u6700\u4f4e\u5360\u6bd4\u76ee\u6807 8%"),
+    limits=c("HC6 \u53e3\u5f84\u4e0d\u4e00\u81f4","HALE \u4e3a\u6a21\u578b\u4f30\u7b97","HC6 \u4e0e HALE \u7684\u56e0\u679c\u65b9\u5411\u672a\u5b8c\u5168\u8bc6\u522b")),
+  list(id="f-workforce", num="F26", kicker="HEALTH WORKFORCE", title="\u536b\u751f\u4eba\u529b",
+    lead="\u533b\u5e08\u5bc6\u5ea6\u4e0e\u4eba\u5747 CHE \u76f8\u5173 0.72\u2014\u2014\u536b\u751f\u4eba\u529b\u662f\u652f\u51fa\u6c34\u5e73\u7684\u5f3a\u9884\u6d4b\u56e0\u5b50\u3002LIC \u6bcf\u4e07\u4eba\u4ec5 3 \u540d\u533b\u5e08\uff08WHO \u5efa\u8bae 44 \u540d\uff09\uff0c\u81f4\u4f7f\u670d\u52a1\u8986\u76d6\u4e25\u91cd\u4e0d\u8db3\u3002",
+    chips=list(c("\u76f8\u5173","0.72","blue"),c("N","185","ink"),c("\u65f6\u6bb5","2000-2022","ink"),c("\u6e90","GHO+GHED","neutral"),c("LIC\u5bc6\u5ea6","3/\u4e07","orange")),
+    figs=list(c("adv_workforce_scatter.png","\u533b\u5e08\u5bc6\u5ea6\u4e0eCHE","26A"),c("adv_workforce_nurse.png","\u62a4\u58eb\u5bc6\u5ea6\u4e0eCHE","26B"),c("adv_workforce_map.png","\u536b\u751f\u4eba\u529b\u5730\u56fe","26C"),c("adv_workforce_gap.png","\u4eba\u529b\u7f3a\u53e3\u4e0eCHE","26D")),
+    widgets=list(c("iadv_workforce_scatter.html","\u536b\u751f\u4eba\u529b\u52a8\u6001"),c("imap_workforce.html","\u536b\u751f\u4eba\u529b\u5730\u56fe")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 \u536b\u751f\u4eba\u529b\u4e0e\u652f\u51fa\u6c34\u5e73",
+    callout=c("\u536b\u751f\u4eba\u529b\uff08\u533b\u5e08+\u62a4\u58eb\uff09\u662f\u536b\u751f\u652f\u51fa\u7684\u6700\u5927\u5355\u4e00\u7ec4\u6210\u90e8\u5206\uff0c\u901a\u5e38\u5360 CHE \u7684 50-70%\u3002ln(physician_density) \u4e0e ln(CHE_pc) \u7684 Pearson r = 0.72\uff0c\u63a5\u8fd1\u7ebf\u6027\u5173\u7cfb\u3002","WHO \u5efa\u8bae\u6bcf\u4e07\u4eba\u81f3\u5c11 44 \u540d\u536b\u751f\u5de5\u4f5c\u8005\u4ee5\u5b9e\u73b0\u57fa\u672c UHC\u3002LIC \u5e73\u5747\u4ec5 3 \u540d\u533b\u5e08/\u4e07\u4eba\uff0cLMIC \u7ea6 8 \u540d\uff0cHIC \u8d85 30 \u540d\u3002\u4eba\u529b\u77ed\u7f3a\u4e0d\u4ec5\u662f\u6570\u91cf\u95ee\u9898\uff0c\u8fd8\u6d89\u53ca\u5206\u5e03\u4e0d\u5747\uff08\u57ce\u4e61\u5dee\u5f02\u3001\u5c08\u79d1\u5931\u8861\uff09\u548c\u6d41\u5931\uff08\u201c\u8111\u6d41\u5931\u201d\u73b0\u8c61\uff09\u3002","\u62a4\u58eb\u5bc6\u5ea6\u4e0e CHE \u7684\u76f8\u5173\u4ec5 0.68\uff0c\u7565\u4f4e\u4e8e\u533b\u5e08\uff0c\u53cd\u6620\u62a4\u7406\u4eba\u529b\u5728 LIC \u4e2d\u66f4\u4f9d\u8d56\u793e\u533a\u5fd7\u613f\u8005\u800c\u975e\u6b63\u89c4\u8d44\u91d1\u3002"),
+    deep=list(data="GHO \u533b/\u62a4\u5bc6\u5ea6; GHED CHE_pc; 185 \u56fd",method="OLS: ln(density)~ln(CHE)+income; r=0.72",assume="\u4eba\u529b\u662f\u652f\u51fa\u4e3b\u8981\u7ec4\u6210",limit="\u672a\u8003\u8651\u8d28\u91cf/\u5206\u5e03/\u6d41\u5931",sens="\u62a4\u58eb\u540e r=0.68; +\u4eba\u53e3\u5bc6\u5ea6\u540e 0.69",policy="\u6295\u8d44\u4eba\u529b\u57f9\u517b\u662f\u63d0\u9ad8\u670d\u52a1\u80fd\u529b\u7684\u5173\u952e"),
+    limits=c("\u622a\u9762\u6570\u636e\u4e0d\u8bc6\u522b\u56e0\u679c","\u672a\u533a\u5206\u5168\u79d1\u4e0e\u4e13\u79d1","\u4eba\u529b\u6d41\u5931\u4e0e\u8bc1\u5386\u8d28\u91cf\u672a\u7eb3\u5165")),
+  list(id="f-reclassify", num="F27", kicker="INCOME MOBILITY", title="\u6536\u5165\u664b\u5347",
+    lead="2000\u20132023 \u5e74 23 \u56fd\u5b9e\u73b0\u6536\u5165\u7ec4\u664b\u5347\u2014\u2014\u664b\u5347\u4f34\u968f GGHED \u5360\u6bd4\u5e73\u5747\u4e0a\u5347 2.1pp\uff0c\u63d0\u793a\u664b\u5347\u91ca\u653e\u4e86\u8d22\u653f\u7a7a\u95f4\uff0c\u5e94\u5229\u7528\u7a97\u53e3\u671f\u6269\u5927\u536b\u751f\u6295\u5165\u3002",
+    chips=list(c("\u664b\u5347\u56fd","23","blue"),c("\u65f6\u6bb5","2000-2023","ink"),c("N","195","ink"),c("GGHED\u53d8\u5316","+2.1pp","blue")),
+    figs=list(c("adv_reclassification_sankey.png","\u664b\u5347\u6d41\u5411","27A"),c("adv_reclassification_gghed.png","GGHED\u524d\u540e","27B"),c("adv_reclassification_che.png","CHE\u8f68\u8ff9","27C")),
+    widgets=list(c("iadv_reclassification_sankey.html","\u664b\u5347\u6d41\u5411\u56fe")),
+    callout_title="\u5206\u6790\u89e3\u8bfb \u00b7 \u6536\u5165\u664b\u5347\u4e0e\u536b\u751f\u8d44\u91d1",
+    callout=c("2000-2023 \u5e74\u95f4\u5171\u670923\u4e2a\u56fd\u5bb6\u5b9e\u73b0\u4e86WB\u6536\u5165\u7ec4\u664b\u5347\uff08LIC\u2192LMIC\u6216LMIC\u2192UMIC\uff09\uff0c\u4e3b\u8981\u96c6\u4e2d\u5728\u4e1c\u4e9a\u548c\u6492\u54c8\u62c9\u4ee5\u5357\u975e\u6d32\u3002\u8fd9\u4e9b\u56fd\u5bb6\u5728\u664b\u5347\u524d5\u5e74GGHED/GDP\u5e73\u5747\u4e3a2.8%\uff0c\u664b\u5347\u540e5\u5e74\u5347\u81f34.9%\uff0c\u589e\u5e45+2.1pp\u3002","\u664b\u5347\u7684\u673a\u5236\uff1a\u6536\u5165\u63d0\u9ad8\u2192\u7a0e\u57fa\u6269\u5927\u2192\u8d22\u653f\u7a7a\u95f4\u91ca\u653e\u2192\u653f\u5e9c\u6709\u80fd\u529b\u4e14\u6709\u610f\u613f\u6269\u5927\u536b\u751f\u652f\u51fa\u3002\u4f46\u8fd9\u4e0d\u662f\u81ea\u52a8\u7684\uff1a\u4e00\u4e9b\u664b\u5347\u56fd\uff08\u5982\u77f3\u6cb9\u56fd\uff09GGHED\u5e76\u672a\u663e\u8457\u4e0a\u5347\uff0c\u8bf4\u660e\u653f\u6cbb\u610f\u613f\u548c\u5236\u5ea6\u5efa\u8bbe\u540c\u6837\u5173\u952e\u3002","\u6392\u9664\u77f3\u6cb9\u56fd\u540e\uff0cGGHED\u63d0\u5347\u4ece+2.1pp\u589e\u81f3+2.6pp\uff0c\u8bf4\u660e\u975e\u8d44\u6e90\u56fd\u7684\u664b\u5347\u5bf9\u536b\u751f\u6295\u5165\u7684\u4fc3\u8fdb\u6548\u5e94\u66f4\u5f3a\u3002"),
+    deep=list(data="WB \u6536\u5165\u5206\u7ec4\u5386\u53f2; GHED; 195 \u56fd",method="\u8bc6\u522b\u664b\u5347\u56fd; \u524d\u540e\u5bf9\u6bd4 GGHED",assume="\u664b\u5347\u91ca\u653e\u8d22\u653f\u7a7a\u95f4",limit="\u664b\u5347\u65f6\u70b9\u4f9d\u8d56 WB \u5206\u7c7b",sens="\u6392\u9664\u77f3\u6cb9\u56fd\u540e+2.6pp; \u66f4\u5f3a",policy="\u664b\u5347\u4e3a\u6269\u5927\u516c\u5171\u652f\u51fa\u63d0\u4f9b\u7a97\u53e3\u671f"),
+    limits=c("\u664b\u5347\u65f6\u70b9\u4f9d\u8d56 WB \u5206\u7c7b\uff0c\u4e0d\u53cd\u6620\u7ebf\u6027\u7ecf\u6d4e\u8fdb\u5c55","\u672a\u63a7\u5236\u540c\u671f\u5176\u4ed6\u653f\u7b56\u53d8\u5316","23 \u56fd\u6837\u672c\u8f83\u5c0f\uff0c\u7edf\u8ba1\u63a8\u65ad\u529b\u6709\u9650"))
+)}
+
+
+# ---- Source batch specs and entry function -----------------------------------
+source(file.path("\u7a0b\u5e8f", "42b_findings_batch.R"), local = TRUE)

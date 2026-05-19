@@ -7,6 +7,7 @@ mod_dataquality_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128202; \u6570\u636e\u8d28\u91cf Data Quality"),
+    value = "dataquality",
     mod_v3_hero(
       kicker = "DATA QUALITY",
       title = "\u6570\u636e\u8d28\u91cf\u4e0e\u5b8c\u6574\u6027",

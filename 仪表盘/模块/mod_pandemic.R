@@ -7,6 +7,7 @@ mod_pandemic_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#129516; \u97e7\u6027 Pandemic"),
+    value = "pandemic",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("COVID \u51b2\u51fb\u4e0b\u7684\u97e7\u6027\u8bc4\u4ef7"),

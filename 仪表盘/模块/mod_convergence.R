@@ -7,6 +7,7 @@ mod_convergence_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128200; Convergence"),
+    value = "convergence",
     mod_v3_hero(
       kicker = "收敛与趋同分析",
       title = "CONVERGENCE",

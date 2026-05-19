@@ -7,6 +7,7 @@ mod_atlas_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128218; Atlas"),
+    value = "atlas",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("\u5168\u7403 Atlas \u00b7 \u7a7a\u95f4\u89c6\u89d2"),

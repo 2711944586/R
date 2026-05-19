@@ -7,6 +7,7 @@ mod_aging_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128104;&#127995;&#8205;&#129695; \u8001\u9f84\u5316 Aging"),
+    value = "aging",
     mod_v3_hero(
       kicker = "AGING & HEALTH SPENDING",
       title = "\u8001\u9f84\u5316\u4e0e\u536b\u751f\u652f\u51fa",

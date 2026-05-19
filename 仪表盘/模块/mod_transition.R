@@ -7,6 +7,7 @@ mod_transition_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128260; \u8f6c\u578b Transition"),
+    value = "transition",
     mod_v3_hero(
       kicker = "FINANCING TRANSITION",
       title = "\u536b\u751f\u7b79\u8d44\u8f6c\u578b\u4e0e\u6536\u5165\u664b\u5347",

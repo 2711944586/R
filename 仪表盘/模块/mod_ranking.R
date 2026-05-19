@@ -7,6 +7,7 @@ mod_ranking_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127942; \u6392\u884c Ranking"),
+    value = "ranking",
     mod_v3_hero(
       kicker = "COUNTRY RANKINGS",
       title = "\u591a\u6307\u6807\u56fd\u5bb6\u6392\u540d",

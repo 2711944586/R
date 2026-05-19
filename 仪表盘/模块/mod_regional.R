@@ -7,6 +7,7 @@ mod_regional_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#127758; \u533a\u57df Regional"),
+    value = "regional",
     mod_v3_hero(
       kicker = "REGIONAL COMPARISON",
       title = "\u533a\u57df\u5bf9\u6bd4\u4e0e\u8d8b\u540c",

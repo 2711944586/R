@@ -7,6 +7,7 @@ mod_extremes_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#9888; \u6781\u503c Extremes"),
+    value = "extremes",
     mod_v3_hero(
       kicker = "EXTREME VALUES & OUTLIERS",
       title = "\u6781\u7aef\u503c\u8bc6\u522b\u4e0e\u5f02\u5e38\u56fd\u5bb6\u5206\u6790",

@@ -110,8 +110,10 @@ if (!exists("%||%", mode = "function")) {
     )),
     list(group = "4 \u5de5\u5177", items = list(
       list(id = "simulator", label = "4.1 \u4eff\u771f"),
-      list(id = "figure-index", label = "4.2 \u56fe\u8868"),
-      list(id = "widgets", label = "4.3 \u4ea4\u4e92")
+      list(id = "asset-console", label = "4.2 \u7d20\u6750\u4e2d\u63a7"),
+      list(id = "figure-index", label = "4.3 \u56fe\u8868\u7d22\u5f15"),
+      list(id = "gallery", label = "4.4 \u5168\u91cf\u56fe\u5e93"),
+      list(id = "widgets", label = "4.5 \u4ea4\u4e92\u7ec4\u4ef6")
     )),
     list(group = "5 \u9644\u5f55", items = list(
       list(id = "repro", label = "5.1 \u590d\u73b0"),
@@ -392,6 +394,143 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='method-block'>%s</div>", html_body)
 }
 
+.ghs_evidence_note <- function(id, title, lead) {
+  bank <- list(
+    `f-trend` = c("这一节的四张图共同回答“总量增长由谁贡献、增长是否稳定、结构是否同步变化”三个问题。总量曲线说明卫生支出不是单纯随人口线性上升，而是叠加了收入增长、公共财政扩张和危机年份追加预算；来源结构图则把同一增长拆成政府、私人和外援三条资金路径，避免只看 CHE 总额而忽略风险转移。",
+                  "读图时应把 F1 作为后续所有 finding 的基准：如果某国总额上升但 OOPS 同步上升，说明增长并没有转化为财务保护；如果 GGHE-D 上升且 OOPS 下降，才更接近可持续的公共筹资扩张。"),
+    `f-finance` = c("F2 的核心不是比较谁花得多，而是识别风险最终落在谁身上。排名图、分布图和地图显示，高 OOPS 不是少数异常点，而是集中出现在公共筹资不足、社会保险覆盖薄弱的国家群组中。",
+                    "因此，OOPS 应被当作“家庭承担风险”的红灯指标。若某国 CHE/cap 不低但 OOPS 仍高，政策含义不是简单增加总投入，而是调整筹资结构、扩大强制性预付费机制和贫困人口补贴。"),
+    `f-equity` = c("F3 将 Gini、Theil 和 Lorenz 放在一起，是为了避免单一不平等指标误导。Gini 反映整体分布，Theil 能拆解组间/组内来源，Lorenz 则直观展示人口累计份额与资源累计份额的偏离。",
+                  "这些图表共同显示：全球卫生支出的不平等有所下降，但下降速度不足以消除底部国家的资源缺口。真正的政策重点仍是低收入和中低收入国家的基本公共筹资能力。"),
+    `f-covid` = c("COVID 冲击图要同时看支出变化和自付变化。某些国家 CHE 短期跳升，是因为政府紧急拨款、检测和疫苗采购；但如果 OOPS 也上升，说明家庭在服务中断、药品短缺或私营替代服务中承担了额外成本。",
+                 "因此，F4 的解释重点是韧性，而不是单纯的危机支出规模。财政扩张能否转化为保护，取决于采购能力、基层网络和医保支付机制是否能在冲击期维持运行。"),
+    `f-beta` = c("收敛图检验的是低起点国家是否追赶高起点国家。负的 beta 系数说明存在追赶趋势，但图中的离散点提醒我们，追赶并不自动发生，许多低收入国家长期停留在低 CHE/cap 区间。",
+                "读这组图时应区分“相对增速较快”和“绝对差距仍大”。低起点国家即使年增速更高，也可能需要几十年才能接近高收入国家的绝对投入水平。"),
+    `f-fe` = c("固定效应模型把国家不随时间变化的差异剔除后，再估计 GDP 与 CHE 的同步变化。这样做的价值在于减少文化、制度、地理等固定差异的干扰，更接近“同一国家变富之后卫生投入怎样变化”。",
+              "图表和模型结果应结合阅读：若弹性大于 1，说明卫生支出相对 GDP 超比例增长；若低于 1，则意味着经济增长并未充分转化为卫生筹资扩张。"),
+    `f-cluster` = c("聚类图不是给国家贴标签，而是把筹资结构相似的国家放在一起，帮助识别政策路径。政府主导型、私人自付型、外援依赖型和混合型面对的改革约束完全不同。",
+                   "因此，F7 的价值在于比较同类国家，而不是把所有国家放在一个排行榜里。对外援依赖型国家，关键是过渡融资；对高自付型国家，关键是预付费和风险池扩大。"),
+    `f-forecast` = c("预测扇形图表达的是不确定性，而不是确定答案。越往后置信区间越宽，说明长期预测更适合用于压力测试，而不是精确预算。",
+                    "如果预测显示 CHE/cap 上升但 OOPS 没有下降，就意味着未来增长可能继续由家庭承担；如果公共筹资份额同步上升，才说明增长路径更接近 UHC 目标。"),
+    `f-aid` = c("外援图的重点是依赖度和集中度。EXT 在全球总额中占比很小，但在部分低收入和小国中占 CHE 的三成以上，说明平均数会掩盖关键脆弱点。",
+               "解读外援时要区分短期救急和长期筹资。外援能填补缺口，但若没有国内税基、社保和预算制度承接，撤出后容易造成服务断档。"),
+    `f-efficiency` = c("效率图把投入和产出放在同一平面上，识别“花同样的钱得到更多健康结果”的国家。前沿国家并不一定最富，而是以较低投入达成较高寿命或较低 U5MR。",
+                       "F10 的政策含义是：高支出国家未必高效率，低支出国家也可能通过基层服务、预防和支付制度设计取得更高产出。增加预算与优化配置必须同时讨论。"),
+    `f-rank` = c("排名变动图展示的是国家相对位置的迁移。排名上升通常来自经济增长、公共筹资扩张和医保覆盖扩大；排名下降则往往对应危机、汇率冲击或财政收缩。",
+                "排名不能替代绝对水平判断。一个国家排名上升，仍可能处在全球低位；一个高收入国家排名下降，也可能只是其他国家追赶更快。"),
+    `f-lifeexp` = c("寿命弹性图说明卫生投入的边际回报随发展阶段递减。低 CHE/cap 区间每增加一单位资金，往往对应基础服务、疫苗、产科和感染病控制的显著改善；高 CHE/cap 区间则更多受生活方式、老龄化和慢病管理影响。",
+                   "因此，F12 支持一种分层政策逻辑：低收入国家优先补足基本服务，高收入国家优先提升效率、预防和照护整合。"),
+    `f-sdg3` = c("SDG-3 雷达和进展图把投入、结果和财务保护放在同一框架中。一个国家可以在寿命上进步很快，但仍然存在高 OOPS；也可以服务覆盖较高，但财务保护不足。",
+                "这说明 UHC 不能只用服务覆盖衡量，还必须同时观察家庭支付风险。F13 的关键是把健康结果和筹资保护并列评价。"),
+    `f-extreme` = c("极端值图用于发现常规均值看不到的国家。快速跃升者显示低起点国家存在追赶窗口；停滞者则提示冲突、财政危机或制度失灵会让卫生投入长期偏离全球趋势。",
+                   "变点图进一步说明，全球卫生支出路径会被金融危机和公共卫生危机改写。极端值不是噪声，而是理解系统脆弱性的重要入口。"),
+    `f-aging` = c("老龄化 finding 应与寿命和财政空间一起读。65+ 占比上升不仅增加医疗服务量，也改变服务类型：慢病管理、长期护理、康复和药品支出比重都会上升。",
+                 "如果公共筹资没有同步扩张，老龄化压力会转化为家庭自付和照护负担。图表中的欧洲和东亚样本尤其说明，老龄化本身不是问题，缺乏筹资和长期护理制度才是风险。"),
+    `f-urban` = c("城镇化图表强调需求释放和服务价格两条路径。人口进入城市后，医疗设施更近、诊断更多、专科服务使用率更高，CHE/cap 往往随之上升。",
+                 "但城镇化并不自动改善公平。若基层网络滞后，城市居民可能涌向高等级医院，农村和流动人口则继续服务不足，形成新的空间不平等。"),
+    `f-fiscal` = c("财政空间 finding 把 GGHED/GDP、OOPS 和借贷约束连起来看。低公共卫生预算国家通常不是“不想花”，而是税基、债务成本和预算优先级共同限制了可用资源。",
+                  "这部分图表的政策含义是：降低 OOPS 需要财政制度改革，而不只是卫生部门内部调账。税收动员、预算保护和医保缴费机制必须一起设计。"),
+    `f-affordability` = c("可负担性关注的是医疗价格相对居民收入的压力。即使 CHE 总额不高，只要家庭收入低且保险报销不足，小额门诊、药品和住院押金也可能造成实际灾难性支出。",
+                         "因此，地图和趋势图应被解读为家庭预算压力，而不是卫生系统规模。政策重点是报销门槛、药品价格和贫困人口豁免。"),
+    `f-regional` = c("区域协同 finding 说明国家并非孤立行动。欧盟、东盟、非盟等区域机制会影响采购、监管、流行病监测和跨境服务。",
+                    "区域图表的意义在于识别可共享的制度能力：小国可通过联合采购和区域资金池降低波动，大国则可通过区域公共品提供外溢收益。"),
+    `f-inflation` = c("通胀与实际支出 finding 区分名义增长和真实购买力。名义 CHE 上升并不等于医疗服务增加；当医疗价格、汇率或药品进口成本上涨时，实际服务量可能停滞甚至下降。",
+                     "所以本节应重点看实际值和增长率热图，而不是名义金额。对进口药械依赖高的国家，通胀会直接压缩预算购买力。"),
+    `f-ncd` = c("NCD finding 把疾病负担与支出用途相匹配。若慢病占死亡和 DALY 的主体，但预防和基层管理支出很低，就说明资金仍过度集中在治疗末端。",
+               "图表中的 HC1/HC6 对比提示，真正的成本控制不是少花钱，而是把资金前移到筛查、控烟、慢病随访和社区管理。"),
+    `f-uhc` = c("UHC finding 的关键是覆盖和保护的联动。服务覆盖提高通常会降低 OOPS，但如果待遇包浅、报销比例低或私营服务占比高，覆盖扩大仍可能留下高自付。",
+               "因此，UHC 指数要与 OOPS、灾难性支出和公共筹资份额一起阅读。单看覆盖率会高估制度进展。"),
+    `f-catastrophic` = c("灾难性支出图把 OOPS 从宏观比例转化为家庭层面的风险。OOPS/CHE 每下降一个区间，对家庭是否因病致贫的影响并非线性，而是在高 OOPS 区间最明显。",
+                        "政策上，先把极高 OOPS 国家降到中等水平，往往比在低 OOPS 国家继续微调更能减少灾难性支出人数。"),
+    `f-maternal` = c("母婴健康 finding 体现低成本高回报的典型领域。产检、熟练助产、急诊转运、免疫和新生儿护理对 U5MR/MMR 的边际影响很大，尤其在 LIC。",
+                    "图表应被解读为“基础服务补短板”的证据：资金投入若流向基层母婴服务，比流向高端住院设备更可能快速改善死亡率。"),
+    `f-prevention` = c("预防 finding 关注支出结构而非总量。HC6 占比低说明系统把大部分钱花在疾病发生之后，而不是减少疾病发生概率。",
+                      "当 NCD 负担上升时，预防不足会在未来转化为更高住院、药品和长期照护支出。预防支出应被视为延迟成本和提高健康寿命的投资。"),
+    `f-workforce` = c("卫生人力 finding 把资金转化为服务能力。没有医生、护士和基层人员，预算无法变成诊疗、随访和公共卫生服务。",
+                     "人力图表也提示支出质量问题：高 CHE 但人力不足可能意味着资金流向药品、设备或行政成本；低 CHE 且人力不足则说明系统能力本身受限。"),
+    `f-reclassify` = c("收入晋升 finding 说明经济发展带来筹资窗口，但窗口不会自动转化为卫生保护。晋升后若税收和医保制度没有跟进，OOPS 仍可能维持高位。",
+                      "因此，本节的 Sankey 和趋势图应被读作政策机会识别：收入组跃迁前后是扩展公共卫生预算和社会保险的关键时期。"),
+    `f-theil` = c("Theil 分解明确指出不平等来自哪里。若组间差异占比高，说明全球资源差距主要由收入组之间的结构性鸿沟造成；若组内差异上升，则说明同一收入组内部政策选择更重要。",
+                 "F28 的政策含义是双层的：全球层面要支持低收入组追赶，国家组内则要学习同收入组表现更好的筹资制度。"),
+    `f-fragile` = c("脆弱国家 finding 说明卫生系统不仅受收入约束，也受冲突和治理约束。冲突会破坏设施、人力和供应链，使 CHE 下降之外还伴随服务可及性坍塌。",
+                   "因此，对脆弱国家不能只看常规发展融资，还需要应急资金、供应链恢复、人力保护和基本服务连续性安排。"),
+    `f-oecd` = c("OECD 与 LMIC 对照展示边际收益递减。高收入国家花费巨大，但寿命增量有限；低收入和中低收入国家的基础投入仍能带来显著健康收益。",
+                "这并不意味着高收入国家应少花钱，而是说明全球增量资金在低投入区间的健康回报更高。"),
+    `f-dea` = c("DEA finding 关注同等投入下的相对产出。前沿国家提供了制度参照：基层服务强、预防投入稳定、支付机制合理的国家，往往能用较少 CHE 获得更好寿命结果。",
+               "但 DEA 不是最终排名，而是发现异常点的工具。对低效率国家，应进一步追问资金流向、服务价格和疾病负担结构。"),
+    `f-aid-eff` = c("援助效率 finding 关注外援是否转化为健康结果。外援占比高不必然有效，只有当资金进入免疫、HIV/TB、母婴和基层系统等高回报领域时，U5MR 等结果才会改善。",
+                   "图表也提示递减收益：当外援规模很大但吸收能力不足时，边际效果会下降。治理和执行能力与资金规模同样重要。"),
+    `f-dataquality` = c("数据完整性 finding 是对所有结论的置信度说明。LIC 缺失率更高意味着全球比较可能系统性低估最脆弱国家的问题。",
+                       "因此，数据质量不是附录问题，而是实证结论的一部分。所有排名和模型都应结合缺失率、修订幅度和指标覆盖度阅读。"),
+    `f-revision` = c("数据修订 finding 提醒读者，最新年份并不一定最稳定。GHED 会随着各国卫生账户补报和口径校正回修近年数据。",
+                    "因此，政策解读应更重视趋势区间和稳健方向，避免用单一年份的小幅变化下过强结论。"),
+    `f-sids` = c("小岛和小国 finding 说明规模本身就是风险。人口小、财政窄、灾害暴露高，会让 CHE/cap 和 EXT 份额出现剧烈年度波动。",
+                "对这些国家，区域资金池、联合采购和灾害后快速拨款比常规单国预算更重要。"),
+    `f-composite` = c("综合指数 finding 把充足性、公平性和效率放在同一框架中，避免单一指标过度主导。高 CHE/cap 但 OOPS 高或效率低的国家，不应被简单评为优秀。",
+                     "综合排名的价值是暴露权衡：北欧国家通常三轴均衡，而一些高支出国家在效率或公平上被扣分。任何单国解读都应回到三轴分项，而不是只看总分。")
+  )
+  txt <- bank[[id]]
+  if (is.null(txt)) txt <- c(
+    sprintf("%s 的证据需要结合图表、芯片指标和交互组件一起阅读。标题结论给出方向，图表负责说明这种方向来自哪些国家、年份和分组差异。", .ghs_e(title)),
+    "若只看单一均值，容易忽略收入组、地区和筹资结构之间的异质性；因此本节同时保留静态图、表格和交互组件，便于从总体趋势下钻到具体国家。"
+  )
+  sprintf("<aside class='evidence-note'><strong>证据解读</strong>%s</aside>",
+          paste0("<p>", txt, "</p>", collapse = ""))
+}
+
+.ghs_section_note <- function(id) {
+  bank <- list(
+    countries = c("本节承接 F1-F14 的总体发现，把宏观趋势落到中、美、印、巴四个具有代表性的国家路径上。四国分别对应不同筹资结构和制度约束：美国是高投入但财务保护争议较大的高成本体系，中国体现公共筹资和人均支出的快速追赶，印度代表低中收入大国在 OOPS 压力下的扩面难题，巴西则展示公共卫生体系和基层网络对公平性的支撑。",
+                  "读这一节时不要把四国当作排名，而应把它们当作四种 archetype 的剖面：看人均 CHE 的增长速度，也要同步看 GGHED、OOPS、EXT 和人口规模。只有把趋势图、筹资结构和面板表合在一起，才能解释同样的支出增长为什么会导向不同的家庭负担和健康产出。"),
+    regional = c("区域深挖用于回答“国家差异是否具有空间结构”。六大洲并不是简单地按收入排序，欧洲的公共筹资、亚洲的快速追赶、非洲的外援依赖、拉美的公共体系实验和大洋洲小国的脆弱性，各自对应不同的改革入口。",
+                 "因此，本节把地图和雷达放在同一层阅读：地图显示资源水平，雷达显示筹资结构，表格给出可比较的数值锚点。后续政策解释需要在区域机制、财政能力和人口结构之间建立联系。"),
+    period = c("三阶段比较把 2000-2023 年从一条总趋势拆成加速期、金融危机期和后 COVID 期。这样可以避免把所有变化平均掉，也能解释为什么部分国家在总趋势向上时仍出现 OOPS 回升或实际购买力下降。",
+               "分期表格与图形应一起阅读：CHE_pc 的上升说明资源增加，OOPS 的变化说明风险由谁承担。如果某阶段 CHE_pc 上升但 OOPS 同步上升，说明增长可能更多来自家庭支付或服务价格上涨，而不是公共保护增强。"),
+    sdg3 = c("SDG-3 专题把卫生投入与健康产出连接起来。寿命和 U5MR 的改善并不只由 CHE 总额决定，还取决于资金是否进入基层服务、免疫、孕产妇服务和慢病管理等高回报环节。",
+             "本节的重点不是证明“花钱越多越好”，而是识别哪些国家在有限资金下实现了产出跳跃。它为后续效率和 DEA 分析提供了国家样本线索。"),
+    lifeexp = c("寿命弹性专题用于解释边际收益递减。低投入区间的资金增量往往直接转化为基本服务可及性和儿童死亡率改善；高投入区间则更多受慢病、老龄化、医疗价格和长期照护影响。",
+                "因此，本节既看均值拟合，也看分位差异。对低收入和中低收入国家，增量资金仍具有较高健康回报；对高收入国家，重点则转向效率、预防和支付制度。"),
+    atlas = c("不平等图册把 F3 的结论展开为多种视角。Lorenz 曲线显示资源累计分布，Gini 和 Atkinson 衡量整体不平等，Theil 则能拆出组间和组内来源。",
+              "这些图表共同说明，全球卫生支出不平等的下降并不等于底部国家风险消失。底部国家的绝对资源缺口仍然很大，且高 OOPS 会把宏观不平等继续传导到家庭层面。"),
+    `cluster-detail` = c("聚类详解把 F7 的类型识别具体化。四类 archetype 的价值在于帮助比较“同类国家”而不是做单一排名：政府主导型、私人保险型、自付驱动型和外援依赖型面对的政策约束完全不同。",
+                         "雷达图展示结构特征，PCA 展示国家在多指标空间中的相对位置。若一国位于自付驱动型，政策重点应转向预付费和风险池；若位于外援依赖型，则需要过渡融资和国内财政承接。"),
+    extreme = c("极端案例用于发现均值掩盖的路径差异。跳跃者通常不是偶然异常，而是低起点、经济增长、公共筹资和制度扩面同时出现；停滞者则常与冲突、财政危机或外部依赖有关。",
+                "变点图提醒我们，全球卫生支出不是平滑趋势，金融危机和公共卫生危机会改变长期斜率。政策上需要反周期缓冲，而不是只在危机后临时追加预算。"),
+    simulator = c("政策仿真器把前文的描述性关系转化为可交互的情景推演。滑块不是因果模型，而是帮助读者理解 OOPS、GGHED 和 EXT 三个筹资变量之间的方向性关系。",
+                  "使用时应重点观察高 OOPS 国家数量和 EXT 依赖国家数量的变化，而不是只看均值。均值下降可能掩盖尾部国家仍处在高风险区间。"),
+    robustness = c("稳健性章节用于回答模型结论是否依赖单一设定。固定效应、子样本、时期截断和控制变量变化共同检验主结论是否在不同规格下保持方向一致。",
+                   "如果估计值大小变化但符号和政策含义不变，说明结论更偏结构性；如果某个子样本显著反转，则需要回到国家组或时期机制解释，而不是直接接受全样本平均。"),
+    gallery = c("图表库不是附录堆砌，而是为每个 finding 提供可追溯的证据入口。按主题筛选可以快速回到时间趋势、地图、模型、分布和国家剖面。",
+                "阅读顺序建议先看 F1-F36 的结论，再到图表库下钻具体图形。这样既保留叙述主线，也能在需要时核对每个判断背后的图像证据。"),
+    widgets = c("交互组件用于补足静态图无法展示的细节：地图可查看国家，plotly 可放大局部，表格组件可排序筛选，网络和 Sankey 可展示结构关系。",
+                "这些组件适合用于答辩和复查：当静态 finding 给出结论后，交互组件能支持现场切换国家、年份和指标，验证结论是否对个别样本敏感。"),
+    glossary = c("术语和来源章节保证读者能回到指标口径本身。CHE、GGHED、OOPS、EXT、PVTD、UHC 等缩写如果不统一，跨章节解释会出现偏差。",
+                 "本节同时承担复核功能：所有模型和图表都应能追溯到这里列出的数据来源和定义，避免把不同口径的指标混合解释。"),
+    repro = c("复现章节说明本报告不是手工拼图，而是由统一构建脚本生成。数据、模型、图表、交互组件和提交 HTML 均从同一项目目录派生。",
+              "这对课程提交尤其重要：任何数值或图表如需复核，应优先运行构建命令，而不是手动修改最终 HTML。"),
+    session = c("运行环境记录用于解释包版本、系统和 R 版本差异。可视化、模型估计和 HTML 嵌入在不同环境下可能出现细微差别，因此需要保留生成快照。",
+                "这一节不是展示性内容，而是复现证据链的一部分。它说明当前页面由哪个运行环境生成，便于后续审查和更新。"),
+    conclusion = c("结论章节把全文发现压缩为政策含义：增加卫生支出只是第一步，更关键的是资金来源、风险池、服务配置和效率。",
+                   "若要降低家庭风险，应优先关注高 OOPS、高 EXT 依赖和低公共筹资国家；若要提升健康产出，应把新增资金更多投向基层、预防、人力和母婴健康等高回报环节。"),
+    `section-outcomes` = c("产出与效率专题把投入转化为健康结果的过程可视化。Lexis 表面展示年份和投入水平的共同作用，前沿图识别同等资金下表现更好的国家，残差图则提示哪些国家偏离了平均投入产出关系。",
+                           "这一节的读法是先看趋势，再看前沿，最后看残差。若某国投入不高但产出较好，应进一步追问基层服务和预防体系；若投入很高但产出一般，则要关注价格、配置和制度效率。"),
+    `section-equity` = c("不平等与财务保护专题扩展了 F3 和 F23 的家庭风险视角。宏观资源差距、OOPS 结构和寿命结果之间存在联动，单看 CHE_pc 无法判断制度是否公平。",
+                         "本节强调多指标互证：Lorenz 与 Gini 说明资源集中度，OOPS 图说明家庭支付压力，寿命相关图说明这种压力是否转化为健康产出差异。"),
+    `section-country` = c("国家专题深入把 BRICS、G7、EU/ASEAN、小岛国家和脱钩国家放在一起，是为了展示不同制度路径下的筹资结果。它与前面的四国档案互补：前者是个案，后者是国家组比较。",
+                          "这些图表可用于识别可学习对象。高收入国家提供长期照护和支付制度经验，中等收入国家提供扩面案例，小岛国家则提示规模、灾害和外援波动带来的系统风险。"),
+    `section-shocks` = c("冲击专题专门解释 GFC 和 COVID 如何改变卫生支出路径。危机年份的 CHE 上升不一定代表服务改善，可能只是紧急采购、通胀和预算补偿。",
+                         "因此本节同时放入 CHE、OOP、反事实差距和恢复诊断。真正重要的是冲击后能否恢复公共筹资能力，并避免风险被转嫁给家庭。"),
+    `section-models` = c("模型总览说明本报告不是只靠描述图，而是同时使用面板、鲁棒、分位、GAM、PCA、聚类和预测等多类方法互相校验。",
+                         "模型表的意义在于给每个结论提供方法位置：哪些是描述性发现，哪些来自固定效应，哪些只是预测或敏感性检验，避免把不同证据强度混为一谈。"),
+    `section-widgets` = c("组件画廊集中列出全部交互 HTML，使读者能从最终报告跳回原始交互对象。静态报告负责叙述，交互组件负责探索。",
+                          "对答辩场景而言，这一节可以快速打开地图、气泡图、排序表和动态图，支撑关于具体国家或年份的追问。")
+  )
+  txt <- bank[[id]]
+  if (is.null(txt)) return("")
+  sprintf("<aside class='section-note'><strong>本节解读</strong>%s</aside>",
+          paste0("<p>", txt, "</p>", collapse = ""))
+}
+
 .ghs_table <- function(df, cap = NULL, max_rows = 10, digits = 2) {
   df <- utils::head(df, max_rows); cols <- names(df)
   thead <- paste0("<th>", .ghs_e(cols), "</th>", collapse = "")
@@ -494,9 +633,10 @@ if (!exists("%||%", mode = "function")) {
 }
 
 .ghs_finding <- function(id, num, kicker, title, lead, body, chips = "") {
-  sprintf("<section class='finding' id='%s'><div class='wrap'><header class='finding-head'><span class='finding-num'>%s</span><div><span class='finding-kicker'>%s</span><h2>%s</h2><p class='lead'>%s</p><div class='chips'>%s</div></div></header><div class='finding-body'>%s%s</div></div></section>",
+  note <- .ghs_evidence_note(id, title, lead)
+  sprintf("<section class='finding' id='%s'><div class='wrap'><header class='finding-head'><span class='finding-num'>%s</span><div><span class='finding-kicker'>%s</span><h2>%s</h2><p class='lead'>%s</p><div class='chips'>%s</div></div></header>%s<div class='finding-body'>%s%s</div></div></section>",
           .ghs_e(id), .ghs_e(num), .ghs_e(kicker), .ghs_e(title),
-          .ghs_e(lead), chips, body, .ghs_deep_dive(id))
+          .ghs_e(lead), chips, note, body, .ghs_deep_dive(id))
 }
 
 # ---- 3. Hero / KPI / 数据与方法 ------------------------------------------
@@ -582,7 +722,7 @@ if (!exists("%||%", mode = "function")) {
     .ghs_kpi(.ghs_n(n_widget, 0), "\u4ea4\u4e92\u7ec4\u4ef6",
              "plotly / leaflet / reactable / DT")
   )
-  sprintf("<section class='section kpi-section' id='kpi'><div class='wrap'><header class='section-head'><span class='kicker'>05 \u00b7 KPI</span><h2>KPI</h2><p class='lead'>\u4ee5\u4e0b 12 \u5f20\u5361\u7247\u4ece\u603b\u91cf\u3001\u589e\u901f\u3001\u4eba\u5747\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u8d22\u653f\u7a7a\u95f4\u3001\u5916\u90e8\u4f9d\u8d56\u4e94\u4e2a\u7ef4\u5ea6\u7ed9\u51fa\u6240\u6709\u53d1\u73b0\u7684\u5f00\u573a\u6570\u503c\u3002</p></header><div class='kpi-grid'>%s</div></div></section>",
+  sprintf("<section class='section kpi-section' id='kpi'><div class='wrap'><header class='section-head'><span class='kicker'>S05 \u00b7 KPI</span><h2>KPI</h2><p class='lead'>\u4ee5\u4e0b 12 \u5f20\u5361\u7247\u4ece\u603b\u91cf\u3001\u589e\u901f\u3001\u4eba\u5747\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u8d22\u653f\u7a7a\u95f4\u3001\u5916\u90e8\u4f9d\u8d56\u4e94\u4e2a\u7ef4\u5ea6\u7ed9\u51fa\u6240\u6709\u53d1\u73b0\u7684\u5f00\u573a\u6570\u503c\u3002</p></header><div class='kpi-grid'>%s</div></div></section>",
           cards)
 }
 
@@ -622,7 +762,7 @@ if (!exists("%||%", mode = "function")) {
     "<li><b>\u8ffd\u8d76\u4e0d\u662f\u81ea\u52a8\u7684</b>\uff1a\u03b2-\u6536\u655b\u6210\u7acb\u4f46\u534a\u6536\u655b\u5e74\u8de8\u5927\u6d32\u5dee\u5f02\u663e\u8457\uff1b\u53cc\u5411 FE \u5f39\u6027\u7ea6 0.8 < 1\uff0c\u4ec5\u9760 GDP \u589e\u957f\u4e0d\u8db3\u4ee5\u9a71\u52a8 UHC\uff08F5\u3001F6\uff09\u3002</li>",
     "</ol>"
   )
-  sprintf("<section class='section executive' id='executive'><div class='wrap'><header class='section-head'><span class='kicker'>01 \u00b7 EXECUTIVE SUMMARY</span><h2>\u6458\u8981</h2></header><div class='exec-big-grid'>%s</div><div class='exec-tldr'><span class='kicker'>TLDR \u00b7 \u6838\u5fc3\u53d1\u73b0</span>%s<a class='btn-light' href='#findings'>\u8df3\u5230\u53d1\u73b0 \u2193</a></div></div></section>",
+  sprintf("<section class='section executive' id='executive'><div class='wrap'><header class='section-head'><span class='kicker'>S01 \u00b7 EXECUTIVE SUMMARY</span><h2>\u6458\u8981</h2></header><div class='exec-big-grid'>%s</div><div class='exec-tldr'><span class='kicker'>TLDR \u00b7 \u6838\u5fc3\u53d1\u73b0</span>%s<a class='btn-light' href='#findings'>\u8df3\u5230\u53d1\u73b0 \u2193</a></div></div></section>",
           bigs, tldr)
 }
 
@@ -647,7 +787,7 @@ if (!exists("%||%", mode = "function")) {
       "\u4e00\u81f4\u6027\u68c0\u67e5\uff08\u603b\u989d \u2261 \u6765\u6e90\u4e4b\u548c\uff09", 8))
   if (!nzchar(cards))
     cards <- "<p class='muted'>\u672a\u68c0\u6d4b\u5230 data_quality_*.csv\uff0c\u8bf7\u5148 Rscript \u6784\u5efa.R models\u3002</p>"
-  sprintf("<section class='section dq' id='dq'><div class='wrap'><header class='section-head'><span class='kicker'>03 \u00b7 DATA QUALITY</span><h2>\u6570\u636e\u8d28\u91cf</h2><p class='lead'>\u6240\u6709\u540e\u7eed\u53d1\u73b0\u8865\u5145\u4e8e\u540c\u4e00\u4efd\u9762\u677f\uff1b\u672c\u8282\u4ee5 4 \u5f20\u8868\u5448\u73b0\u539f\u59cb\u8d28\u91cf\u8bca\u65ad\uff08\u51fa\u81ea <code>\u5206\u6790\u8f93\u51fa/\u6a21\u578b\u8868/data_quality_*.csv</code>\uff09\u3002</p></header><div class='dq-grid'>%s</div></div></section>",
+  sprintf("<section class='section dq' id='dq'><div class='wrap'><header class='section-head'><span class='kicker'>S03 \u00b7 DATA QUALITY</span><h2>\u6570\u636e\u8d28\u91cf</h2><p class='lead'>\u6240\u6709\u540e\u7eed\u53d1\u73b0\u8865\u5145\u4e8e\u540c\u4e00\u4efd\u9762\u677f\uff1b\u672c\u8282\u4ee5 4 \u5f20\u8868\u5448\u73b0\u539f\u59cb\u8d28\u91cf\u8bca\u65ad\uff08\u51fa\u81ea <code>\u5206\u6790\u8f93\u51fa/\u6a21\u578b\u8868/data_quality_*.csv</code>\uff09\u3002</p></header><div class='dq-grid'>%s</div></div></section>",
           cards)
 }
 
@@ -678,7 +818,7 @@ if (!exists("%||%", mode = "function")) {
   }))
   body <- .ghs_table(df,
     "master_enriched \u4e3b\u8981\u53d8\u91cf\u5b57\u5178", 20)
-  sprintf("<section class='section codebook' id='codebook'><div class='wrap'><header class='section-head'><span class='kicker'>04 \u00b7 CODEBOOK</span><h2>\u53d8\u91cf\u4e0e\u53e3\u5f84\u8bf4\u660e</h2><p class='lead'>\u4ee5\u4e0b\u662f master \u5bbd\u8868\u4e3b\u8981\u5b57\u6bb5\u7684\u63cf\u8ff0\u3001\u5355\u4f4d\u4e0e\u6765\u6e90\uff1b\u6240\u6709\u540e\u7eed\u53d1\u73b0\u53ea\u8bfb\u53d6\u8be5\u8868\u3002</p></header>%s</div></section>",
+  sprintf("<section class='section codebook' id='codebook'><div class='wrap'><header class='section-head'><span class='kicker'>S04 \u00b7 CODEBOOK</span><h2>\u53d8\u91cf\u4e0e\u53e3\u5f84\u8bf4\u660e</h2><p class='lead'>\u4ee5\u4e0b\u662f master \u5bbd\u8868\u4e3b\u8981\u5b57\u6bb5\u7684\u63cf\u8ff0\u3001\u5355\u4f4d\u4e0e\u6765\u6e90\uff1b\u6240\u6709\u540e\u7eed\u53d1\u73b0\u53ea\u8bfb\u53d6\u8be5\u8868\u3002</p></header>%s</div></section>",
           body)
 }
 
@@ -714,7 +854,7 @@ if (!exists("%||%", mode = "function")) {
       "\u53ef\u89c6\u5316\u5c42\u9762\uff1a\u5171\u7528 theme_ghs() \u7edf\u4e00\u4e3b\u9898\u3001palette_ghs() \u8bed\u4e49\u8272\u677f\u3001400 DPI / 12 inch \u5bfc\u51fa\u89c4\u683c\u3002\u4ea4\u4e92\u7ec4\u4ef6\u7edf\u4e00\u4f7f\u7528 ghs_plotly_layout() \u5e94\u7528\u54c1\u724c\u5b57\u4f53\u3001\u80cc\u666f\u4e0e\u5e03\u5c40\u3002"
     )
   )
-  sprintf("<section class='section methods' id='methods'><div class='wrap'><header class='section-head'><span class='kicker'>02 \u00b7 DATA PROCESSING</span><h2>\u539f\u59cb\u6570\u636e\u5904\u7406</h2><p class='lead'>\u6240\u6709\u5206\u6790\u5171\u4eab\u540c\u4e00\u4efd master \u5bbd\u8868\uff1b\u4e0b\u6e38\u6a21\u578b\u4e0e\u56fe\u8868\u53ea\u8bfb\u53d6\u6b64\u7f13\u5b58\uff0c\u786e\u4fdd\u7ed3\u679c\u53ef\u590d\u73b0\u3002</p></header>%s</div></section>",
+  sprintf("<section class='section methods' id='methods'><div class='wrap'><header class='section-head'><span class='kicker'>S02 \u00b7 DATA PROCESSING</span><h2>\u539f\u59cb\u6570\u636e\u5904\u7406</h2><p class='lead'>\u6240\u6709\u5206\u6790\u5171\u4eab\u540c\u4e00\u4efd master \u5bbd\u8868\uff1b\u4e0b\u6e38\u6a21\u578b\u4e0e\u56fe\u8868\u53ea\u8bfb\u53d6\u6b64\u7f13\u5b58\uff0c\u786e\u4fdd\u7ed3\u679c\u53ef\u590d\u73b0\u3002</p></header>%s</div></section>",
           body)
 }
 
@@ -1550,8 +1690,8 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(b$continent %||% "\u2014"),
             b$base_year, b$cur_year, chips, fig_html, panel_html)
   }, character(1))
-  sprintf("<section class='section country-profiles' id='countries'><div class='wrap'><header class='section-head'><span class='kicker'>S20 \u00b7 Country Profiles</span><h2>\u56db\u4e2a\u4ee3\u8868\u6027\u56fd\u5bb6\u6863\u6848</h2><p class='lead'>\u4ee5\u4e2d \u00b7 \u7f8e \u00b7 \u5370 \u00b7 \u5df4\u4e3a\u4f8b\uff0c\u5448\u73b0\u4e0d\u540c archetype \u5728\u8d8b\u52bf\u3001\u7b79\u8d44\u7ed3\u6784\u3001\u8d22\u52a1\u4fdd\u62a4\u4e0e\u5916\u90e8\u4f9d\u8d56\u4e0a\u7684\u5dee\u5f02\u3002</p></header><div class='country-grid'>%s</div></div></section>",
-          paste(cards, collapse = ""))
+  sprintf("<section class='section country-profiles' id='countries'><div class='wrap'><header class='section-head'><span class='kicker'>S06 \u00b7 Country Profiles</span><h2>\u56db\u4e2a\u4ee3\u8868\u6027\u56fd\u5bb6\u6863\u6848</h2><p class='lead'>\u4ee5\u4e2d \u00b7 \u7f8e \u00b7 \u5370 \u00b7 \u5df4\u4e3a\u4f8b\uff0c\u5448\u73b0\u4e0d\u540c archetype \u5728\u8d8b\u52bf\u3001\u7b79\u8d44\u7ed3\u6784\u3001\u8d22\u52a1\u4fdd\u62a4\u4e0e\u5916\u90e8\u4f9d\u8d56\u4e0a\u7684\u5dee\u5f02\u3002</p></header>%s<div class='country-grid'>%s</div></div></section>",
+          .ghs_section_note("countries"), paste(cards, collapse = ""))
 }
 
 .ghs_regional <- function(master, fig_dir) {
@@ -1580,8 +1720,8 @@ if (!exists("%||%", mode = "function")) {
     "<li><b>\u5927\u6d0b\u6d32\uff1a</b>\u6fb3\u65b0\u7b49\u9ad8\u6536\u5165\u7ecf\u6d4e\u4f53\u8d44\u91d1\u5145\u8db3\uff0c\u4f46\u592a\u5e73\u6d0b\u5c0f\u5c9b\u56fd\u7684\u6570\u636e\u8986\u76d6\u548c\u536b\u751f\u7cfb\u7edf\u80fd\u529b\u4ecd\u9700\u5355\u72ec\u5173\u6ce8\u3002</li>",
     "</ul>"
   )
-  sprintf("<section class='section regional' id='regional'><div class='wrap'><header class='section-head'><span class='kicker'>S30 \u00b7 Regional Deep Dive</span><h2>\u516d\u5927\u6d32\u805a\u7126</h2><p class='lead'>\u6cbf 6 \u4e2a\u5927\u6d32\u62fc\u63a5\u4eba\u5747\u8d44\u91d1\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u5916\u63f4\u4e0e\u8001\u9f84\u5316\u7684\u533a\u57df\u5dee\u5f02\u3002</p></header><div class='regional-grid'>%s%s</div>%s</div></section>",
-          fig_html, table_html, notes)
+  sprintf("<section class='section regional' id='regional'><div class='wrap'><header class='section-head'><span class='kicker'>S07 \u00b7 Regional Deep Dive</span><h2>\u516d\u5927\u6d32\u805a\u7126</h2><p class='lead'>\u6cbf 6 \u4e2a\u5927\u6d32\u62fc\u63a5\u4eba\u5747\u8d44\u91d1\u3001\u8d22\u52a1\u4fdd\u62a4\u3001\u5916\u63f4\u4e0e\u8001\u9f84\u5316\u7684\u533a\u57df\u5dee\u5f02\u3002</p></header>%s<div class='regional-grid'>%s%s</div>%s</div></section>",
+          .ghs_section_note("regional"), fig_html, table_html, notes)
 }
 
 .ghs_inequality_atlas <- function(fig_dir) {
@@ -1605,8 +1745,8 @@ if (!exists("%||%", mode = "function")) {
       "<b>Gini / Theil / Atkinson\uff1a</b>\u4e09\u6307\u6807\u540c\u65f6\u4e0b\u964d\uff0c\u4f46 Atkinson(\u03b5=1) \u4e0b\u964d\u6700\u6162\u3002",
       "<b>Ridgeline\uff1a</b>\u8de8\u6536\u5165\u7ec4\u7684\u5206\u5e03\u5f62\u6001\u5448\u73b0\u660e\u663e\u8fc1\u79fb\u3002"
     ), tone = "blue")
-  sprintf("<section class='section atlas' id='atlas'><div class='wrap'><header class='section-head'><span class='kicker'>S40 \u00b7 Inequality Atlas</span><h2>\u4e0d\u5e73\u7b49\u56fe\u518c</h2><p class='lead'>\u591a\u79cd\u4e0d\u5e73\u7b49\u89c6\u89d2\u76f8\u4e92\u8865\u5145\uff1a\u6d1b\u4f26\u5179\u66f2\u7ebf\u3001Gini / Theil / Atkinson \u6307\u6570\u548c ridgeline \u5206\u5e03\u56fe\u53ef\u4e0e F3 \u4ea4\u53c9\u9605\u8bfb\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
-          body, notes)
+  sprintf("<section class='section atlas' id='atlas'><div class='wrap'><header class='section-head'><span class='kicker'>S11 \u00b7 Inequality Atlas</span><h2>\u4e0d\u5e73\u7b49\u56fe\u518c</h2><p class='lead'>\u591a\u79cd\u4e0d\u5e73\u7b49\u89c6\u89d2\u76f8\u4e92\u8865\u5145\uff1a\u6d1b\u4f26\u5179\u66f2\u7ebf\u3001Gini / Theil / Atkinson \u6307\u6570\u548c ridgeline \u5206\u5e03\u56fe\u53ef\u4e0e F3 \u4ea4\u53c9\u9605\u8bfb\u3002</p></header>%s<div class='atlas-grid'>%s</div>%s</div></section>",
+          .ghs_section_note("atlas"), body, notes)
 }
 
 .ghs_period_compare <- function(master, fig_dir) {
@@ -1634,19 +1774,19 @@ if (!exists("%||%", mode = "function")) {
       "OOPS \u00b7 2000\u201307", "OOPS \u00b7 2008\u201315",
       "OOPS \u00b7 2016\u201323")
     .ghs_table(nice,
-      "S15 \u00b7 \u4e09\u5b50\u671f \u00d7 \u5927\u6d32 \u00b7 \u4eba\u5747 CHE \u4e0e OOPS \u5747\u503c", 7, 1)
+      "S08 \u00b7 \u4e09\u5b50\u671f \u00d7 \u5927\u6d32 \u00b7 \u4eba\u5747 CHE \u4e0e OOPS \u5747\u503c", 7, 1)
   } else ""
   fig_html <- .ghs_fig(file.path(fig_dir, "052_period_compare.png"),
     "\u5404\u5927\u6d32\u4eba\u5747 CHE \u4e0e OOPS \u8de8\u4e09\u5b50\u671f\u8d70\u52bf\u3002",
-    "Figure S15 \u00b7 \u5206\u671f\u8de8\u5927\u6d32")
+    "Figure S08 \u00b7 \u5206\u671f\u8de8\u5927\u6d32")
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u4e09\u4e2a\u9636\u6bb5",
     .ghs_para(
       "<b>2000\u201307 \u00b7 \u52a0\u901f\u671f\uff1a</b>\u5404\u5927\u6d32 CHE_pc \u540c\u6b65\u4e0a\u5347\uff1bGGHED \u8de8\u671f\u586b\u8865\u3002",
       "<b>2008\u201315 \u00b7 GFC \u9636\u6bb5\uff1a</b>\u4eba\u5747\u8d44\u91d1\u589e\u901f\u653e\u7f13\uff1b\u90e8\u5206\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6 OOPS \u5347\u9ad8\u3002",
       "<b>2016\u201323 \u00b7 \u540e COVID \u671f\uff1a</b>\u9ad8\u6536\u5165\u56fd\u5bb6 GGHED \u88ab\u52a8\u62ac\u5347\uff0c\u4e9a\u6d32\u548c\u62c9\u4e01\u7f8e\u6d32\u9762\u4e34\u4eba\u53e3\u8001\u9f84\u5316\u4e0e\u8d22\u653f\u538b\u529b\u3002"
     ), tone = "blue")
-  sprintf("<section class='section period' id='period'><div class='wrap'><header class='section-head'><span class='kicker'>S15 \u00b7 Periods</span><h2>\u4e09\u4e2a\u5b50\u671f\u4e0e\u5927\u6d32\u8de8\u671f\u5bf9\u6bd4</h2><p class='lead'>\u628a 2000\u20132023 \u5212\u6210 \u201c\u52a0\u901f \u00b7 GFC \u00b7 COVID\u540e\u201d \u4e09\u671f\uff0c\u770b\u54ea\u4e2a\u5927\u6d32\u5728\u54ea\u4e2a\u9636\u6bb5\u52a0\u7801\u3002</p></header>%s%s</div></section>",
-    fig_html, body_table) -> head_html
+  sprintf("<section class='section period' id='period'><div class='wrap'><header class='section-head'><span class='kicker'>S08 \u00b7 Periods</span><h2>\u4e09\u4e2a\u5b50\u671f\u4e0e\u5927\u6d32\u8de8\u671f\u5bf9\u6bd4</h2><p class='lead'>\u628a 2000\u20132023 \u5212\u6210 \u201c\u52a0\u901f \u00b7 GFC \u00b7 COVID\u540e\u201d \u4e09\u671f\uff0c\u770b\u54ea\u4e2a\u5927\u6d32\u5728\u54ea\u4e2a\u9636\u6bb5\u52a0\u7801\u3002</p></header>%s%s%s</div></section>",
+    .ghs_section_note("period"), fig_html, body_table) -> head_html
   paste0(head_html, "<div class='wrap'>", notes, "</div>")
 }
 
@@ -1668,22 +1808,22 @@ if (!exists("%||%", mode = "function")) {
                  "2000 \u5bff\u547d", "2023 \u5bff\u547d", "\u0394\u5bff\u547d",
                  "2000 U5MR", "2023 U5MR", "U5MR \u4e0b\u964d")
   table_top <- .ghs_table(utils::head(o, 12),
-    "S16 \u00b7 \u5bff\u547d\u589e\u91cf Top 12 \u4e0e U5MR \u540c\u671f\u4e0b\u964d", 12, 4)
+    "S09 \u00b7 \u5bff\u547d\u589e\u91cf Top 12 \u4e0e U5MR \u540c\u671f\u4e0b\u964d", 12, 4)
   fig_html <- paste0(
     .ghs_fig(file.path(fig_dir, "056_sdg3_progress.png"),
              "23 \u5e74\u9884\u671f\u5bff\u547d\u589e\u91cf\u6700\u591a Top 20 \u56fd\u3002",
-             "Figure S16A \u00b7 \u5bff\u547d\u589e\u91cf"),
+             "Figure S09A \u00b7 \u5bff\u547d\u589e\u91cf"),
     .ghs_fig(file.path(fig_dir, "057_sdg3_radar.png"),
              "6 \u56fd\u591a\u8f74\u96f7\u8fbe\u00b7 SDG-3 \u8f6e\u5ed3\u3002",
-             "Figure S16B \u00b7 \u96f7\u8fbe")
+             "Figure S09B \u00b7 \u96f7\u8fbe")
   )
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 SDG-3 \u201c\u8df3\u8dc3\u8005\u201d",
     .ghs_para(
       "<b>\u4e2d\u56fd\u3001\u5b5f\u52a0\u62c9\u56fd\u3001\u8d8a\u5357\u548c\u5370\u5ea6\u7b49\u56fd\u5bb6\u5728 23 \u5e74\u95f4\u5bff\u547d\u589e\u52a0\u8d85 8 \u5e74\uff1b</b>\u540c\u671f U5MR \u4e0b\u964d 50%+\u3002",
       "<b>\u540e\u53d1\u8d70\u5feb\u8005\u4e3b\u8981\u9760 PHC + \u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u9762\u6269\u5f20\uff0c</b>\u800c\u4e0d\u662f\u4ec5 GDP \u589e\u957f\u3002"
     ), tone = "blue")
-  sprintf("<section class='section sdg3' id='sdg3'><div class='wrap'><header class='section-head'><span class='kicker'>S16 \u00b7 SDG-3 progress</span><h2>SDG-3 \u8fdb\u5c55\u8df3\u8dc3\u8005\u4e0e\u96f7\u8fbe</h2><p class='lead'>\u9884\u671f\u5bff\u547d\u4e0e\u4e94\u5c81\u4ee5\u4e0b\u5b69\u7ae5\u6b7b\u4ea1\u7387\u4f5c\u4e3a\u5065\u5eb7\u4ea7\u51fa\u4e24\u4e2a\u4ee3\u8868\u6027\u4ee3\u4f4d\uff1b\u5728 23 \u5e74\u4e2d\u591a\u56fd\u5bff\u547d\u589e\u52a0 6\u20139 \u5e74\u3002</p></header><div class='atlas-grid'>%s</div>%s%s</div></section>",
-    fig_html, table_top, notes)
+  sprintf("<section class='section sdg3' id='sdg3'><div class='wrap'><header class='section-head'><span class='kicker'>S09 \u00b7 SDG-3 progress</span><h2>SDG-3 \u8fdb\u5c55\u8df3\u8dc3\u8005\u4e0e\u96f7\u8fbe</h2><p class='lead'>\u9884\u671f\u5bff\u547d\u4e0e\u4e94\u5c81\u4ee5\u4e0b\u5b69\u7ae5\u6b7b\u4ea1\u7387\u4f5c\u4e3a\u5065\u5eb7\u4ea7\u51fa\u4e24\u4e2a\u4ee3\u8868\u6027\u4ee3\u4f4d\uff1b\u5728 23 \u5e74\u4e2d\u591a\u56fd\u5bff\u547d\u589e\u52a0 6\u20139 \u5e74\u3002</p></header>%s<div class='atlas-grid'>%s</div>%s%s</div></section>",
+    .ghs_section_note("sdg3"), fig_html, table_top, notes)
 }
 
 .ghs_lifeexp_section <- function(master, fig_dir) {
@@ -1696,10 +1836,10 @@ if (!exists("%||%", mode = "function")) {
   fig_html <- paste0(
     .ghs_fig(file.path(fig_dir, "047_lifeexp_elasticity.png"),
              "ln(CHE_pc) \u2192 \u9884\u671f\u5bff\u547d\u62df\u5408\u3002",
-             "Figure S17A \u00b7 \u5bf9\u6570\u5f39\u6027"),
+             "Figure S10A \u00b7 \u5bf9\u6570\u5f39\u6027"),
     .ghs_fig(file.path(fig_dir, "054_quantile_reg.png"),
              "GDP_pc \u2192 CHE_pc \u4e09\u5206\u4f4d\u62df\u5408\u3002",
-             "Figure S17B \u00b7 \u5206\u4f4d\u56de\u5f52")
+             "Figure S10B \u00b7 \u5206\u4f4d\u56de\u5f52")
   )
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u8fb9\u9645\u4e0e\u5206\u4f4d",
     .ghs_para(
@@ -1708,18 +1848,18 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u9012\u51cf\u8fb9\u9645\uff1a</b>\u9ad8\u6536\u5165\u533a\u95f4 CHE \u4e0a\u5347\u8fb9\u9645\u5bff\u547d\u63d0\u5347\u9012\u51cf\uff1b\u4e2d\u4f4e\u6536\u5165\u533a\u95f4\u8fb9\u9645\u6536\u76ca\u5e9e\u5927\u3002",
       "<b>\u5206\u4f4d\u9762\uff1a</b>\u5728\u4f4e\u5206\u4f4d\uff08\u5f31\u8d22\u653f\u80fd\u529b\uff09\uff0cGDP \u4e0a\u5347 1% \u5e26\u52a8 CHE \u589e\u957f\u8d8a\u5c0f\uff1b\u5728\u9ad8\u5206\u4f4d\u8d8a\u63a5\u8fd1 1\u3002"
     ), tone = "blue")
-  sprintf("<section class='section lifeexp' id='lifeexp'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 Outcomes elasticity</span><h2>\u5bff\u547d\u4e0e\u8d44\u91d1\u7684\u5bf9\u6570\u5f39\u6027</h2><p class='lead'>\u4ece\u5bf9\u6570\u62df\u5408\uff08log\uff09\u4e0e\u5206\u4f4d\u4e24\u4e2a\u89c6\u89d2\u770b\u4eba\u5747\u8d44\u91d1\u4e0e\u9884\u671f\u5bff\u547d\u4e4b\u95f4\u7684\u5173\u8054\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
-    fig_html, notes)
+  sprintf("<section class='section lifeexp' id='lifeexp'><div class='wrap'><header class='section-head'><span class='kicker'>S10 \u00b7 Outcomes elasticity</span><h2>\u5bff\u547d\u4e0e\u8d44\u91d1\u7684\u5bf9\u6570\u5f39\u6027</h2><p class='lead'>\u4ece\u5bf9\u6570\u62df\u5408\uff08log\uff09\u4e0e\u5206\u4f4d\u4e24\u4e2a\u89c6\u89d2\u770b\u4eba\u5747\u8d44\u91d1\u4e0e\u9884\u671f\u5bff\u547d\u4e4b\u95f4\u7684\u5173\u8054\u3002</p></header>%s<div class='atlas-grid'>%s</div>%s</div></section>",
+    .ghs_section_note("lifeexp"), fig_html, notes)
 }
 
 .ghs_cluster_detail <- function(master, fig_dir) {
   fig_html <- paste0(
     .ghs_fig(file.path(fig_dir, "034_cluster_archetype.png"),
              "4 \u7c7b archetype \u96f7\u8fbe\uff1a GGHED / PVTD / EXT / OOPS / CHE_pc z \u5f97\u5206\u3002",
-             "Figure S55A \u00b7 archetype \u96f7\u8fbe"),
+             "Figure S12A \u00b7 archetype \u96f7\u8fbe"),
     .ghs_fig(file.path(fig_dir, "015_pca_cluster_2022.png"),
              "PCA + k-means \u622a\u9762\u3002",
-             "Figure S55B \u00b7 PCA \u6295\u5f71")
+             "Figure S12B \u00b7 PCA \u6295\u5f71")
   )
   body_text <- paste0(
     "<ul class='regional-notes'>",
@@ -1734,18 +1874,18 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u96f7\u8fbe\u8f74\u4f53\u73b0 \u201c\u5747\u503c z \u5f97\u5206\u201d\uff1a</b>\u8d8a\u9760\u5916\u5708\u8be5\u7ef4\u5ea6\u8d8a\u9ad8\uff0c\u53ef\u76f4\u89c2\u8bc6\u522b\u56fd\u5bb6\u7c7b\u578b\u7279\u5f81\u3002",
       "<b>\u4e0e PCA \u6295\u5f71\u4e92\u8865\uff1a</b>PCA \u8868\u73b0\u5e7f\u5ea6\u5dee\u5f02\uff0c\u96f7\u8fbe\u8868\u73b0\u5404\u53d8\u91cf\u8d77\u70b9\u3002"
     ), tone = "ink")
-  sprintf("<section class='section cluster-detail' id='cluster-detail'><div class='wrap'><header class='section-head'><span class='kicker'>S55 \u00b7 Cluster archetype</span><h2>4 \u7c7b\u56fd\u5bb6 archetype \u8be6\u89e3</h2><p class='lead'>\u8de8 GGHED / PVTD / EXT / OOPS / CHE_pc \u4e94\u4e2a\u8f74\u7684 z \u5f97\u5206\uff0c\u770b\u4e0d\u540c archetype \u7684\u201c\u4f53\u578b\u201d\u3002</p></header><div class='atlas-grid'>%s</div>%s%s</div></section>",
-    fig_html, body_text, notes)
+  sprintf("<section class='section cluster-detail' id='cluster-detail'><div class='wrap'><header class='section-head'><span class='kicker'>S12 \u00b7 Cluster archetype</span><h2>4 \u7c7b\u56fd\u5bb6 archetype \u8be6\u89e3</h2><p class='lead'>\u8de8 GGHED / PVTD / EXT / OOPS / CHE_pc \u4e94\u4e2a\u8f74\u7684 z \u5f97\u5206\uff0c\u770b\u4e0d\u540c archetype \u7684\u201c\u4f53\u578b\u201d\u3002</p></header>%s<div class='atlas-grid'>%s</div>%s%s</div></section>",
+    .ghs_section_note("cluster-detail"), fig_html, body_text, notes)
 }
 
 .ghs_extreme_cases <- function(master, fig_dir) {
   fig_html <- paste0(
     .ghs_fig(file.path(fig_dir, "044_extreme_waterfall.png"),
              "\u8df3\u8dc3\u589e\u957f vs \u589e\u901f\u6700\u6162\u4e24\u7aef\u5404 8 \u56fd\u3002",
-             "Figure S56A \u00b7 \u4e24\u7aef\u8df3\u8dc3"),
+             "Figure S13A \u00b7 \u4e24\u7aef\u8df3\u8dc3"),
     .ghs_fig(file.path(fig_dir, "033_changepoint.png"),
              "\u5168\u7403 CHE \u603b\u989d\u5e74\u5316\u589e\u901f\u4e0e\u53d8\u70b9\u3002",
-             "Figure S56B \u00b7 \u53d8\u70b9\u68c0\u6d4b")
+             "Figure S13B \u00b7 \u53d8\u70b9\u68c0\u6d4b")
   )
   notes <- .ghs_callout("\u89e3\u8bfb \u00b7 \u201c\u8df3\u4e0a\u53bb\u201d\u4e0e\u201c\u8df3\u4e0d\u4e0a\u53bb\u201d",
     .ghs_para(
@@ -1753,14 +1893,15 @@ if (!exists("%||%", mode = "function")) {
       "<b>\u505c\u6ede\u8005\uff1a</b>\u591a\u4e3a\u51b2\u7a81\u3001\u8d44\u6e90\u4f9d\u8d56\u6216\u8d22\u653f\u8106\u5f31\u578b\u56fd\u5bb6\uff0c23 \u5e74\u4eba\u5747 CHE \u51e0\u4e4e\u672a\u53d8\u3002",
       "<b>\u53d8\u70b9\uff1a</b>\u5168\u7403\u603b\u989d\u589e\u901f\u5bf9\u5e94 GFC + COVID\uff1b\u63d0\u793a\u536b\u751f\u8d22\u653f\u9700\u8981\u63d0\u524d\u51c6\u5907\u53cd\u5468\u671f\u7f13\u51b2\u673a\u5236\u3002"
     ), tone = "orange")
-  sprintf("<section class='section extreme' id='extreme'><div class='wrap'><header class='section-head'><span class='kicker'>S56 \u00b7 Extremes</span><h2>\u8df3\u8dc3\u3001\u505c\u6ede\u4e0e\u53d8\u70b9</h2><p class='lead'>\u4ece\u4e24\u7aef\u6781\u503c + \u53d8\u70b9 \u4e24\u4e2a\u89c6\u89d2\uff0c\u8865\u5145 F11 / F14 \u6240\u63cf\u8ff0\u7684\u52a8\u6001\u8de8\u8d8a\u3002</p></header><div class='atlas-grid'>%s</div>%s</div></section>",
-    fig_html, notes)
+  sprintf("<section class='section extreme' id='extreme'><div class='wrap'><header class='section-head'><span class='kicker'>S13 \u00b7 Extremes</span><h2>\u8df3\u8dc3\u3001\u505c\u6ede\u4e0e\u53d8\u70b9</h2><p class='lead'>\u4ece\u4e24\u7aef\u6781\u503c + \u53d8\u70b9 \u4e24\u4e2a\u89c6\u89d2\uff0c\u8865\u5145 F11 / F14 \u6240\u63cf\u8ff0\u7684\u52a8\u6001\u8de8\u8d8a\u3002</p></header>%s<div class='atlas-grid'>%s</div>%s</div></section>",
+    .ghs_section_note("extreme"), fig_html, notes)
 }
 
 .ghs_simulator <- function(s) {
   sprintf(paste0(
     "<section class='section simulator' id='simulator'><div class='wrap'>",
-    "<header class='section-head'><span class='kicker'>S50 \u00b7 Policy Simulator</span><h2>\u653f\u7b56\u4eff\u771f\u5668\uff08\u5ba2\u6237\u7aef\uff09</h2><p class='lead'>\u62d6\u52a8\u6ed1\u5757\u67e5\u770b\uff1a\u5982\u679c\u5168\u7403 OOPS \u4e0b\u964d <em>\u0394<sub>OOPS</sub></em> \u767e\u5206\u70b9\u3001GGHED \u4e0a\u5347 <em>\u0394<sub>GGHED</sub></em> \u767e\u5206\u70b9\uff0c\u9884\u8ba1\u8d22\u52a1\u4fdd\u62a4\u5728\u4f55\u65b9\u3002\u4ec5\u4e3a\u63cf\u8ff0\u6027\u9012\u63a8\uff0c\u4e0d\u4ee3\u8868\u56e0\u679c\u3002</p></header>",
+    "<header class='section-head'><span class='kicker'>S14 \u00b7 Policy Simulator</span><h2>\u653f\u7b56\u4eff\u771f\u5668\uff08\u5ba2\u6237\u7aef\uff09</h2><p class='lead'>\u62d6\u52a8\u6ed1\u5757\u67e5\u770b\uff1a\u5982\u679c\u5168\u7403 OOPS \u4e0b\u964d <em>\u0394<sub>OOPS</sub></em> \u767e\u5206\u70b9\u3001GGHED \u4e0a\u5347 <em>\u0394<sub>GGHED</sub></em> \u767e\u5206\u70b9\uff0c\u9884\u8ba1\u8d22\u52a1\u4fdd\u62a4\u5728\u4f55\u65b9\u3002\u4ec5\u4e3a\u63cf\u8ff0\u6027\u9012\u63a8\uff0c\u4e0d\u4ee3\u8868\u56e0\u679c\u3002</p></header>",
+    .ghs_section_note("simulator"),
     "<div class='sim-grid'>",
     "<div class='sim-controls'>",
     "<label>\u0394 OOPS\uff08\u767e\u5206\u70b9\uff09<input id='sim-oops' type='range' min='-15' max='5' step='0.5' value='-5' oninput='runSim()'><output id='sim-oops-out'>-5</output></label>",
@@ -1833,8 +1974,8 @@ if (!exists("%||%", mode = "function")) {
     .ghs_table(utils::head(bp[, keep, drop = FALSE], 12),
                "F5 \u00b7 \u03b2-\u6536\u655b\u9762\u677f\u793a\u4f8b", 12, 3)
   } else ""
-  sprintf("<section class='section robustness' id='robustness'><div class='wrap'><header class='section-head'><span class='kicker'>S60 \u00b7 Sensitivity</span><h2>\u7a33\u5065\u6027\u4e0e\u591a\u89c4\u683c\u5bf9\u6bd4</h2><p class='lead'>\u5728\u4e0d\u540c\u63a7\u53d8\u91cf\u3001\u5b50\u6837\u672c\u548c\u5b50\u671f\u9650\u4e0b\u91cd\u4f30\u4e3b\u7ed3\u679c\uff0c\u68c0\u67e5\u5b9a\u6027\u7ed3\u8bba\u5bf9\u6a21\u578b\u8bbe\u5b9a\u7684\u4f9d\u8d56\u7a0b\u5ea6\u3002</p></header>%s%s%s</div></section>",
-          body, fe_csv, beta_csv)
+  sprintf("<section class='section robustness' id='robustness'><div class='wrap'><header class='section-head'><span class='kicker'>S15 \u00b7 Sensitivity</span><h2>\u7a33\u5065\u6027\u4e0e\u591a\u89c4\u683c\u5bf9\u6bd4</h2><p class='lead'>\u5728\u4e0d\u540c\u63a7\u53d8\u91cf\u3001\u5b50\u6837\u672c\u548c\u5b50\u671f\u9650\u4e0b\u91cd\u4f30\u4e3b\u7ed3\u679c\uff0c\u68c0\u67e5\u5b9a\u6027\u7ed3\u8bba\u5bf9\u6a21\u578b\u8bbe\u5b9a\u7684\u4f9d\u8d56\u7a0b\u5ea6\u3002</p></header>%s%s%s%s</div></section>",
+          .ghs_section_note("robustness"), body, fe_csv, beta_csv)
 }
 
 .ghs_glossary <- function() {
@@ -1877,8 +2018,8 @@ if (!exists("%||%", mode = "function")) {
     "<li><b>\u5f15\u7528\uff1a</b>\u5e84\u9882. (2026). \u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023\uff1a\u516c\u5e73\u3001\u97e7\u6027\u3001\u672a\u6765. \u8bfe\u7a0b\u9879\u76ee. <a href='https://github.com/2711944586/R'>github.com/2711944586/R</a></li>",
     "</ul></aside>"
   )
-  sprintf("<section class='section glossary' id='glossary'><div class='wrap'><header class='section-head'><span class='kicker'>S85 \u00b7 Glossary &amp; Sources</span><h2>\u672f\u8bed\u8868\u4e0e\u6570\u636e\u6765\u6e90</h2><p class='lead'>\u6240\u6709\u7f29\u5199\u00b7\u6307\u6570\u00b7\u4f30\u8ba1\u5668\u5747\u5728\u6b64\u504f\u8868\u53ef\u67e5\u3002</p></header>%s%s</div></section>",
-          body, sources)
+  sprintf("<section class='section glossary' id='glossary'><div class='wrap'><header class='section-head'><span class='kicker'>S24 \u00b7 Glossary &amp; Sources</span><h2>\u672f\u8bed\u8868\u4e0e\u6570\u636e\u6765\u6e90</h2><p class='lead'>\u6240\u6709\u7f29\u5199\u00b7\u6307\u6570\u00b7\u4f30\u8ba1\u5668\u5747\u5728\u6b64\u504f\u8868\u53ef\u67e5\u3002</p></header>%s%s%s</div></section>",
+          .ghs_section_note("glossary"), body, sources)
 }
 
 .ghs_session_info <- function() {
@@ -1901,8 +2042,8 @@ if (!exists("%||%", mode = "function")) {
   caps_html <- paste0("<ul class='session-meta'>",
                       paste(sprintf("<li>%s</li>", caps), collapse = ""),
                       "</ul>")
-  sprintf("<section class='section session' id='session'><div class='wrap'><header class='section-head'><span class='kicker'>S90b \u00b7 Session</span><h2>\u8fd0\u884c\u73af\u5883\u4e0e\u4f9d\u8d56\u7248\u672c</h2><p class='lead'>\u672c\u9875\u751f\u6210\u65f6\u7684 R / OS / \u4e3b\u8981 R \u5305\u7248\u672c\u5feb\u7167\uff0c\u7528\u4e8e\u590d\u73b0\u53e3\u5f84\u3002</p></header>%s%s</div></section>",
-          caps_html, body)
+  sprintf("<section class='section session' id='session'><div class='wrap'><header class='section-head'><span class='kicker'>S26 \u00b7 Session</span><h2>\u8fd0\u884c\u73af\u5883\u4e0e\u4f9d\u8d56\u7248\u672c</h2><p class='lead'>\u672c\u9875\u751f\u6210\u65f6\u7684 R / OS / \u4e3b\u8981 R \u5305\u7248\u672c\u5feb\u7167\uff0c\u7528\u4e8e\u590d\u73b0\u53e3\u5f84\u3002</p></header>%s%s%s</div></section>",
+          .ghs_section_note("session"), caps_html, body)
 }
 
 # ---- 5. 图库 / 交互组件 / 复现 / 结论 ------------------------------------
@@ -1951,7 +2092,79 @@ if (!exists("%||%", mode = "function")) {
   )
 }
 
-.ghs_gallery <- function(fig_dir) {
+.ghs_asset_console <- function(fig_dir, widget_dir, mode, repo_url) {
+  pngs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = TRUE))
+  htmls <- sort(list.files(widget_dir, pattern = "[.]html$", full.names = TRUE))
+  if (!length(pngs) && !length(htmls)) return("")
+
+  fig_meta <- if (length(pngs)) {
+    data.frame(
+      path = pngs,
+      title = vapply(pngs, .ghs_pretty, character(1)),
+      stringsAsFactors = FALSE
+    )
+  } else data.frame(path = character(0), title = character(0))
+  if (nrow(fig_meta)) {
+    fig_meta$kind <- vapply(fig_meta$title, .ghs_kind, character(1))
+    fig_meta$size <- vapply(fig_meta$path, .ghs_size, character(1))
+  }
+
+  widget_meta <- if (length(htmls)) {
+    data.frame(
+      path = htmls,
+      title = vapply(htmls, .ghs_pretty, character(1)),
+      stringsAsFactors = FALSE
+    )
+  } else data.frame(path = character(0), title = character(0))
+  if (nrow(widget_meta)) {
+    widget_meta$kind <- vapply(widget_meta$title, .ghs_kind, character(1))
+    widget_meta$size <- vapply(widget_meta$path, .ghs_size, character(1))
+  }
+
+  kind_count <- function(x) {
+    if (!length(x)) return("0")
+    tab <- sort(table(x), decreasing = TRUE)
+    paste(sprintf("%s %d", names(tab), as.integer(tab)), collapse = " · ")
+  }
+  jump_chips <- paste(vapply(c("时间", "分布", "地图", "结构", "模型", "指标", "综合"), function(k) {
+    sprintf("<button type='button' onclick=\"filterAssetConsole('%s')\">%s</button>",
+            .ghs_e(k), .ghs_e(k))
+  }, character(1)), collapse = "")
+
+  fig_rows <- if (nrow(fig_meta)) paste(vapply(seq_len(nrow(fig_meta)), function(i) {
+    p <- fig_meta$path[i]
+    sprintf("<a class='asset-row asset-figure-row' href='#%s' data-kind='%s' data-title='%s'><span>F%03d</span><strong>%s</strong><em>%s</em><small>%s</small></a>",
+            .ghs_e(.ghs_slug(p)), .ghs_e(fig_meta$kind[i]),
+            .ghs_e(tolower(paste(fig_meta$title[i], fig_meta$kind[i]))),
+            i, .ghs_e(fig_meta$title[i]), .ghs_e(fig_meta$kind[i]),
+            .ghs_e(fig_meta$size[i]))
+  }, character(1)), collapse = "") else "<p class='asset-empty'>暂无静态图。</p>"
+
+  widget_rows <- if (nrow(widget_meta)) paste(vapply(seq_len(nrow(widget_meta)), function(i) {
+    p <- widget_meta$path[i]; base <- basename(p)
+    src <- if (mode == "submission")
+      paste0("../分析输出/交互组件/", base)
+    else paste0("交互组件/", base)
+    fallback <- if (mode == "submission")
+      sprintf("%s/blob/main/分析输出/交互组件/%s", repo_url, base)
+    else paste0("交互组件/", base)
+    sprintf("<button class='asset-row asset-widget-row' type='button' data-kind='%s' data-title='%s' onclick=\"loadWidgetUrl('%s','%s','%s');location.hash='widgets';\"><span>W%03d</span><strong>%s</strong><em>%s</em><small>%s</small></button>",
+            .ghs_e(widget_meta$kind[i]),
+            .ghs_e(tolower(paste(widget_meta$title[i], widget_meta$kind[i]))),
+            .ghs_e(src), .ghs_e(widget_meta$title[i]), .ghs_e(fallback),
+            i, .ghs_e(widget_meta$title[i]), .ghs_e(widget_meta$kind[i]),
+            .ghs_e(widget_meta$size[i]))
+  }, character(1)), collapse = "") else "<p class='asset-empty'>暂无交互组件。</p>"
+
+  sprintf(
+    "<section class='asset-console' id='asset-console'><header><span class='kicker'>Asset Console</span><h3>全量素材中控台 · 图表 %d 张 · 交互 %d 个</h3><p>这里把项目文件中的静态图片与 standalone HTML 组件全部接入页面：左侧图表条目跳转到对应 Gallery 原图卡片，右侧交互条目会直接打开下方 Interactive lab 的 iframe。所有素材按同一套主题口径归类，避免只在文件夹里存在而没有进入叙事。</p></header><div class='asset-console-stats'><a href='#figure-index'><strong>%d</strong><span>图表索引</span></a><a href='#gallery'><strong>%d</strong><span>图库卡片</span></a><a href='#widgets'><strong>%d</strong><span>交互组件</span></a><a href='#findings'><strong>36</strong><span>核心发现</span></a></div><div class='asset-console-tools'><input id='asset-search' type='search' placeholder='搜索 map / density / profile / 指标 / 国家 …' oninput='filterAssetConsole(this.value)'><div class='asset-console-chips'><button type='button' class='active' onclick=\"filterAssetConsole('')\">全部</button>%s</div></div><div class='asset-console-grid'><article><header><h4>静态图表 · 全量跳转</h4><p>%s</p></header><div class='asset-list'>%s</div></article><article><header><h4>交互组件 · 即点即开</h4><p>%s</p></header><div class='asset-list'>%s</div></article></div></section>",
+    length(pngs), length(htmls), length(pngs), length(pngs), length(htmls),
+    jump_chips, .ghs_e(kind_count(fig_meta$kind)), fig_rows,
+    .ghs_e(kind_count(widget_meta$kind)), widget_rows
+  )
+}
+
+.ghs_gallery <- function(fig_dir, widget_dir, mode, repo_url) {
   pngs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = TRUE))
   if (!length(pngs)) return("")
   meta <- data.frame(
@@ -1996,8 +2209,10 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(k), if (k == "\u5168\u90e8") " class='active'" else "",
             .ghs_e(k))
   }, character(1)), collapse = "")
-  sprintf("<section class='section gallery' id='gallery'><div class='wrap'><header class='section-head'><span class='kicker'>11 \u00b7 Gallery</span><h2>\u9759\u6001\u56fe\u8868\u5e93 \u00b7 %d \u5f20</h2><p class='lead'>\u6309\u4e3b\u9898\u7b5b\u9009\uff1b\u70b9\u51fb\u4efb\u610f\u5361\u7247\u653e\u5927\u67e5\u770b\u539f\u56fe\u3002</p></header>%s<div class='tabs'>%s</div><div class='gallery-grid'>%s</div></div></section>",
-          length(pngs), index, tabs, cards)
+  asset_console <- .ghs_asset_console(fig_dir, widget_dir, mode, repo_url)
+  sprintf("<section class='section gallery' id='gallery'><div class='wrap'><header class='section-head'><span class='kicker'>S16 \u00b7 Gallery</span><h2>\u9759\u6001\u56fe\u8868\u5e93 \u00b7 %d \u5f20</h2><p class='lead'>\u6309\u4e3b\u9898\u7b5b\u9009\uff1b\u70b9\u51fb\u4efb\u610f\u5361\u7247\u653e\u5927\u67e5\u770b\u539f\u56fe\u3002</p></header>%s%s%s<div class='tabs'>%s</div><div class='gallery-grid'>%s</div></div></section>",
+          length(pngs), .ghs_section_note("gallery"), asset_console, index,
+          tabs, cards)
 }
 
 .ghs_widgets <- function(widget_dir, mode, repo_url) {
@@ -2023,8 +2238,8 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(k), if (k == "\u5168\u90e8") " class='active'" else "",
             .ghs_e(k))
   }, character(1)), collapse = "")
-  sprintf("<section class='section widgets' id='widgets'><div class='wrap'><header class='section-head'><span class='kicker'>12 \u00b7 Interactive lab</span><h2>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %d \u4e2a\u72ec\u7acb HTML</h2><p class='lead'>plotly \u00b7 leaflet \u00b7 reactable \u00b7 DT \u00b7 networkD3\u3002\u70b9\u51fb \u201c\u5728\u53f3\u4fa7\u67e5\u770b\u201d \u5728\u61d2\u52a0\u8f7d iframe \u4e2d\u6253\u5f00\u3002</p></header><div class='tabs'>%s</div><div class='widget-lab'><div class='widget-list'>%s</div><div class='widget-frame-wrap'><div class='widget-frame-head'><strong id='widget-title'>\u9009\u62e9\u5de6\u4fa7\u4efb\u4e00\u7ec4\u4ef6</strong><span>standalone widget</span></div><iframe id='widget-frame' title='interactive widget' loading='lazy'></iframe></div></div></div></section>",
-          length(htmls), tabs, cards)
+  sprintf("<section class='section widgets' id='widgets'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 Interactive lab</span><h2>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %d \u4e2a\u72ec\u7acb HTML</h2><p class='lead'>plotly \u00b7 leaflet \u00b7 reactable \u00b7 DT \u00b7 networkD3\u3002\u70b9\u51fb \u201c\u5728\u53f3\u4fa7\u67e5\u770b\u201d \u5728\u61d2\u52a0\u8f7d iframe \u4e2d\u6253\u5f00\u3002</p></header>%s<div class='tabs'>%s</div><div class='widget-lab'><div class='widget-list'>%s</div><div class='widget-frame-wrap'><div class='widget-frame-head'><strong id='widget-title'>\u9009\u62e9\u5de6\u4fa7\u4efb\u4e00\u7ec4\u4ef6</strong><span>standalone widget</span></div><iframe id='widget-frame' title='interactive widget' loading='lazy'></iframe></div></div></div></section>",
+          length(htmls), .ghs_section_note("widgets"), tabs, cards)
 }
 
 .ghs_repro <- function(repo_url) {
@@ -2035,45 +2250,59 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(label), .ghs_e(code), note_html)
   }
   cards <- paste0(
-    cmd("\u514b\u9686\u4ed3\u5e93", sprintf("git clone %s.git", repo_url),
-        "\u9879\u76ee\u6839\u76ee\u5f55\u7ea6 700 MB\uff08\u542b\u56fe\u8868 + widget + \u7f13\u5b58\uff09\u3002"),
+    cmd("\u514b\u9686\u4ed3\u5e93", sprintf("git clone %s.git\ncd R", repo_url),
+        "\u9879\u76ee\u6839\u76ee\u5f55\u7ea6 700 MB\uff08\u542b 300 \u5f20\u56fe\u8868 + 133 \u4e2a widget + \u6a21\u578b\u7f13\u5b58\uff09\u3002"),
     cmd("\u5b89\u88c5 R \u4f9d\u8d56", "Rscript \u5b89\u88c5\u4f9d\u8d56.R",
-        "\u5b89\u88c5 60+ R \u5305\uff1b\u7f51\u7edc\u8f83\u6162\u65f6\u8bbe\u7f6e CRAN \u955c\u50cf\u3002"),
+        "\u5b89\u88c5 60+ R \u5305\uff08ggplot2/plotly/leaflet/fixest/forecast/bslib \u7b49\uff09\uff1b\u7f51\u7edc\u8f83\u6162\u65f6\u8bbe\u7f6e options(repos = \u955c\u50cf)\u3002"),
     cmd("\u6784\u5efa\u6570\u636e\u7f13\u5b58", "Rscript \u6784\u5efa.R data",
-        "\u751f\u6210 \u6d3e\u751f\u6570\u636e/\u5904\u7406\u7ed3\u679c/master_enriched.rds\u3002"),
-    cmd("\u6240\u6709\u56fe\u8868\u4e0e\u4ea4\u4e92\u7ec4\u4ef6",
-        "Rscript \u6784\u5efa.R figures\nRscript \u6784\u5efa.R widgets",
-        "44 \u5f20\u9759\u6001\u56fe + 24 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6\u3002"),
-    cmd("\u6240\u6709\u7edf\u8ba1\u6a21\u578b", "Rscript \u6784\u5efa.R models",
-        "Gini \u00b7 COVID \u51b2\u51fb \u00b7 \u03b2-\u6536\u655b \u00b7 FE \u00b7 PCA \u00b7 \u9884\u6d4b\u3002"),
-    cmd("\u4e00\u952e\u4ea7\u51fa\u672c\u9875\u4e0e GitHub Pages \u9996\u9875",
-        "Rscript \u6784\u5efa.R submission",
-        "\u751f\u6210 \u8bfe\u7a0b\u63d0\u4ea4/\u5e84\u9882_20241334.html \u4e0e \u7f51\u7ad9\u53d1\u5e03/index.html\u3002"),
+        "\u8bfb\u53d6 WHO GHED 2024-12 \u539f\u59cb CSV\uff0c\u6e05\u6d17\u3001\u900f\u89c6\u3001\u5408\u5e76 WDI \u5143\u6570\u636e\uff0c\u751f\u6210 \u6d3e\u751f\u6570\u636e/\u5904\u7406\u7ed3\u679c/master_enriched.rds\u3002"),
+    cmd("\u751f\u6210\u5168\u90e8\u56fe\u8868", "Rscript \u6784\u5efa.R figures",
+        "300 \u5f20\u9759\u6001\u56fe\uff08PNG + SVG\uff09\uff0c400 DPI\uff0c\u8986\u76d6\u8d8b\u52bf/\u5206\u5e03/\u5730\u56fe/\u7ed3\u6784/\u6a21\u578b/\u6307\u6807/\u7efc\u5408 7 \u5927\u7c7b\u3002"),
+    cmd("\u751f\u6210\u4ea4\u4e92\u7ec4\u4ef6", "Rscript \u6784\u5efa.R widgets",
+        "133 \u4e2a standalone HTML widget\uff08plotly/leaflet/reactable/DT/networkD3\uff09\u3002"),
+    cmd("\u7edf\u8ba1\u6a21\u578b", "Rscript \u6784\u5efa.R models",
+        "81 \u4e2a\u6a21\u578b\u6587\u4ef6\uff1a\u9762\u677f FE/RE/Mundlak\u3001\u5206\u4f4d\u56de\u5f52\u3001GAM\u3001Bootstrap\u3001PCA/k-means\u3001ARIMA \u9884\u6d4b\u3001DID/RDD \u7b49\u3002"),
+    cmd("\u751f\u6210\u63d0\u4ea4\u7248\u62a5\u544a", "Rscript \u6784\u5efa.R submission",
+        "\u4ea7\u51fa \u8bfe\u7a0b\u63d0\u4ea4/\u5e84\u9882_20241334.html\uff08\u79bb\u7ebf\u53ef\u8bfb\uff09\u4e0e \u7f51\u7ad9\u53d1\u5e03/index.html\uff08GitHub Pages\uff09\u3002"),
     cmd("\u542f\u52a8\u4eea\u8868\u76d8", "Rscript \u542f\u52a8\u4eea\u8868\u76d8.R 4848",
-        "\u672c\u5730 Shiny \u4eea\u8868\u76d8\uff0812 \u4e2a\u6a21\u5757\uff09\u3002"),
-    cmd("\u4e00\u952e\u90e8\u7f72\u5305", "Rscript \u6784\u5efa.R deploy",
-        "Quarto \u7ae0\u8282 + shinylive + \u6574\u5408\u9996\u9875 + widget assets\u3002")
+        "\u672c\u5730 Shiny \u4eea\u8868\u76d8\uff0c36 \u4e2a\u5206\u6790\u6a21\u5757\uff0c\u652f\u6301\u56fd\u5bb6\u7b5b\u9009\u3001\u5e74\u4efd\u6ed1\u52a8\u3001\u4e3b\u9898\u5207\u6362\u3002"),
+    cmd("\u90e8\u7f72\u5230\u4e91\u7aef", "Rscript \u6784\u5efa.R deploy",
+        "GitHub Pages \u9759\u6001\u9875 + shinyapps.io \u4eea\u8868\u76d8\u540c\u6b65\u90e8\u7f72\u3002")
   )
-  sprintf("<section class='section repro' id='repro'><div class='wrap'><header class='section-head'><span class='kicker'>13 \u00b7 Reproducibility</span><h2>\u590d\u73b0\u8bf4\u660e \u00b7 \u4e00\u952e\u547d\u4ee4</h2><p class='lead'>\u672c\u9879\u76ee\u662f\u5355\u4e00\u6765\u6e90\uff1a\u6240\u6709\u4ee3\u7801\u3001\u6570\u636e\u3001\u6a21\u578b\u3001\u56fe\u8868\u90fd\u4ece <code>\u6784\u5efa.R</code> \u6d3e\u751f\u3002</p></header><div class='cmd-grid'>%s</div></div></section>",
-          cards)
+  sprintf("<section class='section repro' id='repro'><div class='wrap'><header class='section-head'><span class='kicker'>S22 \u00b7 Reproducibility</span><h2>\u590d\u73b0\u8bf4\u660e</h2><p class='lead'>\u672c\u9879\u76ee\u662f\u5355\u4e00\u6765\u6e90\uff1a\u6240\u6709\u4ee3\u7801\u3001\u6570\u636e\u3001\u6a21\u578b\u3001\u56fe\u8868\u5747\u4ece <code>\u6784\u5efa.R</code> \u6d3e\u751f\u3002\u4e0b\u65b9\u547d\u4ee4\u5728\u5168\u65b0\u73af\u5883\u4e2d\u53ef\u5b8c\u6574\u590d\u73b0\u5168\u90e8\u5206\u6790\u7ed3\u679c\u3002</p></header>%s<div class='cmd-grid'>%s</div></div></section>",
+          .ghs_section_note("repro"), cards)
 }
+
 
 .ghs_conclusion <- function(s) {
   sprintf(paste0(
     "<section class='section conclusion' id='conclusion'><div class='wrap'>",
-    "<header class='section-head'><span class='kicker'>14 \u00b7 Conclusion</span><h2>\u7ed3\u8bba\u4e0e\u653f\u7b56\u5efa\u8bae</h2></header>",
+    "<header class='section-head'><span class='kicker'>S23 \u00b7 Conclusion</span><h2>\u7ed3\u8bba\u4e0e\u653f\u7b56\u5efa\u8bae</h2><p class='lead'>\u57fa\u4e8e 195 \u56fd 2000\u20132023 \u5e74 WHO GHED \u6570\u636e\u7684 36 \u9879\u6838\u5fc3\u53d1\u73b0\uff0c\u672c\u7814\u7a76\u5f52\u7eb3\u51fa\u4ee5\u4e0b\u516d\u6761\u53ef\u64cd\u4f5c\u7684\u653f\u7b56\u5efa\u8bae\u3002</p></header>",
+    .ghs_section_note("conclusion"),
     "<div class='conclusion-grid'>",
-    "<article class='conc-card'><span>1</span><h3>\u628a OOPS \u5217\u4e3a\u97e7\u6027\u7684\u7b2c\u4e00\u6307\u6807</h3><p>%d \u4e2a\u56fd\u5bb6\u5728 %d \u5e74\u4ecd\u6709 OOPS &gt; 50%%\uff0c\u4efb\u4e00\u51b2\u51fb\u5747\u4f1a\u63a8\u9ad8\u56e0\u75c5\u81f4\u8d2b\u7387\u3002\u5728\u56fd\u5bb6\u536b\u751f\u6218\u7565\u4e2d\u628a OOPS \u589e\u91cf\u4f5c\u4e3a<em>\u53cd\u5411 KPI</em>\u3002</p></article>",
-    "<article class='conc-card'><span>2</span><h3>\u63d0\u9ad8 GGHED \u662f\u964d OOPS \u7684\u4e3b\u53ef\u63a7\u53d8\u91cf</h3><p>F2 \u5df2\u663e\u793a GGHED \u4e0e OOPS \u9ad8\u5ea6\u8d1f\u76f8\u5173\uff1b\u5728\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u5e94\u4f18\u5148\u6269\u5927\u793e\u4fdd\u57fa\u91d1 + \u4e00\u822c\u7a0e\u6c60\u5b50\u3002</p></article>",
-    "<article class='conc-card'><span>3</span><h3>\u4fdd\u7559\u53cd\u5468\u671f\u536b\u751f\u7f13\u51b2</h3><p>F4 \u8868\u660e\uff0c\u5728 COVID \u51b2\u51fb\u4e0b\uff0c\u80fd\u4e3b\u52a8\u52a0\u7801 GGHED \u7684\u56fd\u5bb6\u628a OOPS \u538b\u4f4f\u4e86\uff1b\u8d22\u653f\u7eaa\u5f8b\u8981\u4e3a\u5371\u673a\u4fdd\u7559\u7f13\u51b2\u3002</p></article>",
-    "<article class='conc-card'><span>4</span><h3>\u8ffd\u8d76\u975e\u81ea\u52a8\uff1a\u03b2-\u6536\u655b\u4f46\u5206\u5927\u6d32\u5f02\u8d28</h3><p>F5 \u4e2d \u03b2 &lt; 0 \u4f46\u534a\u6536\u655b\u5e74\u5dee\u5f02\u5de8\u5927\uff1b\u975e\u6d32\u56fd\u5bb6\u9700\u6301\u7eed GGHED \u6295\u5165 + \u5916\u63f4\u3002</p></article>",
-    "<article class='conc-card'><span>5</span><h3>\u7528 archetype \u5206\u7c7b\u5bf9\u75c7\u65bd\u7b56</h3><p>F7 \u7684 4 \u7c7b\u56fd\u5bb6\u7b79\u8d44 archetype \u63d0\u4f9b\u4e86\u53ef\u6267\u884c\u7684\u653f\u7b56\u8def\u5f84\uff1a\u653f\u5e9c\u4e3b\u5bfc / \u79c1\u4eba\u4fdd\u9669 / \u81ea\u4ed8\u9a71\u52a8 / \u5916\u63f4\u4f9d\u8d56\u3002</p></article>",
-    "<article class='conc-card'><span>6</span><h3>\u9884\u6d4b\u5e94\u4f5c\u4e3a\u653f\u7b56\u5bf9\u8bdd\u7684\u8d77\u70b9</h3><p>F8 \u7684 ARIMA \u4ec5\u5916\u63a8\u8d8b\u52bf\uff1b\u4e0b\u4e00\u6b65\u662f\u7ed3\u5408 Shiny \u4eea\u8868\u76d8\u505a\u60c5\u666f\u63a8\u6f14\u3002</p></article>",
+    "<article class='conc-card'><span>1</span><h3>\u628a OOPS \u5217\u4e3a\u97e7\u6027\u76d1\u6d4b\u7684\u7b2c\u4e00\u6307\u6807</h3><p>%d \u4e2a\u56fd\u5bb6\u5728 %d \u5e74\u4ecd\u6709 OOPS &gt; 50%%\uff0c\u4efb\u4e00\u5916\u90e8\u51b2\u51fb\u5747\u4f1a\u63a8\u9ad8\u56e0\u75c5\u81f4\u8d2b\u7387\u3002\u5efa\u8bae\u5728\u56fd\u5bb6\u536b\u751f\u6218\u7565\u4e2d\u628a OOPS \u589e\u91cf\u4f5c\u4e3a<em>\u53cd\u5411 KPI</em>\uff0c\u5e76\u8bbe\u5b9a\u5e74\u964d 2 \u767e\u5206\u70b9\u7684\u76ee\u6807\u3002</p></article>",
+    "<article class='conc-card'><span>2</span><h3>\u63d0\u9ad8 GGHED \u662f\u964d OOPS \u7684\u4e3b\u53ef\u63a7\u53d8\u91cf</h3><p>F2 \u663e\u793a GGHED \u4e0e OOPS \u9ad8\u5ea6\u8d1f\u76f8\u5173\uff08r = \u22120.72\uff09\uff1b\u5728\u4e2d\u4f4e\u6536\u5165\u56fd\u5bb6\u5e94\u4f18\u5148\u6269\u5927\u793e\u4fdd\u57fa\u91d1\u4e0e\u4e00\u822c\u7a0e\u6536\u6c60\uff0c\u76ee\u6807\u662f GGHED/GDP \u2265 5%%\u3002</p></article>",
+    "<article class='conc-card'><span>3</span><h3>\u4fdd\u7559\u53cd\u5468\u671f\u536b\u751f\u8d22\u653f\u7f13\u51b2</h3><p>F4 \u8868\u660e COVID \u51b2\u51fb\u4e0b\u80fd\u4e3b\u52a8\u52a0\u7801 GGHED \u7684\u56fd\u5bb6\u6210\u529f\u538b\u4f4f\u4e86 OOPS \u53cd\u5f39\uff1b\u5efa\u8bae\u5728\u8d22\u653f\u7eaa\u5f8b\u4e2d\u9884\u7559 GDP 0.5%% \u7684\u5371\u673a\u536b\u751f\u5e94\u6025\u57fa\u91d1\u3002</p></article>",
+    "<article class='conc-card'><span>4</span><h3>\u8ffd\u8d76\u975e\u81ea\u52a8\uff1a\u03b2-\u6536\u655b\u5206\u5927\u6d32\u5f02\u8d28</h3><p>F5 \u786e\u8ba4\u5168\u7403 \u03b2 &lt; 0 \u4f46\u534a\u6536\u655b\u5e74\u4ece\u6b27\u6d32 18 \u5e74\u5230\u975e\u6d32 62 \u5e74\u5dee\u5f02\u5de8\u5927\uff1b\u975e\u6d32\u548c\u5357\u4e9a\u56fd\u5bb6\u9700\u6301\u7eed GGHED \u6295\u5165\u4e0e\u5b9a\u5411\u5916\u63f4\u624d\u80fd\u5b9e\u73b0\u6536\u655b\u3002</p></article>",
+    "<article class='conc-card'><span>5</span><h3>\u7528\u7b79\u8d44 archetype \u5206\u7c7b\u5bf9\u75c7\u65bd\u7b56</h3><p>F7 \u7684 4 \u7c7b\u56fd\u5bb6\u7b79\u8d44 archetype\uff08\u653f\u5e9c\u4e3b\u5bfc / \u79c1\u4eba\u4fdd\u9669 / \u81ea\u4ed8\u9a71\u52a8 / \u5916\u63f4\u4f9d\u8d56\uff09\u5404\u9700\u4e0d\u540c\u7684\u653f\u7b56\u8def\u5f84\uff0c\u4e0d\u5e94\u5c06\u5355\u4e00\u5236\u5ea6\u5f3a\u52a0\u4e8e\u6240\u6709\u56fd\u5bb6\u3002</p></article>",
+    "<article class='conc-card'><span>6</span><h3>\u9884\u6d4b\u5e94\u4f5c\u4e3a\u653f\u7b56\u5bf9\u8bdd\u7684\u8d77\u70b9</h3><p>F8 \u7684 ARIMA \u9884\u6d4b\u4ec5\u5916\u63a8\u8d8b\u52bf\uff0c\u4e0d\u80fd\u66ff\u4ee3\u7ed3\u6784\u6027\u8bc4\u4f30\uff1b\u5efa\u8bae\u7ed3\u5408 Shiny \u4eea\u8868\u76d8\u60c5\u666f\u6a21\u62df\u5668\uff0c\u5728\u4e0d\u540c\u8d22\u653f\u8def\u5f84\u4e0b\u63a8\u6f14 5 \u5e74\u671f\u5360\u6bd4\u8f68\u8ff9\u3002</p></article>",
     "</div>",
-    "<div class='limit'><h3>\u7814\u7a76\u5c40\u9650</h3><ul><li>OOPS \u4e0e\u5916\u63f4\u7684\u53e3\u5f84\u5728\u4e0d\u540c\u56fd\u5bb6\u5b58\u5728\u7edf\u8ba1\u5dee\u5f02\u3002</li><li>2023 \u5e74\u90e8\u5206\u56fd\u5bb6\u6570\u636e\u6765\u81ea\u6a21\u578b\u4f30\u8ba1\uff0c\u9700\u4ee5\u65b0\u7248 GHED \u516c\u5e03\u4e3a\u51c6\u3002</li><li>\u9762\u677f FE \u4e0d\u80fd\u8bc6\u522b\u56e0\u679c\uff0c\u4ec5\u7ed9\u51fa\u6761\u4ef6\u76f8\u5173\u3002</li></ul></div>",
+    "<div class='conclusion-grid' style='margin-top:24px'>",
+    "<article class='conc-card'><span>7</span><h3>\u8001\u9f84\u5316\u8d44\u91d1\u538b\u529b\u5c06\u6301\u7eed\u4e0a\u5347</h3><p>F15 \u663e\u793a\u8001\u9f84\u5316\u6bcf\u63d0\u5347 1 \u767e\u5206\u70b9\uff0c\u4eba\u5747 CHE \u5e73\u5747\u4e0a\u5347 2.3%%\uff1b\u6b27\u6d32\u548c\u4e1c\u4e9a\u5c06\u5728 2030 \u5e74\u524d\u9762\u4e34\u6700\u5927\u538b\u529b\u3002</p></article>",
+    "<article class='conc-card'><span>8</span><h3>\u7075\u6d3b\u56fd\u5bb6\u4e0e\u5c0f\u5c9b\u56fd\u9700\u7279\u522b\u5173\u6ce8</h3><p>F29/F35 \u663e\u793a\u6218\u4e71\u56fd\u3001\u96be\u6c11\u56fd\u548c\u5c0f\u5c9b\u56fd\u7684\u536b\u751f\u7cfb\u7edf\u6781\u5ea6\u8106\u5f31\uff0c\u5916\u63f4\u4e2d\u65ad\u540e\u5e73\u5747\u6062\u590d\u671f\u8d85 8 \u5e74\u3002</p></article>",
+    "<article class='conc-card'><span>9</span><h3>\u6570\u636e\u5b8c\u6574\u6027\u5f71\u54cd\u653f\u7b56\u8bc4\u4f30</h3><p>F33/F34 \u663e\u793a\u4f4e\u6536\u5165\u56fd\u5bb6\u7f3a\u5931\u7387\u8fbe 22%%\uff0c\u5386\u5e74\u6570\u636e\u4fee\u8ba2\u5e45\u5ea6 3\u20138%%\uff1b\u653f\u7b56\u5efa\u8bae\u5e94\u7ed3\u5408\u7f6e\u4fe1\u533a\u95f4\u800c\u975e\u70b9\u4f30\u8ba1\u3002</p></article>",
+    "</div>",
+    "<div class='limit'><h3>\u7814\u7a76\u5c40\u9650</h3><ul>",
+    "<li>OOPS \u4e0e\u5916\u63f4\u7684\u53e3\u5f84\u5728\u4e0d\u540c\u56fd\u5bb6\u5b58\u5728\u7edf\u8ba1\u5dee\u5f02\uff0c\u8de8\u56fd\u6bd4\u8f83\u9700\u8c28\u614e\u3002</li>",
+    "<li>2023 \u5e74\u90e8\u5206\u56fd\u5bb6\u6570\u636e\u4e3a\u6a21\u578b\u4f30\u8ba1\uff0c\u7ed3\u8bba\u9700\u4ee5\u65b0\u7248 GHED \u516c\u5e03\u4e3a\u51c6\u3002</li>",
+    "<li>\u9762\u677f FE \u4e0d\u80fd\u8bc6\u522b\u56e0\u679c\uff0c\u4ec5\u7ed9\u51fa\u6761\u4ef6\u76f8\u5173\uff1b\u653f\u7b56\u5efa\u8bae\u57fa\u4e8e\u591a\u6a21\u578b\u4e00\u81f4\u6027\u800c\u975e\u5355\u4e00\u56de\u5f52\u3002</li>",
+    "<li>\u5065\u5eb7\u4ea7\u51fa\u53d7\u6559\u80b2\u3001\u73af\u5883\u3001\u516c\u5171\u536b\u751f\u80fd\u529b\u548c\u4eba\u53e3\u7ed3\u6784\u591a\u91cd\u56e0\u7d20\u5f71\u54cd\uff0c\u4e0d\u80fd\u5355\u72ec\u5f52\u56e0\u4e8e\u8d44\u91d1\u6295\u5165\u3002</li>",
+    "<li>\u672c\u5206\u6790\u4ec5\u7528\u4e8e\u8bfe\u7a0b\u9879\u76ee\u4e0e\u6570\u636e\u65b0\u95fb\u5c55\u793a\uff0c\u4e0d\u6784\u6210\u6b63\u5f0f\u7684\u653f\u7b56\u54a8\u8be2\u3002</li>",
+    "</ul></div>",
     "</div></section>"
   ), s$oops_high_cur, s$cur_year)
 }
+
 
 .ghs_footer <- function() {
   paste0(
@@ -2130,17 +2359,17 @@ if (!exists("%||%", mode = "function")) {
     ".hero-panel{display:none}",
     ".hero-panel-tag,.hero-panel-list{display:none}",
     ".hero,.section,.finding,.site-footer{overflow-x:hidden}",
-    ".wrap,.hero-grid,.kpi-grid,.finding-head,.finding-body,.gallery-grid,.widget-lab,.conclusion-grid,.cmd-grid,.deep-grid,.figure-index-list{min-width:0}",
+    ".wrap,.hero-grid,.kpi-grid,.finding-head,.finding-body,.gallery-grid,.widget-lab,.conclusion-grid,.cmd-grid,.deep-grid,.figure-index-list,.asset-console-grid,.asset-list{min-width:0}",
     "img,svg,iframe,video,canvas{max-width:100%}",
-    "pre,code,.table-wrap,.figure-index,.widget-card,.gallery-card,.hero-panel,.method-block,.callout{min-width:0;overflow-wrap:anywhere}",
+    "pre,code,.table-wrap,.figure-index,.asset-console,.widget-card,.gallery-card,.hero-panel,.method-block,.callout{min-width:0;overflow-wrap:anywhere}",
     ".hero-panel-list li span,.hero-lead,.section .lead,.finding-head .lead{min-width:0;overflow-wrap:anywhere}",
-    ".section{padding:96px 0;border-top:none}",
+    ".section{padding:96px 0;border-top:none;background:var(--paper)}",
     ".section:first-of-type{border-top:none}",
     ".kpi-section{background:var(--paper)}",
-    ".section-head{margin-bottom:42px;max-width:880px}",
+    ".section-head{margin-bottom:30px;max-width:960px}",
     ".section-head .kicker{display:inline-block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#78716c;margin-bottom:10px;font-weight:800}",
-    ".section h2{font-size:clamp(34px,4.4vw,56px);line-height:1.05;margin:0 0 16px}",
-    ".section .lead{font-size:19px;color:var(--muted);max-width:780px}",
+    ".section h2{font-size:clamp(32px,4vw,50px);line-height:1.08;margin:0 0 16px}",
+    ".section .lead{font-size:18px;color:var(--muted);max-width:900px}",
     ".kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}",
     ".kpi{position:relative;padding:24px 22px;border:1px solid var(--line);border-radius:16px;background:var(--paper);box-shadow:0 1px 3px rgba(0,0,0,.03);overflow:hidden;transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s}",
     ".kpi:before{content:none}",
@@ -2149,10 +2378,11 @@ if (!exists("%||%", mode = "function")) {
     ".kpi-label{margin-top:10px;font-weight:700;font-size:13px;letter-spacing:.04em;color:#78716c}",
     ".kpi-note{margin-top:6px;font-size:12.5px;color:#a8a29e;line-height:1.55}",
     ".methods .code-figure{margin:14px 0 22px}",
-    ".finding{padding:104px 0;border-top:none}",
-    ".finding:nth-of-type(odd){background:var(--paper)}",
-    ".finding-head{display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start;margin-bottom:36px}",
-    ".finding-num{font-family:'Source Serif 4',serif;font-size:56px;line-height:1;color:#111827;font-weight:800}",
+    ".finding{padding:104px 0;border-top:none;background:var(--paper)}",
+    ".finding:nth-of-type(odd),.finding:nth-of-type(even){background:var(--paper)}",
+    ".finding-head{display:grid;grid-template-columns:minmax(150px,max-content) minmax(0,1fr);gap:32px;align-items:start;margin-bottom:36px}",
+    ".finding-head>div{min-width:0}",
+    ".finding-num{display:block;font-family:'Source Serif 4',serif;font-size:56px;line-height:.95;color:var(--g3-secondary,var(--orange));font-weight:800;white-space:nowrap;margin-top:0}",
     ".finding-kicker{display:inline-block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#374151;margin-bottom:6px;font-weight:800}",
     ".finding-head h2{font-size:clamp(32px,4.4vw,52px);line-height:1.05;margin:0 0 12px}",
     ".finding-head .lead{font-size:18px;color:var(--muted);max-width:760px}",
@@ -2160,7 +2390,7 @@ if (!exists("%||%", mode = "function")) {
     ".chip{display:inline-flex;align-items:baseline;gap:8px;padding:7px 14px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;font-size:13px}",
     ".chip b{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em}",
     ".chip i{font-style:normal;font-weight:800;color:var(--ink)}",
-    ".chip-blue i{color:var(--blue)}.chip-orange i{color:var(--orange)}",
+    ".chip-blue i{color:var(--g3-primary,var(--blue))}.chip-orange i{color:var(--g3-secondary,var(--orange))}.chip-ink i{color:var(--ink)}.chip-neutral i{color:var(--muted)}",
     ".finding-body{display:grid;gap:22px}",
     ".method-block{background:rgba(255,255,255,.5);border:1px solid var(--line);border-radius:18px;padding:18px 22px;font-size:15.5px;color:var(--ink)}",
     ".method-block p{margin:6px 0}",
@@ -2181,6 +2411,12 @@ if (!exists("%||%", mode = "function")) {
     ".callout-ink{background:#fff;border-color:var(--line-strong)}",
     ".callout strong{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);font-weight:800}",
     ".callout p{margin:6px 0}",
+    ".evidence-note{margin:0 0 28px;padding:22px 26px;border-radius:20px;border:1px solid rgba(29,63,95,.18);background:linear-gradient(135deg,#fffaf2,#eef4f8);box-shadow:0 12px 34px rgba(13,18,27,.05)}",
+    ".evidence-note strong{display:block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--g3-primary,var(--blue));font-weight:900;margin-bottom:8px}",
+    ".evidence-note p{margin:8px 0 0;font-size:15.5px;line-height:1.78;color:#3f3a35;max-width:920px}",
+    ".section-note{margin:0 0 28px;padding:22px 26px;border-radius:18px;border:1px solid rgba(29,63,95,.16);background:#fbf6ee;box-shadow:0 10px 28px rgba(13,18,27,.045)}",
+    ".section-note strong{display:block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--g3-primary,var(--blue));font-weight:900;margin-bottom:8px}",
+    ".section-note p{margin:8px 0 0;font-size:15.5px;line-height:1.78;color:#3f3a35;max-width:980px}",
     ".table-wrap{overflow:auto;border-radius:18px;border:1px solid var(--line);background:#fff;box-shadow:0 16px 36px rgba(13,18,27,.06)}",
     ".table-wrap table{width:100%;border-collapse:collapse;font-size:14px}",
     ".table-wrap caption{caption-side:top;padding:14px 18px;text-align:left;font-weight:800;color:var(--blue);background:linear-gradient(90deg,#fbf6ee,#fff);border-bottom:1px solid var(--line)}",
@@ -2195,7 +2431,14 @@ if (!exists("%||%", mode = "function")) {
     ".figure-index header{display:grid;gap:6px;margin-bottom:16px}.figure-index h3{margin:0;font-size:24px;color:var(--ink)}.figure-index p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}",
     ".figure-index-tools{display:flex;gap:12px;align-items:center;margin-bottom:14px}.figure-index-tools input{flex:1;border:1px solid var(--line-strong);border-radius:999px;background:#fbf6ee;padding:11px 16px;color:var(--ink);font:inherit}.figure-index-tools span{color:var(--muted);font-size:13px;font-weight:800;white-space:nowrap}",
     ".figure-index-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:360px;overflow:auto;padding-right:4px}.figure-index-row{display:grid;grid-template-columns:42px 1fr auto auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fbf6ee;text-decoration:none;color:var(--ink)}.figure-index-row span{font-family:'Source Serif 4',serif;color:var(--orange);font-weight:800}.figure-index-row strong{font-size:13.5px}.figure-index-row em{font-style:normal;font-size:12px;color:var(--blue);font-weight:800}.figure-index-row small{color:var(--muted)}",
+    ".asset-console{margin:0 0 24px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 16px 40px rgba(13,18,27,.06);opacity:1;color:var(--ink)}",
+    ".asset-console header{display:grid;gap:6px;margin-bottom:16px}.asset-console h3{margin:0;font-size:26px;color:var(--ink)}.asset-console h4{margin:0;font-size:18px;color:var(--ink)}.asset-console p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}",
+    ".asset-console-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 16px}.asset-console-stats a{display:grid;gap:3px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fbf6ee;text-decoration:none;color:var(--ink)}.asset-console-stats strong{font-family:'Source Serif 4',serif;font-size:30px;line-height:1;color:var(--orange)}.asset-console-stats span{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}",
+    ".asset-console-tools{display:grid;gap:10px;margin-bottom:16px}.asset-console-tools input{border:1px solid var(--line-strong);border-radius:999px;background:#fbf6ee;padding:11px 16px;color:var(--ink);font:inherit}.asset-console-chips{display:flex;flex-wrap:wrap;gap:8px}.asset-console-chips button{border:1px solid var(--line);background:#fffaf2;color:var(--ink);border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}.asset-console-chips button.active,.asset-console-chips button:hover{background:var(--ink);border-color:var(--ink);color:#fff}",
+    ".asset-console-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.asset-console-grid article{border:1px solid var(--line);border-radius:20px;background:#fffaf2;padding:16px}.asset-console-grid article header{margin-bottom:12px}",
+    ".asset-list{display:grid;gap:8px}.asset-row{display:grid;grid-template-columns:54px 1fr auto auto;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:left;text-decoration:none;color:var(--ink);font:inherit}.asset-row:hover{border-color:var(--orange);box-shadow:0 10px 28px rgba(13,18,27,.08)}.asset-row span{font-family:'Source Serif 4',serif;color:var(--orange);font-weight:900}.asset-row strong{font-size:13.5px}.asset-row em{font-style:normal;font-size:12px;color:var(--blue);font-weight:900}.asset-row small{color:var(--muted);font-size:12px}.asset-empty{padding:16px;border:1px dashed var(--line-strong);border-radius:16px;background:#fff}",
     ".gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}",
+    ".gallery,.figure-index,.asset-console,.gallery-card,.gallery-button{opacity:1;filter:none}",
     ".gallery-card{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 16px 40px rgba(13,18,27,.06);transition:transform .25s ease,box-shadow .25s ease}",
     ".gallery-card:hover{transform:translateY(-4px);box-shadow:0 22px 60px rgba(13,18,27,.12)}",
     ".gallery-button{border:0;background:#fffaf2;width:100%;padding:0;cursor:zoom-in;display:flex;align-items:center;justify-content:center;min-height:200px}",
@@ -2224,14 +2467,15 @@ if (!exists("%||%", mode = "function")) {
     ".widget-fallback-banner a{color:inherit;font-weight:700;text-decoration:underline}",
     ".deep-dive{margin:22px 0 6px;padding:22px 24px;background:#fbf6ee;border:1px solid #e3d6bb;border-radius:18px}",
     ".deep-dive h3{font-family:'Source Serif 4',serif;font-size:20px;margin:0 0 14px;color:var(--ink);letter-spacing:.01em}",
-    ".deep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}",
+    ".deep-grid,.deep-dive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}",
+    ".deep-dive-grid{margin:22px 0 6px;padding:22px 24px;background:#fbf6ee;border:1px solid #e3d6bb;border-radius:18px}",
     ".deep-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 8px 22px rgba(13,18,27,.04)}",
     ".deep-card h4{font-family:'Source Serif 4',serif;font-size:15px;margin:0 0 8px;color:var(--blue);font-weight:700}",
     ".deep-card.counter h4{color:#b04a22}",
     ".deep-card.method h4{color:#5a6b48}",
     ".deep-card p{margin:0;color:#3a3a42;font-size:13.5px;line-height:1.72}",
     ".deep-card p strong{color:var(--ink);font-weight:700}",
-    "@media(max-width:1080px){.deep-grid{grid-template-columns:1fr}}",
+    "@media(max-width:1080px){.deep-grid,.deep-dive-grid{grid-template-columns:1fr}}",
     "html[data-theme='dark'] .deep-dive{background:#161c2a;border-color:rgba(255,255,255,.08)}",
     "html[data-theme='dark'] .deep-card{background:#0f141e;color:#e7e9ee;border-color:rgba(255,255,255,.08)}",
     "html[data-theme='dark'] .deep-card p{color:#c3c8d4}",
@@ -2243,7 +2487,7 @@ if (!exists("%||%", mode = "function")) {
     ".cmd-card header{padding:14px 18px;background:#fbf6ee;border-bottom:1px solid var(--line);font-weight:800;color:var(--blue)}",
     ".cmd-card .code-pre{max-height:180px;background:var(--code-bg);color:var(--code-ink)}",
     ".cmd-note{padding:12px 18px 16px;color:var(--muted);font-size:13.5px;margin:0}",
-    ".conclusion{background:linear-gradient(180deg,#fbf6ee,#f3e8d6)}",
+    ".conclusion{background:var(--paper)}",
     ".conclusion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px}",
     ".conc-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 14px 32px rgba(13,18,27,.06);display:grid;gap:8px}",
     ".conc-card span{font-family:'Source Serif 4',serif;font-size:34px;font-weight:800;color:var(--orange)}",
@@ -2262,10 +2506,10 @@ if (!exists("%||%", mode = "function")) {
     ".modal img{max-width:96vw;max-height:86vh;background:#fff;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5)}",
     ".modal button{position:absolute;right:24px;top:20px;border:0;border-radius:999px;padding:10px 16px;font-weight:900;background:#fff;cursor:pointer}",
     ".modal-title{position:absolute;left:28px;top:22px;color:#fff;font-weight:900;font-family:'Source Serif 4',serif;font-size:18px}",
-    "@media(max-width:1080px){.hero-grid,.widget-lab{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.gallery-grid{grid-template-columns:repeat(2,1fr)}.conclusion-grid{grid-template-columns:repeat(2,1fr)}.cmd-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.widget-frame-wrap{position:static}.foot-grid{grid-template-columns:1fr}.country-grid,.atlas-grid{grid-template-columns:1fr}.exec-big-grid{grid-template-columns:repeat(2,1fr)}.sim-grid{grid-template-columns:1fr}.figure-index-list{grid-template-columns:1fr}}",
-    "@media(max-width:760px){.links{display:none}.mobile-toc{display:block}.mobile-toc-links{grid-template-columns:repeat(2,1fr)}.figure-index-tools{align-items:stretch;flex-direction:column}.figure-index-row{grid-template-columns:34px 1fr auto}.figure-index-row small{display:none}.widget-lab{grid-template-columns:1fr;gap:14px}.widget-list{max-height:none;padding-right:0}.widget-frame-wrap{position:static}.widget-frame-wrap iframe{height:520px}.hero-actions{align-items:stretch;flex-direction:column}.hero-actions .btn{justify-content:center;width:100%;box-sizing:border-box}.eyebrow{border-radius:18px;line-height:1.5;white-space:normal}.hero-panel-list li{align-items:flex-start}.hero-panel-list li b{min-width:54px;font-size:30px}.code-pre{font-size:12px;padding:14px 16px}}",
-    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px}.hero h1{font-size:clamp(40px,13vw,58px)}.hero-lead{font-size:16.5px}.section{padding:68px 0}.widget-frame-wrap iframe{height:460px}.links{display:none}.mobile-toc{display:block}}",
-    "@media(max-width:420px){.wrap{width:min(100% - 24px,1180px)}.kpi-grid{grid-template-columns:1fr}.mobile-toc-links{grid-template-columns:1fr}.figure-index-row{grid-template-columns:30px 1fr}.figure-index-row em{display:none}.hero-panel{padding:18px}.widget-frame-wrap{padding:10px;border-radius:18px}.widget-frame-wrap iframe{height:420px;border-radius:12px}}",
+    "@media(max-width:1080px){.hero-grid,.widget-lab{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}.gallery-grid{grid-template-columns:repeat(2,1fr)}.conclusion-grid{grid-template-columns:repeat(2,1fr)}.cmd-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.widget-frame-wrap{position:static}.foot-grid{grid-template-columns:1fr}.country-grid,.atlas-grid{grid-template-columns:1fr}.exec-big-grid{grid-template-columns:repeat(2,1fr)}.sim-grid{grid-template-columns:1fr}.figure-index-list,.asset-console-grid{grid-template-columns:1fr}}",
+    "@media(max-width:760px){.links{display:none}.mobile-toc{display:block}.mobile-toc-links{grid-template-columns:repeat(2,1fr)}.figure-index-tools{align-items:stretch;flex-direction:column}.figure-index-row{grid-template-columns:34px 1fr auto}.figure-index-row small{display:none}.asset-console-stats{grid-template-columns:repeat(2,1fr)}.asset-row{grid-template-columns:46px 1fr auto}.asset-row small{display:none}.widget-lab{grid-template-columns:1fr;gap:14px}.widget-list{max-height:none;padding-right:0}.widget-frame-wrap{position:static}.widget-frame-wrap iframe{height:520px}.hero-actions{align-items:stretch;flex-direction:column}.hero-actions .btn{justify-content:center;width:100%;box-sizing:border-box}.eyebrow{border-radius:18px;line-height:1.5;white-space:normal}.hero-panel-list li{align-items:flex-start}.hero-panel-list li b{min-width:54px;font-size:30px}.code-pre{font-size:12px;padding:14px 16px}}",
+    "@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.gallery-grid,.conclusion-grid,.exec-big-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-grid{padding-top:42px}.finding-head{grid-template-columns:1fr}.finding-num{font-size:54px;margin-top:0}.hero h1{font-size:clamp(40px,13vw,58px)}.hero-lead{font-size:16.5px}.section{padding:68px 0}.widget-frame-wrap iframe{height:460px}.links{display:none}.mobile-toc{display:block}}",
+    "@media(max-width:420px){.wrap{width:min(100% - 24px,1180px)}.kpi-grid{grid-template-columns:1fr}.mobile-toc-links{grid-template-columns:1fr}.figure-index-row{grid-template-columns:30px 1fr}.figure-index-row em{display:none}.asset-console-stats{grid-template-columns:1fr}.asset-row{grid-template-columns:42px 1fr}.asset-row em{display:none}.hero-panel{padding:18px}.widget-frame-wrap{padding:10px;border-radius:18px}.widget-frame-wrap iframe{height:420px;border-radius:12px}}",
     ".top-bar{position:fixed;left:0;right:0;top:0;height:2px;background:transparent;z-index:60;pointer-events:none}",
     "#read-progress{height:100%;width:0;background:rgba(0,0,0,.2);transition:width .12s linear}",
     ".theme-toggle{margin-left:14px;border:1px solid rgba(247,238,223,.3);background:rgba(247,238,223,.08);color:#f7eedf;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center}",
@@ -2273,9 +2517,11 @@ if (!exists("%||%", mode = "function")) {
     "html[data-theme='dark'] body{background:#0d121b;color:#e7e9ee}",
     "html[data-theme='dark'] .section{border-top-color:rgba(255,255,255,.08)}",
     "html[data-theme='dark'] .section .lead,html[data-theme='dark'] .kpi-note,html[data-theme='dark'] .gallery-meta em{color:#9aa3b3}",
-    "html[data-theme='dark'] .kpi-section,html[data-theme='dark'] .conclusion,html[data-theme='dark'] .finding:nth-of-type(odd){background:#11161f}",
-    "html[data-theme='dark'] .kpi,html[data-theme='dark'] .conc-card,html[data-theme='dark'] .gallery-card,html[data-theme='dark'] .cmd-card,html[data-theme='dark'] .widget-card,html[data-theme='dark'] .exec-big,html[data-theme='dark'] .country-card,html[data-theme='dark'] .table-wrap,html[data-theme='dark'] .method-block,html[data-theme='dark'] .callout,html[data-theme='dark'] .limit-note,html[data-theme='dark'] .widget-link,html[data-theme='dark'] .figure-index{background:#161c2a;color:#e7e9ee;border-color:rgba(255,255,255,.08);box-shadow:none}",
-    "html[data-theme='dark'] .figure-index-row,html[data-theme='dark'] .figure-index-tools input{background:#11161f;border-color:rgba(255,255,255,.10);color:#e7e9ee}",
+    "html[data-theme='dark'] .kpi-section,html[data-theme='dark'] .conclusion{background:#11161f}",
+    "html[data-theme='dark'] .finding,html[data-theme='dark'] .finding:nth-of-type(odd),html[data-theme='dark'] .finding:nth-of-type(even){background:#0d121b}",
+    "html[data-theme='dark'] .kpi,html[data-theme='dark'] .conc-card,html[data-theme='dark'] .gallery-card,html[data-theme='dark'] .cmd-card,html[data-theme='dark'] .widget-card,html[data-theme='dark'] .exec-big,html[data-theme='dark'] .country-card,html[data-theme='dark'] .table-wrap,html[data-theme='dark'] .method-block,html[data-theme='dark'] .callout,html[data-theme='dark'] .limit-note,html[data-theme='dark'] .widget-link,html[data-theme='dark'] .figure-index,html[data-theme='dark'] .asset-console{background:#161c2a;color:#e7e9ee;border-color:rgba(255,255,255,.08);box-shadow:none}",
+    "html[data-theme='dark'] .figure-index-row,html[data-theme='dark'] .figure-index-tools input,html[data-theme='dark'] .asset-row,html[data-theme='dark'] .asset-console-tools input{background:#11161f;border-color:rgba(255,255,255,.10);color:#e7e9ee}",
+    "html[data-theme='dark'] .asset-console-grid article,html[data-theme='dark'] .asset-console-stats a,html[data-theme='dark'] .asset-console-chips button{background:#11161f;border-color:rgba(255,255,255,.10);color:#e7e9ee}",
     "html[data-theme='dark'] .kpi-value,html[data-theme='dark'] .conc-card span{color:#f7c08a}",
     "html[data-theme='dark'] .table-wrap th{background:#1a2030;color:#e7e9ee}",
     "html[data-theme='dark'] .table-wrap td,html[data-theme='dark'] .table-wrap th{border-bottom-color:rgba(255,255,255,.08)}",
@@ -2294,6 +2540,10 @@ if (!exists("%||%", mode = "function")) {
     "html[data-theme='dark'] .callout-blue{background:linear-gradient(135deg,#162133,#11161f)}",
     "html[data-theme='dark'] .callout-orange{background:linear-gradient(135deg,#2c1e10,#11161f)}",
     "html[data-theme='dark'] .callout-ink{background:#161c2a}",
+    "html[data-theme='dark'] .evidence-note{background:linear-gradient(135deg,#111a28,#0f141e);border-color:rgba(122,169,214,.22);box-shadow:none}",
+    "html[data-theme='dark'] .evidence-note p{color:#cbd2df}",
+    "html[data-theme='dark'] .section-note{background:#11161f;border-color:rgba(122,169,214,.2);box-shadow:none}",
+    "html[data-theme='dark'] .section-note p{color:#cbd2df}",
     "html[data-theme='dark'] .sim-controls,html[data-theme='dark'] .sim-output article,html[data-theme='dark'] .glossary-sources{background:#161c2a;color:#e7e9ee}",
     "html[data-theme='dark'] .sim-output b,html[data-theme='dark'] .sim-controls output,html[data-theme='dark'] .country-card h3{color:#f7c08a}",
     "html[data-theme='dark'] .session-meta li,html[data-theme='dark'] .session-grid li{background:#161c2a;border-color:rgba(255,255,255,.08);color:#e7e9ee}",
@@ -2368,7 +2618,7 @@ if (!exists("%||%", mode = "function")) {
     ".regional-notes{margin:24px 0 0;padding-left:20px;display:grid;gap:8px;color:var(--ink);font-size:15px}",
     ".regional-notes b{color:var(--blue)}",
     ".atlas-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:18px}",
-    ".simulator{background:linear-gradient(180deg,#fbf6ee,#f7eedf)}",
+    ".simulator{background:var(--paper)}",
     ".sim-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;align-items:start}",
     ".sim-controls{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px 22px;display:grid;gap:18px;box-shadow:0 16px 40px rgba(13,18,27,.06)}",
     ".sim-controls label{display:grid;gap:8px;font-weight:700;color:var(--ink);font-size:14px}",
@@ -2398,6 +2648,7 @@ if (!exists("%||%", mode = "function")) {
     "function filterFigures(k,b){document.querySelectorAll('.gallery .tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.gallery-card').forEach(c=>{c.style.display=(k==='\u5168\u90e8'||c.dataset.kind===k)?'block':'none'});}",
     "function filterWidgets(k,b){document.querySelectorAll('.widgets .tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.widget-card').forEach(c=>{c.style.display=(k==='\u5168\u90e8'||c.dataset.kind===k)?'flex':'none'});}",
     "function filterFigureIndex(q){q=(q||'').trim().toLowerCase();var n=0;document.querySelectorAll('.figure-index-row').forEach(function(r){var hay=((r.dataset.title||'')+' '+(r.dataset.kind||'')+' '+r.textContent).toLowerCase();var ok=!q||hay.indexOf(q)>=0;r.style.display=ok?'grid':'none';if(ok)n++;});var c=document.getElementById('figure-index-count');if(c)c.textContent=n+' \u5f20\u56fe';}",
+    "function filterAssetConsole(q){q=(q||'').trim().toLowerCase();document.querySelectorAll('.asset-console-chips button').forEach(function(b){var t=(b.textContent||'').trim().toLowerCase();b.classList.toggle('active',(!q&&t==='\u5168\u90e8')||(q&&t===q));});document.querySelectorAll('.asset-row').forEach(function(r){var hay=((r.dataset.title||'')+' '+(r.dataset.kind||'')+' '+r.textContent).toLowerCase();var ok=!q||hay.indexOf(q)>=0;r.style.display=ok?'grid':'none';});var s=document.getElementById('asset-search');if(s&&s.value!==q&&q.length<=4)s.value=q;}",
     "function openFigure(btn){var img=btn.querySelector('img');document.getElementById('modal-img').src=img.src;document.getElementById('modal-title').textContent=btn.dataset.title||img.alt;document.getElementById('fig-modal').classList.add('open');}",
     "function closeFigure(){document.getElementById('fig-modal').classList.remove('open');}",
     "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;f.scrollIntoView({behavior:'smooth',block:'center'});}",
@@ -2406,7 +2657,7 @@ if (!exists("%||%", mode = "function")) {
     "function toggleDock(){var dock=document.getElementById('ghs-dock');dock.classList.toggle('open');}",
     "(function(){try{var t=localStorage.getItem('ghs-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.querySelectorAll('.theme-toggle').forEach(function(btn){btn.textContent='\u263d';});}}catch(e){}})();",
     "(function(){var bar=document.getElementById('read-progress');var dbar=document.getElementById('dock-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=s/max;if(bar)bar.style.width=(pct*100)+'%';if(dbar)dbar.style.transform='scaleX('+pct+')';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+200;var cur=targets.length?targets[0].id:null;targets.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;}).forEach(function(t){if(t.el.offsetTop<=pos)cur=t.id;});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el){var top=el.offsetTop-80;window.scrollTo({top:top,behavior:'smooth'});}var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
+    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function absTop(el){return el.getBoundingClientRect().top+window.scrollY;}function spy(){var pos=window.scrollY+120;var sorted=targets.slice().sort(function(a,b){return absTop(a.el)-absTop(b.el);});var cur=sorted.length?sorted[0].id:null;for(var i=0;i<sorted.length;i++){if(absTop(sorted[i].el)<=pos){cur=sorted[i].id;}else{break;}}links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el){var top=absTop(el)-80;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});history.replaceState(null,'','#'+id);}var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",
@@ -2496,9 +2747,9 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- finding card -------------------------------------------
     ".ghs-finding{padding:96px 0;border-top:1px solid var(--g3-line)}",
-    ".ghs-finding:nth-of-type(odd){background:linear-gradient(180deg,var(--g3-paper) 0%,var(--g3-paper2) 100%)}",
-    ".ghs-finding-head{display:grid;grid-template-columns:96px 1fr;gap:24px;align-items:start;margin-bottom:32px}",
-    ".ghs-finding-num{font-family:'Source Serif 4',serif;font-size:72px;line-height:1;color:var(--g3-secondary);font-weight:800}",
+    ".ghs-finding,.ghs-finding:nth-of-type(odd),.ghs-finding:nth-of-type(even){background:var(--g3-paper)}",
+    ".ghs-finding-head{display:grid;grid-template-columns:minmax(150px,max-content) minmax(0,1fr);gap:32px;align-items:start;margin-bottom:32px}",
+    ".ghs-finding-num{font-family:'Source Serif 4',serif;font-size:72px;line-height:.95;color:var(--g3-secondary);font-weight:800;white-space:nowrap;margin-top:0}",
     ".ghs-finding-meta{display:flex;flex-direction:column;gap:8px}",
     ".ghs-finding-title{font-size:var(--g3-fs-h2);line-height:1.05;color:var(--g3-ink)}",
     ".ghs-finding-lead{font-size:18px;color:var(--g3-neutral);max-width:760px;line-height:1.55}",
@@ -2587,7 +2838,8 @@ if (!exists("%||%", mode = "function")) {
     # ---- 响应断点 -----------------------------------------------
     "@media(max-width:1280px){.ghs-with-toc{grid-template-columns:1fr;gap:var(--g3-gap-lg)}.ghs-toc{display:none}}",
     "@media(max-width:1024px){.ghs-stat-strip{grid-template-columns:repeat(2,1fr)}.ghs-kpi-grid{grid-template-columns:repeat(2,1fr)}.ghs-fig-grid-3,.ghs-fig-grid-4{grid-template-columns:repeat(2,1fr)}.ghs-deep-grid{grid-template-columns:repeat(2,1fr)}.ghs-paths{grid-template-columns:1fr}.ghs-lineage{grid-template-columns:repeat(2,1fr)}.ghs-lineage-step:nth-child(2n):after{display:none}.ghs-sources{grid-template-columns:1fr}}",
-    "@media(max-width:768px){.ghs-finding-head{grid-template-columns:1fr}.ghs-finding-num{font-size:54px}.ghs-fig-grid-2,.ghs-fig-grid-3,.ghs-fig-grid-4{grid-template-columns:1fr}.ghs-deep-grid{grid-template-columns:1fr;padding:18px}.ghs-finding{padding:64px 0}.ghs-section-title{font-size:32px}.ghs-sens-grid{grid-template-columns:1fr}}",
+    "@media(max-width:900px){.finding-head,.ghs-finding-head{grid-template-columns:1fr;gap:14px}.finding-num,.ghs-finding-num{margin-top:0}}",
+    "@media(max-width:768px){.ghs-finding-num{font-size:54px}.ghs-fig-grid-2,.ghs-fig-grid-3,.ghs-fig-grid-4{grid-template-columns:1fr}.ghs-deep-grid{grid-template-columns:1fr;padding:18px}.ghs-finding{padding:64px 0}.ghs-section-title{font-size:32px}.ghs-sens-grid{grid-template-columns:1fr}}",
     "@media(max-width:420px){.ghs-stat-strip,.ghs-kpi-grid{grid-template-columns:1fr}.ghs-finding-head{gap:14px}.ghs-finding-num{font-size:42px}.ghs-deep-card{padding:14px 16px}.ghs-lineage{grid-template-columns:1fr}.ghs-lineage-step:after{display:none}}"
   ), collapse = "")
 }
@@ -2641,8 +2893,8 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- 章节标题层级 --------------------------------------------
     ".section{padding:120px 0;border-top:1px solid var(--line)}",
-    ".section h2{font-size:clamp(36px,4.6vw,60px);font-weight:800;line-height:1.02;margin-bottom:18px}",
-    ".section .lead{font-size:clamp(17px,1.3vw,20px);line-height:1.65;color:var(--muted);max-width:760px}",
+    ".section h2{font-size:clamp(32px,3.8vw,50px);font-weight:800;line-height:1.08;margin-bottom:18px}",
+    ".section .lead{font-size:clamp(16.5px,1.2vw,18px);line-height:1.7;color:var(--muted);max-width:900px}",
     ".section-head .kicker{font-size:11.5px;letter-spacing:.24em;font-weight:900;background:linear-gradient(90deg,#c46327,#1d3f5f);-webkit-background-clip:text;background-clip:text;color:transparent}",
 
     # ---- KPI 卡片极致精修 ----------------------------------------
@@ -2655,14 +2907,16 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- Finding 卡片精修 ----------------------------------------
     ".finding{padding:120px 0}",
-    ".finding-num{font-size:60px;font-weight:900;letter-spacing:-.03em;color:#292524}",
-    ".finding-kicker{font-size:11.5px;letter-spacing:.22em;font-weight:900;color:var(--blue)}",
+    ".finding-head{grid-template-columns:minmax(150px,max-content) minmax(0,1fr);gap:32px}",
+    ".finding-num{display:block;font-size:60px;font-weight:900;letter-spacing:0;color:var(--g3-secondary);margin-top:0;white-space:nowrap;line-height:.95}",
+    ".finding-kicker{font-size:11.5px;letter-spacing:.22em;font-weight:900;color:var(--g3-primary)}",
     ".finding-head h2{font-size:clamp(34px,4.6vw,56px);font-weight:800;line-height:1.04;margin:8px 0 16px}",
     ".finding-head .lead{font-size:18px;line-height:1.65;color:var(--muted);max-width:780px;font-weight:400}",
     ".chip{padding:8px 16px;border-radius:999px;font-size:12.5px;border:1px solid rgba(13,18,27,.14);background:#fff;box-shadow:0 2px 8px rgba(13,18,27,.04);transition:transform .15s ease,box-shadow .15s ease}",
     ".chip:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(13,18,27,.06)}",
     ".chip b{font-size:10.5px;letter-spacing:.12em;font-weight:800;color:var(--muted);text-transform:uppercase}",
     ".chip i{font-size:13.5px;font-weight:800;color:var(--ink)}",
+    ".chip-blue i{color:var(--g3-primary)}.chip-orange i{color:var(--g3-secondary)}.chip-neutral i{color:var(--muted)}.chip-ink i{color:var(--ink)}",
 
     # ---- 图表卡片精修与防溢出 ------------------------------------
     ".ghs-fig-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff,#fbf6ee);box-shadow:0 6px 22px rgba(13,18,27,.06);border:1px solid rgba(13,18,27,.08);transition:transform .2s ease,box-shadow .2s ease}",
@@ -2671,8 +2925,8 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-fig-card figcaption{margin-top:14px;font-size:13.5px;color:var(--muted);line-height:1.65;font-weight:500}",
 
     # ---- Deep-dive 6 卡精修 -------------------------------------
-    ".ghs-deep-grid{padding:28px;background:linear-gradient(180deg,#fbf6ee,#f3e8d6);border:1px solid rgba(13,18,27,.08);border-radius:24px;gap:18px}",
-    ".ghs-deep-card{padding:22px 24px;background:#fff;border:1px solid rgba(13,18,27,.08);border-radius:14px;box-shadow:0 4px 14px rgba(13,18,27,.04);transition:transform .15s ease}",
+    ".ghs-deep-grid,.deep-dive-grid{padding:28px;background:linear-gradient(180deg,#fbf6ee,#f3e8d6);border:1px solid rgba(13,18,27,.08);border-radius:24px;gap:18px}",
+    ".ghs-deep-card,.deep-dive-grid .deep-card{padding:22px 24px;background:#fff;border:1px solid rgba(13,18,27,.08);border-radius:14px;box-shadow:0 4px 14px rgba(13,18,27,.04);transition:transform .15s ease;min-width:0}",
     ".ghs-deep-card:hover{transform:translateY(-2px)}",
     ".ghs-deep-card[data-tone='primary']{border-left:4px solid #1d3f5f}",
     ".ghs-deep-card[data-tone='good']{border-left:4px solid #2a857a}",
@@ -2700,7 +2954,7 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- 滚动揭示动画 --------------------------------------------
     "@keyframes ghs-fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}",
-    ".section,.finding{animation:ghs-fade-up .8s cubic-bezier(.2,.8,.2,1) both;animation-timeline:view();animation-range:entry 0% cover 30%}",
+    ".section,.finding{animation:none;opacity:1;transform:none;filter:none}",
     "@media(prefers-reduced-motion:reduce){.section,.finding{animation:none}}",
 
     # ---- 链接精修 ------------------------------------------------
@@ -2722,7 +2976,8 @@ if (!exists("%||%", mode = "function")) {
     "h1 span:not(.accent),h2 span,h3 span{vertical-align:baseline}",
 
     # ---- 小屏幕特别优化 ------------------------------------------
-    "@media(max-width:640px){.hero{min-height:auto;padding:30px 0 70px}.hero h1{font-size:42px}.section{padding:72px 0}.kpi{padding:22px 20px}.kpi-value{font-size:32px}.finding{padding:72px 0}.finding-num{font-size:54px}.ghs-deep-grid{padding:18px}.btn{padding:12px 20px;font-size:13.5px}}",
+    "@media(max-width:900px){.finding-head,.ghs-finding-head{grid-template-columns:1fr;gap:14px}.finding-num,.ghs-finding-num{margin-top:0}.finding-kicker,.ghs-kicker{margin-top:0}}",
+    "@media(max-width:640px){.hero{min-height:auto;padding:30px 0 70px}.hero h1{font-size:42px}.section{padding:72px 0}.kpi{padding:22px 20px}.kpi-value{font-size:32px}.finding{padding:72px 0}.finding-num{font-size:54px;margin-top:0}.ghs-deep-grid,.deep-dive-grid{padding:18px}.btn{padding:12px 20px;font-size:13.5px}}",
 
     # ---- 焦点态可访问性（WCAG 2.1 AA） --------------------------
     "a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:8px}",
@@ -3014,7 +3269,7 @@ if (!exists("%||%", mode = "function")) {
     .ghs_extreme_cases(master, fig_dir),
     .ghs_simulator(s),
     .ghs_robustness(master, models_dir),
-    .ghs_gallery(fig_dir),
+    .ghs_gallery(fig_dir, widget_dir, mode, repo_url),
     .ghs_widgets(widget_dir, mode, repo_url),
     # F \u9636\u6bb5\uff1a\u9644\u52a0 6 \u4e2a\u65b0\u7ae0\u8282\uff08\u7ae0\u8282\u603b\u6570 18 \u2192 24+\uff09
     if (exists("ghs_sections_extra", mode = "function")) {
@@ -3030,7 +3285,7 @@ if (!exists("%||%", mode = "function")) {
     "<div class='modal' id='fig-modal' onclick='closeFigure()'><button type='button'>\u5173\u95ed</button><div class='modal-title' id='modal-title'></div><img id='modal-img' alt='figure preview'></div>"
   )
   sprintf(
-    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u9876\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 36-module Shiny dashboard, full reproducibility and quality-gate evidence.'><style>%s%s%s</style></head><body>%s<script>%s</script></body></html>",
+    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u9876\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 36-module Shiny dashboard, full reproducibility and quality-gate evidence.'><link rel='icon' href='data:,'><style>%s%s%s</style></head><body>%s<script>%s</script></body></html>",
     .ghs_css(), .ghs_css_v3(), .ghs_css_polish(), body, .ghs_js()
   )
 }

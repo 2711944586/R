@@ -7,6 +7,7 @@ mod_prevention_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128137; \u9884\u9632 Prevention"),
+    value = "prevention",
     mod_v3_hero(
       kicker = "PREVENTIVE CARE SPENDING",
       title = "\u9884\u9632\u6027\u62a4\u7406\u652f\u51fa\u4e0e\u5065\u5eb7\u56de\u62a5",

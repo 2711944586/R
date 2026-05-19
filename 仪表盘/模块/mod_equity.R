@@ -7,6 +7,7 @@ mod_equity_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#9878; \u516c\u5e73 Equity"),
+    value = "equity",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("\u516c\u5e73\u4e0e\u4e0d\u5e73\u7b49"),

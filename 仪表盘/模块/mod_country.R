@@ -7,6 +7,7 @@ mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128205; \u56fd\u5bb6 Country"),
+    value = "country",
     htmltools::div(
       class = "panel-hero",
       htmltools::h2("\u56fd\u5bb6\u753b\u50cf"),

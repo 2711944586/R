@@ -7,6 +7,7 @@ mod_distribution_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
     title = htmltools::HTML("&#128202; \u5206\u5e03 Distribution"),
+    value = "distribution",
     mod_v3_hero(
       kicker = "STATISTICAL DISTRIBUTIONS",
       title = "\u6307\u6807\u5206\u5e03\u5f62\u6001\u4e0e\u7edf\u8ba1\u7279\u5f81",
