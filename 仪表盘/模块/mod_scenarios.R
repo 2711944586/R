@@ -8,63 +8,131 @@ mod_scenarios_ui <- function(id, country_choices_named) {
   bslib::nav_panel(
     title = htmltools::HTML("&#127919; \u60c5\u666f Scenarios"),
     value = "scenarios",
-    htmltools::div(
-      class = "panel-hero",
-      htmltools::h2("\u4e09\u6e90\u8c03\u6574 \u00b7 \u8d22\u52a1\u4fdd\u62a4\u4eff\u771f"),
-      htmltools::p(class = "text-muted",
-                   paste("\u8c03\u8282 OOPS / GGHE-D / EXT \u7684\u5047\u60f3\u53d8\u5316\uff08\u767e\u5206\u70b9\uff09\uff0c",
-                         "\u89c2\u5bdf\u672a\u6765\u65b0\u503c\u3001\u91cd\u65b0\u5206\u7ec4\u4e0e\u6781\u503c\u56fd\u6570\u91cf\u7684\u53d8\u52a8\u3002",
-                         "\u4eff\u771f\u662f\u201c\u4f20\u9012\u63a8\u65ad\u201d\uff0c\u4e0d\u5305\u542b\u884c\u4e3a / \u7740\u529b / \u5468\u671f\u6548\u5e94\u3002"))
+    mod_v3_hero(
+      kicker = "SCENARIO SIMULATOR",
+      title = "\u60c5\u666f\u63a8\u6f14\uff1a\u6982\u7387\u6247\u5f62\u3001\u7b79\u8d44\u8c03\u6574\u4e0e\u8d22\u52a1\u4fdd\u62a4",
+      lead = paste(
+        "\u672c\u9875\u5c06\u4e24\u7c7b\u201c\u672a\u6765\u201d\u653e\u5728\u4e00\u8d77\uff1a",
+        "\u4e00\u7c7b\u662f\u57fa\u4e8e\u5386\u53f2\u6b8b\u5dee\u91cd\u91c7\u6837\u7684\u6982\u7387\u6247\u5f62\uff0c\u53e6\u4e00\u7c7b\u662f\u5bf9 GGHED\u3001OOPS \u548c\u4eba\u5747 CHE \u8fdb\u884c\u900f\u660e what-if \u8c03\u6574\u3002",
+        "\u5b83\u4e0d\u4ee3\u66ff\u56e0\u679c\u8bc6\u522b\uff0c\u4f46\u53ef\u5e2e\u52a9\u8bf4\u6e05\u76ee\u6807\u5dee\u8ddd\u3001\u98ce\u9669\u533a\u95f4\u548c\u653f\u7b56\u53c2\u6570\u654f\u611f\u6027\u3002"
+      ),
+      meta = list("Monte Carlo fan", "Policy what-if", "Residual uncertainty", "Financial protection")
     ),
-    bslib::layout_sidebar(
-      sidebar = bslib::sidebar(
-        width = 280,
-        shinyWidgets::pickerInput(ns("country"), "国家",
-          choices = country_choices_named, selected = "CHN",
-          options = list(`live-search` = TRUE)),
-        shiny::selectInput(ns("indicator"), "指标",
-          choices = c("人均 CHE (USD2023)" = "che_pc_usd2023",
-                       "OOPS %" = "hf3_che",
-                       "GGHE-D %" = "gghed_che"),
-          selected = "che_pc_usd2023"),
-        shiny::sliderInput(ns("h"), "预测年数", min = 3, max = 15, value = 10),
-        shiny::sliderInput(ns("n_sim"), "MC 模拟次数",
-          min = 100, max = 2000, value = 500, step = 100),
-        shiny::numericInput(ns("seed"), "随机种子", value = 42),
-        shiny::tags$hr(),
-        shiny::helpText(
-          "蒙特卡洛在 ", htmltools::strong("ARIMA 残差分布"),
-          " 上重采样，得到", htmltools::strong("非参数概率扇"), "。"),
-        shiny::tags$hr(),
-        shiny::h5("Policy Simulator"),
-        shiny::sliderInput(ns("policy_years"), "政策兑现期（年）",
-          min = 1, max = 10, value = 5),
-        shiny::sliderInput(ns("gghed_boost"), "GGHED 提升（百分点）",
-          min = 0, max = 30, value = 8, step = 1),
-        shiny::sliderInput(ns("oop_cut"), "OOPS 下降（百分点）",
-          min = 0, max = 30, value = 8, step = 1),
-        shiny::sliderInput(ns("che_growth"), "人均 CHE 额外增长（%）",
-          min = 0, max = 80, value = 15, step = 5),
-        shiny::helpText("政策模拟是透明的 what-if 计算，不是因果估计。")
+    mod_v3_page_body(
+      wide = TRUE,
+      mod_v3_badge_row(
+        "\u5386\u53f2\u6b8b\u5dee\u91cd\u91c7\u6837",
+        "\u6982\u7387\u5206\u4f4d\u6570",
+        "\u7b79\u8d44\u63d0\u5347",
+        "\u81ea\u4ed8\u51cf\u8d1f",
+        "\u5bff\u547d\u63cf\u8ff0\u6027\u659c\u7387",
+        tone = "warn"
       ),
-      mod_card(
-        title = "MC 概率扇 + ARIMA 中位数",
-        mod_spinner(plotly::plotlyOutput(ns("mc_fan"), height = 540))
+      mod_v3_story_grid(
+        columns = 3,
+        mod_v3_insight(
+          kicker = "Fan",
+          title = "\u6982\u7387\u6247\u5f62\u663e\u793a\u57fa\u7ebf\u98ce\u9669",
+          text = "\u8499\u7279\u5361\u6d1b\u6a21\u62df\u5728 ARIMA \u6b8b\u5dee\u5206\u5e03\u4e0a\u91cd\u91c7\u6837\uff0c\u7ed9\u51fa\u4e0d\u540c\u5206\u4f4d\u7684\u672a\u6765\u8def\u5f84\u3002",
+          tone = "primary"
+        ),
+        mod_v3_insight(
+          kicker = "Policy",
+          title = "\u653f\u7b56\u8c03\u6574\u662f\u900f\u660e\u53c2\u6570\u8bd5\u7b97",
+          text = "\u7528\u6237\u76f4\u63a5\u8bbe\u5b9a\u653f\u5e9c\u7b79\u8d44\u589e\u52a0\u3001\u5c45\u6c11\u81ea\u4ed8\u4e0b\u964d\u548c\u4eba\u5747 CHE \u989d\u5916\u589e\u957f\u3002",
+          tone = "secondary"
+        ),
+        mod_v3_insight(
+          kicker = "Boundary",
+          title = "\u8f93\u51fa\u662f\u8fd1\u4f3c\u4f20\u9012\uff0c\u4e0d\u662f\u56e0\u679c\u7ed3\u8bba",
+          text = "\u5bff\u547d\u53d8\u5316\u6765\u81ea\u6700\u8fd1\u5e74\u622a\u9762\u63cf\u8ff0\u6027\u659c\u7387\uff0c\u4e0d\u5305\u542b\u884c\u4e3a\u53cd\u5e94\u3001\u75be\u75c5\u51b2\u51fb\u6216\u5236\u5ea6\u6267\u884c\u5dee\u5f02\u3002",
+          tone = "bad"
+        )
       ),
-      mod_card(
-        title = "情景比较：5%/25%/50%/75%/95% 分位",
-        mod_spinner(reactable::reactableOutput(ns("scenario_table")))
-      ),
-      bslib::layout_columns(
-        col_widths = c(6, 6),
+      bslib::layout_sidebar(
+        sidebar = bslib::sidebar(
+          width = 304,
+          shinyWidgets::pickerInput(ns("country"), "\u56fd\u5bb6",
+            choices = country_choices_named, selected = "CHN",
+            options = list(`live-search` = TRUE)),
+          shiny::selectInput(ns("indicator"), "\u6982\u7387\u6247\u5f62\u6307\u6807",
+            choices = c("\u4eba\u5747 CHE (USD2023)" = "che_pc_usd2023",
+                         "OOPS %" = "hf3_che",
+                         "GGHE-D %" = "gghed_che"),
+            selected = "che_pc_usd2023"),
+          shiny::sliderInput(ns("h"), "\u9884\u6d4b\u5e74\u6570", min = 3, max = 15, value = 10),
+          shiny::sliderInput(ns("n_sim"), "MC \u6a21\u62df\u6b21\u6570",
+            min = 100, max = 2000, value = 500, step = 100),
+          shiny::numericInput(ns("seed"), "\u968f\u673a\u79cd\u5b50", value = 42),
+          mod_v3_sidebar_note(
+            "Monte Carlo",
+            "\u6a21\u62df\u4f7f\u7528\u5386\u53f2\u6b8b\u5dee\u6ce2\u52a8\u6765\u6784\u9020\u672a\u6765\u8def\u5f84\uff0c\u9002\u5408\u8868\u8fbe\u4e0d\u786e\u5b9a\u6027\u800c\u4e0d\u662f\u653f\u7b56\u6548\u679c\u3002",
+            bullets = c("\u6a21\u62df\u6b21\u6570\u8d8a\u9ad8\uff0c\u5206\u4f4d\u6570\u66f4\u7a33\u5b9a", "\u5e74\u6570\u8d8a\u957f\uff0c\u6247\u5f62\u901a\u5e38\u8d8a\u5bbd", "\u968f\u673a\u79cd\u5b50\u4fdd\u8bc1\u53ef\u590d\u73b0")
+          ),
+          shiny::tags$hr(),
+          shiny::h5("Policy Simulator"),
+          shiny::sliderInput(ns("policy_years"), "\u653f\u7b56\u5151\u73b0\u671f\uff08\u5e74\uff09",
+            min = 1, max = 10, value = 5),
+          shiny::sliderInput(ns("gghed_boost"), "GGHED \u63d0\u5347\uff08\u767e\u5206\u70b9\uff09",
+            min = 0, max = 30, value = 8, step = 1),
+          shiny::sliderInput(ns("oop_cut"), "OOPS \u4e0b\u964d\uff08\u767e\u5206\u70b9\uff09",
+            min = 0, max = 30, value = 8, step = 1),
+          shiny::sliderInput(ns("che_growth"), "\u4eba\u5747 CHE \u989d\u5916\u589e\u957f\uff08%\uff09",
+            min = 0, max = 80, value = 15, step = 5),
+          mod_v3_sidebar_note(
+            "Policy scope",
+            "\u653f\u7b56\u6a21\u62df\u662f\u7b80\u5316\u5bf9\u7167\uff1a\u8ba1\u7b97\u57fa\u7ebf\u503c\u3001\u8c03\u6574\u540e\u503c\u548c\u5dee\u989d\uff0c\u5e76\u5c06 CHE \u589e\u957f\u901a\u8fc7\u622a\u9762\u659c\u7387\u6295\u5c04\u5230\u5bff\u547d\u3002"
+          )
+        ),
+        shiny::uiOutput(ns("kpi_strip")),
+        mod_v3_rail(list(
+          list(title = "\u9009\u57fa\u7ebf", text = "\u786e\u5b9a\u56fd\u5bb6\u3001\u6307\u6807\u548c\u9884\u6d4b\u5e74\u6570\u3002"),
+          list(title = "\u8bfb\u6982\u7387", text = "\u7528 5/25/50/75/95% \u5206\u4f4d\u89c2\u5bdf\u4e0a\u4e0b\u884c\u98ce\u9669\u3002"),
+          list(title = "\u8c03\u53c2\u6570", text = "\u6539\u53d8 GGHED\u3001OOPS \u548c\u4eba\u5747 CHE \u7684\u5047\u60f3\u7ec4\u5408\u3002"),
+          list(title = "\u6bd4\u5dee\u989d", text = "\u7528\u56fe\u8868\u548c\u8868\u683c\u540c\u65f6\u5ba1\u89c6\u53d8\u5316\u65b9\u5411\u4e0e\u5e45\u5ea6\u3002")
+        )),
         mod_card(
-          title = "Policy Simulator：政府筹资与自付下降",
-          mod_spinner(plotly::plotlyOutput(ns("policy_plot"), height = 430))
+          kicker = "PROBABILITY FAN",
+          title = "MC \u6982\u7387\u6247 + ARIMA \u4e2d\u4f4d\u6570",
+          mod_v3_chart_guide(
+            "\u8bfb\u56fe\u65b9\u6cd5",
+            "\u5386\u53f2\u7ebf\u4e4b\u540e\u7684\u6247\u5f62\u4ee3\u8868\u6a21\u62df\u8def\u5f84\u5206\u4f4d\uff1b\u4e2d\u4f4d\u7ebf\u4e0d\u662f\u552f\u4e00\u7ed3\u8bba\uff0c\u5e94\u4e0e\u5c3e\u90e8\u5206\u4f4d\u4e00\u8d77\u89e3\u8bfb\u3002",
+            bullets = c("5-95% \u533a\u95f4\u8868\u793a\u5bbd\u98ce\u9669\u5e26", "25-75% \u533a\u95f4\u8868\u793a\u4e2d\u5fc3\u60c5\u666f", "\u6247\u5f62\u6269\u5f20\u5feb\u8bf4\u660e\u672a\u6765\u8def\u5f84\u66f4\u4e0d\u7a33\u5b9a")
+          ),
+          mod_spinner(plotly::plotlyOutput(ns("mc_fan"), height = 540))
         ),
         mod_card(
-          title = "政策情景指标对照",
-          mod_spinner(reactable::reactableOutput(ns("policy_table"))),
-          shiny::helpText("寿命变化来自最近年份截面 life_exp ~ log(CHE_pc) 的描述性斜率。")
+          kicker = "QUANTILE TABLE",
+          title = "\u60c5\u666f\u6bd4\u8f83\uff1a5% / 25% / 50% / 75% / 95% \u5206\u4f4d",
+          mod_v3_chart_guide(
+            "\u8868\u683c\u7528\u9014",
+            "\u5206\u4f4d\u6570\u8868\u53ef\u7528\u4e8e\u62a5\u544a\u4e2d\u7684\u6570\u503c\u5f15\u7528\uff0c\u4e5f\u4fbf\u4e8e\u5c06\u672a\u6765\u5e74\u4efd\u7684\u4e0a\u4e0b\u884c\u98ce\u9669\u62c6\u5f00\u6bd4\u8f83\u3002"
+          ),
+          mod_spinner(reactable::reactableOutput(ns("scenario_table")))
+        ),
+        bslib::layout_columns(
+          col_widths = c(6, 6),
+          mod_card(
+            kicker = "POLICY WHAT-IF",
+            title = "Policy Simulator\uff1a\u653f\u5e9c\u7b79\u8d44\u4e0e\u81ea\u4ed8\u4e0b\u964d",
+            mod_v3_chart_guide(
+              "\u5bf9\u7167\u903b\u8f91",
+              "\u56fe\u4e2d\u5c06\u57fa\u7ebf\u548c\u653f\u7b56\u60c5\u666f\u5e76\u6392\u663e\u793a\uff0c\u7528\u4e8e\u76f4\u89c2\u5224\u65ad\u653f\u7b56\u53c2\u6570\u5bf9\u6838\u5fc3\u6307\u6807\u7684\u5373\u65f6\u63a8\u6f14\u5f71\u54cd\u3002",
+              tone = "good"
+            ),
+            mod_spinner(plotly::plotlyOutput(ns("policy_plot"), height = 430))
+          ),
+          mod_card(
+            kicker = "POLICY TABLE",
+            title = "\u653f\u7b56\u60c5\u666f\u6307\u6807\u5bf9\u7167",
+            mod_v3_chart_guide(
+              "\u8bfb\u8868\u65b9\u6cd5",
+              "\u53d8\u5316\u5217\u8868\u793a\u653f\u7b56\u60c5\u666f\u4e0e\u57fa\u7ebf\u7684\u5dee\u989d\uff1b\u5bff\u547d\u53d8\u5316\u6765\u81ea\u6700\u8fd1\u5e74\u622a\u9762 life_exp ~ log(CHE_pc) \u7684\u63cf\u8ff0\u6027\u659c\u7387\u3002",
+              tone = "warn"
+            ),
+            mod_spinner(reactable::reactableOutput(ns("policy_table"))),
+            footer = "\u653f\u7b56\u60c5\u666f\u4e0d\u5305\u542b\u884c\u4e3a\u53cd\u5e94\u3001\u6267\u884c\u65f6\u6ede\u6216\u533b\u7597\u4f9b\u7ed9\u7ea6\u675f\uff0c\u9002\u5408\u4f5c\u4e3a\u53c2\u6570\u654f\u611f\u6027\u5c55\u793a\u3002"
+          )
         )
       )
     )
@@ -73,6 +141,24 @@ mod_scenarios_ui <- function(id, country_choices_named) {
 
 mod_scenarios_server <- function(id, master_r) {
   shiny::moduleServer(id, function(input, output, session) {
+    output$kpi_strip <- shiny::renderUI({
+      shiny::req(input$country, input$indicator, input$h, input$n_sim)
+      mod_v3_kpi_grid(
+        mod_v3_kpi("\u5f53\u524d\u56fd\u5bb6", input$country,
+                   hint = "\u6982\u7387\u6247\u548c\u653f\u7b56\u6a21\u62df\u5171\u7528\u7684\u56fd\u5bb6",
+                   tone = "primary"),
+        mod_v3_kpi("\u6a21\u62df\u6b21\u6570", fmt_v3_num(input$n_sim),
+                   hint = "\u8499\u7279\u5361\u6d1b\u8def\u5f84\u6570",
+                   tone = "secondary"),
+        mod_v3_kpi("\u9884\u6d4b\u671f", sprintf("%d \u5e74", input$h),
+                   hint = "\u6982\u7387\u6247\u5411\u524d\u5ef6\u4f38\u7684\u65f6\u957f",
+                   tone = "good"),
+        mod_v3_kpi("\u81ea\u4ed8\u4e0b\u964d", sprintf("%d pp", input$oop_cut %||% 0),
+                   hint = "\u653f\u7b56\u6a21\u62df\u4e2d OOPS \u964d\u5e45",
+                   tone = "bad")
+      )
+    })
+
     sim_obj <- shiny::reactive({
       shiny::req(input$country, input$indicator, input$h)
       m <- master_r()

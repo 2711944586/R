@@ -129,6 +129,13 @@
 
 # ---- Main entry function ----------------------------------------------------
 
+# Source supplementary content (additional figures/widgets/narrative per finding)
+.se_path <- file.path("\u7a0b\u5e8f", "44_sections_extra.R")
+if (!file.exists(.se_path)) .se_path <- file.path(
+  dirname(sys.frame(1)$ofile %||% "."), "44_sections_extra.R")
+if (file.exists(.se_path) && !exists("ghs_sections_extra_content", mode = "function"))
+  source(.se_path, local = TRUE)
+
 ghs_findings_extra <- function(s, fig_dir, programs_dir = "\u7a0b\u5e8f",
                                 widget_dir = NULL,
                                 mode = "publish", repo_url = "") {
@@ -153,6 +160,42 @@ ghs_findings_extra <- function(s, fig_dir, programs_dir = "\u7a0b\u5e8f",
   part3 <- .fe_render_batch(
     c(.fe_batch_spec3(), .fe_batch_spec4(), .fe_batch_spec4b(), .fe_batch_spec4c()),
     fig_dir, widget_dir, mode, repo_url)
+
+  # \u6ce8\u5165\u8865\u5145\u5185\u5bb9\uff08\u989d\u5916\u56fe\u8868\u3001\u7ec4\u4ef6\u3001\u53d9\u8ff0\uff09
+  se <- if (exists("ghs_sections_extra_content", mode = "function"))
+    ghs_sections_extra_content(fig_dir, widget_dir, programs_dir, mode, repo_url)
+  else list()
+
+  .inject_extra_fe <- function(html, ids) {
+    # 简单可靠策略：对每个 id，用 gsub 替换其唯一闭合模式
+    for (id in ids) {
+      extra <- se[[id]]
+      if (!is.null(extra) && nzchar(extra)) {
+        # 每个 section 的闭合前有 deep-dive-grid，所以用 id 定位后替换
+        # 使用 sub 的 fixed 模式匹配 id='f-xxx' 后第一个闭合标签
+        old_close <- sprintf("</div></div></section>")
+        new_close <- paste0(extra, "</div></div></section>")
+        # 精确方案：将 html 在 id 锚点处切分
+        anchor <- sprintf("id='%s'", id)
+        parts <- strsplit(html, anchor, fixed = TRUE)[[1]]
+        if (length(parts) == 2) {
+          # parts[2] 是从 anchor 之后的内容，替换第一个闭合标签
+          parts[2] <- sub(old_close, new_close, parts[2], fixed = TRUE)
+          html <- paste0(parts[1], anchor, parts[2])
+        }
+      }
+    }
+    html
+  }
+
+  part1 <- .inject_extra_fe(part1, c("f-aging", "f-urban", "f-fiscal",
+                                      "f-price", "f-regional", "f-inflation"))
+  part2 <- .inject_extra_fe(part2, c("f-ncd", "f-uhc", "f-catastrophic",
+                                      "f-maternal", "f-prevention",
+                                      "f-workforce", "f-reclassify"))
+  part3 <- .inject_extra_fe(part3, c("f-theil", "f-fragile", "f-oecd",
+                                      "f-dea", "f-aid-eff", "f-dataquality",
+                                      "f-revision", "f-sids", "f-composite"))
 
   paste0(part1, part2, part3)
 }

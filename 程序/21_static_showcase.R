@@ -61,11 +61,227 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_pretty <- function(p) {
   x <- tools::file_path_sans_ext(basename(p))
+  key <- x
   x <- sub("^[0-9]+_", "", x)
   x <- sub("^v2_w_", "", x)
   x <- sub("^v2_", "", x)
+  # 中文翻译查找表
+  cn <- .ghs_cn_names()
+  if (key %in% names(cn)) return(cn[[key]])
+  if (x %in% names(cn)) return(cn[[x]])
   x <- gsub("_", " ", x, fixed = TRUE)
   trimws(x)
+}
+
+.ghs_cn_names <- function() {
+  c(
+    # 静态图表前缀映射
+    "global_sources_area" = "\u5168\u7403\u536b\u751f\u652f\u51fa\u6765\u6e90\u9762\u79ef\u56fe",
+    "oops_ranking_2023" = "OOPS \u56fd\u5bb6\u6392\u884c",
+    "oops_ridges_income" = "OOPS \u6309\u6536\u5165\u7ec4\u5bc6\u5ea6",
+    "oops_box_continent" = "OOPS \u5927\u6d32\u7bb1\u7ebf\u56fe",
+    "world_oops_2023" = "OOPS \u5168\u7403\u5730\u56fe",
+    "profile_china" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u4e2d\u56fd",
+    "profile_usa" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u7f8e\u56fd",
+    "profile_india" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u5370\u5ea6",
+    "covid_dumbbell" = "COVID \u54d1\u94c3\u56fe",
+    "covid_scatter" = "COVID \u6563\u70b9\u56fe",
+    "hc1_vs_hc6" = "HC1 \u4e0e HC6 \u5bf9\u6bd4",
+    "oops_slope" = "OOPS \u659c\u7387\u56fe",
+    "inequality_timeseries" = "\u4e0d\u5e73\u7b49\u6307\u6570\u65f6\u5e8f",
+    "che_pc_ridges" = "\u4eba\u5747 CHE \u5c71\u810a\u56fe",
+    "pca_cluster_2022" = "PCA \u805a\u7c7b\u5206\u6790",
+    "oops_heatmap" = "OOPS \u70ed\u529b\u56fe",
+    "continent_radar" = "\u5927\u6d32\u96f7\u8fbe\u56fe",
+    "small_multiples" = "\u5c0f\u500d\u6570\u56fe",
+    "lollipop_income" = "\u6536\u5165\u7ec4\u68d2\u68d2\u7cd6",
+    "ext_density" = "\u5916\u63f4\u5bc6\u5ea6\u56fe",
+    "oops_bump" = "OOPS \u6392\u540d\u8d5b",
+    "treemap" = "\u6811\u72b6\u56fe",
+    "stream_continent" = "\u5927\u6d32\u6d41\u56fe",
+    "ternary" = "\u4e09\u5143\u56fe",
+    "inequality_pca" = "\u4e0d\u5e73\u7b49 PCA",
+    "beta_convergence" = "\u03b2-\u6536\u655b\u5206\u6790",
+    "forecast_fan" = "\u9884\u6d4b\u6247\u5f62\u56fe",
+    "bivariate_map" = "\u53cc\u53d8\u91cf\u5730\u56fe",
+    "sankey_static" = "Sankey \u6d41\u5411\u56fe",
+    "waffle_purpose" = "\u652f\u51fa\u7528\u9014\u534e\u592b\u56fe",
+    "aid_dependency" = "\u5916\u63f4\u4f9d\u8d56\u5ea6",
+    "bivariate_oops_gov" = "OOPS \u4e0e\u653f\u5e9c\u652f\u51fa\u53cc\u53d8\u91cf",
+    "changepoint" = "\u53d8\u70b9\u68c0\u6d4b",
+    "cluster_archetype" = "\u805a\u7c7b\u539f\u578b",
+    "combined_ridges" = "\u7ec4\u5408\u5c71\u810a\u56fe",
+    "continent_ridges" = "\u5927\u6d32\u5c71\u810a\u56fe",
+    "continent_stream" = "\u5927\u6d32\u6d41\u53d8\u56fe",
+    "corr_matrix" = "\u76f8\u5173\u77e9\u9635",
+    "country_compare_hc" = "\u56fd\u5bb6 HC \u5bf9\u6bd4",
+    "efficiency_dea" = "DEA \u6548\u7387\u524d\u6cbf",
+    "equity_indices" = "\u516c\u5e73\u6307\u6570\u9762\u677f",
+    "equity_lorenz" = "Lorenz \u66f2\u7ebf",
+    "extreme_waterfall" = "\u6781\u503c\u7011\u5e03\u56fe",
+    "fiscal_ghe_rank" = "\u8d22\u653f\u536b\u751f\u652f\u51fa\u6392\u540d",
+    "fiscal_ghe_share" = "\u8d22\u653f\u536b\u751f\u5360\u6bd4",
+    "lifeexp_elasticity" = "\u5bff\u547d\u5f39\u6027\u5206\u6790",
+    "oops_heatmap_grid" = "OOPS \u70ed\u529b\u7f51\u683c",
+    "oops_small_multiples" = "OOPS \u5c0f\u500d\u6570",
+    "oops_violin" = "OOPS \u5c0f\u63d0\u7434\u56fe",
+    "outcomes_elasticity" = "\u4ea7\u51fa\u5f39\u6027",
+    "period_compare" = "\u5206\u671f\u5bf9\u6bd4",
+    "profile_brazil" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u5df4\u897f",
+    "quantile_reg" = "\u5206\u4f4d\u6570\u56de\u5f52",
+    "rank_change" = "\u6392\u540d\u53d8\u52a8",
+    "sdg3_progress" = "SDG-3 \u8fdb\u5c55",
+    "sdg3_radar" = "SDG-3 \u96f7\u8fbe",
+    "slope_oops" = "OOPS \u659c\u7387\u53d8\u5316",
+    "che_gdp_share_world" = "CHE/GDP \u5168\u7403\u5206\u5e03",
+    "che_gdp_top" = "CHE/GDP \u6700\u9ad8\u56fd",
+    "che_life_log" = "CHE \u4e0e\u5bff\u547d\u5bf9\u6570",
+    "che_top_growth" = "CHE \u589e\u901f\u6700\u5feb\u56fd",
+    "che_u5_log" = "CHE \u4e0e U5MR \u5bf9\u6570",
+    "compare_panel" = "\u5bf9\u6bd4\u9762\u677f",
+    "continent_cagr" = "\u5927\u6d32\u5e74\u5747\u589e\u7387",
+    "continent_che_box" = "\u5927\u6d32 CHE \u7bb1\u7ebf",
+    "continent_forecast" = "\u5927\u6d32\u9884\u6d4b",
+    "continent_gghed_area" = "\u5927\u6d32 GGHED \u9762\u79ef",
+    "continent_oops_area" = "\u5927\u6d32 OOPS \u9762\u79ef",
+    "correlation_overtime" = "\u76f8\u5173\u7cfb\u6570\u8de8\u5e74",
+    "efficiency_frontier" = "\u6548\u7387\u524d\u6cbf",
+    "ext_top_recipients" = "\u5916\u63f4\u6700\u5927\u63a5\u53d7\u56fd",
+    "global_che_total" = "\u5168\u7403 CHE \u603b\u91cf",
+    "global_hf_share" = "\u5168\u7403\u7b79\u8d44\u4efd\u989d",
+    "hc_breakdown" = "HC \u529f\u80fd\u5206\u89e3",
+    "income_cagr" = "\u6536\u5165\u7ec4\u589e\u7387",
+    "income_oops_decade" = "\u6536\u5165\u7ec4 OOPS \u5341\u5e74",
+    "income_ridges" = "\u6536\u5165\u7ec4\u5c71\u810a",
+    "life_change_top" = "\u5bff\u547d\u589e\u91cf\u6700\u5927\u56fd",
+    "life_residual" = "\u5bff\u547d\u6b8b\u5dee",
+    "oops_dumbbell_decline" = "OOPS \u4e0b\u964d\u54d1\u94c3",
+    "oops_dumbbell_rise" = "OOPS \u4e0a\u5347\u54d1\u94c3",
+    "oops_gdp" = "OOPS \u4e0e GDP",
+    "oops_life" = "OOPS \u4e0e\u5bff\u547d",
+    "oops_top_bottom" = "OOPS \u6781\u503c\u56fd",
+    "profile_chn" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u4e2d\u56fd",
+    "profile_deu" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u5fb7\u56fd",
+    "profile_idn" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u5370\u5c3c",
+    "profile_jpn" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u65e5\u672c",
+    "profile_zaf" = "\u56fd\u5bb6\u6982\u51b5\u00b7\u5357\u975e",
+    "region_hf_breakdown" = "\u533a\u57df\u7b79\u8d44\u5206\u89e3",
+    "u5mr_decline_top" = "U5MR \u4e0b\u964d\u6700\u5feb\u56fd",
+    "yoy_heatmap" = "\u540c\u6bd4\u70ed\u529b\u56fe",
+    # 高级图表
+    "adv_beeswarm_che_pc" = "\u4eba\u5747 CHE \u8702\u7fa4\u56fe",
+    "adv_beeswarm_gghed" = "GGHED \u8702\u7fa4\u56fe",
+    "adv_beeswarm_lifeexp" = "\u5bff\u547d\u8702\u7fa4\u56fe",
+    "adv_beeswarm_oops" = "OOPS \u8702\u7fa4\u56fe",
+    "adv_bump_top25" = "Top25 \u6392\u540d\u8d5b",
+    "adv_calendar_growth" = "\u589e\u901f\u65e5\u5386\u70ed\u56fe",
+    "adv_che_pc_by_continent" = "\u4eba\u5747 CHE \u6309\u5927\u6d32",
+    "adv_density_2d_finance" = "\u7b79\u8d44\u4e8c\u7ef4\u5bc6\u5ea6",
+    "adv_lollipop_che_change" = "CHE \u53d8\u5316\u68d2\u68d2\u7cd6",
+    "adv_marimekko_finance" = "\u7b79\u8d44 Marimekko",
+    "adv_parallel_finance" = "\u7b79\u8d44\u5e73\u884c\u5750\u6807",
+    "adv_radial_hc_deu" = "\u5fb7\u56fd HC \u5f84\u5411\u56fe",
+    "adv_radial_hc_jpn" = "\u65e5\u672c HC \u5f84\u5411\u56fe",
+    "adv_radial_hc_usa" = "\u7f8e\u56fd HC \u5f84\u5411\u56fe",
+    "adv_ridge_che_pc_evolution" = "\u4eba\u5747 CHE \u5c71\u810a\u6f14\u5316",
+    "adv_ridge_gghed_by_continent" = "GGHED \u5927\u6d32\u5c71\u810a",
+    "adv_ridge_oops_by_income" = "OOPS \u6536\u5165\u7ec4\u5c71\u810a",
+    "adv_slope_smallmultiples" = "\u659c\u7387\u5c0f\u500d\u6570",
+    "adv_sources_by_income" = "\u6536\u5165\u7ec4\u7b79\u8d44\u6765\u6e90",
+    "adv_stream_continent" = "\u5927\u6d32\u6d41\u56fe",
+    "adv_stream_global_sources" = "\u5168\u7403\u6765\u6e90\u6d41\u56fe",
+    "adv_stream_income" = "\u6536\u5165\u7ec4\u6d41\u56fe",
+    "adv_topbot_che_pc" = "CHE \u6781\u503c\u5bf9\u6bd4",
+    "adv_topbot_gghed" = "GGHED \u6781\u503c\u5bf9\u6bd4",
+    "adv_topbot_life" = "\u5bff\u547d\u6781\u503c\u5bf9\u6bd4",
+    "adv_topbot_oops" = "OOPS \u6781\u503c\u5bf9\u6bd4",
+    # 地图
+    "map_africa_che_pc" = "\u975e\u6d32\u4eba\u5747 CHE \u5730\u56fe",
+    "map_africa_gghed" = "\u975e\u6d32 GGHED \u5730\u56fe",
+    "map_asia_che_pc" = "\u4e9a\u6d32\u4eba\u5747 CHE \u5730\u56fe",
+    "map_asia_oops" = "\u4e9a\u6d32 OOPS \u5730\u56fe",
+    "map_bivariate_che_life" = "CHE\u00d7\u5bff\u547d\u53cc\u53d8\u91cf\u5730\u56fe",
+    "map_bivariate_gghed_oops" = "GGHED\u00d7OOPS \u53cc\u53d8\u91cf\u5730\u56fe",
+    "map_bivariate_gghed_u5mr" = "GGHED\u00d7U5MR \u53cc\u53d8\u91cf\u5730\u56fe",
+    "map_bubble_che_total" = "CHE \u603b\u91cf\u6c14\u6ce1\u5730\u56fe",
+    "map_bubble_oops_total" = "OOPS \u603b\u91cf\u6c14\u6ce1\u5730\u56fe",
+    "map_change_che_pc" = "\u4eba\u5747 CHE \u53d8\u5316\u5730\u56fe",
+    "map_change_lifeexp" = "\u5bff\u547d\u53d8\u5316\u5730\u56fe",
+    "map_change_oops" = "OOPS \u53d8\u5316\u5730\u56fe",
+    "map_europe_che_pc" = "\u6b27\u6d32\u4eba\u5747 CHE \u5730\u56fe",
+    "map_oceania_che_pc" = "\u5927\u6d0b\u6d32 CHE \u5730\u56fe",
+    "map_quintile_che_pc" = "\u4eba\u5747 CHE \u4e94\u5206\u4f4d\u5730\u56fe",
+    "map_quintile_gghed" = "GGHED \u4e94\u5206\u4f4d\u5730\u56fe",
+    "map_quintile_lifeexp" = "\u5bff\u547d\u4e94\u5206\u4f4d\u5730\u56fe",
+    "map_quintile_oops" = "OOPS \u4e94\u5206\u4f4d\u5730\u56fe",
+    "map_sm_che_pc" = "\u4eba\u5747 CHE \u5c0f\u500d\u6570\u5730\u56fe",
+    "map_sm_gghed" = "GGHED \u5c0f\u500d\u6570\u5730\u56fe",
+    "map_sm_oops" = "OOPS \u5c0f\u500d\u6570\u5730\u56fe",
+    "map_world_che_pc" = "\u5168\u7403\u4eba\u5747 CHE \u5730\u56fe",
+    "map_world_gghed" = "\u5168\u7403 GGHED \u5730\u56fe",
+    "map_world_lifeexp" = "\u5168\u7403\u5bff\u547d\u5730\u56fe",
+    "map_world_oops" = "\u5168\u7403 OOPS \u5730\u56fe",
+    "map_world_u5mr" = "\u5168\u7403 U5MR \u5730\u56fe",
+    # 补充图表
+    "donut_financing" = "\u7b79\u8d44\u6765\u6e90\u73af\u5f62\u56fe",
+    "polar_bar_hc_purpose" = "HC \u7528\u9014\u6781\u5750\u6807",
+    "diverging_bar_oops_change" = "OOPS \u53d8\u5316\u53d1\u6563\u6761",
+    "trajectory_chn_che_life" = "\u4e2d\u56fd CHE\u00d7\u5bff\u547d\u8f68\u8ff9",
+    "pyramid_income_decile" = "\u6536\u5165\u5341\u5206\u4f4d\u91d1\u5b57\u5854",
+    "tile_matrix_completeness" = "\u6570\u636e\u5b8c\u6574\u6027\u77e9\u9635",
+    "ribbon_che_iqr" = "CHE \u56db\u5206\u4f4d\u5e26",
+    "step_oops_high_pct" = "OOPS \u9ad8\u503c\u56fd\u6bd4\u4f8b",
+    "range_span_continent" = "\u5927\u6d32\u8303\u56f4\u56fe",
+    "cleveland_gghed_oops" = "GGHED\u00d7OOPS Cleveland",
+    "sparkline_panel_6x3" = "\u8ff7\u4f60\u56fe\u9762\u677f 6\u00d73",
+    "butterfly_africa_europe" = "\u975e\u6d32\u00d7\u6b27\u6d32\u8776\u5f62\u56fe",
+    "gantt_high_oops_sustained" = "\u6301\u7eed\u9ad8 OOPS \u56fd\u7518\u7279\u56fe",
+    "dumbbell_che_growth_top20" = "CHE \u589e\u957f Top20 \u54d1\u94c3",
+    "waterfall_che_decomposition" = "CHE \u5206\u89e3\u7011\u5e03\u56fe",
+    "lorenz_che_3years" = "Lorenz \u66f2\u7ebf\u4e09\u5e74\u5bf9\u6bd4",
+    "corr_heatmap_matrix" = "\u76f8\u5173\u70ed\u529b\u77e9\u9635",
+    "ridgeline_income_years" = "\u6536\u5165\u7ec4\u8de8\u5e74\u5c71\u810a",
+    "beeswarm_oops_continent" = "OOPS \u5927\u6d32\u8702\u7fa4",
+    "violin_che_income" = "CHE \u6536\u5165\u7ec4\u5c0f\u63d0\u7434",
+    "dotmatrix_oops_risk" = "OOPS \u98ce\u9669\u70b9\u9635",
+    "area_stacked_3sources" = "\u4e09\u6765\u6e90\u5806\u53e0\u9762\u79ef",
+    "slope_oops_change_16" = "OOPS 16\u56fd\u659c\u7387\u56fe",
+    "bubble_gdp_che_pop" = "GDP\u00d7CHE\u00d7\u4eba\u53e3\u6c14\u6ce1",
+    "facet_scatter_che_life" = "CHE\u00d7\u5bff\u547d\u5206\u9762\u6563\u70b9",
+    "quadrant_fiscal_protection" = "\u8d22\u653f\u4fdd\u62a4\u56db\u8c61\u9650",
+    "ecdf_che_income" = "CHE \u7ecf\u9a8c\u5206\u5e03",
+    "segment_extreme_gap" = "\u6781\u503c\u5dee\u8ddd\u7ebf\u6bb5",
+    "density2d_che_life" = "CHE\u00d7\u5bff\u547d\u4e8c\u7ef4\u5bc6\u5ea6",
+    "proportion_continent_income" = "\u5927\u6d32\u00d7\u6536\u5165\u6bd4\u4f8b",
+    "area_highlight_chn_global" = "\u4e2d\u56fd\u00d7\u5168\u7403\u9ad8\u4eae\u9762\u79ef",
+    "paired_bar_covid_gghed" = "COVID GGHED \u5bf9\u6bd4\u6761",
+    "cumulative_area_oops_target" = "OOPS \u76ee\u6807\u7d2f\u8ba1\u9762\u79ef",
+    "lollipop_ext_top20" = "\u5916\u63f4 Top20 \u68d2\u68d2\u7cd6",
+    "histogram_density_che" = "CHE \u76f4\u65b9\u56fe\u5bc6\u5ea6",
+    "boxplot_notched_continent" = "\u5927\u6d32\u7f3a\u53e3\u7bb1\u7ebf",
+    "strip_oops_income" = "OOPS \u6536\u5165\u7ec4\u5e26\u72b6",
+    "area_between_income_gap" = "\u6536\u5165\u7ec4\u5dee\u8ddd\u9762\u79ef",
+    # 交互组件
+    "gapminder_animated" = "Gapminder \u52a8\u753b\u6563\u70b9",
+    "highlight_ts" = "\u9ad8\u4eae\u65f6\u5e8f",
+    "bar_race" = "\u6761\u5f62\u56fe\u7ade\u8d5b",
+    "forecast_subplot" = "\u9884\u6d4b\u5b50\u56fe",
+    "sankey_sources" = "\u7b79\u8d44 Sankey \u6d41\u5411",
+    "china_wb_line" = "\u4e2d\u56fd\u4e16\u884c\u6307\u6807",
+    "world_leaflet" = "\u5168\u7403 Leaflet \u5730\u56fe",
+    "reactable_rank" = "\u6392\u540d\u4ea4\u4e92\u8868",
+    "country_network" = "\u56fd\u5bb6\u76f8\u4f3c\u5ea6\u7f51\u7edc",
+    "gapminder_bubble" = "Gapminder \u6c14\u6ce1",
+    "highlight_lines" = "\u56fd\u522b\u9ad8\u4eae\u7ebf",
+    "income_violin" = "\u6536\u5165\u7ec4\u5c0f\u63d0\u7434",
+    "leaflet_choropleth" = "Leaflet \u5206\u7ea7\u5730\u56fe",
+    "mc_fan" = "\u8499\u7279\u5361\u6d1b\u6247\u5f62",
+    "oops_heatmap" = "OOPS \u70ed\u529b\u56fe",
+    "sankey_flows" = "Sankey \u8d44\u91d1\u6d41",
+    "scenarios" = "\u60c5\u666f\u6a21\u62df",
+    "splom" = "\u6563\u70b9\u77e9\u9635",
+    "dt_atlas" = "\u56fd\u5bb6\u56fe\u96c6\u8868"
+  )
 }
 
 .ghs_slug <- function(p) {
@@ -99,27 +315,27 @@ if (!exists("%||%", mode = "function")) {
       list(id = "kpi", label = "KPI")
     )),
     list(group = "2 \u6838\u5fc3\u53d1\u73b0", items = list(
-      list(id = "f-macro", label = "F1 \u5168\u7403\u8d8b\u52bf"),
-      list(id = "f-oops", label = "F2 \u81ea\u4ed8\u8d1f\u62c5"),
+      list(id = "f-trend", label = "F1 \u5168\u7403\u8d8b\u52bf"),
+      list(id = "f-finance", label = "F2 \u7b79\u8d44"),
       list(id = "f-equity", label = "F3 \u4e0d\u5e73\u7b49"),
       list(id = "f-covid", label = "F4 COVID"),
-      list(id = "f-convergence", label = "F5 \u6536\u655b"),
-      list(id = "f-elasticity", label = "F6 \u5f39\u6027"),
+      list(id = "f-beta", label = "F5 \u6536\u655b"),
+      list(id = "f-fe", label = "F6 \u5f39\u6027"),
       list(id = "f-cluster", label = "F7 \u805a\u7c7b"),
       list(id = "f-forecast", label = "F8 \u9884\u6d4b"),
       list(id = "f-aid", label = "F9 \u5916\u63f4"),
       list(id = "f-efficiency", label = "F10 \u6548\u7387"),
-      list(id = "f-ranking", label = "F11 \u6392\u540d"),
+      list(id = "f-rank", label = "F11 \u6392\u540d"),
       list(id = "f-lifeexp", label = "F12 \u5bff\u547d"),
       list(id = "f-sdg3", label = "F13 SDG-3"),
-      list(id = "f-extremes", label = "F14 \u6781\u503c")
+      list(id = "f-extreme", label = "F14 \u6781\u503c")
     )),
     list(group = "3 \u6df1\u5ea6\u4e13\u9898", items = list(
       list(id = "f-aging", label = "F15 \u8001\u9f84\u5316"),
       list(id = "f-urban", label = "F16 \u57ce\u9547\u5316"),
       list(id = "f-fiscal", label = "F17 \u8d22\u653f"),
-      list(id = "f-afford", label = "F18 \u53ef\u8d1f\u62c5"),
-      list(id = "f-bloc", label = "F19 \u533a\u57df"),
+      list(id = "f-price", label = "F18 \u53ef\u8d1f\u62c5"),
+      list(id = "f-regional", label = "F19 \u533a\u57df"),
       list(id = "f-inflation", label = "F20 \u901a\u80c0"),
       list(id = "f-ncd", label = "F21 NCD"),
       list(id = "f-uhc", label = "F22 UHC"),
@@ -418,9 +634,16 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_fig <- function(path, cap, kicker = NULL, span = "full") {
   if (is.null(path) || !nzchar(path) || !file.exists(path)) return("")
-  ok <- tryCatch({ src <- .ghs_b64(path); TRUE },
-                  error = function(e) FALSE)
-  if (!ok) return("")
+  cur_mode <- getOption("ghs_render_mode", "submission")
+  if (cur_mode == "publish") {
+    # publish 模式：使用相对路径外链（不内嵌 base64）
+    src <- paste0("\u56fe\u8868/", basename(path))
+  } else {
+    # submission 模式：base64 内嵌
+    ok <- tryCatch({ src <- .ghs_b64(path); TRUE },
+                    error = function(e) FALSE)
+    if (!ok) return("")
+  }
   hd <- if (length(kicker) && nzchar(kicker))
     sprintf("<span class='fig-kicker'>%s</span>", .ghs_e(kicker)) else ""
   sprintf("<figure class='fig-inline fig-span-%s'><button class='fig-frame' type='button' onclick='openFigure(this)' data-title='%s'><img src='%s' alt='%s' loading='lazy'></button><figcaption>%s<strong>%s</strong></figcaption></figure>",
@@ -688,7 +911,6 @@ if (!exists("%||%", mode = "function")) {
   dock_nav <- .ghs_nav_links("dock-links")
   dock_html <- paste0(
     "<div class='ghs-dock' id='ghs-dock'>",
-    "<div class='dock-progress' id='dock-progress'></div>",
     "<button class='dock-toggle' id='dock-toggle' type='button' onclick='toggleDock()'>",
     "<span class='dock-icon-open'>\u2630</span>",
     "<span class='dock-icon-close'>\u2715</span>",
@@ -1677,6 +1899,34 @@ if (!exists("%||%", mode = "function")) {
                         widget_dir = widget_dir,
                         mode = mode, repo_url = repo_url)
   else ""
+
+  # \u8865\u5145\u5185\u5bb9\u6ce8\u5165\uff1a\u4e3a\u6bcf\u4e2a Finding \u6dfb\u52a0\u989d\u5916\u56fe\u8868\u3001\u4ea4\u4e92\u7ec4\u4ef6\u4e0e\u53d9\u8ff0\u6bb5\u843d
+  se <- if (exists("ghs_sections_extra_content", mode = "function"))
+    ghs_sections_extra_content(fig_dir, widget_dir, programs_dir, mode, repo_url)
+  else list()
+
+  # \u5c06\u8865\u5145\u5185\u5bb9\u8ffd\u52a0\u5230\u5bf9\u5e94 Finding \u7684 section \u672b\u5c3e\uff08</div></section> \u4e4b\u524d\uff09
+  .inject_extra <- function(html, id) {
+    extra <- se[[id]]
+    if (is.null(extra) || !nzchar(extra)) return(html)
+    sub("</div></div></section>$", paste0(extra, "</div></div></section>"), html)
+  }
+
+  f1  <- .inject_extra(f1,  "f-trend")
+  f2  <- .inject_extra(f2,  "f-finance")
+  f3  <- .inject_extra(f3,  "f-equity")
+  f4  <- .inject_extra(f4,  "f-covid")
+  f5  <- .inject_extra(f5,  "f-beta")
+  f6  <- .inject_extra(f6,  "f-fe")
+  f7  <- .inject_extra(f7,  "f-cluster")
+  f8  <- .inject_extra(f8,  "f-forecast")
+  f9  <- .inject_extra(f9,  "f-aid")
+  f10 <- .inject_extra(f10, "f-efficiency")
+  f11 <- .inject_extra(f11, "f-rank")
+  f12 <- .inject_extra(f12, "f-lifeexp")
+  f13 <- .inject_extra(f13, "f-sdg3")
+  f14 <- .inject_extra(f14, "f-extreme")
+
   paste0(.ghs_kpi_grid(s, length(list.files(fig_dir, "[.]png$")),
                         length(list.files(file.path(dirname(fig_dir), "\u4ea4\u4e92\u7ec4\u4ef6"), "[.]html$"))),
          "<section class='findings-anchor' id='findings'></section>",
@@ -2335,11 +2585,13 @@ if (!exists("%||%", mode = "function")) {
   kind_summary <- paste(sprintf("%s %d", names(kind_counts), kind_counts),
                         collapse = " · ")
   index <- sprintf(
-    "<section class='figure-index' id='figure-index'><header><span class='kicker'>Figure Index</span><h3>\u56fe\u8868\u7d22\u5f15 \u00b7 \u5feb\u901f\u5b9a\u4f4d %d \u5f20\u56fe</h3><p>%s\u3002\u53ef\u6309\u6807\u9898\u6216\u4e3b\u9898\u641c\u7d22\uff0c\u70b9\u51fb\u6761\u76ee\u4f1a\u8df3\u5230\u5bf9\u5e94 Gallery \u5361\u7247\u3002</p></header><div class='figure-index-tools'><input id='figure-search' type='search' placeholder='\u641c\u7d22 OOPS / map / forecast / \u5730\u56fe \u2026' oninput='filterFigureIndex(this.value)'><span id='figure-index-count'>%d \u5f20\u56fe</span></div><div class='figure-index-list'>%s</div></section>",
+    "<section class='figure-index' id='figure-index'><header><span class='kicker'>\u56fe\u8868\u7d22\u5f15</span><h3>\u56fe\u8868\u7d22\u5f15 \u00b7 \u5feb\u901f\u5b9a\u4f4d %d \u5f20\u56fe</h3><p>%s\u3002\u53ef\u6309\u6807\u9898\u6216\u4e3b\u9898\u641c\u7d22\uff0c\u70b9\u51fb\u6761\u76ee\u4f1a\u8df3\u5230\u5bf9\u5e94 Gallery \u5361\u7247\u3002</p></header><div class='figure-index-tools'><input id='figure-search' type='search' placeholder='\u641c\u7d22 OOPS / map / forecast / \u5730\u56fe \u2026' oninput='filterFigureIndex(this.value)'><span id='figure-index-count'>%d \u5f20\u56fe</span></div><div class='figure-index-list'>%s</div></section>",
     nrow(meta), .ghs_e(kind_summary), nrow(meta), index_rows
   )
   card <- function(p) {
-    title <- .ghs_pretty(p); kind <- .ghs_kind(title); src <- .ghs_b64(p)
+    title <- .ghs_pretty(p); kind <- .ghs_kind(title)
+    cur_mode <- getOption("ghs_render_mode", "submission")
+    src <- if (cur_mode == "publish") paste0("\u56fe\u8868/", basename(p)) else .ghs_b64(p)
     note <- .ghs_gallery_note(title, kind)
     sprintf("<article class='gallery-card' id='%s' data-kind='%s' data-title='%s'><button class='gallery-button' type='button' onclick=\"openFigure(this)\" data-title='%s'><img src='%s' alt='%s' loading='lazy'></button><div class='gallery-meta'><span>%s</span><strong>%s</strong><p class='gallery-note'>%s</p><em>%s</em></div></article>",
             .ghs_e(.ghs_slug(p)), .ghs_e(kind),
@@ -2384,7 +2636,7 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(k), if (k == "\u5168\u90e8") " class='active'" else "",
             .ghs_e(k))
   }, character(1)), collapse = "")
-  sprintf("<section class='section widgets' id='widgets'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 Interactive lab</span><h2>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %d \u4e2a\u72ec\u7acb HTML</h2><p class='lead'>plotly \u00b7 leaflet \u00b7 reactable \u00b7 DT \u00b7 networkD3\u3002\u70b9\u51fb \u201c\u5728\u53f3\u4fa7\u67e5\u770b\u201d \u5728\u61d2\u52a0\u8f7d iframe \u4e2d\u6253\u5f00\u3002</p></header>%s<div class='tabs'>%s</div><div class='widget-lab'><div class='widget-list'>%s</div><div class='widget-frame-wrap'><div class='widget-frame-head'><strong id='widget-title'>\u9009\u62e9\u5de6\u4fa7\u4efb\u4e00\u7ec4\u4ef6</strong><span>standalone widget</span></div><iframe id='widget-frame' title='interactive widget' loading='lazy'></iframe></div></div></div></section>",
+  sprintf("<section class='section widgets' id='widgets'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 \u4ea4\u4e92\u7ec4\u4ef6\u5e93</span><h2>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %d \u4e2a\u72ec\u7acb HTML</h2><p class='lead'>plotly \u00b7 leaflet \u00b7 reactable \u00b7 DT \u00b7 networkD3\u3002\u70b9\u51fb \u201c\u5728\u53f3\u4fa7\u67e5\u770b\u201d \u5728\u61d2\u52a0\u8f7d iframe \u4e2d\u6253\u5f00\u3002</p></header>%s<div class='tabs'>%s</div><div class='widget-lab'><div class='widget-list'>%s</div><div class='widget-frame-wrap'><div class='widget-frame-head'><strong id='widget-title'>\u9009\u62e9\u5de6\u4fa7\u4efb\u4e00\u7ec4\u4ef6</strong><span>standalone widget</span></div><iframe id='widget-frame' title='interactive widget' loading='lazy'></iframe></div></div></div></section>",
           length(htmls), .ghs_section_note("widgets"), tabs, cards)
 }
 
@@ -2461,7 +2713,7 @@ if (!exists("%||%", mode = "function")) {
     "<footer class='site-footer'><div class='wrap'>",
     "<div class='foot-grid'>",
     "<div><strong>Global Health Spending \u00b7 \u5e84\u9882 20241334</strong>",
-    "<p>\u6570\u636e\u6765\u6e90\uff1aWHO Global Health Expenditure Database / TidyTuesday 2026-04-21\u3002\u5206\u6790\u4ec5\u7528\u4e8e\u8bfe\u7a0b\u9879\u76ee\u4e0e\u6570\u636e\u65b0\u95fb\u5c55\u793a\uff0c\u4e0d\u6784\u6210\u56e0\u679c\u63a8\u65ad\u3002</p></div>",
+    "<p>Shiny \u4eea\u8868\u76d8\uff1a<a href='https://constantine1433223.shinyapps.io/ghs-dashboard/' target='_blank' rel='noreferrer'>constantine1433223.shinyapps.io/ghs-dashboard</a></p></div>",
     "<div><strong>\u4ed3\u5e93</strong><p><a href='https://github.com/2711944586/R'>github.com/2711944586/R</a></p></div>",
     "<div><strong>\u5fae\u540e\u7aef</strong><p>R 4.5 \u00b7 ggplot2 \u00b7 plotly \u00b7 leaflet \u00b7 fixest \u00b7 forecast \u00b7 Shiny</p></div>",
     "</div></div></footer>"
@@ -2547,8 +2799,10 @@ if (!exists("%||%", mode = "function")) {
     ".chip i{font-style:normal;font-weight:800;color:var(--ink)}",
     ".chip-blue i{color:var(--g3-primary,var(--blue))}.chip-orange i{color:var(--g3-secondary,var(--orange))}.chip-ink i{color:var(--ink)}.chip-neutral i{color:var(--muted)}",
     ".finding-body{display:grid;gap:22px}",
-    ".method-block{background:rgba(255,255,255,.5);border:1px solid var(--line);border-radius:18px;padding:18px 22px;font-size:15.5px;color:var(--ink)}",
-    ".method-block p{margin:6px 0}",
+    ".method-block{background:rgba(255,255,255,.5);border:1px solid var(--line);border-radius:18px;padding:20px 24px;font-size:15px;color:var(--ink);line-height:1.72;letter-spacing:-.01em}",
+    ".method-block p{margin:10px 0;text-indent:2em}",
+    ".method-block p:first-child{margin-top:0}",
+    ".method-block p:last-child{margin-bottom:0}",
     ".method-block ul{margin:6px 0 6px 18px}",
     ".code-figure{margin:0;background:var(--code-bg);border-radius:18px;overflow:hidden;border:1px solid rgba(13,18,27,.18);box-shadow:0 18px 36px rgba(13,18,27,.18)}",
     ".code-caption{padding:10px 18px;color:#cdd9ee;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700}",
@@ -2672,6 +2926,22 @@ if (!exists("%||%", mode = "function")) {
     ".widget-embed[open] .widget-embed-frame{height:640px;border-top:1px solid var(--line)}",
     ".widget-embed iframe{width:100%;height:100%;border:0;background:#fff}",
     ".widget-embed-links{display:flex;gap:12px;padding:10px 18px 12px;font-size:12px;border-top:1px solid var(--line)}.widget-embed-links a{color:#78716c;text-decoration:none}.widget-embed-links a:hover{color:#292524}",
+    ".widget-card{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.03);margin-bottom:14px}",
+    ".widget-card h4{padding:14px 18px 0;font-size:13px;color:var(--ink);font-weight:700;margin:0}",
+    ".widget-card .widget-embed-frame{height:560px;background:#fff;border-top:1px solid var(--line);margin-top:10px}",
+    ".widget-card iframe{width:100%;height:100%;border:0;background:#fff}",
+    ".widget-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin:24px 0}",
+    ".finding-extra{margin-top:32px;padding-top:24px;border-top:1px solid var(--line)}",
+    ".finding-extra h3{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 14px}",
+    ".finding-extra .prose{font-size:14px;line-height:1.7;color:#44403c;margin:0 0 16px;max-width:72ch}",
+    ".code-block{background:#1e1e2e;border-radius:14px;padding:18px 20px;margin:18px 0;overflow-x:auto;box-shadow:0 2px 12px rgba(0,0,0,.08)}",
+    ".code-block pre{margin:0;padding:0;background:transparent}",
+    ".code-block code{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;line-height:1.6;color:#cdd6f4;white-space:pre;display:block}",
+    ".figure-grid{display:grid;gap:14px;margin:18px 0}",
+    ".figure-grid-3col{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}",
+    ".figure-grid figure{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0;box-shadow:0 1px 4px rgba(0,0,0,.02)}",
+    ".figure-grid figure img{width:100%;height:auto;display:block}",
+    ".figure-grid figcaption{padding:10px 14px;font-size:12px;color:#78716c;text-align:center}",
     ".executive{background:var(--paper)}",
     ".exec-big-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:30px}",
     ".exec-big{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:24px 22px;box-shadow:0 2px 8px rgba(0,0,0,.03);display:grid;gap:6px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s;animation:ghs-card-enter .7s cubic-bezier(.16,1,.3,1) both}",
@@ -2750,8 +3020,8 @@ if (!exists("%||%", mode = "function")) {
     "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;f.scrollIntoView({behavior:'smooth',block:'center'});}",
     "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFigure();});",
     "function toggleDock(){var dock=document.getElementById('ghs-dock');dock.classList.toggle('open');}",
-    "(function(){var bar=document.getElementById('read-progress');var dbar=document.getElementById('dock-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=s/max;if(bar)bar.style.width=(pct*100)+'%';if(dbar)dbar.style.transform='scaleX('+pct+')';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function absTop(el){return el.getBoundingClientRect().top+window.scrollY;}function spy(){var pos=window.scrollY+120;var sorted=targets.slice().sort(function(a,b){return absTop(a.el)-absTop(b.el);});var cur=sorted.length?sorted[0].id:null;for(var i=0;i<sorted.length;i++){if(absTop(sorted[i].el)<=pos){cur=sorted[i].id;}else{break;}}links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el){var top=absTop(el)-40;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});history.replaceState(null,'','#'+id);}var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
+    "(function(){var bar=document.getElementById('read-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=s/max;if(bar)bar.style.width=(pct*100)+'%';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
+    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function absTop(el){return el.getBoundingClientRect().top+window.scrollY;}function spy(){var pos=window.scrollY+80;var sorted=targets.slice().sort(function(a,b){return absTop(a.el)-absTop(b.el);});var cur=sorted.length?sorted[0].id:null;for(var i=0;i<sorted.length;i++){if(absTop(sorted[i].el)<=pos){cur=sorted[i].id;}else{break;}}links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el){var header=el.querySelector('.finding-head,.section-head,header');var target=header||el;var top=absTop(target)-24;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});history.replaceState(null,'','#'+id);}var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",
@@ -3082,7 +3352,7 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-dock.open .dock-icon-open{display:none}",
     ".ghs-dock.open .dock-icon-close{display:inline}",
     ".ghs-dock.open .dock-toggle{background:#78716c;border-radius:50%}",
-    ".dock-panel{position:absolute;bottom:64px;right:0;width:280px;max-height:75vh;overflow-y:auto;background:rgba(240,235,225,.75);backdrop-filter:blur(28px) saturate(140%);-webkit-backdrop-filter:blur(28px) saturate(140%);border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:0;opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .3s cubic-bezier(.16,1,.3,1),transform .3s cubic-bezier(.16,1,.3,1);box-shadow:0 16px 48px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.03)}",
+    ".dock-panel{position:absolute;bottom:64px;right:0;width:280px;max-height:75vh;overflow-y:auto;background:rgba(240,235,225,.55);backdrop-filter:blur(32px) saturate(150%);-webkit-backdrop-filter:blur(32px) saturate(150%);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:0;opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .3s cubic-bezier(.16,1,.3,1),transform .3s cubic-bezier(.16,1,.3,1);box-shadow:0 16px 48px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.04)}",
     ".ghs-dock.open .dock-panel{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}",
     ".dock-header{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid rgba(0,0,0,.04)}",
     ".dock-brand{font-family:'Source Serif 4',serif;font-weight:800;font-size:15px;color:#292524;text-decoration:none;letter-spacing:.02em}",
@@ -3090,8 +3360,6 @@ if (!exists("%||%", mode = "function")) {
     ".dock-links{padding:10px 12px}.dock-links .nav-group{display:block;margin-bottom:8px}.dock-links .nav-group-label{display:block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,0,0,.28);padding:3px 6px 4px}.dock-links .nav-group a{display:inline-block;color:#57534e;font-size:11.5px;text-decoration:none;padding:4px 8px;border-radius:6px;margin:1px;transition:all .12s ease;font-weight:500}.dock-links .nav-group a:hover{color:#1c1917;background:rgba(0,0,0,.04)}.dock-links .nav-group a.active{color:#1c1917;background:rgba(41,37,36,.08);font-weight:700}",
     ".dock-links .nav-group:after{display:none}",
     ".dock-footer{display:flex;gap:6px;padding:10px 16px 12px;border-top:1px solid rgba(0,0,0,.04)}.dock-footer a{font-size:11px;color:#a8a29e;text-decoration:none;padding:3px 8px;border:1px solid rgba(0,0,0,.06);border-radius:6px;transition:all .12s}.dock-footer a:hover{color:#292524;border-color:rgba(0,0,0,.12)}",
-    ".dock-progress{position:absolute;bottom:0;left:8px;right:8px;width:auto;height:3px;background:linear-gradient(90deg,#292524,#78716c);border-radius:99px;transition:width .1s linear;z-index:3;pointer-events:none;transform:scaleX(0);transform-origin:left}",
-    ".ghs-dock.open .dock-progress{display:none}",
     "@media(max-width:640px){.ghs-dock{bottom:16px;right:16px}.dock-panel{width:calc(100vw - 32px);right:-8px;bottom:60px}.hero-main{font-size:48px}}",
     ""
   ), collapse = "")
@@ -3459,12 +3727,25 @@ generate_static_showcase <- function(root = NULL,
   dir.create(dirname(out_submission), recursive = TRUE, showWarnings = FALSE)
   dir.create(dirname(out_publish), recursive = TRUE, showWarnings = FALSE)
 
+  # submission 版：base64 内嵌（离线可读）
+  options(ghs_render_mode = "submission")
   html_submission <- .ghs_render(master, fig_dir, widget_dir, programs_dir,
                                   models_dir, mode = "submission",
                                   repo_url = repo_url, project_url = project_url)
+
+  # publish 版：外链图片（体积小，可部署）
+  options(ghs_render_mode = "publish")
+  # 复制图表到网站发布目录
+  pub_fig_dir <- file.path(dirname(out_publish), "\u56fe\u8868")
+  dir.create(pub_fig_dir, recursive = TRUE, showWarnings = FALSE)
+  pngs_src <- list.files(fig_dir, pattern = "[.]png$", full.names = TRUE)
+  file.copy(pngs_src, file.path(pub_fig_dir, basename(pngs_src)),
+            overwrite = TRUE, copy.date = TRUE)
   html_publish <- .ghs_render(master, fig_dir, widget_dir, programs_dir,
                                 models_dir, mode = "publish",
                                 repo_url = repo_url, project_url = project_url)
+  options(ghs_render_mode = NULL)
+
   writeLines(html_submission, out_submission, useBytes = TRUE)
   writeLines(html_publish,    out_publish,    useBytes = TRUE)
   if (isTRUE(write_rmd)) {
