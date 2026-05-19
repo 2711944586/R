@@ -106,3 +106,8 @@ _diag_files/
 .env
 .Renviron
 .Rprofile.local
+
+# 超过 100MB 的生成文件（离线分享用）
+课程提交/庄颂_20241334.html
+课程提交/庄颂_20241334.Rmd
+网站发布/index.html
