@@ -2166,103 +2166,6 @@ if (!exists("%||%", mode = "function")) {
   )
 }
 
-
-.ghs_supplement_section <- function(fig_dir, widget_dir, mode, repo_url) {
-  # 列出所有图和widget
-  all_figs <- list.files(fig_dir, pattern = "[.]png$", full.names = FALSE)
-  all_widgets <- list.files(widget_dir, pattern = "[.]html$", full.names = FALSE)
-  
-  # 如果 ghs_findings_supplement 存在就调用
-  if (!exists("ghs_findings_supplement", mode = "function")) return("")
-  if (!exists(".fb_assign_fig", mode = "function")) return("")
-  
-  # 按主题分组展示
-  fig_map <- split(all_figs, vapply(all_figs, .fb_assign_fig, character(1)))
-  widget_map <- split(all_widgets, vapply(all_widgets, .fb_assign_widget, character(1)))
-  
-  theme_labels <- c(
-    F1 = "\u5168\u7403\u8d8b\u52bf\u4e0e\u7b79\u8d44\u7ed3\u6784",
-    F2 = "\u5c45\u6c11\u81ea\u4ed8\u4e13\u9898",
-    F3 = "\u4e0d\u5e73\u7b49\u4e0e\u5206\u5e03",
-    F4 = "\u51b2\u51fb\u4e0e\u6062\u590d",
-    F5 = "\u6536\u655b\u4e0e\u8ffd\u8d76",
-    F6 = "\u5f39\u6027\u4e0e\u6a21\u578b",
-    F7 = "\u805a\u7c7b\u4e0e\u7c7b\u578b\u5b66",
-    F8 = "\u9884\u6d4b\u4e0e\u60c5\u666f",
-    F9 = "\u5916\u63f4\u4e0e\u4f9d\u8d56",
-    F10 = "\u6548\u7387\u4e0e\u524d\u6cbf",
-    F11 = "\u6392\u540d\u4e0e\u56fd\u5bb6",
-    F12 = "\u5bff\u547d\u4e0e\u4ea7\u51fa",
-    F13 = "SDG-3 \u8fdb\u5c55",
-    F14 = "\u6781\u503c\u4e0e\u53d8\u70b9",
-    F15 = "\u8001\u9f84\u5316",
-    F16 = "\u57ce\u9547\u5316",
-    F17 = "\u8d22\u653f\u7a7a\u95f4",
-    F18 = "\u53ef\u8d1f\u62c5\u6027",
-    F19 = "\u533a\u57df\u534f\u8bae",
-    F20 = "\u901a\u80c0\u51b2\u51fb",
-    F21 = "\u75be\u75c5\u8d1f\u62c5",
-    F22 = "UHC \u8986\u76d6",
-    F23 = "\u707e\u96be\u6027\u652f\u51fa",
-    F24 = "\u6bcd\u5a74\u5065\u5eb7",
-    F25 = "\u9884\u9632\u4e0e NCD",
-    F26 = "\u536b\u751f\u4eba\u529b",
-    F27 = "\u6536\u5165\u664b\u5347",
-    F28 = "\u5206\u89e3\u5206\u6790",
-    F29 = "\u8106\u5f31\u56fd\u5bb6",
-    F30 = "OECD vs LMIC",
-    F31 = "\u6548\u7387\u8c61\u9650",
-    F32 = "\u63f4\u52a9\u6548\u7387",
-    F33 = "\u6570\u636e\u5b8c\u6574\u6027",
-    F34 = "\u6570\u636e\u4fee\u8ba2",
-    F35 = "\u5c0f\u5c9b\u56fd",
-    F36 = "\u7efc\u5408\u6307\u6570"
-  )
-  
-  sections <- vapply(names(fig_map), function(fid) {
-    figs <- fig_map[[fid]]
-    widgets <- if (!is.null(widget_map[[fid]])) widget_map[[fid]] else character(0)
-    if (!length(figs) && !length(widgets)) return("")
-    
-    label <- if (fid %in% names(theme_labels)) theme_labels[[fid]] else fid
-    
-    fig_cards <- vapply(figs, function(f) {
-      path <- file.path(fig_dir, f)
-      if (file.exists(path)) {
-        .ghs_fig(path, .ghs_pretty(path), .ghs_pretty(path))
-      } else ""
-    }, character(1))
-    
-    wgt_cards <- vapply(widgets, function(w) {
-      if (exists(".ghs_widget_anchor", mode = "function")) {
-        .ghs_widget_anchor(widget_dir, w, .ghs_pretty(w), mode, repo_url)
-      } else ""
-    }, character(1))
-    
-    paste0(
-      sprintf("<div class='finding-supplement' data-finding='%s'>", fid),
-      sprintf("<h4>%s \u00b7 %s</h4>", fid, label),
-      paste(fig_cards[nzchar(fig_cards)], collapse = ""),
-      paste(wgt_cards[nzchar(wgt_cards)], collapse = ""),
-      "</div>")
-  }, character(1))
-  
-  content <- paste(sections[nzchar(sections)], collapse = "")
-  if (!nzchar(content)) return("")
-  
-  sprintf(paste0(
-    "<section class='section' id='full-evidence'>",
-    "<div class='wrap'>",
-    "<header class='section-head'>",
-    "<span class='kicker'>EVIDENCE \u00b7 FULL ATLAS</span>",
-    "<h2>\u5168\u91cf\u8bc1\u636e\u5e93 \u00b7 300 \u5f20\u56fe + 133 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6</h2>",
-    "<p class='lead'>\u4ee5\u4e0b\u5c55\u793a\u672c\u62a5\u544a\u4ea7\u51fa\u7684\u5168\u90e8\u9759\u6001\u56fe\u8868\u4e0e\u4ea4\u4e92\u7ec4\u4ef6\uff0c\u6309 36 \u4e2a\u6838\u5fc3\u53d1\u73b0\u7684\u4e3b\u9898\u5f52\u7c7b\u3002\u6bcf\u5f20\u56fe\u5747\u5df2\u5728\u4e0a\u65b9\u5bf9\u5e94 Finding \u4e2d\u5f15\u7528\uff0c\u6b64\u5904\u63d0\u4f9b\u5b8c\u6574\u7d22\u5f15\u3002</p>",
-    "</header>",
-    "%s",
-    "</div></section>"),
-    content)
-}
-
 .ghs_gallery <- function(fig_dir, widget_dir, mode, repo_url) {
   pngs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = TRUE))
   if (!length(pngs)) return("")
@@ -3369,9 +3272,9 @@ if (!exists("%||%", mode = "function")) {
     .ghs_simulator(s),
     .ghs_robustness(master, models_dir),
     # 自动补充：将所有未被 Findings 引用的图和 widget 嵌入到 Gallery 前展示
-    if (exists("ghs_findings_supplement", mode = "function")) {
-      .ghs_supplement_section(fig_dir, widget_dir, mode, repo_url)
-    } else "",
+    "",
+
+
     .ghs_gallery(fig_dir, widget_dir, mode, repo_url),
     .ghs_widgets(widget_dir, mode, repo_url),
     # F \u9636\u6bb5\uff1a\u9644\u52a0 6 \u4e2a\u65b0\u7ae0\u8282\uff08\u7ae0\u8282\u603b\u6570 18 \u2192 24+\uff09
