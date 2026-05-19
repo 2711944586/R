@@ -2209,7 +2209,7 @@ if (!exists("%||%", mode = "function")) {
 
 
 .ghs_inject_all_assets <- function(fig_dir, widget_dir, mode, repo_url) {
-  # 把所有图和widget按Finding主题生成HTML块
+  return("")
   # 每个块会直接出现在Findings之后，但通过CSS与对应Finding视觉关联
   # 每张图附带完整的阐述性段落
   
