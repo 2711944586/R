@@ -2945,7 +2945,7 @@ if (!exists("%||%", mode = "function")) {
     ".dock-links .nav-group:after{display:none}",
     ".dock-footer{display:flex;gap:6px;padding:10px 16px 12px;border-top:1px solid rgba(0,0,0,.04)}.dock-footer a{font-size:11px;color:#a8a29e;text-decoration:none;padding:3px 8px;border:1px solid rgba(0,0,0,.06);border-radius:6px;transition:all .12s}.dock-footer a:hover{color:#292524;border-color:rgba(0,0,0,.12)}",
     ".dock-progress{position:absolute;bottom:0;left:8px;right:8px;width:auto;height:3px;background:linear-gradient(90deg,#292524,#78716c);border-radius:99px;transition:width .1s linear;z-index:3;pointer-events:none;transform:scaleX(0);transform-origin:left}",
-    ".ghs-dock:not(.open) .dock-progress{left:12px;right:12px;bottom:4px;height:2px;border-radius:99px}",
+    ".ghs-dock:not(.open) .dock-progress{display:none}",
     "@media(max-width:640px){.ghs-dock{bottom:16px;right:16px}.dock-panel{width:calc(100vw - 32px);right:-8px;bottom:60px}.hero-main{font-size:48px}}",
     ""
   ), collapse = "")
