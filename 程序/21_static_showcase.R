@@ -2713,7 +2713,8 @@ if (!exists("%||%", mode = "function")) {
     "<footer class='site-footer'><div class='wrap'>",
     "<div class='foot-grid'>",
     "<div><strong>Global Health Spending \u00b7 \u5e84\u9882 20241334</strong>",
-    "<p>Shiny \u4eea\u8868\u76d8\uff1a<a href='https://constantine1433223.shinyapps.io/ghs-dashboard/' target='_blank' rel='noreferrer'>constantine1433223.shinyapps.io/ghs-dashboard</a></p></div>",
+    "<p>Shiny \u4eea\u8868\u76d8\uff1a<a href='https://constantine1433223.shinyapps.io/ghs-dashboard/' target='_blank' rel='noreferrer'>constantine1433223.shinyapps.io/ghs-dashboard</a></p>",
+    "<p>\u9759\u6001\u9996\u9875\uff1a<a href='https://2711944586.github.io/R/' target='_blank' rel='noreferrer'>2711944586.github.io/R</a></p></div>",
     "<div><strong>\u4ed3\u5e93</strong><p><a href='https://github.com/2711944586/R'>github.com/2711944586/R</a></p></div>",
     "<div><strong>\u5fae\u540e\u7aef</strong><p>R 4.5 \u00b7 ggplot2 \u00b7 plotly \u00b7 leaflet \u00b7 fixest \u00b7 forecast \u00b7 Shiny</p></div>",
     "</div></div></footer>"
