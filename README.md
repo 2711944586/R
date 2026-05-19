@@ -1,9 +1,9 @@
 # Global Health Spending 2000–2023 · 项目说明
 
-> 作者：庄颂（20241334）
-> 数据：TidyTuesday 2026-04-21 / WHO Global Health Expenditure Database，补充 WDI、WHO GHO、IMF 等公开数据
-> 在线首页：<https://2711944586.github.io/R/>
-> 在线 Shiny：<https://constantine1433223.shinyapps.io/ghs-dashboard/>
+> 作者：庄颂（20241334）  
+> 数据：TidyTuesday 2026-04-21 / WHO Global Health Expenditure Database + WDI + WHO GHO + IMF  
+> 在线首页：<https://2711944586.github.io/R/>  
+> Shiny 仪表盘：<https://constantine1433223.shinyapps.io/ghs-dashboard/>  
 > GitHub 仓库：<https://github.com/2711944586/R>
 
 本仓库对 WHO 全球卫生支出数据集（GHED）做端到端分析：从原始数据清洗、特征工程、统计建模，到 300 张静态图、133 个交互组件、36 个 Shiny 模块。覆盖 195 个国家 2000–2023 年的医疗资金来源、政府/私人/外援构成、人均水平、健康产出、不平等、效率、聚类、预测、情景模拟。
@@ -139,7 +139,9 @@ Rscript 启动仪表盘.R 4848  # 本地启动 Shiny（端口 4848，可改）
 │   └── 质量报告/            quality_gate.html / .json / .csv
 │
 ├── 课程提交/                课程 Rmd 源 + HTML 结果
-├── 网站发布/                GitHub Pages 静态首页
+├── 网站发布/                GitHub Pages 静态首页（0.9 MB HTML + 外链图片）
+│   ├── index.html           外链图片版（体积小，可部署）
+│   ├── 图表/                300 张 PNG（publish 版图片资源）
 │   ├── 交互组件/            发布版 standalone widgets
 │   └── 仪表盘/              shinylive 浏览器版（自动生成）
 │
@@ -392,7 +394,7 @@ docker compose -f 部署配置/docker-compose.yml up -d
 - `课程提交/庄颂_20241334.Rmd` 依赖项目根的 `程序/`、`派生数据/`、`分析输出/`；不要单独移动 Rmd。
 - `网站发布/index.html` 完整体验依赖同级 `网站发布/交互组件/` 与 `网站发布/仪表盘/`。
 - 最终提交只包含 `庄颂_20241334/` 整个文件夹（由 `Rscript 构建.R delivery`，并设置 `GHS_BUILD_DELIVERY=TRUE` 后生成）。
-- 单页 HTML 体积较大（~58 MB）是为了课程提交离线可读，**这是有意行为**。
+- 单页 HTML 体积较大（~122 MB）是为了课程提交离线可读（base64 内嵌所有图片），**这是有意行为**。网站发布版仅 0.9 MB（图片通过相对路径引用 `图表/` 目录下的 300 张 PNG）。
 
 ## 14. 自动测试
 
