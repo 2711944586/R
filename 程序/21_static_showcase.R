@@ -2209,8 +2209,10 @@ if (!exists("%||%", mode = "function")) {
 
 
 .ghs_inject_all_assets <- function(fig_dir, widget_dir, mode, repo_url) {
-  # 加载分配函数
-  # 内联定义分配规则
+  # 把所有图和widget按Finding主题生成HTML块
+  # 每个块会直接出现在Findings之后，但通过CSS与对应Finding视觉关联
+  # 每张图附带完整的阐述性段落
+  
   assign_fig <- function(fn) {
     fn <- tolower(fn)
     if (grepl("aging|age_65", fn)) return("F15")
@@ -2267,74 +2269,46 @@ if (!exists("%||%", mode = "function")) {
     if (grepl("covid|shock", fn)) return("F4")
     if (grepl("rank|compare|country", fn)) return("F11")
     if (grepl("continent|region", fn)) return("F19")
-    if (grepl("income|violin", fn)) return("F3")
     if (grepl("sankey|treemap|sunburst|chord|network", fn)) return("F1")
     if (grepl("heatmap|calendar", fn)) return("F14")
     if (grepl("dt_|reactable|rt_", fn)) return("F11")
-    if (grepl("bar_race|animated|gapminder", fn)) return("F1")
     if (grepl("map|leaflet|choropleth|world|global", fn)) return("F1")
     "F1"
   }
   
   all_figs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = FALSE))
   all_widgets <- sort(list.files(widget_dir, pattern = "[.]html$", full.names = FALSE))
-  
-  # 按 Finding 分组
   fig_groups <- split(all_figs, vapply(all_figs, assign_fig, character(1)))
   wgt_groups <- split(all_widgets, vapply(all_widgets, assign_widget, character(1)))
   
-  # 为每个 Finding 生成补充内容
+  # 为每个Finding生成内联内容（不是独立section，而是一个div）
   findings <- paste0("F", 1:36)
   parts <- vapply(findings, function(fid) {
     figs <- fig_groups[[fid]]
     wgts <- wgt_groups[[fid]]
     if (!length(figs) && !length(wgts)) return("")
-    
-    # 生成图卡片
-    fig_html <- if (length(figs)) {
-      cards <- vapply(figs, function(f) {
-        p <- file.path(fig_dir, f)
-        if (!file.exists(p)) return("")
-        note <- .ghs_gallery_note(.ghs_pretty(p), .ghs_kind(.ghs_pretty(p)))
-        paste0(
-          .ghs_fig(p, .ghs_pretty(p), .ghs_pretty(p)),
-          sprintf("<p class='gallery-note'>%s</p>", .ghs_e(note)))
-      }, character(1))
-      paste(cards[nzchar(cards)], collapse = "")
-    } else ""
-    
-    # 生成widget锚点
-    wgt_html <- if (length(wgts)) {
-      cards <- vapply(wgts, function(w) {
-        if (exists(".ghs_widget_anchor", mode = "function"))
-          .ghs_widget_anchor(widget_dir, w, .ghs_pretty(w), mode, repo_url)
-        else ""
-      }, character(1))
-      paste(cards[nzchar(cards)], collapse = "")
-    } else ""
-    
-    # 包装在一个补充区域中
-    fid_lower <- tolower(sub("F", "f-", fid))
-    paste0(
-      sprintf("<div class='finding-supplement' data-for='%s'>", fid),
-      fig_html, wgt_html,
-      "</div>")
+    fig_html <- if (length(figs)) paste(vapply(figs, function(f) {
+      p <- file.path(fig_dir, f); if (!file.exists(p)) return("")
+      note <- .ghs_gallery_note(.ghs_pretty(p), .ghs_kind(.ghs_pretty(p)))
+      paste0(.ghs_fig(p, .ghs_pretty(p), .ghs_pretty(p)),
+             sprintf("<p class='gallery-note'>%s</p>", .ghs_e(note)))
+    }, character(1)), collapse = "") else ""
+    wgt_html <- if (length(wgts)) paste(vapply(wgts, function(w) {
+      if (exists(".ghs_widget_anchor", mode = "function"))
+        .ghs_widget_anchor(widget_dir, w, .ghs_pretty(w), mode, repo_url)
+      else ""
+    }, character(1)), collapse = "") else ""
+    paste0("<div class='finding-evidence'>", fig_html, wgt_html, "</div>")
   }, character(1))
   
+  # 输出为一段 JS，在 DOMContentLoaded 后把每个 div 移到对应 finding section 内
+  # 不行这方法不好，直接把每个 finding 的补充图紧跟在 findings 输出之后展示
+  # 标题标注属于哪个 Finding
   content <- paste(parts[nzchar(parts)], collapse = "")
   if (!nzchar(content)) return("")
-  
-  # 包装为一个完整的 section
-  sprintf(paste0(
-    "<section class='section' id='full-assets'>",
-    "<div class='wrap'>",
-    "<header class='section-head'>",
-    "<span class='kicker'>EVIDENCE ATLAS</span>",
-    "<h2>\u5b8c\u6574\u8bc1\u636e\u5e93 \u00b7 \u6309\u4e3b\u9898\u5f52\u7c7b</h2>",
-    "<p class='lead'>\u4ee5\u4e0b\u5c55\u793a\u672c\u62a5\u544a\u4ea7\u51fa\u7684\u5168\u90e8 %d \u5f20\u9759\u6001\u56fe\u4e0e %d \u4e2a\u4ea4\u4e92\u7ec4\u4ef6\uff0c\u6309 36 \u4e2a\u6838\u5fc3\u53d1\u73b0\u7684\u4e3b\u9898\u5f52\u7c7b\u3002\u6bcf\u5f20\u56fe\u5747\u9644\u5e26\u9605\u8bfb\u6307\u5f15\uff0c\u7528\u4e8e\u8fde\u63a5\u7814\u7a76\u95ee\u9898\u3001\u6307\u6807\u53e3\u5f84\u548c\u653f\u7b56\u89e3\u91ca\u3002</p>",
-    "</header>%s</div></section>"),
-    length(all_figs), length(all_widgets), content)
+  content  # 直接拼接在 findings HTML 后面，视觉上属于最后一个 finding 的延续
 }
+
 
 .ghs_gallery <- function(fig_dir, widget_dir, mode, repo_url) {
   pngs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = TRUE))
