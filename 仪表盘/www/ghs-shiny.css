@@ -2173,3 +2173,281 @@ nav.navbar,
     min-height: 0;
   }
 }
+
+.home-cover-page {
+  min-height: calc(100vh - 76px);
+  padding: clamp(22px, 4vw, 48px) 0 !important;
+}
+
+.home-cover {
+  min-height: min(720px, calc(100vh - 132px));
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(280px, .94fr);
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  width: min(1180px, 94vw);
+  margin: 0 auto;
+  color: var(--home-ink);
+}
+
+.home-cover-copy {
+  min-width: 0;
+  padding: clamp(10px, 2vw, 22px) 0;
+}
+
+.home-cover-kicker {
+  display: inline-flex;
+  margin-bottom: 18px;
+  color: var(--home-mauve);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.home-cover h1 {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  color: var(--home-ink) !important;
+  font-family: "Source Serif 4", "Noto Serif SC", Georgia, serif;
+  font-size: clamp(48px, 8vw, 104px);
+  line-height: .96;
+  font-weight: 900;
+  letter-spacing: 0 !important;
+}
+
+.home-cover h1 span:last-child {
+  color: var(--home-blue);
+  font-size: .7em;
+}
+
+.home-cover-lead {
+  max-width: 690px;
+  margin: 26px 0 0;
+  color: var(--home-muted);
+  font-size: clamp(16px, 1.45vw, 20px);
+  line-height: 1.82;
+}
+
+.home-cover-meta,
+.home-cover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.home-cover-meta {
+  margin-top: 24px;
+}
+
+.home-cover-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 11px;
+  color: var(--home-muted);
+  background: rgba(255,255,255,.62);
+  border: 1px solid var(--home-line);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.home-cover-actions {
+  margin-top: 34px;
+}
+
+.home-cover-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 16px;
+  color: var(--home-blue);
+  background: #fffaf7;
+  border: 1px solid var(--home-line);
+  border-radius: 8px;
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 850;
+  text-decoration: none;
+  transition: transform .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
+.home-cover-action:hover,
+.home-cover-action:focus-visible {
+  color: var(--home-blue);
+  background: #ffffff;
+  border-color: rgba(37,79,92,.32);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.home-cover-action-primary {
+  color: #ffffff !important;
+  background: var(--home-blue) !important;
+  border-color: var(--home-blue) !important;
+}
+
+.home-cover-action-primary:hover,
+.home-cover-action-primary:focus-visible {
+  color: #ffffff !important;
+  background: #1f444f !important;
+}
+
+.home-cover-visual {
+  position: relative;
+  min-height: clamp(360px, 48vw, 580px);
+  display: grid;
+  align-content: end;
+  gap: 22px;
+  padding: clamp(28px, 4vw, 48px);
+  border: 1px solid var(--home-line);
+  border-radius: 8px;
+  background: #fbfaf6;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(23,33,31,.05), 0 18px 42px rgba(23,33,31,.075);
+}
+
+.home-cover-visual::before,
+.home-cover-visual::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(37,79,92,.18);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.home-cover-visual::before {
+  width: 72%;
+  aspect-ratio: 1;
+  right: -24%;
+  top: -16%;
+  animation: home-cover-drift 9s ease-in-out infinite;
+}
+
+.home-cover-visual::after {
+  width: 48%;
+  aspect-ratio: 1;
+  left: -14%;
+  bottom: -12%;
+  border-color: rgba(88,118,105,.22);
+  animation: home-cover-drift 11s ease-in-out infinite reverse;
+}
+
+.home-cover-years {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  color: var(--home-blue);
+  font-family: "Source Serif 4", "Noto Serif SC", Georgia, serif;
+  font-size: clamp(42px, 6vw, 76px);
+  font-weight: 850;
+  line-height: 1;
+}
+
+.home-cover-bars {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: end;
+  gap: 10px;
+  height: 180px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(23,33,31,.12);
+}
+
+.home-cover-bars span {
+  display: block;
+  min-height: 28px;
+  border-radius: 8px 8px 2px 2px;
+  background: var(--bar, var(--home-blue));
+  opacity: .86;
+  transform-origin: bottom;
+  animation: home-cover-bar 3.2s ease-in-out infinite;
+}
+
+.home-cover-bars span:nth-child(1) { height: 34%; --bar: var(--home-mauve); animation-delay: 0s; }
+.home-cover-bars span:nth-child(2) { height: 48%; --bar: var(--home-sage); animation-delay: .1s; }
+.home-cover-bars span:nth-child(3) { height: 40%; --bar: var(--home-ochre); animation-delay: .2s; }
+.home-cover-bars span:nth-child(4) { height: 66%; --bar: var(--home-blue); animation-delay: .3s; }
+.home-cover-bars span:nth-child(5) { height: 76%; --bar: var(--home-rust); animation-delay: .4s; }
+.home-cover-bars span:nth-child(6) { height: 58%; --bar: var(--home-sage); animation-delay: .5s; }
+
+.home-cover-caption {
+  position: relative;
+  z-index: 1;
+  color: var(--home-muted);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+@keyframes home-cover-bar {
+  0%, 100% { transform: scaleY(.92); opacity: .74; }
+  45% { transform: scaleY(1); opacity: .94; }
+}
+
+@keyframes home-cover-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(10px, -8px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-cover-bars span,
+  .home-cover-visual::before,
+  .home-cover-visual::after {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .home-cover {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .home-cover-visual {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 620px) {
+  .home-cover-page {
+    padding-top: 18px !important;
+  }
+
+  .home-cover {
+    width: min(100%, 94vw);
+    gap: 24px;
+  }
+
+  .home-cover h1 {
+    font-size: 44px;
+  }
+
+  .home-cover-meta,
+  .home-cover-actions {
+    align-items: stretch;
+  }
+
+  .home-cover-action {
+    width: 100%;
+  }
+
+  .home-cover-visual {
+    min-height: 300px;
+    padding: 22px;
+  }
+
+  .home-cover-bars {
+    height: 138px;
+    gap: 7px;
+  }
+}
