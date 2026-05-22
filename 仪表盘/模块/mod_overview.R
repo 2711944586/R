@@ -20,7 +20,8 @@ mod_overview_ui <- function(id) {
       pandemic = "bad", growth = "secondary", transition = "good",
       timeline = "neutral", extremes = "bad",
       compare = "primary", cluster = "secondary", forecast = "warn",
-      scenarios = "good", correlation = "primary", distribution = "secondary",
+      scenarios = "good", mapstudio = "primary", widgets = "secondary",
+      correlation = "primary", distribution = "secondary",
       robustness = "warn", dataquality = "primary", policy = "good",
       atlas = "secondary",
       "primary"
@@ -32,7 +33,7 @@ mod_overview_ui <- function(id) {
   }
 
   bslib::nav_panel(
-    title = htmltools::HTML("&#127759; \u603b\u89c8 Overview"),
+    title = "\u603b\u89c8 Overview",
     value = "overview",
     icon  = NULL,
     mod_v3_hero(
@@ -45,7 +46,7 @@ mod_overview_ui <- function(id) {
       ),
       meta = list(
         "\u4f5c\u8005 \u5e84\u9882 (20241334)",
-        "36 \u4e2a Shiny \u6a21\u5757 \u00b7 300 \u5f20\u9759\u6001\u56fe \u00b7 133 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6",
+        "37 \u4e2a Shiny \u6a21\u5757 \u00b7 300 \u5f20\u9759\u6001\u56fe \u00b7 150 \u4e2a\u4ea4\u4e92\u7ec4\u4ef6",
         list(label = "\u9759\u6001\u9996\u9875",
              href = "https://2711944586.github.io/R/"),
         list(label = "GitHub", href = "https://github.com/2711944586/R")
@@ -58,7 +59,7 @@ mod_overview_ui <- function(id) {
       "WHO GHED + WDI",
       "195 个国家",
       "2000-2023",
-      "36 个交互模块",
+      "37 个交互模块",
       "静态报告同口径",
       tone = "primary"
     ),
@@ -74,7 +75,7 @@ mod_overview_ui <- function(id) {
       mod_v3_insight(
         kicker = "Navigation",
         title = "模块不是目录，而是分析路径",
-        text = "下方 35 张专题卡按国家、筹资、公平、产出、冲击、工具和质量分组，可直接跳转到对应交互页面。",
+        text = "下方 37 张专题卡按国家、筹资、公平、产出、冲击、工具和质量分组，可直接跳转到对应交互页面。",
         tone = "secondary",
         icon = "02"
       ),
@@ -86,6 +87,7 @@ mod_overview_ui <- function(id) {
         icon = "03"
       )
     ),
+    shiny::uiOutput(ns("overview_signal_board")),
     bslib::layout_columns(
       col_widths = c(7, 5),
       mod_card(
@@ -128,6 +130,7 @@ mod_overview_ui <- function(id) {
       mod_card(
         kicker = "F3 · Catch-up path",
         title = "\u4eba\u5747 CHE \u9ad8\u4f4e\u56fd\u5bf9\u6bd4 (Slope chart)",
+        class = "overview-chart-card overview-slope-card",
         htmltools::p(class = "card-note",
                      paste("\u7eff\u8272 = 2000 \u00b7 \u6a59\u8272 = \u6700\u65b0\u5e74\u3002",
                            "\u659c\u7387\u5c55\u793a\u4ee3\u8868\u56fd\u5bb6\u4e0a\u5347/\u4e0b\u964d\u7684\u8d8b\u52bf\uff0c",
@@ -139,12 +142,17 @@ mod_overview_ui <- function(id) {
                       "低起点高增速国家需要回到国家画像查看基数。"),
           tone = "good"
         ),
-        mod_spinner(plotly::plotlyOutput(ns("slope_che"), height = 380)),
+        htmltools::div(
+          class = "overview-plot-frame overview-slope-frame",
+          mod_spinner(plotly::plotlyOutput(ns("slope_che"), height = "520px",
+                                           fill = FALSE))
+        ),
         footer = "金额统一到 2023 年美元口径，便于跨年比较。"
       ),
       mod_card(
         kicker = "F4 · High-risk list",
         title = "OOPS \u9ad8\u8d1f\u62c5 Top 15 (\u6700\u65b0\u5e74)",
+        class = "overview-chart-card overview-oops-card",
         htmltools::p(class = "card-note",
                      paste("\u9ad8 OOPS \u610f\u5473\u7740\u5c45\u6c11\u533b\u7597\u8d1f\u62c5\u4ee5",
                            "\u73b0\u91d1\u5f62\u5f0f\u76f4\u63a5\u627f\u62c5\uff0c",
@@ -156,9 +164,17 @@ mod_overview_ui <- function(id) {
                       "建议与筹资结构、公共财政和政策模块联读。"),
           tone = "bad"
         ),
-        mod_spinner(plotly::plotlyOutput(ns("oops_top"), height = 380)),
+        htmltools::div(
+          class = "overview-plot-frame overview-oops-frame",
+          mod_spinner(plotly::plotlyOutput(ns("oops_top"), height = "520px",
+                                           fill = FALSE))
+        ),
         footer = "排序使用最新年份国家观测值，缺失国家自动剔除。"
       )
+    ,
+      class = "overview-feature-grid",
+      fill = FALSE,
+      fillable = FALSE
     ),
     mod_card(
       kicker = "F5 · Spatial scan",
@@ -208,7 +224,7 @@ mod_overview_ui <- function(id) {
     ),
     mod_v3_section_head(
       "Module atlas",
-      "\u9009\u62e9\u4f60\u611f\u5174\u8da3\u7684\u4e3b\u9898 \u00b7 36 \u4e2a\u4ea4\u4e92\u6a21\u5757",
+      "\u9009\u62e9\u4f60\u611f\u5174\u8da3\u7684\u4e3b\u9898 \u00b7 37 \u4e2a\u4ea4\u4e92\u6a21\u5757",
       paste("\u70b9\u51fb\u5361\u7247\u53ef\u76f4\u63a5\u8df3\u8f6c\u3002",
             "\u6bcf\u4e2a\u6a21\u5757\u90fd\u53ef\u72ec\u7acb\u4ea4\u4e92\u3001\u9884\u8bbe\u53ef\u590d\u5236\uff0c",
             "\u5e76\u4e0e\u9759\u6001\u56fe\u3001\u62a5\u544a\u6b63\u6587\u5171\u7528\u4e00\u5957\u6307\u6807\u4f53\u7cfb\u3002")
@@ -353,7 +369,7 @@ mod_overview_ui <- function(id) {
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
       htmltools::h3(style = "font-size:18px;",
-                    "\u5206\u6790\u5de5\u5177 Analysis Tools \u00b7 6 \u6a21\u5757")
+                    "\u5206\u6790\u5de5\u5177 Analysis Tools \u00b7 8 \u6a21\u5757")
     ),
     htmltools::div(
       class = "v3-module-grid",
@@ -369,12 +385,18 @@ mod_overview_ui <- function(id) {
       module_card("scenarios", "\u60c5\u666f\u4eff\u771f",
                   "OOPS / GGHED / \u5916\u63f4 \u4e09\u6e90\u4eff\u771f \u00b7 \u672a\u6765\u6f14\u53d8\u3002",
                   "29 Scenario"),
+      module_card("mapstudio", "Map Studio \u5730\u56fe\u5de5\u4f5c\u53f0",
+                  "\u4e00\u5f20\u5de5\u4f5c\u53f0\u8054\u52a8 Leaflet\u3001Plotly\u3001KPI\u3001\u8d8b\u52bf\u7ebf\u548c\u540c\u7ec4\u6392\u884c\u3002",
+                  "30 Map Studio"),
+      module_card("widgets", "Widgets \u7ec4\u4ef6\u4e2d\u67a2",
+                  "\u68c0\u7d22 widget_v2\u3001widget_more\u3001imap \u548c iadv \u51fd\u6570\uff0c\u6309\u9700\u539f\u751f\u6e32\u67d3\u3002",
+                  "31 Widgets"),
       module_card("correlation", "\u76f8\u5173\u6027\u5206\u6790",
                   "\u591a\u53d8\u91cf\u76f8\u5173 \u00b7 \u504f\u76f8\u5173 \u00b7 \u70ed\u56fe\u4e0e\u7f51\u7edc\u3002",
-                  "30 Correlation"),
+                  "32 Correlation"),
       module_card("distribution", "\u5206\u5e03\u53ef\u89c6\u5316",
                   "\u5bc6\u5ea6\u00b7\u5206\u4f4d\u6570\u00b7\u8108\u7eb9 \u00b7 \u8de8\u5e74\u5206\u5e03\u6f14\u5316\u3002",
-                  "31 Distribution")
+                  "33 Distribution")
     ),
     # ---- Group 8: 质量与稳健 ----------------------------------------------
     htmltools::div(
@@ -387,16 +409,16 @@ mod_overview_ui <- function(id) {
       class = "v3-module-grid",
       module_card("robustness", "\u7a33\u5065\u6027",
                   "\u591a\u6837\u672c\u00b7\u591a\u95e8\u69db\u00b7\u591a\u53d8\u91cf \u00b7 \u7ed3\u8bba\u7a33\u5065\u6027\u68c0\u9a8c\u3002",
-                  "32 Robustness"),
+                  "34 Robustness"),
       module_card("dataquality", "\u6570\u636e\u8d28\u91cf",
                   "\u7f3a\u5931\u70ed\u56fe \u00b7 \u4fee\u8ba2\u8bb0\u5f55 \u00b7 \u4e00\u81f4\u6027\u8bca\u65ad\u3002",
-                  "33 Data Quality"),
+                  "35 Data Quality"),
       module_card("policy", "\u653f\u7b56\u63a8\u8350",
                   "\u6309\u98ce\u9669\u67e5\u8be2 \u00b7 \u751f\u6210\u4e2a\u6027\u5316\u653f\u7b56\u5efa\u8bae\u3002",
-                  "34 Policy"),
+                  "36 Policy"),
       module_card("atlas", "\u5168\u7403 Atlas",
                   "Choropleth + \u53cc\u53d8\u91cf\u4e0a\u8272 \u00b7 6 \u5927\u6d32\u00d75 \u6307\u6807\u3002",
-                  "35 Atlas")
+                  "37 Atlas")
     )
     )
   )
@@ -405,6 +427,100 @@ mod_overview_ui <- function(id) {
 mod_overview_server <- function(id, master_r, world_sf_obj, year_max,
                                 parent_session = NULL) {
   shiny::moduleServer(id, function(input, output, session) {
+    output$overview_signal_board <- shiny::renderUI({
+      m <- master_r()
+      years <- sort(unique(m$year[is.finite(m$year)]))
+      if (!length(years)) return(NULL)
+
+      year_a <- min(years, na.rm = TRUE)
+      year_b <- year_max
+      first <- m[m$year == year_a, , drop = FALSE]
+      latest <- m[m$year == year_b, , drop = FALSE]
+      common <- intersect(
+        first$iso3_code[is.finite(first$che_pc_usd2023)],
+        latest$iso3_code[is.finite(latest$che_pc_usd2023)]
+      )
+      first_common <- first[first$iso3_code %in% common, , drop = FALSE]
+      latest_common <- latest[latest$iso3_code %in% common, , drop = FALSE]
+
+      che_start <- stats::median(first_common$che_pc_usd2023, na.rm = TRUE)
+      che_now <- stats::median(latest_common$che_pc_usd2023, na.rm = TRUE)
+      che_growth <- if (is.finite(che_start) && che_start > 0 && is.finite(che_now)) {
+        che_now / che_start - 1
+      } else {
+        NA_real_
+      }
+      oops_start <- mean(first$hf3_che[is.finite(first$hf3_che)], na.rm = TRUE)
+      oops_now <- mean(latest$hf3_che[is.finite(latest$hf3_che)], na.rm = TRUE)
+      oops_delta <- oops_now - oops_start
+      gghed_now <- mean(latest$gghed_che[is.finite(latest$gghed_che)], na.rm = TRUE)
+      high_oops <- latest[is.finite(latest$hf3_che) & latest$hf3_che >= 40, , drop = FALSE]
+      high_ext <- latest[is.finite(latest$ext_che) & latest$ext_che >= 15, , drop = FALSE]
+
+      top_names <- function(d, value_col, n = 3) {
+        d <- d[is.finite(d[[value_col]]), , drop = FALSE]
+        if (!nrow(d)) return("暂无可用国家")
+        d <- d[order(d[[value_col]], decreasing = TRUE), , drop = FALSE]
+        paste(utils::head(d$country_name, n), collapse = " · ")
+      }
+
+      signal_card <- function(kicker, value, title, text, tone = "primary") {
+        htmltools::div(
+          class = paste("overview-signal-card", paste0("overview-signal-", tone)),
+          htmltools::span(class = "overview-signal-kicker", kicker),
+          htmltools::strong(class = "overview-signal-value", value),
+          htmltools::span(class = "overview-signal-title", title),
+          htmltools::p(text)
+        )
+      }
+
+      htmltools::div(
+        class = "overview-signal-board",
+        htmltools::div(
+          class = "overview-signal-head",
+          htmltools::span("Latest evidence frame"),
+          htmltools::strong(sprintf("%d 年核心读数与 2000 年基线对照", year_b)),
+          htmltools::p("把首页 KPI 再压缩成四个判断信号：支出梯度、家庭现金压力、公共筹资能力和外援依赖。")
+        ),
+        htmltools::div(
+          class = "overview-signal-grid",
+          signal_card(
+            "Spending ladder",
+            if (is.finite(che_growth)) paste0("+", fmt_v3_pct(che_growth * 100, 0)) else "—",
+            "人均 CHE 中位数累计抬升",
+            paste0(year_a, " 到 ", year_b, " 年共同样本中位数从 ",
+                   fmt_v3_usd(che_start), " 增至 ", fmt_v3_usd(che_now), "。"),
+            "primary"
+          ),
+          signal_card(
+            "Household pressure",
+            fmt_v3_pct(oops_now, 1),
+            "最新年 OOPS 平均值",
+            paste0("较 ", year_a, " 年变化 ",
+                   if (is.finite(oops_delta) && oops_delta >= 0) "+" else "",
+                   fmt_v3_num(oops_delta, 1), " 个百分点；",
+                   fmt_v3_num(length(unique(high_oops$iso3_code))), " 个国家高于 40%。"),
+            "bad"
+          ),
+          signal_card(
+            "Public financing",
+            fmt_v3_pct(gghed_now, 1),
+            "政府卫生支出占 CHE 平均值",
+            "公共筹资越能覆盖总支出，家庭直接现金支付压力通常越容易被制度吸收。",
+            "good"
+          ),
+          signal_card(
+            "Aid dependence",
+            fmt_v3_num(length(unique(high_ext$iso3_code))),
+            "EXT 占比超过 15% 的国家",
+            paste0("高外援依赖需要结合财政模块和援助模块复核；最新高 CHE/cap 国家：",
+                   top_names(latest, "che_pc_usd2023"), "。"),
+            "warn"
+          )
+        )
+      )
+    })
+
     output$overview_kpi_strip <- shiny::renderUI({
       m <- master_r()
       years <- m$year[is.finite(m$year)]
@@ -486,18 +602,216 @@ mod_overview_server <- function(id, master_r, world_sf_obj, year_max,
     output$slope_che <- plotly::renderPlotly({
       m <- master_r()
       safe_plotly({
-        p <- plot_slope_chart(m, value_col = "che_pc_usd2023",
-                              year_a = min(m$year, na.rm = TRUE),
-                              year_b = year_max, top_n = 18)
-        plotly::ggplotly(p) |> plotly::config(displaylogo = FALSE)
+        year_a <- min(m$year, na.rm = TRUE)
+        d <- m |>
+          dplyr::filter(.data$year %in% c(year_a, year_max),
+                        is.finite(.data$che_pc_usd2023)) |>
+          dplyr::transmute(
+            iso3_code = .data$iso3_code,
+            country_name = .data$country_name,
+            continent = .data$continent,
+            year = .data$year,
+            value = .data$che_pc_usd2023
+          ) |>
+          tidyr::pivot_wider(names_from = "year", values_from = "value",
+                             names_prefix = "y") |>
+          tidyr::drop_na() |>
+          dplyr::mutate(
+            y_a = .data[[paste0("y", year_a)]],
+            y_b = .data[[paste0("y", year_max)]],
+            delta = abs(.data$y_b - .data$y_a)
+          ) |>
+          dplyr::slice_max(.data$delta, n = 16) |>
+          dplyr::arrange(.data$y_b)
+        continent_cols <- c(
+          Africa = "#2a857a", Americas = "#3a6e8f", Asia = "#c46327",
+          Europe = "#2f9f8f", Oceania = "#8d77c9"
+        )
+        p <- plotly::plot_ly()
+        used_continents <- character()
+        for (i in seq_len(nrow(d))) {
+          cont <- as.character(d$continent[i])
+          if (!nzchar(cont) || is.na(cont)) cont <- "Other"
+          col <- unname(continent_cols[cont])
+          if (!nzchar(col) || is.na(col)) col <- "#5d667a"
+          p <- plotly::add_trace(
+            p,
+            x = c(year_a, year_max),
+            y = c(d$y_a[i], d$y_b[i]),
+            type = "scatter",
+            mode = "lines+markers",
+            name = cont,
+            legendgroup = cont,
+            showlegend = !(cont %in% used_continents),
+            line = list(color = col, width = 2.4),
+            marker = list(color = col, size = 8,
+                          line = list(color = "rgba(255,255,255,.9)",
+                                      width = 1)),
+            hovertext = c(
+              paste0("<b>", d$country_name[i], "</b><br>",
+                     year_a, " 人均 CHE：",
+                     scales::dollar(d$y_a[i], accuracy = 1)),
+              paste0("<b>", d$country_name[i], "</b><br>",
+                     year_max, " 人均 CHE：",
+                     scales::dollar(d$y_b[i], accuracy = 1))
+            ),
+            hoverinfo = "text"
+          )
+          used_continents <- unique(c(used_continents, cont))
+        }
+        label_d <- d |>
+          dplyr::arrange(dplyr::desc(.data$delta)) |>
+          dplyr::slice_head(n = 7) |>
+          dplyr::mutate(
+            label = dplyr::case_when(
+              .data$country_name == "United States of America" ~ "United States",
+              grepl("^United Kingdom", .data$country_name) ~ "United Kingdom",
+              TRUE ~ as.character(.data$country_name)
+            ),
+            label = ifelse(nchar(.data$label) > 18,
+                           paste0(substr(.data$label, 1, 17), "..."),
+                           .data$label)
+          ) |>
+          dplyr::arrange(.data$y_b)
+        if (nrow(label_d) > 1) {
+          min_gap <- diff(range(c(0, d$y_a, d$y_b), na.rm = TRUE)) * 0.055
+          label_y <- label_d$y_b
+          for (i in 2:length(label_y)) {
+            if (label_y[i] - label_y[i - 1] < min_gap) {
+              label_y[i] <- label_y[i - 1] + min_gap
+            }
+          }
+          label_d$label_y <- label_y
+        } else {
+          label_d$label_y <- label_d$y_b
+        }
+        annotations <- lapply(seq_len(nrow(label_d)), function(i) {
+          list(
+            x = year_max,
+            y = label_d$y_b[i],
+            ax = year_max + 0.9,
+            ay = label_d$label_y[i],
+            axref = "x",
+            ayref = "y",
+            text = label_d$label[i],
+            xref = "x",
+            yref = "y",
+            showarrow = TRUE,
+            arrowwidth = 0.7,
+            arrowcolor = "rgba(56,64,80,.42)",
+            arrowhead = 0,
+            xanchor = "left",
+            yanchor = "middle",
+            font = list(size = 11, color = "#384050")
+          )
+        })
+        p |>
+          plotly::layout(
+            autosize = TRUE,
+            margin = list(t = 24, r = 160, b = 78, l = 82),
+            legend = list(
+              orientation = "h",
+              x = 0,
+              xanchor = "left",
+              y = -0.16,
+              yanchor = "top",
+              font = list(size = 11)
+            ),
+            annotations = annotations,
+            xaxis = list(
+              title = "",
+              range = c(year_a - 1, year_max + 5.5),
+              tickmode = "array",
+              tickvals = c(year_a, year_max),
+              automargin = TRUE,
+              fixedrange = FALSE,
+              zeroline = FALSE,
+              gridcolor = "rgba(13,18,27,.06)"
+            ),
+            yaxis = list(
+              title = "人均 CHE (2023 USD)",
+              range = c(0, max(c(d$y_a, d$y_b, label_d$label_y),
+                               na.rm = TRUE) * 1.08),
+              tickprefix = "$",
+              separatethousands = TRUE,
+              automargin = TRUE,
+              fixedrange = FALSE,
+              zeroline = FALSE,
+              gridcolor = "rgba(13,18,27,.08)"
+            ),
+            paper_bgcolor = "rgba(0,0,0,0)",
+            plot_bgcolor = "rgba(0,0,0,0)",
+            hovermode = "closest"
+          ) |>
+          plotly::config(displaylogo = FALSE, responsive = TRUE)
       })
     })
 
     output$oops_top <- plotly::renderPlotly({
       m <- master_r()
       safe_plotly({
-        p <- plot_oops_ranking(m, year_focus = year_max, top_n = 15)
-        plotly::ggplotly(p) |> plotly::config(displaylogo = FALSE)
+        d <- m |>
+          dplyr::filter(.data$year == year_max, is.finite(.data$hf3_che)) |>
+          dplyr::arrange(dplyr::desc(.data$hf3_che)) |>
+          dplyr::slice_head(n = 15) |>
+          dplyr::arrange(.data$hf3_che) |>
+          dplyr::mutate(
+            country_name = factor(.data$country_name, levels = .data$country_name),
+            label = paste0(scales::number(.data$hf3_che, accuracy = 0.1), "%"),
+            hover = paste0(
+              "<b>", .data$country_name, "</b><br>",
+              "OOPS 占 CHE：", .data$label, "<br>",
+              "收入组：", .data$income_group, "<br>",
+              "大洲：", .data$continent
+            )
+          )
+        x_max <- max(d$hf3_che, na.rm = TRUE)
+        plotly::plot_ly(
+          d,
+          x = ~hf3_che,
+          y = ~country_name,
+          type = "bar",
+          orientation = "h",
+          text = ~label,
+          textposition = "outside",
+          textfont = list(size = 11, color = "#4c1f22"),
+          hovertext = ~hover,
+          hoverinfo = "text",
+          cliponaxis = FALSE,
+          marker = list(
+            color = d$hf3_che,
+            colorscale = list(
+              list(0, "#f1c6b6"),
+              list(0.55, "#c46327"),
+              list(1, "#8f2f34")
+            ),
+            line = list(color = "rgba(13,18,27,.18)", width = 0.5)
+          )
+        ) |>
+          plotly::layout(
+            autosize = TRUE,
+            showlegend = FALSE,
+            margin = list(t = 24, r = 84, b = 62, l = 150),
+            xaxis = list(
+              title = "OOPS 占 CHE (%)",
+              range = c(0, x_max * 1.18),
+              ticksuffix = "%",
+              zeroline = FALSE,
+              gridcolor = "rgba(13,18,27,.08)",
+              automargin = TRUE,
+              fixedrange = FALSE
+            ),
+            yaxis = list(
+              title = "",
+              automargin = TRUE,
+              tickfont = list(size = 11),
+              fixedrange = FALSE
+            ),
+            bargap = 0.26,
+            paper_bgcolor = "rgba(0,0,0,0)",
+            plot_bgcolor = "rgba(0,0,0,0)"
+          ) |>
+          plotly::config(displaylogo = FALSE, responsive = TRUE)
       })
     })
 

@@ -1,16 +1,12 @@
-# =============================================================================
-# 仪表盘/server.R  ---  Shiny 仪表盘服务端 · 36 模块 server 调度
-# =============================================================================
+# Shiny 服务端调度。
 
 function(input, output, session) {
 
-  # ---- 共享 reactive：master_r 包装为函数（便于 module 共享） -----------
   master_r <- shiny::reactive({
     master_enriched
   })
 
-  # ---- 36 模块 server -----------------------------------------------------
-  # 总览与说明
+  mod_home_server("home", master_r, parent_session = session)
   mod_overview_server("overview", master_r, world_sf_obj, year_max,
                       parent_session = session)
   mod_about_server("about")
@@ -54,6 +50,8 @@ function(input, output, session) {
   mod_cluster_server("cluster", master_r)
   mod_forecast_server("forecast", master_r)
   mod_scenarios_server("scenarios", master_r)
+  mod_mapstudio_server("mapstudio", master_r, world_sf_obj, year_min, year_max)
+  mod_widgets_server("widgets", master_r, world_sf_obj)
   mod_correlation_server("correlation", master_r)
   mod_distribution_server("distribution", master_r)
 

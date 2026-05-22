@@ -23,7 +23,7 @@ if (length(supp_call)) {
 # 2. 删除 .ghs_supplement_section 函数定义
 supp_def <- grep("^\\.ghs_supplement_section <- function", src)
 if (length(supp_def) == 1L) {
-  # 找到下一个顶级函数定义（.ghs_gallery）
+  # 定位 .ghs_gallery 前的插入点
   gallery_def <- grep("^\\.ghs_gallery <- function", src)
   if (length(gallery_def) >= 1L) {
     next_fn <- gallery_def[gallery_def > supp_def][1]

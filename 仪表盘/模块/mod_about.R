@@ -6,10 +6,10 @@
 mod_about_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#9432; About"),
+    title = "\u5173\u4e8e About",
     value = "about",
     mod_v3_hero(
-      kicker = "PROJECT BRIEF",
+      kicker = "\u9879\u76ee\u8bf4\u660e",
       title = "Global Health Spending · 交互仪表盘说明",
       lead = paste(
         "本 Shiny 应用将静态报告中的全球卫生支出研究转译为可筛选、可追踪、",
@@ -18,8 +18,8 @@ mod_about_ui <- function(id) {
       ),
       meta = list(
         "WHO GHED 2024-12",
-        "195 countries",
-        "2000-2023 panel",
+        "195 \u4e2a\u56fd\u5bb6",
+        "2000-2023 \u5e74\u5ea6\u9762\u677f",
         list(label = "静态报告", href = "https://2711944586.github.io/R/"),
         list(label = "GitHub", href = "https://github.com/2711944586/R")
       )
@@ -37,7 +37,7 @@ mod_about_ui <- function(id) {
                    hint = "静态图、交互组件、模型表和复现缓存", tone = "warn")
       ),
       mod_v3_section_head(
-        "WHAT THIS APP IS",
+        "\u5e94\u7528\u5b9a\u4f4d",
         "项目定位",
         paste(
           "这个应用不是静态报告的缩略版，而是一个面向探索、复核和展示的交互层：",
@@ -47,7 +47,7 @@ mod_about_ui <- function(id) {
       mod_v3_story_grid(
         columns = 3,
         mod_v3_insight(
-          kicker = "Analytical scope",
+          kicker = "\u5206\u6790\u8303\u56f4",
           title = "从总额到结构",
           text = paste(
             "CHE 总量、人均 CHE、GGHE-D、PVT-D、EXT、OOPS 和 HC 功能项",
@@ -56,7 +56,7 @@ mod_about_ui <- function(id) {
           tone = "primary"
         ),
         mod_v3_insight(
-          kicker = "Policy lens",
+          kicker = "\u653f\u7b56\u89c6\u89d2",
           title = "从公平到保护",
           text = paste(
             "不平等指数、灾难性自付、公共筹资占比和外援依赖度共同指向",
@@ -65,7 +65,7 @@ mod_about_ui <- function(id) {
           tone = "secondary"
         ),
         mod_v3_insight(
-          kicker = "Model layer",
+          kicker = "\u6a21\u578b\u5c42",
           title = "从观察到情景",
           text = paste(
             "PCA 聚类、收敛检验、趋势预测、蒙特卡洛情景和稳健性模块",
@@ -77,7 +77,7 @@ mod_about_ui <- function(id) {
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_v3_card(
-          kicker = "DATA ASSETS",
+          kicker = "\u6570\u636e\u8d44\u4ea7",
           title = "数据来源与角色",
           htmltools::tags$table(
             class = "table table-sm v3-table",
@@ -112,7 +112,7 @@ mod_about_ui <- function(id) {
           footer = "所有数据在进入模块前统一到 country-year 宽表，并保留原始字段口径。"
         ),
         mod_v3_card(
-          kicker = "DELIVERABLES",
+          kicker = "\u4ea4\u4ed8\u7269",
           title = "交付物与阅读方式",
           mod_v3_steps(list(
             list(title = "静态报告",
@@ -127,32 +127,32 @@ mod_about_ui <- function(id) {
         )
       ),
       mod_v3_section_head(
-        "HOW TO READ",
+        "\u9605\u8bfb\u8def\u5f84",
         "推荐阅读路径",
         "按目标选择模块，而不是线性浏览。每条路径都能从总览进入，再落到具体国家、分组或模型。"
       ),
       mod_v3_story_grid(
         columns = 4,
         mod_v3_insight(
-          kicker = "3 minutes",
+          kicker = "\u4e09\u5206\u949f",
           title = "快速掌握全局",
           text = "先看总览 KPI、全球三源面积图、OOPS 地图和 Top 15 排行，形成第一层判断。",
           tone = "primary"
         ),
         mod_v3_insight(
-          kicker = "Policy review",
+          kicker = "\u653f\u7b56\u590d\u76d8",
           title = "政策分析线",
           text = "从公平、效率、财政和政策模块进入，重点观察高自付、低公共筹资和产出不足的组合。",
           tone = "secondary"
         ),
         mod_v3_insight(
-          kicker = "Country memo",
+          kicker = "\u56fd\u522b\u5907\u5fd8\u5f55",
           title = "国家备忘录线",
           text = "先用国家画像定位时间序列，再用对比、预测和情景模块输出可解释的国家摘要。",
           tone = "good"
         ),
         mod_v3_insight(
-          kicker = "Validation",
+          kicker = "\u590d\u6838\u4e0e\u4e0b\u8f7d",
           title = "复核与下载线",
           text = "用数据质量、稳健性和 Atlas 模块检查缺失、异常值、模型敏感性和原始表格。",
           tone = "warn"
@@ -161,7 +161,7 @@ mod_about_ui <- function(id) {
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_v3_card(
-          kicker = "METHOD BOUNDARIES",
+          kicker = "\u89e3\u91ca\u8fb9\u754c",
           title = "解释边界",
           htmltools::tags$ul(
             htmltools::tags$li("跨国截面关系不自动等同于因果关系，尤其是 CHE 与寿命、OOPS 与制度保护之间。"),
@@ -171,7 +171,7 @@ mod_about_ui <- function(id) {
           )
         ),
         mod_v3_card(
-          kicker = "CITATION",
+          kicker = "\u5f15\u7528\u4e0e\u94fe\u63a5",
           title = "引用与链接",
           mod_v3_code_block(
             paste(
@@ -185,10 +185,10 @@ mod_about_ui <- function(id) {
               "https://2711944586.github.io/R/",
               sep = "\n"
             ),
-            title = "Suggested citation"
+            title = "\u5efa\u8bae\u5f15\u7528"
           ),
           mod_v3_source_note(
-            title = "Author",
+            title = "\u4f5c\u8005",
             "庄颂 · 学号 20241334 · ",
             htmltools::tags$a(href = "https://github.com/2711944586/R",
                               target = "_blank", "GitHub"),
@@ -199,7 +199,7 @@ mod_about_ui <- function(id) {
         )
       ),
       mod_v3_card(
-        kicker = "ACKNOWLEDGEMENT",
+        kicker = "\u81f4\u8c22",
         title = "致谢",
         htmltools::p(
           "感谢 WHO、World Bank、IMF、OECD、IHME 等机构提供开放数据；感谢 R 社区中 tidyverse、",

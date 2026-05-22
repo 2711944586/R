@@ -933,6 +933,7 @@ if (!exists("%||%", mode = "function")) {
       "%s",
       "<div class='top-bar'><div id='read-progress'></div></div>",
       "<header class='hero' id='top'>",
+      .ghs_mobile_toc(),
       "<div class='hero-center'>",
       "<span class='hero-eyebrow hero-reveal' data-delay='200'>GLOBAL HEALTH EXPENDITURE \u00b7 195 COUNTRIES \u00b7 23 YEARS</span>",
       "<h1>",
@@ -2441,7 +2442,7 @@ if (!exists("%||%", mode = "function")) {
     fallback <- if (mode == "submission")
       sprintf("%s/blob/main/分析输出/交互组件/%s", repo_url, base)
     else paste0("交互组件/", base)
-    sprintf("<button class='asset-row asset-widget-row' type='button' data-kind='%s' data-title='%s' onclick=\"loadWidgetUrl('%s','%s','%s');location.hash='widgets';\"><span>W%03d</span><strong>%s</strong><em>%s</em><small>%s</small></button>",
+    sprintf("<button class='asset-row asset-widget-row' type='button' data-kind='%s' data-title='%s' onclick=\"loadWidgetUrl('%s','%s','%s');\"><span>W%03d</span><strong>%s</strong><em>%s</em><small>%s</small></button>",
             .ghs_e(widget_meta$kind[i]),
             .ghs_e(tolower(paste(widget_meta$title[i], widget_meta$kind[i]))),
             .ghs_e(src), .ghs_e(widget_meta$title[i]), .ghs_e(fallback),
@@ -2459,104 +2460,7 @@ if (!exists("%||%", mode = "function")) {
 
 
 .ghs_inject_all_assets <- function(fig_dir, widget_dir, mode, repo_url) {
-  return("")
-  # 每个块会直接出现在Findings之后，但通过CSS与对应Finding视觉关联
-  # 每张图附带完整的阐述性段落
-  
-  assign_fig <- function(fn) {
-    fn <- tolower(fn)
-    if (grepl("aging|age_65", fn)) return("F15")
-    if (grepl("urban", fn)) return("F16")
-    if (grepl("fiscal|gghed.*gdp|borrowing", fn)) return("F17")
-    if (grepl("afford|price", fn)) return("F18")
-    if (grepl("eu_|asean|au_|regional|bloc", fn)) return("F19")
-    if (grepl("inflat|nominal|real", fn)) return("F20")
-    if (grepl("ncd|burden|cause|disease", fn)) return("F21")
-    if (grepl("uhc|coverage|universal", fn)) return("F22")
-    if (grepl("catastroph|threshold", fn)) return("F23")
-    if (grepl("maternal|child|u5mr|mmr|vaccin", fn)) return("F24")
-    if (grepl("prevent|hc6|hale|daly", fn)) return("F25")
-    if (grepl("workforce|physician|nurse", fn)) return("F26")
-    if (grepl("reclassif|mobility", fn)) return("F27")
-    if (grepl("theil|decompos|within", fn)) return("F28")
-    if (grepl("fragile|conflict|refugee", fn)) return("F29")
-    if (grepl("oecd.*lmic|lmic.*oecd", fn)) return("F30")
-    if (grepl("efficien|dea|frontier", fn)) return("F31")
-    if (grepl("aid|ext_|external", fn)) return("F32")
-    if (grepl("missing|complete|quality|dq_", fn)) return("F33")
-    if (grepl("revision|revis", fn)) return("F34")
-    if (grepl("small.*state|island|sids|pacific", fn)) return("F35")
-    if (grepl("composite|index.*combin|score", fn)) return("F36")
-    if (grepl("covid|pandemic|shock|gfc|recover|shk_", fn)) return("F4")
-    if (grepl("converg|beta_conv|sigma", fn)) return("F5")
-    if (grepl("elast", fn)) return("F6")
-    if (grepl("cluster|pca|archetype|kmeans", fn)) return("F7")
-    if (grepl("forecast|arima|fan|predict", fn)) return("F8")
-    if (grepl("rank|bump", fn)) return("F11")
-    if (grepl("lifeexp|life_exp|sdg3|sdg_3", fn)) return("F13")
-    if (grepl("extreme|jump|changepoint", fn)) return("F14")
-    if (grepl("inequal|gini|lorenz|equity|atkinson|eq_", fn)) return("F3")
-    if (grepl("oops|oop_|oop[^s]", fn)) return("F2")
-    if (grepl("profile|country|cty_|chn|usa|ind|bra", fn)) return("F11")
-    if (grepl("^map_", fn)) return("F1")
-    if (grepl("global|source|stream|continent|hf_share", fn)) return("F1")
-    if (grepl("ridge|violin|beeswarm|density|box", fn)) return("F3")
-    if (grepl("sankey|treemap|waffle|ternary|sunburst|donut|polar", fn)) return("F1")
-    "F1"
-  }
-  assign_widget <- function(fn) {
-    fn <- tolower(fn)
-    if (grepl("aging", fn)) return("F15")
-    if (grepl("urban", fn)) return("F16")
-    if (grepl("fiscal", fn)) return("F17")
-    if (grepl("oops|oop|dumbbell|lollipop", fn)) return("F2")
-    if (grepl("lifeexp|life|u5mr|sdg", fn)) return("F13")
-    if (grepl("forecast|fan|scenario", fn)) return("F8")
-    if (grepl("inequal|gini|lorenz|theil", fn)) return("F3")
-    if (grepl("cluster|pca", fn)) return("F7")
-    if (grepl("ext_|aid", fn)) return("F9")
-    if (grepl("efficien|dea|frontier", fn)) return("F10")
-    if (grepl("covid|shock", fn)) return("F4")
-    if (grepl("rank|compare|country", fn)) return("F11")
-    if (grepl("continent|region", fn)) return("F19")
-    if (grepl("sankey|treemap|sunburst|chord|network", fn)) return("F1")
-    if (grepl("heatmap|calendar", fn)) return("F14")
-    if (grepl("dt_|reactable|rt_", fn)) return("F11")
-    if (grepl("map|leaflet|choropleth|world|global", fn)) return("F1")
-    "F1"
-  }
-  
-  all_figs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = FALSE))
-  all_widgets <- sort(list.files(widget_dir, pattern = "[.]html$", full.names = FALSE))
-  fig_groups <- split(all_figs, vapply(all_figs, assign_fig, character(1)))
-  wgt_groups <- split(all_widgets, vapply(all_widgets, assign_widget, character(1)))
-  
-  # 为每个Finding生成内联内容（不是独立section，而是一个div）
-  findings <- paste0("F", 1:36)
-  parts <- vapply(findings, function(fid) {
-    figs <- fig_groups[[fid]]
-    wgts <- wgt_groups[[fid]]
-    if (!length(figs) && !length(wgts)) return("")
-    fig_html <- if (length(figs)) paste(vapply(figs, function(f) {
-      p <- file.path(fig_dir, f); if (!file.exists(p)) return("")
-      note <- .ghs_gallery_note(.ghs_pretty(p), .ghs_kind(.ghs_pretty(p)))
-      paste0(.ghs_fig(p, .ghs_pretty(p), .ghs_pretty(p)),
-             sprintf("<p class='gallery-note'>%s</p>", .ghs_e(note)))
-    }, character(1)), collapse = "") else ""
-    wgt_html <- if (length(wgts)) paste(vapply(wgts, function(w) {
-      if (exists(".ghs_widget_anchor", mode = "function"))
-        .ghs_widget_anchor(widget_dir, w, .ghs_pretty(w), mode, repo_url)
-      else ""
-    }, character(1)), collapse = "") else ""
-    paste0("<div class='finding-evidence'>", fig_html, wgt_html, "</div>")
-  }, character(1))
-  
-  # 输出为一段 JS，在 DOMContentLoaded 后把每个 div 移到对应 finding section 内
-  # 不行这方法不好，直接把每个 finding 的补充图紧跟在 findings 输出之后展示
-  # 标题标注属于哪个 Finding
-  content <- paste(parts[nzchar(parts)], collapse = "")
-  if (!nzchar(content)) return("")
-  content  # 直接拼接在 findings HTML 后面，视觉上属于最后一个 finding 的延续
+  ""
 }
 
 
@@ -2609,7 +2513,7 @@ if (!exists("%||%", mode = "function")) {
   }, character(1)), collapse = "")
   asset_console <- ""  # Asset Console removed
   sprintf("<section class='section gallery' id='gallery'><div class='wrap'><header class='section-head'><span class='kicker'>S16 \u00b7 Gallery</span><h2>\u9759\u6001\u56fe\u8868\u5e93 \u00b7 %d \u5f20</h2><p class='lead'>\u6309\u4e3b\u9898\u7b5b\u9009\uff1b\u70b9\u51fb\u4efb\u610f\u5361\u7247\u653e\u5927\u67e5\u770b\u539f\u56fe\u3002</p></header>%s%s%s<div class='tabs'>%s</div><div class='gallery-grid'>%s</div></div></section>",
-          length(pngs), .ghs_section_note("gallery"), "", "",
+          length(pngs), .ghs_section_note("gallery"), index, "",
           tabs, cards)
 }
 
@@ -3018,7 +2922,7 @@ if (!exists("%||%", mode = "function")) {
     "function filterAssetConsole(q){q=(q||'').trim().toLowerCase();document.querySelectorAll('.asset-console-chips button').forEach(function(b){var t=(b.textContent||'').trim().toLowerCase();b.classList.toggle('active',(!q&&t==='\u5168\u90e8')||(q&&t===q));});document.querySelectorAll('.asset-row').forEach(function(r){var hay=((r.dataset.title||'')+' '+(r.dataset.kind||'')+' '+r.textContent).toLowerCase();var ok=!q||hay.indexOf(q)>=0;r.style.display=ok?'grid':'none';});var s=document.getElementById('asset-search');if(s&&s.value!==q&&q.length<=4)s.value=q;}",
     "function openFigure(btn){var img=btn.querySelector('img');document.getElementById('modal-img').src=img.src;document.getElementById('modal-title').textContent=btn.dataset.title||img.alt;document.getElementById('fig-modal').classList.add('open');}",
     "function closeFigure(){document.getElementById('fig-modal').classList.remove('open');}",
-    "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;f.scrollIntoView({behavior:'smooth',block:'center'});}",
+    "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;var anchor=document.getElementById('widgets')||wrap;var top=anchor.getBoundingClientRect().top+window.scrollY-18;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});history.replaceState(null,'','#widgets');}",
     "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFigure();});",
     "function toggleDock(){var dock=document.getElementById('ghs-dock');dock.classList.toggle('open');}",
     "(function(){var bar=document.getElementById('read-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=s/max;if(bar)bar.style.width=(pct*100)+'%';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
@@ -3260,7 +3164,7 @@ if (!exists("%||%", mode = "function")) {
     ".section .lead{font-size:clamp(16.5px,1.2vw,18px);line-height:1.7;color:var(--muted);max-width:900px}",
     ".section-head .kicker{font-size:11.5px;letter-spacing:.24em;font-weight:900;background:linear-gradient(90deg,#c46327,#1d3f5f);-webkit-background-clip:text;background-clip:text;color:transparent}",
 
-    # ---- KPI 卡片极致精修 ----------------------------------------
+    # ---- KPI 卡片细节 --------------------------------------------
     ".kpi{padding:28px 26px;border-radius:18px;background:linear-gradient(180deg,#fffaf2 30%,#f7e8d2 100%);border:1px solid rgba(13,18,27,.08);box-shadow:0 20px 56px rgba(13,18,27,.06),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .25s ease,box-shadow .25s ease}",
     ".kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(13,18,27,.10)}",
     ".kpi:before{width:6px;background:linear-gradient(180deg,#c46327,#1d3f5f 70%,#2a857a)}",
@@ -3347,21 +3251,52 @@ if (!exists("%||%", mode = "function")) {
 
     # ---- 浮动导航 Dock ----------------------------------------
     ".ghs-dock{position:fixed;bottom:24px;right:24px;z-index:9999;font-family:'Inter',system-ui,sans-serif}",
-    ".dock-toggle{width:52px;height:52px;border-radius:16px;border:none;background:#292524;color:#fafaf9;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.08);transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s,border-radius .2s;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}",
-    ".dock-toggle:hover{transform:scale(1.06);box-shadow:0 8px 24px rgba(0,0,0,.16);border-radius:20px}",
+    ".dock-toggle{width:50px;height:50px;border-radius:12px;border:1px solid rgba(23,33,31,.16);background:#fbfaf6;color:#17211f;font-size:18px;cursor:pointer;box-shadow:0 1px 2px rgba(23,33,31,.08),0 12px 28px rgba(23,33,31,.10);transition:transform .18s ease,border-color .18s ease,background-color .18s ease;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}",
+    ".dock-toggle:hover{transform:translateY(-1px);border-color:rgba(37,79,92,.30);background:#eef3f2}",
     ".dock-icon-close{display:none}",
     ".ghs-dock.open .dock-icon-open{display:none}",
     ".ghs-dock.open .dock-icon-close{display:inline}",
-    ".ghs-dock.open .dock-toggle{background:#78716c;border-radius:50%}",
-    ".dock-panel{position:absolute;bottom:64px;right:0;width:280px;max-height:75vh;overflow-y:auto;background:rgba(240,235,225,.55);backdrop-filter:blur(32px) saturate(150%);-webkit-backdrop-filter:blur(32px) saturate(150%);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:0;opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .3s cubic-bezier(.16,1,.3,1),transform .3s cubic-bezier(.16,1,.3,1);box-shadow:0 16px 48px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.04)}",
+    ".ghs-dock.open .dock-toggle{background:#254f5c;color:#ffffff;border-color:#254f5c}",
+    ".dock-panel{position:absolute;bottom:62px;right:0;width:292px;max-height:75vh;overflow-y:auto;background:#fbfaf6;border:1px solid rgba(23,33,31,.13);border-radius:8px;padding:0;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .22s ease,transform .22s ease;box-shadow:0 1px 2px rgba(23,33,31,.06),0 18px 42px rgba(23,33,31,.12)}",
     ".ghs-dock.open .dock-panel{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}",
-    ".dock-header{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid rgba(0,0,0,.04)}",
-    ".dock-brand{font-family:'Source Serif 4',serif;font-weight:800;font-size:15px;color:#292524;text-decoration:none;letter-spacing:.02em}",
-    ".dock-subtitle{font-size:11px;color:#a8a29e;flex:1}",
-    ".dock-links{padding:10px 12px}.dock-links .nav-group{display:block;margin-bottom:8px}.dock-links .nav-group-label{display:block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(0,0,0,.28);padding:3px 6px 4px}.dock-links .nav-group a{display:inline-block;color:#57534e;font-size:11.5px;text-decoration:none;padding:4px 8px;border-radius:6px;margin:1px;transition:all .12s ease;font-weight:500}.dock-links .nav-group a:hover{color:#1c1917;background:rgba(0,0,0,.04)}.dock-links .nav-group a.active{color:#1c1917;background:rgba(41,37,36,.08);font-weight:700}",
+    ".dock-header{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid rgba(23,33,31,.10)}",
+    ".dock-brand{font-family:'Source Serif 4',serif;font-weight:800;font-size:15px;color:#17211f;text-decoration:none;letter-spacing:0}",
+    ".dock-subtitle{font-size:11px;color:#5d6965;flex:1}",
+    ".dock-links{padding:10px 12px}.dock-links .nav-group{display:block;margin-bottom:8px}.dock-links .nav-group-label{display:block;font-size:9px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:rgba(23,33,31,.44);padding:3px 6px 4px}.dock-links .nav-group a{display:inline-block;color:#5d6965;font-size:11.5px;text-decoration:none;padding:4px 8px;border-radius:6px;margin:1px;transition:color .12s ease,background-color .12s ease;font-weight:550}.dock-links .nav-group a:hover{color:#17211f;background:#eef3f2}.dock-links .nav-group a.active{color:#17211f;background:#e4ece9;font-weight:760}",
     ".dock-links .nav-group:after{display:none}",
-    ".dock-footer{display:flex;gap:6px;padding:10px 16px 12px;border-top:1px solid rgba(0,0,0,.04)}.dock-footer a{font-size:11px;color:#a8a29e;text-decoration:none;padding:3px 8px;border:1px solid rgba(0,0,0,.06);border-radius:6px;transition:all .12s}.dock-footer a:hover{color:#292524;border-color:rgba(0,0,0,.12)}",
+    ".dock-footer{display:flex;gap:6px;padding:10px 16px 12px;border-top:1px solid rgba(23,33,31,.10)}.dock-footer a{font-size:11px;color:#5d6965;text-decoration:none;padding:3px 8px;border:1px solid rgba(23,33,31,.13);border-radius:6px;transition:color .12s,border-color .12s,background-color .12s}.dock-footer a:hover{color:#17211f;border-color:rgba(37,79,92,.28);background:#eef3f2}",
     "@media(max-width:640px){.ghs-dock{bottom:16px;right:16px}.dock-panel{width:calc(100vw - 32px);right:-8px;bottom:60px}.hero-main{font-size:48px}}",
+    ""
+  ), collapse = "")
+}
+
+.ghs_css_material_final <- function() {
+  paste(c(
+    ":root{--final-paper:#f4f5f0;--final-surface:#fbfaf6;--final-surface-2:#eef3f2;--final-ink:#17211f;--final-muted:#5d6965;--final-blue:#254f5c;--final-line:rgba(23,33,31,.13);--final-line-soft:rgba(23,33,31,.08);--final-shadow:0 1px 2px rgba(23,33,31,.05),0 12px 28px rgba(23,33,31,.075)}",
+    "html,body{background:var(--final-paper)!important;background-image:none!important;color:var(--final-ink)!important}",
+    ".hero,.section,.finding,.site-footer{background:var(--final-paper)!important;background-image:none!important;border-top:0!important}",
+    ".hero{min-height:min(720px,92vh)!important;align-items:center!important;padding:54px 0 70px!important}",
+    ".hero:before,.hero:after,.kpi:before,.fig-frame:before,.section:before,.finding:before{content:none!important;display:none!important;background:none!important}",
+    ".hero-eyebrow,.mobile-toc,.hero-panel,.kpi,.method-block,.fig-inline,.callout,.evidence-note,.section-note,.table-wrap,.figure-index,.asset-console,.gallery-card,.widget-card,.widget-frame-wrap,.cmd-card,.conc-card,.country-card,.sim-controls,.sim-output article,.glossary-sources,.session-meta li,.session-grid li,.ghs-deep-card,.deep-dive-grid .deep-card{background:var(--final-surface)!important;background-image:none!important;border:1px solid var(--final-line)!important;border-left:1px solid var(--final-line)!important;border-radius:8px!important;box-shadow:var(--final-shadow)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
+    ".hero-eyebrow{color:var(--final-muted)!important;box-shadow:none!important}",
+    ".hero h1{letter-spacing:0!important;text-shadow:none!important;color:var(--final-ink)!important}",
+    ".hero .hero-line3 em{color:var(--final-blue)!important}",
+    ".section-head .kicker,.finding-kicker,.fig-kicker,.callout strong,.evidence-note strong,.section-note strong,.figure-index .kicker,.dock-links .nav-group-label,.mobile-toc-group-label{background:none!important;color:var(--final-blue)!important;-webkit-background-clip:initial!important;background-clip:initial!important}",
+    ".section .lead,.finding-head .lead,.method-block,.callout p,.evidence-note p,.section-note p,.gallery-note,.widget-card p,.conc-card p{color:var(--final-muted)!important;letter-spacing:0!important}",
+    ".fig-frame,.gallery-button,.table-wrap caption,.table-wrap th,.v3-card-head,.v3-card-footer{background:var(--final-surface-2)!important;background-image:none!important}",
+    ".kpi-value,.chip i,.conc-card span,.asset-console-stats strong,.sim-output b{color:var(--final-blue)!important;background:none!important;text-shadow:none!important}",
+    ".kpi:hover,.gallery-card:hover,.ghs-fig-card:hover,.chip:hover,.btn:hover,.dock-toggle:hover{transform:translateY(-1px)!important;box-shadow:0 2px 4px rgba(23,33,31,.06),0 16px 34px rgba(23,33,31,.10)!important}",
+    ".btn,.tabs button.active,.asset-console-chips button.active,.asset-console-chips button:hover{background:var(--final-blue)!important;background-image:none!important;border-color:var(--final-blue)!important;color:#fff!important;box-shadow:none!important;border-radius:8px!important}",
+    ".btn.alt,.btn.ghost,.tabs button,.chip,.dock-footer a,.mobile-toc-items a{background:#fff!important;background-image:none!important;border:1px solid var(--final-line)!important;color:var(--final-muted)!important;box-shadow:none!important;border-radius:8px!important}",
+    ".links .nav-group:after,.dock-links .nav-group:after{display:none!important}",
+    ".links a,.dock-links .nav-group a{border-radius:6px!important;color:var(--final-muted)!important}",
+    ".links a:hover,.links a.active,.dock-links .nav-group a:hover,.dock-links .nav-group a.active,.mobile-toc-items a:hover,.mobile-toc-items a.active{background:var(--final-surface-2)!important;color:var(--final-ink)!important}",
+    ".ghs-dock,.dock-panel,.dock-toggle{background:var(--final-surface)!important;background-image:none!important;border-color:var(--final-line)!important;box-shadow:var(--final-shadow)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
+    ".ghs-dock.open .dock-toggle{background:var(--final-blue)!important;color:#fff!important;border-color:var(--final-blue)!important}",
+    ".read-progress{background:var(--final-blue)!important;background-image:none!important}",
+    "pre,.code-pre{background:#17211f!important;background-image:none!important;color:#f8faf6!important;border-radius:8px!important}",
+    ".mobile-toc{border-radius:8px!important}",
+    "@media(max-width:760px){.hero{min-height:auto!important;padding:34px 0 64px!important}.mobile-toc{display:block!important}.hero h1{font-size:clamp(38px,12vw,58px)!important}.figure-index-row{grid-template-columns:34px 1fr!important}.asset-row{grid-template-columns:46px 1fr!important}.figure-index-row em,.figure-index-row small,.asset-row em,.asset-row small{display:none!important}}",
     ""
   ), collapse = "")
 }
@@ -3630,7 +3565,6 @@ if (!exists("%||%", mode = "function")) {
     .ghs_extreme_cases(master, fig_dir),
     .ghs_simulator(s),
     .ghs_robustness(master, models_dir),
-    # 自动补充：将所有未被 Findings 引用的图和 widget 嵌入到 Gallery 前展示
     "",
 
 
@@ -3640,7 +3574,6 @@ if (!exists("%||%", mode = "function")) {
     } else "",
     .ghs_gallery(fig_dir, widget_dir, mode, repo_url),
     .ghs_widgets(widget_dir, mode, repo_url),
-    # F \u9636\u6bb5\uff1a\u9644\u52a0 6 \u4e2a\u65b0\u7ae0\u8282\uff08\u7ae0\u8282\u603b\u6570 18 \u2192 24+\uff09
     .ghs_glossary(),
     .ghs_repro(repo_url),
     .ghs_session_info(),
@@ -3650,8 +3583,9 @@ if (!exists("%||%", mode = "function")) {
     "<div class='modal' id='fig-modal' onclick='closeFigure()'><button type='button'>\u5173\u95ed</button><div class='modal-title' id='modal-title'></div><img id='modal-img' alt='figure preview'></div>"
   )
   sprintf(
-    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u9876\u7ea7\u6570\u636e\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023 integrated analysis: 195 countries, 36 deep findings, 300+ static figures, 130+ standalone widgets, 36-module Shiny dashboard, full reproducibility and quality-gate evidence.'><link rel='icon' href='data:,'><style>%s%s%s</style></head><body>%s<script>%s</script></body></html>",
-    .ghs_css(), .ghs_css_v3(), .ghs_css_polish(), body, .ghs_js()
+    "<!doctype html><html lang='zh-CN' data-theme='light'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>\u5168\u7403\u536b\u751f\u652f\u51fa 2000\u20132023 \u00b7 \u5e84\u9882 20241334 \u00b7 \u6574\u5408\u5206\u6790\u62a5\u544a</title><meta name='description' content='Global Health Spending 2000\u20132023: 195 countries, 36 analytical findings, static figures, standalone widgets, Shiny dashboard, reproducibility notes and quality-gate evidence.'><link rel='icon' href='data:,'><style>%s%s%s%s</style></head><body>%s<script>%s</script></body></html>",
+    .ghs_css(), .ghs_css_v3(), .ghs_css_polish(),
+    .ghs_css_material_final(), body, .ghs_js()
   )
 }
 

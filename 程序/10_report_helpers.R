@@ -223,7 +223,7 @@ ghs_widget_shell <- function(path, title = NULL, caption = NULL,
                              fallback = NULL) {
   if (is.null(path) || !file.exists(path)) return(invisible(FALSE))
   html <- paste(readLines(path, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
-  if (grepl("data-ghs-widget-shell", html, fixed = TRUE)) return(invisible(TRUE))
+  has_shell <- grepl("data-ghs-widget-shell", html, fixed = TRUE)
   label <- if (is.null(title) || !nzchar(title)) ghs_widget_label(path) else title
   cap <- if (is.null(caption) || !nzchar(caption)) {
     "交互组件已封装为 standalone HTML；若 iframe 内加载较慢，可等待脚本完成或改用新窗打开。"
@@ -239,7 +239,7 @@ ghs_widget_shell <- function(path, title = NULL, caption = NULL,
     ".ghs-widget-caption{display:grid;gap:4px;margin-bottom:12px}.ghs-widget-caption b{font-family:'Source Serif 4',Georgia,serif;font-size:18px;color:#1B5E88}.ghs-widget-caption span{font-size:12.5px;color:#5A5A65;line-height:1.55}",
     ".ghs-widget-stage{position:relative;background:#fff;border:1px solid rgba(26,26,31,.08);border-radius:14px;padding:10px;min-height:420px;overflow:auto}",
     ".ghs-widget-loading,.ghs-widget-empty,.ghs-widget-error{position:absolute;inset:14px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:12px;background:rgba(250,247,242,.92);color:#5A5A65;font-size:13px;z-index:20}",
-    ".ghs-widget-empty,.ghs-widget-error{display:none}.ghs-widget-shell.is-loaded .ghs-widget-loading{display:none}.ghs-widget-shell.is-empty .ghs-widget-empty,.ghs-widget-shell.has-error .ghs-widget-error{display:flex}",
+    ".ghs-widget-empty,.ghs-widget-error{display:none}.ghs-widget-shell.is-loaded .ghs-widget-loading{display:none}.ghs-widget-shell.is-empty .ghs-widget-empty,.ghs-widget-shell.has-error:not(.is-rendered) .ghs-widget-error{display:flex}",
     ".ghs-widget-source{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;font-size:12px;color:#5A5A65}.ghs-widget-fallback{color:#C46B27;font-weight:700}",
     ".ghs-widget-stage>.html-widget,.ghs-widget-stage>.leaflet{max-width:100%}",
     "</style>"
@@ -254,11 +254,19 @@ ghs_widget_shell <- function(path, title = NULL, caption = NULL,
   )
   js <- paste0(
     "<script id=\"ghs-widget-shell-js\">",
-    "(function(){function mark(){var s=document.querySelector('.ghs-widget-shell');if(!s)return;s.classList.add('is-loaded');var ok=s.querySelector('.html-widget,.leaflet,.plotly,svg,canvas,table');if(!ok)s.classList.add('is-empty');}",
-    "window.addEventListener('error',function(e){var s=document.querySelector('.ghs-widget-shell');if(!s)return;s.classList.add('has-error');var m=s.querySelector('.ghs-widget-error span');if(m)m.textContent=e&&e.message?(' '+e.message):'';},true);",
-    "if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(mark,500)}else{window.addEventListener('load',function(){setTimeout(mark,500)})}})();",
+    "(function(){function rendered(s){return !!(s&&s.querySelector('.plotly .main-svg,.plotly svg,.leaflet-pane,canvas,table,.html-widget svg'));}",
+    "function mark(){var s=document.querySelector('.ghs-widget-shell');if(!s)return;s.classList.add('is-loaded');var ok=s.querySelector('.html-widget,.leaflet,.plotly,svg,canvas,table');if(ok)s.classList.add('is-rendered');if(!ok)s.classList.add('is-empty');if(rendered(s)){s.classList.remove('has-error','is-empty');s.classList.add('is-rendered');}}",
+    "window.addEventListener('error',function(e){var s=document.querySelector('.ghs-widget-shell');if(!s)return;setTimeout(function(){mark();if(rendered(s))return;s.classList.add('has-error');var m=s.querySelector('.ghs-widget-error span');if(m)m.textContent=e&&e.message?(' '+e.message):'';},250);},true);",
+    "document.addEventListener('plotly_afterplot',function(){mark();},true);",
+    "if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(mark,800);setTimeout(mark,1800)}else{window.addEventListener('load',function(){setTimeout(mark,800);setTimeout(mark,1800)})}})();",
     "</script>"
   )
+  if (has_shell) {
+    html <- sub("(?is)<style id=\"ghs-widget-shell-css\">.*?</style>", css, html, perl = TRUE)
+    html <- sub("(?is)<script id=\"ghs-widget-shell-js\">.*?</script>", js, html, perl = TRUE)
+    writeLines(html, path, useBytes = TRUE)
+    return(invisible(TRUE))
+  }
   if (grepl("</head>", html, ignore.case = TRUE)) {
     html <- sub("(?i)</head>", paste0(css, "\n</head>"), html, perl = TRUE)
   } else {
@@ -357,7 +365,7 @@ ghs_export_all_widgets <- function(master, world_sf = NULL,
 # 4. 模型结果导出
 # =============================================================================
 
-#' 一键运行所有建模并导出 CSV / RDS
+#' 运行所有建模并导出 CSV / RDS
 #'
 #' @param master 宽表
 #' @param outputs_dir 输出根目录（会写到 分析输出/模型表）
@@ -439,7 +447,7 @@ ghs_export_all_models <- function(master,
 }
 
 # =============================================================================
-# 5. 一键全流程：data → models → figures → widgets
+# 5. 全流程：data → models → figures → widgets
 # =============================================================================
 
 #' 在新机器上一行命令产出全部静态图、widget、模型表

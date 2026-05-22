@@ -6,10 +6,10 @@
 mod_cluster_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128202; \u805a\u7c7b Cluster"),
+    title = "\u805a\u7c7b Cluster",
     value = "cluster",
     mod_v3_hero(
-      kicker = "ARCHETYPE DISCOVERY",
+      kicker = "\u7c7b\u578b\u53d1\u73b0",
       title = "PCA + k-means\uff1a\u56fd\u5bb6\u7b79\u8d44\u8c61\u9650\u548c\u5236\u5ea6\u539f\u578b",
       lead = paste(
         "\u4ee5 GGHE-D\u3001PVT-D\u3001OOPS \u548c EXT \u56db\u4e2a\u7b79\u8d44\u7ef4\u5ea6\u6784\u5efa\u622a\u9762\u7279\u5f81\uff0c",
@@ -57,7 +57,7 @@ mod_cluster_ui <- function(id, year_min, year_max) {
           shiny::sliderInput(ns("k"), "\u805a\u7c7b\u6570 K",
                               min = 2, max = 8, value = 4, step = 1),
           mod_v3_sidebar_note(
-            "Parameter check",
+            "\u53c2\u6570\u68c0\u67e5",
             "\u805a\u7c7b\u662f\u63a2\u7d22\u6027\u5de5\u5177\uff1aK \u503c\u8fc7\u5c0f\u4f1a\u5408\u5e76\u4e0d\u540c\u5236\u5ea6\u7c7b\u578b\uff0cK \u503c\u8fc7\u5927\u4f1a\u4ea7\u751f\u96be\u4ee5\u89e3\u91ca\u7684\u5c0f\u7c7b\u3002",
             bullets = c("\u5efa\u8bae\u5728 K=3-5 \u95f4\u5bf9\u6bd4", "\u52a8\u753b\u5e74\u4efd\u53ef\u89c2\u5bdf\u7ed3\u6784\u6f14\u5316", "\u805a\u7c7b\u4e0d\u662f\u8d28\u91cf\u6392\u540d")
           )
@@ -70,7 +70,7 @@ mod_cluster_ui <- function(id, year_min, year_max) {
           list(title = "\u805a\u7c7b", text = "k-means \u5728\u4e3b\u6210\u5206\u7a7a\u95f4\u4e2d\u5212\u5206\u56fd\u5bb6\u539f\u578b\u3002")
         )),
         mod_card(
-          kicker = "PCA SPACE",
+          kicker = "\u4e3b\u6210\u5206\u7a7a\u95f4",
           title = "PCA + K-means \u6563\u70b9",
           mod_v3_chart_guide(
             "\u8bfb\u56fe\u65b9\u6cd5",
@@ -79,16 +79,39 @@ mod_cluster_ui <- function(id, year_min, year_max) {
           ),
           mod_spinner(plotly::plotlyOutput(ns("pca_scatter"), height = 540))
         ),
-        mod_card(
-          kicker = "CLUSTER CENTERS",
-          title = "\u5404\u805a\u7c7b\u4e2d\u5fc3 PC \u8d1f\u8377",
-          mod_v3_chart_guide(
-            "\u4e2d\u5fc3\u542b\u4e49",
-            "\u67f1\u56fe\u5c55\u793a\u6bcf\u4e2a\u805a\u7c7b\u4e2d\u5fc3\u5728\u4e3b\u6210\u5206\u4e0a\u7684\u5750\u6807\uff0c\u7528\u4e8e\u5224\u65ad\u7ec4\u95f4\u4e3b\u8981\u5dee\u5f02\u6765\u81ea\u54ea\u4e2a\u65b9\u5411\u3002",
-            tone = "good"
+        bslib::layout_columns(
+          col_widths = c(6, 6),
+          mod_card(
+            kicker = "\u805a\u7c7b\u4e2d\u5fc3",
+            title = "\u5404\u805a\u7c7b\u4e2d\u5fc3 PC \u8d1f\u8377",
+            mod_v3_chart_guide(
+              "\u4e2d\u5fc3\u542b\u4e49",
+              "\u67f1\u56fe\u5c55\u793a\u6bcf\u4e2a\u805a\u7c7b\u4e2d\u5fc3\u5728\u4e3b\u6210\u5206\u4e0a\u7684\u5750\u6807\uff0c\u7528\u4e8e\u5224\u65ad\u7ec4\u95f4\u4e3b\u8981\u5dee\u5f02\u6765\u81ea\u54ea\u4e2a\u65b9\u5411\u3002",
+              tone = "good"
+            ),
+            mod_spinner(plotly::plotlyOutput(ns("centroid_bar"), height = 360)),
+            footer = "\u7279\u5f81\u4e3a GGHE-D\u3001PVT-D\u3001EXT\u3001OOPS \u5360 CHE \u6bd4\u4f8b\uff1b\u805a\u7c7b\u662f\u63a2\u7d22\u6027\u5206\u7ec4\uff0c\u4e0d\u5e94\u5355\u72ec\u4f5c\u4e3a\u653f\u7b56\u5224\u65ad\u3002"
           ),
-          mod_spinner(plotly::plotlyOutput(ns("centroid_bar"), height = 320)),
-          footer = "\u7279\u5f81\u4e3a GGHE-D\u3001PVT-D\u3001EXT\u3001OOPS \u5360 CHE \u6bd4\u4f8b\uff1b\u805a\u7c7b\u662f\u63a2\u7d22\u6027\u5206\u7ec4\uff0c\u4e0d\u5e94\u5355\u72ec\u4f5c\u4e3a\u653f\u7b56\u5224\u65ad\u3002"
+          mod_card(
+            kicker = "\u4e3b\u6210\u5206\u8bca\u65ad",
+            title = "PCA \u8f7d\u8377\u4e0e\u89e3\u91ca\u65b9\u5dee",
+            mod_v3_chart_guide(
+              "\u5982\u4f55\u89e3\u91ca PC",
+              "\u8f7d\u8377\u7edd\u5bf9\u503c\u8d8a\u5927\uff0c\u8bf4\u660e\u8be5\u7b79\u8d44\u7279\u5f81\u5bf9\u5bf9\u5e94\u4e3b\u6210\u5206\u8d21\u732e\u8d8a\u5927\uff1b\u89e3\u91ca\u65b9\u5dee\u7528\u4e8e\u5224\u65ad\u524d\u4e24\u4e2a PC \u662f\u5426\u8db3\u4ee5\u5448\u73b0\u4e3b\u8981\u7ed3\u6784\u3002",
+              tone = "warn"
+            ),
+            mod_spinner(reactable::reactableOutput(ns("loading_table"))),
+            footer = "\u8f7d\u8377\u4ec5\u7528\u4e8e\u7406\u89e3\u4e3b\u6210\u5206\u65b9\u5411\uff0c\u6b63\u8d1f\u53f7\u53d6\u51b3\u4e8e PCA \u7b26\u53f7\u7ea6\u5b9a\u3002"
+          )
+        ),
+        mod_card(
+          kicker = "\u805a\u7c7b\u6e05\u5355",
+          title = "\u805a\u7c7b\u89c4\u6a21\u4e0e\u4ee3\u8868\u56fd\u5bb6",
+          mod_v3_chart_guide(
+            "\u8868\u683c\u7528\u9014",
+            "\u6bcf\u884c\u8868\u793a\u4e00\u4e2a\u805a\u7c7b\uff0c\u540c\u65f6\u7ed9\u51fa\u89c4\u6a21\u3001\u4efd\u989d\u548c\u524d\u51e0\u4e2a\u4ee3\u8868\u56fd\u5bb6\uff0c\u4fbf\u4e8e\u628a\u989c\u8272\u7ec4\u8fd8\u539f\u6210\u53ef\u8bfb\u7684\u5236\u5ea6\u539f\u578b\u3002"
+          ),
+          mod_spinner(reactable::reactableOutput(ns("cluster_table")))
         )
       )
     )
@@ -105,7 +128,12 @@ mod_cluster_server <- function(id, master_r) {
       snap <- snap[stats::complete.cases(snap[, need, drop = FALSE]), , drop = FALSE]
       shiny::req(nrow(snap) > input$k)
       pca <- fit_pca(snap, vars = need)
-      fit_cluster(pca, k = input$k)
+      cl <- fit_cluster(pca, k = input$k)
+      if (!is.null(cl)) {
+        cl$loadings <- pca$loadings
+        cl$var_explained <- pca$var_explained
+      }
+      cl
     })
 
     output$kpi_strip <- shiny::renderUI({
@@ -140,10 +168,12 @@ mod_cluster_server <- function(id, master_r) {
                        type = "scatter", mode = "markers+text",
                        textposition = "top center",
                        marker = list(size = 9, opacity = 0.85)) |>
-        plotly::layout(title = sprintf("PCA + K-means (k=%d, year=%d)",
+        ghs_plotly_layout() |>
+        plotly::layout(title = sprintf("PCA + K-means\uff08K=%d\uff0c%d \u5e74\uff09",
                                         input$k, input$year),
                        xaxis = list(title = "PC1"),
-                       yaxis = list(title = "PC2")) |>
+                       yaxis = list(title = "PC2"),
+                       legend = list(orientation = "h", y = -0.15)) |>
         plotly::config(displaylogo = FALSE)
     })
 
@@ -155,8 +185,64 @@ mod_cluster_server <- function(id, master_r) {
                                         names_to = "PC", values_to = "value")
       plotly::plot_ly(centroids, x = ~PC, y = ~value, color = ~cluster,
                        type = "bar") |>
-        plotly::layout(title = "各聚类中心主成分负荷", barmode = "group") |>
+        ghs_plotly_layout() |>
+        plotly::layout(title = "\u5404\u805a\u7c7b\u4e2d\u5fc3\u4e3b\u6210\u5206\u5750\u6807",
+                       barmode = "group",
+                       xaxis = list(title = ""),
+                       yaxis = list(title = "\u4e2d\u5fc3\u5750\u6807"),
+                       legend = list(orientation = "h", y = -0.15)) |>
         plotly::config(displaylogo = FALSE)
+    })
+
+    output$loading_table <- reactable::renderReactable({
+      cl <- cluster_obj(); shiny::req(cl)
+      loadings <- cl$loadings
+      pc_cols <- intersect(c("PC1", "PC2", "PC3", "PC4"), names(loadings))
+      tab <- loadings[, c("variable", pc_cols), drop = FALSE]
+      names(tab)[1] <- "\u539f\u59cb\u7279\u5f81"
+      for (pc in pc_cols) tab[[pc]] <- round(tab[[pc]], 3)
+      ve <- cl$var_explained[pc_cols]
+      ve_row <- as.data.frame(as.list(round(as.numeric(ve) * 100, 1)))
+      names(ve_row) <- pc_cols
+      ve_row <- data.frame(
+        "\u539f\u59cb\u7279\u5f81" = "\u89e3\u91ca\u65b9\u5dee(%)",
+        ve_row,
+        check.names = FALSE
+      )
+      tab <- rbind(tab, ve_row)
+      reactable::reactable(tab, pagination = FALSE, highlight = TRUE,
+        defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
+        columns = list(
+          "\u539f\u59cb\u7279\u5f81" = reactable::colDef(minWidth = 140,
+            style = list(fontFamily = "'JetBrains Mono', monospace", fontWeight = 700))
+        ))
+    })
+
+    output$cluster_table <- reactable::renderReactable({
+      cl <- cluster_obj(); shiny::req(cl)
+      d <- cl$scores
+      parts <- split(d, d$cluster)
+      tab <- do.call(rbind, lapply(parts, function(ch) {
+        reps <- paste(utils::head(ch$iso3_code[order(ch$PC1)], 6), collapse = " / ")
+        data.frame(
+          "\u805a\u7c7b" = as.character(ch$cluster[1]),
+          "\u56fd\u5bb6\u6570" = nrow(ch),
+          "\u6837\u672c\u5360\u6bd4" = sprintf("%.1f%%", nrow(ch) / nrow(d) * 100),
+          "PC1 \u4e2d\u4f4d\u6570" = round(stats::median(ch$PC1, na.rm = TRUE), 2),
+          "PC2 \u4e2d\u4f4d\u6570" = round(stats::median(ch$PC2, na.rm = TRUE), 2),
+          "\u4ee3\u8868 ISO3" = reps,
+          check.names = FALSE
+        )
+      }))
+      reactable::reactable(tab, pagination = FALSE, highlight = TRUE,
+        defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
+        columns = list(
+          "\u56fd\u5bb6\u6570" = reactable::colDef(align = "right"),
+          "PC1 \u4e2d\u4f4d\u6570" = reactable::colDef(align = "right"),
+          "PC2 \u4e2d\u4f4d\u6570" = reactable::colDef(align = "right"),
+          "\u4ee3\u8868 ISO3" = reactable::colDef(minWidth = 240,
+            style = list(fontFamily = "'JetBrains Mono', monospace"))
+        ))
     })
   })
 }

@@ -6,10 +6,10 @@
 mod_extremes_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#9888; \u6781\u503c Extremes"),
+    title = "\u6781\u503c Extremes",
     value = "extremes",
     mod_v3_hero(
-      kicker = "EXTREME VALUES & OUTLIERS",
+      kicker = "\u6781\u7aef\u503c\u4e0e\u5f02\u5e38",
       title = "\u6781\u7aef\u503c\u8bc6\u522b\u4e0e\u5f02\u5e38\u56fd\u5bb6\u5206\u6790",
       lead = paste(
         "\u5168\u7403\u536b\u751f\u652f\u51fa\u5206\u5e03\u5448\u73b0\u6781\u7aef\u504f\u659c\uff1a\u4eba\u5747 CHE \u6700\u9ad8\u4e0e\u6700\u4f4e\u56fd\u5bb6\u76f8\u5dee 100 \u500d\u3002",
@@ -17,65 +17,100 @@ mod_extremes_ui <- function(id) {
       ),
       meta = list("IQR \u65b9\u6cd5", "Z-score", "195 \u56fd\u5bb6")
     ),
-    bslib::layout_sidebar(
-      sidebar = bslib::sidebar(
-        width = 280,
-        shiny::sliderInput(ns("year"), "\u5e74\u4efd",
-          min = 2000, max = 2023, value = 2023, step = 1, sep = ""),
-        shiny::selectInput(ns("indicator"), "\u68c0\u6d4b\u6307\u6807",
-          choices = c(
-            "\u4eba\u5747 CHE (USD)" = "che_pc_usd2023",
-            "OOPS (%)" = "hf3_che",
-            "GGHE-D (%)" = "gghed_che",
-            "EXT (%)" = "ext_che"
-          ), selected = "che_pc_usd2023"),
-        shiny::sliderInput(ns("iqr_mult"), "IQR \u500d\u6570\u9608\u503c",
-          min = 1.0, max = 3.0, value = 1.5, step = 0.25),
-        shiny::tags$hr(),
-        shiny::helpText(
-          "\u5f02\u5e38\u503c\u5b9a\u4e49\uff1a\u8d85\u8fc7 Q3 + k\u00d7IQR \u6216\u4f4e\u4e8e Q1 - k\u00d7IQR\u3002",
-          "\u8c03\u6574 k \u503c\u53ef\u6539\u53d8\u5f02\u5e38\u68c0\u6d4b\u7684\u4e25\u683c\u7a0b\u5ea6\u3002"
-        )
-      ),
-      shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
-      bslib::layout_columns(
-        col_widths = c(7, 5),
-        mod_card(
-          title = "\u5206\u5e03\u4e0e\u5f02\u5e38\u503c\u6807\u8bb0",
-          htmltools::p(class = "card-note",
-            "\u7ea2\u8272\u70b9 = \u8d85\u8fc7\u9608\u503c\u7684\u5f02\u5e38\u56fd\u5bb6\u3002\u7070\u8272 = \u6b63\u5e38\u8303\u56f4\u3002"),
-          mod_spinner(plotly::plotlyOutput(ns("outlier_scatter"), height = 440))
+    mod_v3_page_body(
+      wide = TRUE,
+      mod_v3_topic_brief("extremes"),
+      bslib::layout_sidebar(
+        sidebar = bslib::sidebar(
+          width = 280,
+          shiny::sliderInput(ns("year"), "\u5e74\u4efd",
+            min = 2000, max = 2023, value = 2023, step = 1, sep = ""),
+          shiny::selectInput(ns("indicator"), "\u68c0\u6d4b\u6307\u6807",
+            choices = c(
+              "\u4eba\u5747 CHE (USD)" = "che_pc_usd2023",
+              "OOPS (%)" = "hf3_che",
+              "GGHE-D (%)" = "gghed_che",
+              "EXT (%)" = "ext_che"
+            ), selected = "che_pc_usd2023"),
+          shiny::sliderInput(ns("iqr_mult"), "IQR \u500d\u6570\u9608\u503c",
+            min = 1.0, max = 3.0, value = 1.5, step = 0.25),
+          mod_v3_sidebar_note(
+            "\u5f02\u5e38\u68c0\u6d4b",
+            "\u5f02\u5e38\u503c\u5b9a\u4e49\uff1a\u8d85\u8fc7 Q3 + k\u00d7IQR \u6216\u4f4e\u4e8e Q1 - k\u00d7IQR\u3002k \u8d8a\u5927\uff0c\u53ea\u6709\u66f4\u6781\u7aef\u7684\u56fd\u5bb6\u4f1a\u88ab\u6807\u8bb0\u3002",
+            bullets = c(
+              "\u4eba\u5747 CHE \u901a\u5e38\u53ea\u6709\u9ad8\u7aef\u5f02\u5e38\uff0cOOPS \u53ef\u80fd\u540c\u65f6\u5b58\u5728\u9ad8\u4f4e\u5c3e\u90e8\u3002",
+              "\u5f02\u5e38\u503c\u4e0d\u7b49\u4e8e\u9519\u8bef\uff0c\u9700\u8981\u7ed3\u5408\u56fd\u5bb6\u89c4\u6a21\u3001\u4ef7\u683c\u548c\u5236\u5ea6\u80cc\u666f\u89e3\u91ca\u3002",
+              "\u8c03\u6574 IQR \u9608\u503c\u53ef\u4ee5\u5728\u654f\u611f\u53d1\u73b0\u548c\u7a33\u5065\u7b5b\u9009\u4e4b\u95f4\u5207\u6362\u3002"
+            )
+          )
+        ),
+        shiny::uiOutput(ns("kpi_strip")),
+        bslib::layout_columns(
+          col_widths = c(7, 5),
+          mod_card(
+            kicker = "F1 · Ranked outliers",
+            title = "\u5206\u5e03\u4e0e\u5f02\u5e38\u503c\u6807\u8bb0",
+            htmltools::p(class = "card-note",
+              "\u7ea2\u8272\u70b9 = \u8d85\u8fc7\u9608\u503c\u7684\u5f02\u5e38\u56fd\u5bb6\u3002\u7070\u8272 = \u6b63\u5e38\u8303\u56f4\u3002"),
+            mod_v3_chart_guide(
+              "\u6392\u5e8f\u56fe\u76f4\u63a5\u663e\u793a\u5c3e\u90e8\u65ad\u70b9",
+              "\u70b9\u4f4d\u8d8a\u9760\u53f3\u8868\u793a\u6307\u6807\u503c\u8d8a\u9ad8\uff1b\u865a\u7ebf\u4e4b\u5916\u7684\u70b9\u4ee3\u8868\u5f53\u524d\u9608\u503c\u4e0b\u7684\u5f02\u5e38\u6837\u672c\u3002",
+              bullets = c("\u4f4e\u7aef\u5f02\u5e38\u5e94\u4e0e\u6570\u636e\u7f3a\u5931\u6216\u53e3\u5f84\u53d8\u5316\u533a\u5206\u3002", "\u9ad8\u7aef\u5f02\u5e38\u9700\u8981\u7ed3\u5408\u6536\u5165\u7ec4\u548c\u8d22\u653f\u7ed3\u6784\u590d\u6838\u3002")
+            ),
+            mod_spinner(plotly::plotlyOutput(ns("outlier_scatter"), height = 440))
+          ),
+          mod_card(
+            kicker = "F2 · Group context",
+            title = "\u5f02\u5e38\u503c\u5206\u5e03\u7bb1\u7ebf\u56fe",
+            htmltools::p(class = "card-note",
+              "\u6309\u5927\u6d32\u5206\u7ec4\u7684\u7bb1\u7ebf\u56fe\uff0c\u7ea2\u8272\u865a\u7ebf = \u5f02\u5e38\u9608\u503c\u3002"),
+            mod_v3_chart_guide(
+              "\u7bb1\u7ebf\u56fe\u5224\u65ad\u5f02\u5e38\u662f\u5168\u5c40\u8fd8\u662f\u7ec4\u5185",
+              "\u5982\u679c\u67d0\u4e2a\u7ec4\u7684\u6574\u4f53\u7bb1\u4f53\u5df2\u63a5\u8fd1\u9608\u503c\uff0c\u8bf4\u660e\u5f02\u5e38\u53ef\u80fd\u662f\u533a\u57df\u7ed3\u6784\u7279\u5f81\uff0c\u800c\u4e0d\u662f\u4e2a\u522b\u56fd\u5bb6\u5f02\u52a8\u3002",
+              tone = "warn"
+            ),
+            mod_spinner(plotly::plotlyOutput(ns("box_outliers"), height = 440)),
+            footer = "IQR \u9608\u503c\u57fa\u4e8e\u5f53\u5e74\u5168\u6837\u672c\u8ba1\u7b97\uff0c\u4e0d\u968f\u5927\u6d32\u5206\u7ec4\u91cd\u7b97\u3002"
+          )
+        ),
+        bslib::layout_columns(
+          col_widths = c(6, 6),
+          mod_card(
+            kicker = "F3 · Persistence",
+            title = "\u5f02\u5e38\u56fd\u5bb6\u6570\u91cf\u8d8b\u52bf",
+            htmltools::p(class = "card-note",
+              "\u6bcf\u5e74\u88ab\u8bc6\u522b\u4e3a\u5f02\u5e38\u503c\u7684\u56fd\u5bb6\u6570\u91cf\u53d8\u5316\u3002"),
+            mod_v3_chart_guide(
+              "\u6301\u7eed\u6027\u6bd4\u5355\u5e74\u6807\u8bb0\u66f4\u91cd\u8981",
+              "\u5f02\u5e38\u6570\u91cf\u5728\u591a\u5e74\u6301\u7eed\u589e\u52a0\uff0c\u8868\u793a\u5206\u5e03\u5c3e\u90e8\u53ef\u80fd\u6b63\u5728\u62c9\u957f\uff1b\u53ea\u6709\u5355\u5e74\u5c16\u5cf0\u5219\u53ef\u80fd\u662f\u51b2\u51fb\u6216\u6570\u636e\u66f4\u65b0\u3002"
+            ),
+            mod_spinner(plotly::plotlyOutput(ns("outlier_trend"), height = 380))
+          ),
+          mod_card(
+            kicker = "F4 · Profile contrast",
+            title = "\u6781\u7aef\u56fd\u5bb6\u7684\u5171\u540c\u7279\u5f81",
+            htmltools::p(class = "card-note",
+              "\u5f02\u5e38\u56fd\u5bb6\u5728\u5176\u4ed6\u6307\u6807\u4e0a\u7684\u5747\u503c vs \u6b63\u5e38\u56fd\u5bb6\u3002"),
+            mod_v3_chart_guide(
+              "\u7528\u7279\u5f81\u6bd4\u503c\u5224\u65ad\u5f02\u5e38\u7684\u80cc\u666f",
+              "\u6bd4\u503c\u9ad8\u4e8e 1 \u8868\u793a\u5f02\u5e38\u56fd\u5bb6\u5728\u8be5\u6307\u6807\u4e0a\u9ad8\u4e8e\u6b63\u5e38\u7ec4\uff1b\u8fd9\u80fd\u5e2e\u52a9\u533a\u5206\u8d22\u5bcc\u9a71\u52a8\u3001\u7b79\u8d44\u7ed3\u6784\u9a71\u52a8\u548c\u5065\u5eb7\u7ed3\u679c\u5dee\u5f02\u3002",
+              tone = "good"
+            ),
+            mod_spinner(plotly::plotlyOutput(ns("feature_compare"), height = 380))
+          )
         ),
         mod_card(
-          title = "\u5f02\u5e38\u503c\u5206\u5e03\u7bb1\u7ebf\u56fe",
+          kicker = "F5 · Outlier audit",
+          title = "\u5f02\u5e38\u56fd\u5bb6\u8be6\u8868",
           htmltools::p(class = "card-note",
-            "\u6309\u5927\u6d32\u5206\u7ec4\u7684\u7bb1\u7ebf\u56fe\uff0c\u7ea2\u8272\u865a\u7ebf = \u5f02\u5e38\u9608\u503c\u3002"),
-          mod_spinner(plotly::plotlyOutput(ns("box_outliers"), height = 440))
+            "\u5f53\u5e74\u88ab\u8bc6\u522b\u4e3a\u5f02\u5e38\u503c\u7684\u56fd\u5bb6\u53ca\u5176\u6307\u6807\u3002"),
+          mod_v3_chart_guide(
+            "\u8868\u683c\u7528\u4e8e\u6700\u540e\u6838\u9a8c",
+            "\u4ece\u6563\u70b9\u3001\u7bb1\u7ebf\u548c\u7279\u5f81\u5bf9\u6bd4\u4e2d\u627e\u5230\u7684\u56fd\u5bb6\uff0c\u5728\u8fd9\u91cc\u6838\u5bf9\u5927\u6d32\u3001\u6536\u5165\u7ec4\u3001\u6307\u6807\u503c\u548c CHE/cap\u3002"
+          ),
+          mod_spinner(reactable::reactableOutput(ns("outlier_table"))),
+          footer = "\u5f02\u5e38\u6807\u8bb0\u662f\u5206\u6790\u5165\u53e3\uff0c\u4e0d\u662f\u8d28\u91cf\u5224\u5b9a\uff1b\u5e94\u7ed3\u5408\u539f\u59cb\u6570\u636e\u53e3\u5f84\u8fdb\u884c\u590d\u6838\u3002"
         )
-      ),
-      # Row 2
-      bslib::layout_columns(
-        col_widths = c(6, 6),
-        mod_card(
-          title = "\u5f02\u5e38\u56fd\u5bb6\u6570\u91cf\u8d8b\u52bf",
-          htmltools::p(class = "card-note",
-            "\u6bcf\u5e74\u88ab\u8bc6\u522b\u4e3a\u5f02\u5e38\u503c\u7684\u56fd\u5bb6\u6570\u91cf\u53d8\u5316\u3002"),
-          mod_spinner(plotly::plotlyOutput(ns("outlier_trend"), height = 380))
-        ),
-        mod_card(
-          title = "\u6781\u7aef\u56fd\u5bb6\u7684\u5171\u540c\u7279\u5f81",
-          htmltools::p(class = "card-note",
-            "\u5f02\u5e38\u56fd\u5bb6\u5728\u5176\u4ed6\u6307\u6807\u4e0a\u7684\u5747\u503c vs \u6b63\u5e38\u56fd\u5bb6\u3002"),
-          mod_spinner(plotly::plotlyOutput(ns("feature_compare"), height = 380))
-        )
-      ),
-      # Table
-      mod_card(
-        title = "\u5f02\u5e38\u56fd\u5bb6\u8be6\u8868",
-        htmltools::p(class = "card-note",
-          "\u5f53\u5e74\u88ab\u8bc6\u522b\u4e3a\u5f02\u5e38\u503c\u7684\u56fd\u5bb6\u53ca\u5176\u6307\u6807\u3002"),
-        mod_spinner(reactable::reactableOutput(ns("outlier_table")))
       )
     )
   )

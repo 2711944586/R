@@ -40,10 +40,10 @@ ghs_rel <- function(paths, base) {
 ghs_file_purpose <- function(rel) {
   purpose <- rep("项目辅助文件。", length(rel))
   purpose[rel == "README.md"] <- "最终交付包总说明；说明推荐评阅顺序、目录结构、核心产物、复现命令、质量门禁和注意事项。"
-  purpose[rel == "交付清单.csv"] <- "核心交付项核验表；用于快速检查关键文件或目录是否存在、文件数和体积是否符合预期。"
-  purpose[rel == "完整文件索引.csv"] <- "交付包内全部文件的机器可读索引；逐文件记录路径、目录、扩展名、体积和用途类别。"
+  purpose[rel == file.path("交付索引", "交付清单.csv")] <- "核心交付项核验表；用于快速检查关键文件或目录是否存在、文件数和体积是否符合预期。"
+  purpose[rel == file.path("交付索引", "完整文件索引.csv")] <- "交付包内全部文件的机器可读索引；逐文件记录路径、目录、扩展名、体积和用途类别。"
   purpose[rel == "网站发布/交互组件"] <- "发布版 standalone widgets 目录；网站首页按需加载其中 HTML，并依赖同名 _files 资源目录。"
-  purpose[rel == "网站发布/仪表盘"] <- "静态网站中的浏览器版 Shiny 或 fallback 仪表盘入口目录。"
+  purpose[rel == "网站发布/仪表盘"] <- "静态网站中的浏览器版 Shiny 或备用仪表盘入口目录。"
   purpose[rel == "分析输出/图表"] <- "全部静态图目录；包含 94 张 PNG 和 94 张 SVG。"
   purpose[rel == "分析输出/交互组件"] <- "分析阶段 standalone widgets 原件目录；包含 42 个 HTML widget 及其依赖。"
   purpose[rel == "分析输出/模型表"] <- "模型、指标、预测、聚类、效率、公平性和情景模拟结果表目录。"
@@ -61,7 +61,7 @@ ghs_file_purpose <- function(rel) {
   purpose[rel == "网站发布/index.html"] <- "GitHub Pages 同源首页；与课程提交 HTML 使用同一生成器生成。"
   purpose[grepl("^网站发布/交互组件/.*[.]html$", rel)] <- "发布目录中的 standalone HTML widget；由网站首页按需加载。"
   purpose[grepl("^网站发布/交互组件/.+_files/", rel)] <- "发布目录 widget 的 JavaScript/CSS/数据依赖；必须与同名 widget HTML 一起保留。"
-  purpose[grepl("^网站发布/仪表盘/", rel)] <- "浏览器版 Shiny 或 fallback 发布资源；用于检查静态网站中的仪表盘入口。"
+  purpose[grepl("^网站发布/仪表盘/", rel)] <- "浏览器版 Shiny 或备用发布资源；用于检查静态网站中的仪表盘入口。"
   purpose[grepl("^分析输出/图表/.*[.]png$", rel)] <- "PNG 静态图；用于正文展示、Gallery 浏览和人工复核。"
   purpose[grepl("^分析输出/图表/.*[.]svg$", rel)] <- "SVG 矢量图；用于高清复核、缩放查看和图像质量检查。"
   purpose[grepl("^分析输出/交互组件/.*[.]html$", rel)] <- "分析阶段生成的 standalone 交互组件原件。"
@@ -74,7 +74,7 @@ ghs_file_purpose <- function(rel) {
   purpose[grepl("^派生数据/处理结果/feature_dictionary[.]csv$", rel)] <- "变量字典；记录变量标签、来源、单位、公式、角色、样本数和缺失率。"
   purpose[grepl("^程序/", rel)] <- "R 函数库；包含数据读取、清洗、特征、建模、绘图、widget、静态页和交付包生成逻辑。"
   purpose[grepl("^仪表盘/(global|server|ui)[.]R$", rel)] <- "本地 Shiny 应用入口文件。"
-  purpose[grepl("^仪表盘/模块/", rel)] <- "Shiny 模块源码；对应 12 个仪表盘页面和组件。"
+  purpose[grepl("^仪表盘/模块/", rel)] <- "Shiny 模块源码；对应 39 个页面与交互组件。"
   purpose[grepl("^仪表盘/数据快照/", rel)] <- "Shiny 运行所需数据快照；用于离线启动仪表盘。"
   purpose[grepl("^仪表盘/程序库/", rel)] <- "Shiny 部署包中的 R 程序副本；用于云端或可移植部署。"
   purpose[grepl("^开发脚本/", rel)] <- "开发、审计、测试、构建和部署辅助脚本。"
@@ -82,7 +82,7 @@ ghs_file_purpose <- function(rel) {
   purpose[grepl("^项目文档/", rel)] <- "项目说明、方法手册、部署文档、变更记录和课程原始说明。"
   purpose[grepl("^部署配置/", rel)] <- "Docker 和 docker-compose 配置；用于容器化复现或部署。"
   purpose[grepl("^[.]github/workflows/", rel)] <- "GitHub Actions 工作流；用于 Pages 或 Shiny 自动部署参考。"
-  purpose[rel %in% c("构建.R", "安装依赖.R", "启动仪表盘.R", "DESCRIPTION", "LICENSE", ".Rprofile", ".lintr", ".gitignore", "_targets.R")] <- "项目根入口或配置文件；用于依赖安装、构建、启动、包元信息、许可证或开发环境复现。"
+  purpose[grepl("^项目入口/", rel)] <- "项目入口或配置文件；用于依赖安装、构建、启动、包元信息、许可证或开发环境复现。"
   purpose
 }
 
@@ -114,8 +114,8 @@ ghs_md_table <- function(df, cols = names(df), limit = Inf) {
 ghs_delivery_manifest <- function(delivery_dir) {
   entries <- c(
     "README.md",
-    "交付清单.csv",
-    "完整文件索引.csv",
+    file.path("交付索引", "交付清单.csv"),
+    file.path("交付索引", "完整文件索引.csv"),
     file.path("课程提交", "庄颂_20241334.Rmd"),
     file.path("课程提交", "庄颂_20241334.html"),
     file.path("网站发布", "index.html"),
@@ -137,11 +137,12 @@ ghs_delivery_manifest <- function(delivery_dir) {
     "自动测试",
     "部署配置",
     file.path(".github", "workflows"),
-    "构建.R",
-    "安装依赖.R",
-    "启动仪表盘.R",
-    "DESCRIPTION",
-    "LICENSE"
+    file.path("项目入口", "构建.R"),
+    file.path("项目入口", "安装依赖.R"),
+    file.path("项目入口", "启动仪表盘.R"),
+    file.path("项目入口", "DESCRIPTION"),
+    file.path("项目入口", "LICENSE"),
+    file.path("项目入口", "renv.lock")
   )
   rows <- lapply(entries, function(rel) {
     path <- file.path(delivery_dir, rel)
@@ -175,21 +176,23 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
   q_text <- if (nrow(q_rows)) {
     paste(sprintf("| %s | %s | %s/%s |", q_rows$module, q_rows$status, q_rows$pass, q_rows$total), collapse = "\n")
   } else {
-    "| 尚未生成 | 请运行 `Rscript 构建.R quality` | - |"
+    "| 尚未生成 | 请运行 `Rscript 项目入口/构建.R quality` | - |"
   }
   manifest_text <- paste(sprintf("| `%s` | %s | %s | %s MB | %s |", manifest$path, ifelse(manifest$exists, "是", "否"), manifest$files, manifest$size_mb, manifest$purpose), collapse = "\n")
   file_index_text <- ghs_md_table(file_index, c("path", "size_mb", "purpose"))
   c(
+    "Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/",
+    "",
     "# 庄颂_20241334 · Global Health Spending 交付说明",
     "",
     "> 作者：庄颂（20241334）  ",
     "> 数据：TidyTuesday 2026-04-21 / WHO Global Health Expenditure Database + WDI  ",
-    "> 在线首页：<https://2711944586.github.io/R/>  ",
-    "> Shiny 云端：<https://constantine1433223.shinyapps.io/ghs-dashboard/>",
+    "> Shiny 云端：<https://constantine1433223.shinyapps.io/ghs-dashboard/>  ",
+    "> 静态发布：<https://2711944586.github.io/R/>",
     "",
     "## 1. 交付包定位",
     "",
-    "本目录名为 `庄颂_20241334/`，与作业提交命名保持一致。最终提交时可直接压缩整个文件夹为 `庄颂_20241334.zip`。文件夹内部保留项目根目录式结构，而不是把 Rmd、源码和输出拆散到互不相干的编号目录中；这样 `课程提交/庄颂_20241334.Rmd` 解压后仍能把上一级目录识别为项目根，继续找到 `程序/`、`分析输出/`、`网站发布/`、`派生数据/` 和 `项目文档/`。",
+    "本目录名为 `庄颂_20241334/`，与作业提交命名保持一致。最终提交时可直接压缩整个文件夹为 `庄颂_20241334.zip`。根目录只保留一个 `README.md` 文件；安装、启动、构建、依赖和索引类文件均放入专门文件夹，避免评阅入口被杂项文件淹没。",
     "",
     "最终页面遵循单一标准：`课程提交/庄颂_20241334.html` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成，内容同源，只是服务场景不同。Rmd、HTML、网站、图表、widget、模型表、数据字典、质量报告和复现脚本均已放入本文件夹。",
     "",
@@ -202,17 +205,17 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     sprintf("- **静态图集**：`分析输出/图表/` 中有 %s 张 PNG + %s 张 SVG。", png_count, svg_count),
     sprintf("- **交互组件**：`分析输出/交互组件/` 中有 %s 个 HTML widget；`网站发布/交互组件/` 中有 %s 个发布版 HTML widget。", widget_count, site_widget_count),
     sprintf("- **模型表**：`分析输出/模型表/` 中有 %s 个 CSV/RDS 模型或指标产物。", model_count),
-    "- **Shiny**：12 个模块化页面；同时支持本地 Shiny、shinylive 浏览器版和 shinyapps.io 云端版。",
+    "- **Shiny**：39 个页面与交互模块；新增独立首页，支持本地 Shiny、shinylive 浏览器版和 shinyapps.io 云端版。",
     "",
     "## 3. 推荐评阅顺序",
     "",
     "1. 打开 `课程提交/庄颂_20241334.html`：这是课程要求的 HTML 结果文档，也是最稳妥的离线评阅主入口。",
-    "2. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，已同步为当前 14 项核心发现、94 张图和 42 个交互组件口径。",
+    sprintf("2. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，已同步为当前 14 项核心发现、%s 张 PNG 图、%s 张 SVG 图和 %s 个交互组件口径。", png_count, svg_count, widget_count),
     "3. 打开 `网站发布/index.html`：这是 GitHub Pages 同源首页，适合检查发布路径和交互组件。",
     "4. 查看 `项目文档/方法手册.md`：逐项核查 F1–F14 的研究问题、数据口径、变量、方法、代码入口、主要产物和局限。",
     "5. 查看 `分析输出/质量报告/quality_gate.html`：确认语法、图像、链接、widget、secret、Shiny bundle、README 一致性等质量门禁。",
     "6. 查看 `派生数据/处理结果/feature_dictionary.csv`：复核变量来源、单位、公式、角色和缺失率。",
-    "7. 如需逐文件核验，打开 `完整文件索引.csv` 或查看本 README 的“完整文件索引”章节。",
+    "7. 如需逐文件核验，打开 `交付索引/完整文件索引.csv` 或查看本 README 的“完整文件索引”章节。",
     "",
     "## 4. 顶层目录总览",
     "",
@@ -223,13 +226,13 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "### `课程提交/`",
     "",
     "- `课程提交/庄颂_20241334.Rmd`：课程源文档。它已同步到当前项目口径，包含提交说明、作业要求对照、当前规模、复现命令、质量摘要和 sessionInfo。",
-    "- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接离线打开；页面包含 36 个内容章节、14 项发现、94 张静态图和交互入口。",
+    sprintf("- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接离线打开；页面包含 36 个内容章节、14 项发现、%s 张 PNG 图、%s 张 SVG 图和交互入口。", png_count, svg_count),
     "",
     "### `网站发布/`",
     "",
     "- `网站发布/index.html`：GitHub Pages 首页，与课程提交 HTML 同源。它用于网站发布和路径联调。",
     "- `网站发布/交互组件/`：发布版 standalone widgets。每个 `.html` 通常对应一个同名 `_files/` 依赖目录，移动或提交时必须整体保留。",
-    "- `网站发布/仪表盘/`：浏览器版 Shiny 或 fallback 页面入口，用于静态站中的仪表盘跳转。",
+    "- `网站发布/仪表盘/`：浏览器版 Shiny 或备用页面入口，用于静态站中的仪表盘跳转。",
     "",
     "### `分析输出/`",
     "",
@@ -274,32 +277,31 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "- `部署配置/`：Dockerfile 与 docker-compose。",
     "- `.github/workflows/`：GitHub Actions 发布与部署参考。",
     "",
-    "### 根目录入口文件",
+    "### `项目入口/` 与 `交付索引/`",
     "",
     "- `README.md`：本交付包说明，也是评阅者进入文件夹后的第一入口。",
-    "- `构建.R`：统一构建命令入口。",
-    "- `安装依赖.R`：安装依赖入口。",
-    "- `启动仪表盘.R`：本地启动 Shiny 仪表盘入口。",
-    "- `DESCRIPTION`：R 项目元信息和项目根定位锚点。",
-    "- `LICENSE`、`.Rprofile`、`.lintr`、`.gitignore`、`_targets.R`：许可证、开发环境、风格检查、忽略规则和 targets 配置。",
-    "- `交付清单.csv`：核心路径核验表。",
-    "- `完整文件索引.csv`：逐文件索引，本 README 后文也完整列出。",
+    "- `项目入口/构建.R`：统一构建命令入口。",
+    "- `项目入口/安装依赖.R`：安装依赖入口。",
+    "- `项目入口/启动仪表盘.R`：本地启动 Shiny 仪表盘入口。",
+    "- `项目入口/DESCRIPTION`：R 项目元信息和项目根定位锚点。",
+    "- `项目入口/LICENSE`、`renv.lock`、`.Rprofile`、`.lintr`、`.gitignore`、`_targets.R`：许可证、依赖锁定、开发环境、风格检查、忽略规则和 targets 配置。",
+    "- `交付索引/交付清单.csv`：核心路径核验表。",
+    "- `交付索引/完整文件索引.csv`：逐文件索引，本 README 后文也完整列出。",
     "",
     "## 6. 复现命令",
     "",
-    "在 `庄颂_20241334/` 文件夹内执行：",
+    "在交付包根目录 `庄颂_20241334/` 内执行：",
     "",
     "```bash",
-    "Rscript 安装依赖.R",
-    "Rscript 构建.R data",
-    "Rscript 构建.R features",
-    "Rscript 构建.R figures",
-    "Rscript 构建.R widgets",
-    "Rscript 构建.R models",
-    "Rscript 构建.R submission",
-    "Rscript 构建.R quality",
-    "Rscript 构建.R delivery",
-    "Rscript 启动仪表盘.R 4848",
+    "Rscript 项目入口/安装依赖.R",
+    "Rscript 项目入口/构建.R data",
+    "Rscript 项目入口/构建.R features",
+    "Rscript 项目入口/构建.R figures",
+    "Rscript 项目入口/构建.R widgets",
+    "Rscript 项目入口/构建.R models",
+    "Rscript 项目入口/构建.R submission",
+    "Rscript 项目入口/构建.R quality",
+    "Rscript 项目入口/启动仪表盘.R 4848",
     "```",
     "",
     "如果只想检查课程要求的两个主件，优先打开：",
@@ -336,7 +338,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "## 11. 完整文件索引",
     "",
-    "本节逐文件列出交付包内所有文件及其用途。若需要用表格软件筛选，可直接打开同目录的 `完整文件索引.csv`。",
+    "本节逐文件列出交付包内所有文件及其用途。若需要用表格软件筛选，可直接打开 `交付索引/完整文件索引.csv`。",
     "",
     file_index_text
   )
@@ -347,8 +349,12 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   on.exit(setwd(old), add = TRUE)
   if (isTRUE(clean) && dir.exists(delivery_dir)) unlink(delivery_dir, recursive = TRUE, force = TRUE)
   dir.create(delivery_dir, recursive = TRUE, showWarnings = FALSE)
-  root_files <- c("构建.R", "安装依赖.R", "启动仪表盘.R", "DESCRIPTION", "LICENSE", ".Rprofile", ".lintr", ".gitignore", "_targets.R")
-  for (f in root_files) ghs_copy_path(file.path(root, f), file.path(delivery_dir, f))
+  root_files <- c("构建.R", "安装依赖.R", "启动仪表盘.R", "DESCRIPTION", "LICENSE", "renv.lock", ".Rprofile", ".lintr", ".gitignore", "_targets.R")
+  entry_dir <- file.path(delivery_dir, "项目入口")
+  index_dir <- file.path(delivery_dir, "交付索引")
+  dir.create(entry_dir, recursive = TRUE, showWarnings = FALSE)
+  dir.create(index_dir, recursive = TRUE, showWarnings = FALSE)
+  for (f in root_files) ghs_copy_path(file.path(root, f), file.path(entry_dir, f))
   ghs_copy_path(file.path(root, ".github", "workflows"), file.path(delivery_dir, ".github", "workflows"))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.html"), file.path(delivery_dir, "课程提交", "庄颂_20241334.html"))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.Rmd"), file.path(delivery_dir, "课程提交", "庄颂_20241334.Rmd"))
@@ -366,6 +372,7 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   for (f in c("global.R", "server.R", "ui.R")) ghs_copy_path(file.path(root, "仪表盘", f), file.path(delivery_dir, "仪表盘", f))
   for (d in c("模块", "数据快照", "程序库", "派生数据")) ghs_copy_path(file.path(root, "仪表盘", d), file.path(delivery_dir, "仪表盘", d))
   doc_files <- c(
+    "../README_项目总览.md",
     "方法手册.md",
     "部署总览.md",
     "部署_GitHub_Pages.md",
@@ -374,7 +381,11 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
     "变更记录.md",
     "2026作业_Global Health Spending 数据集自由分析.docx"
   )
-  for (f in doc_files) ghs_copy_path(file.path(root, "项目文档", f), file.path(delivery_dir, "项目文档", f))
+  for (f in doc_files) {
+    src <- if (startsWith(f, "../")) file.path(root, sub("^\\.\\./", "", f)) else file.path(root, "项目文档", f)
+    dst <- file.path(delivery_dir, "项目文档", basename(f))
+    ghs_copy_path(src, dst)
+  }
   ghs_copy_path(file.path(root, "开发脚本"), file.path(delivery_dir, "开发脚本"))
   ghs_copy_path(file.path(root, "自动测试"), file.path(delivery_dir, "自动测试"))
   ghs_copy_path(file.path(root, "部署配置"), file.path(delivery_dir, "部署配置"))
@@ -382,19 +393,19 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   unlink(file.path(delivery_dir, "课程提交", ".Rhistory"), force = TRUE)
   unlink(file.path(delivery_dir, "仪表盘", "rsconnect"), recursive = TRUE, force = TRUE)
   writeLines("", file.path(delivery_dir, "README.md"), useBytes = TRUE)
-  utils::write.csv(data.frame(), file.path(delivery_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
-  utils::write.csv(data.frame(), file.path(delivery_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+  utils::write.csv(data.frame(), file.path(index_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+  utils::write.csv(data.frame(), file.path(index_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
   for (i in seq_len(2L)) {
     file_index <- ghs_delivery_file_index(delivery_dir)
     manifest <- ghs_delivery_manifest(delivery_dir)
-    utils::write.csv(file_index, file.path(delivery_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
-    utils::write.csv(manifest, file.path(delivery_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+    utils::write.csv(file_index, file.path(index_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+    utils::write.csv(manifest, file.path(index_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
     writeLines(ghs_delivery_readme(root, delivery_dir, manifest, file_index), file.path(delivery_dir, "README.md"), useBytes = TRUE)
   }
   file_index <- ghs_delivery_file_index(delivery_dir)
   manifest <- ghs_delivery_manifest(delivery_dir)
-  utils::write.csv(file_index, file.path(delivery_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
-  utils::write.csv(manifest, file.path(delivery_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+  utils::write.csv(file_index, file.path(index_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+  utils::write.csv(manifest, file.path(index_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
   writeLines(ghs_delivery_readme(root, delivery_dir, manifest, file_index), file.path(delivery_dir, "README.md"), useBytes = TRUE)
   cat("[delivery] final delivery package written to ", normalizePath(delivery_dir, winslash = "/", mustWork = FALSE), "\n", sep = "")
   invisible(manifest)

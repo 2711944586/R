@@ -6,16 +6,16 @@
 mod_robustness_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#129534; \u7a33\u5065\u6027 Robustness"),
+    title = "\u7a33\u5065\u6027 Robustness",
     value = "robustness",
     mod_v3_hero(
-      kicker = "ROBUSTNESS & SENSITIVITY",
+      kicker = "\u7a33\u5065\u6027\u4e0e\u654f\u611f\u5ea6",
       title = "\u7a33\u5065\u6027\u4e0e\u654f\u611f\u5ea6\u5206\u6790",
       lead = paste(
         "\u8c03\u8282\u6837\u672c\u8303\u56f4\u4e0e\u9608\u503c\uff0c\u89c2\u5bdf\u5173\u952e\u7ed3\u8bba\u662f\u5426\u7a33\u5b9a\u3002",
         "\u9875\u9762\u540c\u65f6\u63d0\u4f9b\u6837\u672c\u88c1\u526a\u3001\u5e74\u4efd\u7a97\u53e3\u3001\u5f02\u5e38\u503c\u9608\u503c\u548c Bootstrap \u91cd\u91c7\u6837\uff0c\u7528\u6765\u68c0\u67e5\u7ed3\u8bba\u662f\u5426\u53d7\u5c11\u6570\u89c2\u6d4b\u652f\u914d\u3002"
       ),
-      meta = list("\u4ea4\u4e92\u5f0f\u654f\u611f\u5ea6", "Bootstrap CI", "Cook's distance")
+      meta = list("\u4ea4\u4e92\u5f0f\u654f\u611f\u5ea6", "Bootstrap \u7f6e\u4fe1\u533a\u95f4", "Cook \u8ddd\u79bb\u8bca\u65ad")
     ),
     mod_v3_page_body(
       wide = TRUE,
@@ -29,21 +29,21 @@ mod_robustness_ui <- function(id) {
       mod_v3_story_grid(
         columns = 3,
         mod_v3_insight(
-          kicker = "Sensitivity",
+          kicker = "\u654f\u611f\u5ea6",
           title = "\u4e0d\u628a\u5355\u4e00\u6837\u672c\u5f53\u6210\u552f\u4e00\u7b54\u6848",
           text = "\u5e74\u4efd\u8303\u56f4\u3001\u5927\u6d32\u7ec4\u5408\u548c\u6700\u5c0f\u89c2\u6d4b\u6570\u90fd\u4f1a\u6539\u53d8\u56de\u5f52\u6837\u672c\uff0c\u8fd9\u91cc\u7528\u4ea4\u4e92\u63a7\u4ef6\u628a\u654f\u611f\u5ea6\u653e\u5230\u53f0\u524d\u3002",
           tone = "warn",
           icon = "S"
         ),
         mod_v3_insight(
-          kicker = "Bootstrap",
+          kicker = "\u91cd\u91c7\u6837",
           title = "\u7528\u91cd\u91c7\u6837\u770b\u4f30\u8ba1\u6ce2\u52a8",
           text = "Bootstrap \u5206\u5e03\u76f4\u89c2\u5448\u73b0 GDP-CHE \u5f39\u6027\u5728\u968f\u673a\u62bd\u6837\u4e0b\u7684\u4e0d\u786e\u5b9a\u6027\uff0c\u800c\u4e0d\u53ea\u662f\u62a5\u544a\u4e00\u4e2a\u70b9\u4f30\u8ba1\u3002",
           tone = "secondary",
           icon = "B"
         ),
         mod_v3_insight(
-          kicker = "Outliers",
+          kicker = "\u5f02\u5e38\u503c",
           title = "\u628a\u6781\u7aef OOPS \u5355\u72ec\u5217\u51fa",
           text = "\u5f02\u5e38\u503c\u8868\u4fdd\u7559\u56fd\u5bb6\u3001\u5e74\u4efd\u3001OOPS\u3001CHE \u548c GDP\uff0c\u4fbf\u4e8e\u56de\u5230\u56fd\u5bb6\u753b\u50cf\u6216\u539f\u59cb\u8bb0\u5f55\u8fdb\u4e00\u6b65\u6838\u5bf9\u3002",
           tone = "bad",
@@ -60,7 +60,9 @@ mod_robustness_ui <- function(id) {
           shiny::sliderInput(ns("oop_threshold"), "OOPS \u5f02\u5e38\u9608\u503c (%)",
             min = 60, max = 90, value = 80),
           shiny::checkboxGroupInput(ns("exclude_continents"), "\u6392\u9664\u5927\u6d32",
-            choices = c("Africa", "Americas", "Asia", "Europe", "Oceania"),
+            choices = c("\u975e\u6d32" = "Africa", "\u7f8e\u6d32" = "Americas",
+                        "\u4e9a\u6d32" = "Asia", "\u6b27\u6d32" = "Europe",
+                        "\u5927\u6d0b\u6d32" = "Oceania"),
             selected = character(0)),
           shiny::numericInput(ns("boot_B"), "Bootstrap \u91cd\u590d\u6b21\u6570",
             value = 200, min = 50, max = 1000, step = 50),
@@ -86,7 +88,7 @@ mod_robustness_ui <- function(id) {
         bslib::layout_columns(
           col_widths = c(6, 6),
           mod_card(
-            kicker = "ELASTICITY",
+            kicker = "\u5f39\u6027\u4f30\u8ba1",
             title = "\u5f39\u6027\u4f30\u8ba1\u4e0e\u7f6e\u4fe1\u533a\u95f4\uff08\u4e0d\u540c\u6837\u672c\u5b50\u96c6\uff09",
             mod_v3_chart_guide(
               title = "\u8bfb\u56fe\u65b9\u5f0f",
@@ -100,7 +102,7 @@ mod_robustness_ui <- function(id) {
             mod_spinner(plotly::plotlyOutput(ns("elasticity_box"), height = 380))
           ),
           mod_card(
-            kicker = "BOOTSTRAP",
+            kicker = "\u91cd\u91c7\u6837",
             title = "Bootstrap \u5f39\u6027\u5206\u5e03",
             mod_v3_chart_guide(
               title = "\u4e0d\u786e\u5b9a\u6027",
@@ -110,14 +112,27 @@ mod_robustness_ui <- function(id) {
             mod_spinner(plotly::plotlyOutput(ns("boot_dist"), height = 380))
           )
         ),
-        mod_card(
-          kicker = "SUBSAMPLE TABLE",
-          title = "\u4e0d\u540c\u6837\u672c\u5b50\u96c6\u4e0b\u7684\u7a33\u5065\u6027\u8868",
-          mod_spinner(reactable::reactableOutput(ns("robust_table"))),
-          footer = "\u82e5\u4f4e\u6536\u5165\u7ec4\u6216\u5355\u4e00\u5927\u6d32\u6837\u672c\u7ed3\u679c\u504f\u79bb\u660e\u663e\uff0c\u7ed3\u8bba\u5e94\u5206\u7ec4\u8868\u8ff0\u3002"
+        bslib::layout_columns(
+          col_widths = c(5, 7),
+          mod_card(
+            kicker = "\u6837\u672c\u6784\u6210",
+            title = "\u5f53\u524d\u7a97\u53e3\u6837\u672c\u68c0\u67e5",
+            mod_v3_chart_guide(
+              title = "\u5148\u770b\u6837\u672c",
+              text = "\u6240\u6709\u7a33\u5065\u6027\u5224\u65ad\u90fd\u4f9d\u8d56\u5f53\u524d\u7b5b\u9009\u540e\u7684\u56fd\u5bb6\u548c\u89c2\u6d4b\u6784\u6210\uff0c\u8868\u683c\u7528\u6765\u68c0\u67e5\u662f\u5426\u88ab\u5355\u4e00\u6536\u5165\u7ec4\u6216\u5927\u6d32\u652f\u914d\u3002",
+              tone = "info"
+            ),
+            mod_spinner(reactable::reactableOutput(ns("sample_table")))
+          ),
+          mod_card(
+            kicker = "\u5b50\u6837\u672c\u8868",
+            title = "\u4e0d\u540c\u6837\u672c\u5b50\u96c6\u4e0b\u7684\u7a33\u5065\u6027\u8868",
+            mod_spinner(reactable::reactableOutput(ns("robust_table"))),
+            footer = "\u82e5\u4f4e\u6536\u5165\u7ec4\u6216\u5355\u4e00\u5927\u6d32\u6837\u672c\u7ed3\u679c\u504f\u79bb\u660e\u663e\uff0c\u7ed3\u8bba\u5e94\u5206\u7ec4\u8868\u8ff0\u3002"
+          )
         ),
         mod_card(
-          kicker = "OUTLIER DIAGNOSIS",
+          kicker = "\u5f02\u5e38\u8bca\u65ad",
           title = "\u5f02\u5e38\u503c\u8bca\u65ad",
           mod_v3_chart_guide(
             title = "\u8bca\u65ad\u53e3\u5f84",
@@ -133,6 +148,27 @@ mod_robustness_ui <- function(id) {
 
 mod_robustness_server <- function(id, master_r) {
   shiny::moduleServer(id, function(input, output, session) {
+
+    continent_labels <- c(
+      Africa = "\u975e\u6d32",
+      Americas = "\u7f8e\u6d32",
+      Asia = "\u4e9a\u6d32",
+      Europe = "\u6b27\u6d32",
+      Oceania = "\u5927\u6d0b\u6d32",
+      All = "\u5168\u90e8\u6837\u672c"
+    )
+    income_labels <- c(
+      "High income" = "\u9ad8\u6536\u5165",
+      "Upper middle income" = "\u4e2d\u9ad8\u6536\u5165",
+      "Lower middle income" = "\u4e2d\u4f4e\u6536\u5165",
+      "Low income" = "\u4f4e\u6536\u5165",
+      All = "\u5168\u90e8\u6837\u672c"
+    )
+    label_lookup <- function(x, dict) {
+      if (!length(x) || is.na(x)) return("\u672a\u5206\u7ec4")
+      out <- dict[[x]]
+      if (is.null(out) || is.na(out)) x else unname(out)
+    }
 
     filtered <- shiny::reactive({
       m <- master_r()
@@ -171,7 +207,7 @@ mod_robustness_server <- function(id, master_r) {
           fit <- stats::lm(log(che_pc_usd2023) ~ log(gdp_pc_usd), data = sub_d)
           ci <- stats::confint(fit)["log(gdp_pc_usd)", ]
           results[[sub]] <- data.frame(
-            sample = sub,
+            sample = label_lookup(sub, continent_labels),
             est = stats::coef(fit)["log(gdp_pc_usd)"],
             lo = ci[1], hi = ci[2]
           )
@@ -227,6 +263,41 @@ mod_robustness_server <- function(id, master_r) {
       })
     })
 
+    output$sample_table <- reactable::renderReactable({
+      d <- filtered()
+      shiny::req(nrow(d) > 0)
+      d$continent_label <- vapply(d$continent, label_lookup, character(1),
+                                  dict = continent_labels)
+      d$income_label <- vapply(d$income_group, label_lookup, character(1),
+                               dict = income_labels)
+      groups <- split(d, interaction(d$continent_label, d$income_label, drop = TRUE))
+      df <- do.call(rbind, lapply(groups, function(ch) {
+        data.frame(
+          continent = ch$continent_label[1],
+          income = ch$income_label[1],
+          countries = length(unique(ch$iso3_code)),
+          records = nrow(ch),
+          pct = round(nrow(ch) / nrow(d) * 100, 1),
+          che_median = round(stats::median(ch$che_pc_usd2023, na.rm = TRUE), 0),
+          check.names = FALSE
+        )
+      }))
+      df <- df[order(-df$records), , drop = FALSE]
+      names(df) <- c("\u5927\u6d32", "\u6536\u5165\u7ec4", "\u56fd\u5bb6\u6570",
+                     "\u89c2\u6d4b\u6570", "\u6837\u672c\u5360\u6bd4(%)",
+                     "\u4eba\u5747 CHE \u4e2d\u4f4d\u6570")
+      reactable::reactable(df, defaultPageSize = 10, highlight = TRUE,
+        defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
+        columns = list(
+          "\u56fd\u5bb6\u6570" = reactable::colDef(align = "right"),
+          "\u89c2\u6d4b\u6570" = reactable::colDef(align = "right",
+            format = reactable::colFormat(separators = TRUE)),
+          "\u6837\u672c\u5360\u6bd4(%)" = reactable::colDef(align = "right"),
+          "\u4eba\u5747 CHE \u4e2d\u4f4d\u6570" = reactable::colDef(align = "right",
+            format = reactable::colFormat(separators = TRUE))
+        ))
+    })
+
     output$robust_table <- reactable::renderReactable({
       d <- filtered()
       d <- d[is.finite(d$che_pc_usd2023) & is.finite(d$gdp_pc_usd) &
@@ -239,7 +310,7 @@ mod_robustness_server <- function(id, master_r) {
           fit <- stats::lm(log(che_pc_usd2023) ~ log(gdp_pc_usd), data = sub_d)
           se <- summary(fit)$coefficients["log(gdp_pc_usd)", "Std. Error"]
           results <- rbind(results, data.frame(
-            sample_group = sub,
+            sample_group = label_lookup(sub, income_labels),
             n = nrow(sub_d),
             elasticity = round(stats::coef(fit)["log(gdp_pc_usd)"], 3),
             se = round(se, 3),
@@ -248,7 +319,18 @@ mod_robustness_server <- function(id, master_r) {
           ))
         }
       }
-      names(results) <- c("\u6837\u672c\u5b50\u96c6", "n", "\u5f39\u6027", "\u6807\u51c6\u8bef", "R2")
+      if (!nrow(results)) {
+        results <- data.frame(
+          "\u6837\u672c\u5b50\u96c6" = character(),
+          "n" = integer(),
+          "\u5f39\u6027" = numeric(),
+          "\u6807\u51c6\u8bef" = numeric(),
+          "R\u00b2" = numeric(),
+          check.names = FALSE
+        )
+      } else {
+        names(results) <- c("\u6837\u672c\u5b50\u96c6", "n", "\u5f39\u6027", "\u6807\u51c6\u8bef", "R\u00b2")
+      }
       reactable::reactable(results, pagination = FALSE, highlight = TRUE,
         defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")))
     })

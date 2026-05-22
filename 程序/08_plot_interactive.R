@@ -440,12 +440,13 @@ heatmap_oops_plotly <- function(master, top_n = 40, title = NULL) {
     dplyr::filter(.data$iso3_code %in% pool, is.finite(.data$hf3_che)) |>
     dplyr::select("year", "country_name", "hf3_che") |>
     tidyr::pivot_wider(names_from = "year", values_from = "hf3_che")
-  z <- as.matrix(d[, -1])
+  year_cols <- sort(setdiff(names(d), "country_name"))
+  z <- as.matrix(d[, year_cols, drop = FALSE])
   ord <- order(rowMeans(z, na.rm = TRUE))
   z <- z[ord, , drop = FALSE]
   countries <- d$country_name[ord]
   plotly::plot_ly(
-    x = colnames(z), y = countries, z = z,
+    x = as.integer(year_cols), y = countries, z = z,
     type = "heatmap", colorscale = "YlOrRd",
     hovertemplate = "%{y} \u00b7 %{x}: %{z:.1f}%<extra></extra>"
   ) |>
@@ -483,4 +484,3 @@ country_wb_plotly <- function(master, iso = "CHN",
     ) |>
     plotly::config(displaylogo = FALSE)
 }
-

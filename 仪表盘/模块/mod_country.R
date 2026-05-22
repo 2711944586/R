@@ -6,10 +6,10 @@
 mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128205; \u56fd\u5bb6 Country"),
+    title = "\u56fd\u5bb6 Country",
     value = "country",
     mod_v3_hero(
-      kicker = "COUNTRY PROFILE",
+      kicker = "\u56fd\u5bb6\u753b\u50cf",
       title = "\u56fd\u5bb6\u753b\u50cf\uff1a\u4ece\u8d44\u91d1\u603b\u91cf\u5230\u5bb6\u5ead\u8d1f\u62c5",
       lead = paste(
         "\u5355\u56fd\u9875\u628a 24 \u5e74\u5e74\u5ea6\u9762\u677f\u62c6\u6210\u56db\u6761\u7ebf\u7d22\uff1a\u603b CHE \u89c4\u6a21\u3001",
@@ -42,7 +42,7 @@ mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
           tone = "secondary"
         ),
         mod_v3_insight(
-          kicker = "Protection",
+          kicker = "\u4fdd\u62a4",
           title = "\u6700\u540e\u843d\u5230\u5bb6\u5ead\u538b\u529b",
           text = "OOPS \u5360\u6bd4\u9ad8\u65f6\uff0c\u5373\u4f7f\u4eba\u5747 CHE \u4e0a\u5347\uff0c\u4e5f\u9700\u8b66\u60d5\u8d22\u52a1\u4fdd\u62a4\u4e0d\u8db3\u3002",
           tone = "warn"
@@ -52,7 +52,7 @@ mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
         sidebar = bslib::sidebar(
           width = 292,
           shinyWidgets::pickerInput(
-            ns("country"), "选择国家 Country",
+            ns("country"), "\u9009\u62e9\u56fd\u5bb6",
             choices = country_choices_named, selected = "CHN",
             options = list(`live-search` = TRUE)),
           shiny::sliderInput(
@@ -60,7 +60,7 @@ mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
             min = year_min, max = year_max,
             value = c(year_min, year_max), step = 1, sep = ""),
           mod_v3_sidebar_note(
-            "Interaction",
+            "\u4ea4\u4e92\u8bf4\u660e",
             "\u62d6\u52a8\u5e74\u4efd\u533a\u95f4\u53ef\u628a KPI \u548c\u56db\u7ec4\u56fe\u540c\u6b65\u6536\u7a84\u5230\u67d0\u4e00\u653f\u7b56\u5468\u671f\u3002",
             bullets = c("\u9002\u5408\u56fd\u522b\u6c47\u62a5", "\u53ef\u8ddf\u8e2a COVID \u524d\u540e", "\u53ef\u8bc6\u522b\u7b79\u8d44\u7ed3\u6784\u8f6c\u578b")
           )
@@ -73,7 +73,7 @@ mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
           list(title = "\u770b\u4fdd\u62a4", text = "\u628a OOPS \u548c\u9884\u9632\u652f\u51fa\u4e00\u8d77\u68c0\u67e5\u3002")
         )),
         mod_card(
-          kicker = "COUNTRY WORKBENCH",
+          kicker = "\u56fd\u5bb6\u5de5\u4f5c\u53f0",
           title = "\u5355\u56fd\u8d44\u91d1\u548c\u529f\u80fd\u9762\u677f",
           bslib::navset_card_tab(
             bslib::nav_panel("总量与人均",
@@ -104,6 +104,17 @@ mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
               mod_spinner(plotly::plotlyOutput(ns("purpose"), height = 380)))
           ),
           footer = "\u6240\u6709\u91d1\u989d\u6307\u6807\u5747\u4ee5 2023 \u4e0d\u53d8\u4ef7 USD \u8868\u793a\uff1b\u5360\u6bd4\u6307\u6807\u4ee5 CHE \u4e3a\u5206\u6bcd\u3002"
+        ),
+        mod_card(
+          kicker = "\u5e74\u5ea6\u660e\u7ec6",
+          title = "\u56fd\u5bb6\u5e74\u5ea6\u6838\u5fc3\u6307\u6807\u8868",
+          mod_v3_chart_guide(
+            "\u8868\u683c\u7528\u9014",
+            "\u5c06\u56fe\u4e2d\u7684\u603b\u989d\u3001\u4eba\u5747\u3001\u516c\u5171\u7b79\u8d44\u3001\u81ea\u4ed8\u3001\u5916\u63f4\u548c\u5bff\u547d\u6309\u5e74\u5c55\u5f00\uff0c\u4fbf\u4e8e\u5199\u56fd\u522b\u6458\u8981\u65f6\u5f15\u7528\u5177\u4f53\u6570\u503c\u3002",
+            tone = "good"
+          ),
+          mod_spinner(reactable::reactableOutput(ns("country_table"))),
+          footer = "\u8868\u683c\u53d7\u5de6\u4fa7\u5e74\u4efd\u533a\u95f4\u540c\u6b65\u63a7\u5236\uff1b\u91d1\u989d\u5747\u4e3a 2023 \u4e0d\u53d8\u4ef7 USD\u3002"
         )
       )
     )
@@ -149,8 +160,10 @@ mod_country_server <- function(id, master_r) {
                        line = list(color = "#1B5E88", width = 3),
                        marker = list(color = "#1B5E88", size = 6),
                        hovertemplate = "%{x}: $%{y:.2f}B<extra></extra>") |>
+        ghs_plotly_layout() |>
         plotly::layout(title = "总卫生支出 CHE (十亿 USD 2023)",
-                       xaxis = list(title = ""), yaxis = list(title = "USD (B)")) |>
+                       xaxis = list(title = ""),
+                       yaxis = list(title = "\u5341\u4ebf USD")) |>
         plotly::config(displaylogo = FALSE)
     })
 
@@ -161,9 +174,10 @@ mod_country_server <- function(id, master_r) {
                        line = list(color = "#C46B27", width = 3),
                        marker = list(color = "#C46B27", size = 6),
                        hovertemplate = "%{x}: $%{y:,.0f}<extra></extra>") |>
+        ghs_plotly_layout() |>
         plotly::layout(title = "人均 CHE (USD 2023)",
                        xaxis = list(title = ""),
-                       yaxis = list(title = "USD per capita")) |>
+                       yaxis = list(title = "\u4eba\u5747 USD")) |>
         plotly::config(displaylogo = FALSE)
     })
 
@@ -222,10 +236,51 @@ mod_country_server <- function(id, master_r) {
       plotly::plot_ly(d2, x = ~year, y = ~pct, color = ~purpose,
                        type = "scatter", mode = "lines+markers",
                        hovertemplate = "%{x}: %{y:.1f}%<extra></extra>") |>
+        ghs_plotly_layout() |>
         plotly::layout(title = "预防 hc6 vs 治疗 hc1",
-                       yaxis = list(title = "% of CHE"),
+                       yaxis = list(title = "\u5360 CHE \u6bd4\u4f8b (%)"),
                        xaxis = list(title = "")) |>
         plotly::config(displaylogo = FALSE)
+    })
+
+    output$country_table <- reactable::renderReactable({
+      d <- cp_data()
+      shiny::req(nrow(d) > 0)
+      cols <- c("year", "che_usd2023", "che_pc_usd2023", "gghed_che",
+                "pvtd_che", "hf3_che", "ext_che", "life_exp")
+      cols <- intersect(cols, names(d))
+      tab <- d[order(d$year, decreasing = TRUE), cols, drop = FALSE]
+      out <- data.frame(
+        "\u5e74\u4efd" = tab$year,
+        "\u603b CHE\uff08\u5341\u4ebf USD\uff09" =
+          if ("che_usd2023" %in% names(tab)) round(tab$che_usd2023 / 1e9, 2) else NA_real_,
+        "\u4eba\u5747 CHE\uff08USD\uff09" =
+          if ("che_pc_usd2023" %in% names(tab)) round(tab$che_pc_usd2023, 0) else NA_real_,
+        "GGHE-D%" =
+          if ("gghed_che" %in% names(tab)) round(tab$gghed_che, 1) else NA_real_,
+        "PVT-D%" =
+          if ("pvtd_che" %in% names(tab)) round(tab$pvtd_che, 1) else NA_real_,
+        "OOPS%" =
+          if ("hf3_che" %in% names(tab)) round(tab$hf3_che, 1) else NA_real_,
+        "EXT%" =
+          if ("ext_che" %in% names(tab)) round(tab$ext_che, 1) else NA_real_,
+        "\u9884\u671f\u5bff\u547d" =
+          if ("life_exp" %in% names(tab)) round(tab$life_exp, 1) else NA_real_,
+        check.names = FALSE
+      )
+      reactable::reactable(out, searchable = TRUE, defaultPageSize = 12,
+        pagination = TRUE, highlight = TRUE,
+        defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
+        columns = list(
+          "\u5e74\u4efd" = reactable::colDef(width = 80),
+          "OOPS%" = reactable::colDef(style = function(value) {
+            if (is.na(value)) return(NULL)
+            col <- if (value > 40) "#a23b3b"
+                   else if (value > 25) "#c89a3b"
+                   else "#2a857a"
+            list(color = col, fontWeight = 700)
+          })
+        ))
     })
   })
 }

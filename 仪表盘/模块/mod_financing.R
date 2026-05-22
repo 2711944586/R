@@ -6,10 +6,10 @@
 mod_financing_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128176; \u7b79\u8d44 Financing"),
+    title = "\u7b79\u8d44 Financing",
     value = "financing",
     mod_v3_hero(
-      kicker = "FINANCING STRUCTURE",
+      kicker = "\u7b79\u8d44\u7ed3\u6784",
       title = "\u536b\u751f\u7b79\u8d44\u7ed3\u6784\u4e0e\u98ce\u9669\u5206\u62c5",
       lead = paste(
         "HF1-HF4 \u7b79\u8d44\u65b9\u6848\u63cf\u8ff0\u533b\u7597\u8d39\u7528\u6700\u7ec8\u7531\u8c01\u627f\u62c5\uff1a",
@@ -88,7 +88,7 @@ mod_financing_ui <- function(id) {
           )
         ),
         mod_card(
-          kicker = "F5 · Country audit",
+          kicker = "F5 · \u56fd\u5bb6\u660e\u7ec6",
           title = "\u56fd\u5bb6\u7b79\u8d44\u660e\u7ec6",
           mod_v3_chart_guide(
             "\u4ece\u56fe\u8868\u56de\u5230\u6570\u503c",
@@ -111,10 +111,10 @@ mod_financing_server <- function(id, master_r) {
       d <- m[m$year == yr, ]
       n <- sum(is.finite(d$che_pc_usd2023))
       mod_v3_kpi_grid(
-        mod_v3_kpi(format(n, big.mark = ","), "Countries", tone = "primary"),
-        mod_v3_kpi(as.character(yr), "Year", tone = "neutral"),
-        mod_v3_kpi(fmt_usd(median(d$che_pc_usd2023, na.rm = TRUE)), "Median CHE/cap", tone = "secondary"),
-        mod_v3_kpi(fmt_pct(mean(d$hf3_che, na.rm = TRUE)), "Mean OOPS", tone = "warn")
+        mod_v3_kpi(format(n, big.mark = ","), "\u56fd\u5bb6\u6570", tone = "primary"),
+        mod_v3_kpi(as.character(yr), "\u5e74\u4efd", tone = "neutral"),
+        mod_v3_kpi(fmt_usd(median(d$che_pc_usd2023, na.rm = TRUE)), "\u4eba\u5747 CHE \u4e2d\u4f4d\u6570", tone = "secondary"),
+        mod_v3_kpi(fmt_pct(mean(d$hf3_che, na.rm = TRUE)), "OOPS \u5747\u503c", tone = "warn")
       )
     })
     
@@ -129,7 +129,7 @@ mod_financing_server <- function(id, master_r) {
           plotly::add_trace(y = ~pvtd_che, name = "PVT-D", marker = list(color = "#c46327")) |>
           plotly::add_trace(y = ~ext_che, name = "EXT", marker = list(color = "#2a857a")) |>
           ghs_plotly_layout() |>
-          plotly::layout(barmode = "stack", xaxis = list(title = ""), yaxis = list(title = "%% of CHE"))
+          plotly::layout(barmode = "stack", xaxis = list(title = ""), yaxis = list(title = "\u5360 CHE \u6bd4\u4f8b (%)"))
       })
     })
     output$oops_violin <- plotly::renderPlotly({
@@ -140,7 +140,7 @@ mod_financing_server <- function(id, master_r) {
                         type = "violin", box = list(visible = TRUE),
                         meanline = list(visible = TRUE)) |>
           ghs_plotly_layout() |>
-          plotly::layout(xaxis = list(title = ""), yaxis = list(title = "OOPS (%%)"))
+          plotly::layout(xaxis = list(title = ""), yaxis = list(title = "OOPS \u5360 CHE \u6bd4\u4f8b (%)"))
       })
     })
     output$area_trend <- plotly::renderPlotly({
@@ -156,7 +156,7 @@ mod_financing_server <- function(id, master_r) {
           plotly::add_trace(y = ~ext_che, name = "EXT", type = "scatter", mode = "lines",
                             line = list(color = "#2a857a", width = 2)) |>
           ghs_plotly_layout() |>
-          plotly::layout(xaxis = list(title = ""), yaxis = list(title = "%% of CHE"))
+          plotly::layout(xaxis = list(title = ""), yaxis = list(title = "\u5360 CHE \u6bd4\u4f8b (%)"))
       })
     })
     output$ratio_trend <- plotly::renderPlotly({
@@ -168,7 +168,7 @@ mod_financing_server <- function(id, master_r) {
         plotly::plot_ly(agg, x = ~year, y = ~ratio, type = "scatter", mode = "lines+markers",
                         line = list(color = "#1d3f5f", width = 3)) |>
           ghs_plotly_layout() |>
-          plotly::layout(xaxis = list(title = ""), yaxis = list(title = "GGHED / OOPS ratio"),
+          plotly::layout(xaxis = list(title = ""), yaxis = list(title = "GGHE-D / OOPS \u6bd4\u503c"),
                          shapes = list(list(type = "line", x0 = 2000, x1 = 2023, y0 = 1, y1 = 1,
                                             line = list(color = "#a23b3b", dash = "dash"))))
       })
@@ -177,8 +177,8 @@ mod_financing_server <- function(id, master_r) {
       m <- master_r(); yr <- input$year
       d <- m[m$year == yr & is.finite(m$gghed_che), ]
       d <- d[order(-d$hf3_che), ]
-      tab <- data.frame(Country = d$country_name, GGHED = round(d$gghed_che, 1),
-                        PVTD = round(d$pvtd_che, 1), EXT = round(d$ext_che, 1),
+      tab <- data.frame("\u56fd\u5bb6" = d$country_name, "GGHE-D%" = round(d$gghed_che, 1),
+                        "PVT-D%" = round(d$pvtd_che, 1), "EXT%" = round(d$ext_che, 1),
                         OOPS = round(d$hf3_che, 1), check.names = FALSE)
       reactable::reactable(tab, defaultPageSize = 15, searchable = TRUE, highlight = TRUE,
         defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")))

@@ -109,7 +109,7 @@ deploy_warm_cache <- function() {
   invisible(TRUE)
 }
 
-#' 一键构建（整合 widgets + figures + sitemap + size report）
+#' 汇总构建产物，生成 widgets、figures、sitemap 与体积报告
 #' @export
 deploy_finalize <- function(网站发布_dir = "网站发布",
                               base_url = "https://2711944586.github.io/R/",

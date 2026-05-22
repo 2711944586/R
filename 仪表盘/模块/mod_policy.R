@@ -6,10 +6,10 @@
 mod_policy_ui <- function(id, country_choices_named) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#127891; \u653f\u7b56 Policy"),
+    title = "\u653f\u7b56 Policy",
     value = "policy",
     mod_v3_hero(
-      kicker = "POLICY ADVISOR",
+      kicker = "\u653f\u7b56\u987e\u95ee",
       title = "\u653f\u7b56\u5efa\u8bae\u751f\u6210\u5668",
       lead = paste(
         "\u9009\u62e9\u4e00\u4e2a\u56fd\u5bb6\uff0c\u83b7\u5f97\u57fa\u4e8e\u6570\u636e\u7684\u91cf\u5316\u653f\u7b56\u5efa\u8bae\u3002",
@@ -282,7 +282,7 @@ mod_policy_server <- function(id, master_r) {
                              line = list(color = "#2a857a", width = 2)) |>
           ghs_plotly_layout() |>
           plotly::layout(xaxis = list(title = ""),
-                         yaxis = list(title = "% of CHE"),
+                         yaxis = list(title = "\u5360 CHE \u6bd4\u4f8b (%)"),
                          legend = list(orientation = "h", y = -0.15))
       })
     })

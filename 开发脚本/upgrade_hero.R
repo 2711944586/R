@@ -1,4 +1,4 @@
-# 升级 Hero 区：动态数据背景 + 可重播动画 + 视觉质感提升
+# Hero 区样式调整脚本
 
 src <- readLines("程序/21_static_showcase.R", encoding = "UTF-8")
 

@@ -228,7 +228,7 @@ iadv_hf_share_area <- function(master) {
       private = stats::weighted.mean(.data$hf2_che, .data$pop, na.rm = TRUE),
       oop     = stats::weighted.mean(.data$hf3_che, .data$pop, na.rm = TRUE),
       .groups = "drop") |>
-    tidyr::pivot_longer(-.data$year, names_to = "source",
+    tidyr::pivot_longer(-"year", names_to = "source",
                          values_to = "share")
   d$source <- factor(d$source,
                       levels = c("public", "private", "oop"),
@@ -1926,8 +1926,8 @@ iadv_slope_chart <- function(master, isos = NULL,
   if (is.null(isos)) {
     base <- master[master$year == years[2] &
                     is.finite(master$che_pc_usd2023), ]
-    isos <- utils::head(base[order(-base$che_pc_usd2023), "iso3_code"],
-                          15)
+    base <- base[order(-base$che_pc_usd2023), , drop = FALSE]
+    isos <- utils::head(base$iso3_code, 15)
   }
   d <- master[master$iso3_code %in% isos &
               master$year %in% years, ]
@@ -1949,8 +1949,8 @@ iadv_dumbbell <- function(master, years = c(2000, 2022),
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(isos)) {
     base <- master[master$year == years[2], ]
-    isos <- utils::head(base[order(-base$che_pc_usd2023), "iso3_code"],
-                          20)
+    base <- base[order(-base$che_pc_usd2023), , drop = FALSE]
+    isos <- utils::head(base$iso3_code, 20)
   }
   d <- master[master$iso3_code %in% isos &
               master$year %in% years, ]
@@ -2693,5 +2693,3 @@ ghs_export_widgets_advanced <- function(master = NULL,
   if (verbose) message("[adv] total saved: ", length(produced))
   invisible(produced)
 }
-
-

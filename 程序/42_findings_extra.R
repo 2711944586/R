@@ -641,4 +641,37 @@ if (!exists("ensure_pkgs", mode = "function")) {
 
 
 # ---- Source batch specs and entry function -----------------------------------
-source(file.path("\u7a0b\u5e8f", "42b_findings_batch.R"), local = TRUE)
+.fe_this_file <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
+.fe_source_dir <- if (!is.null(.fe_this_file) && nzchar(.fe_this_file)) {
+  dirname(normalizePath(.fe_this_file, mustWork = FALSE))
+} else {
+  "."
+}
+.fe_find_root <- function(start = getwd(), max_up = 6) {
+  d <- normalizePath(start, mustWork = FALSE)
+  for (i in seq_len(max_up + 1)) {
+    if (file.exists(file.path(d, "DESCRIPTION")) &&
+        dir.exists(file.path(d, "\u7a0b\u5e8f"))) return(d)
+    d <- dirname(d)
+  }
+  normalizePath(start, mustWork = FALSE)
+}
+.fe_root <- .fe_find_root()
+.fe_batch_path <- file.path(.fe_source_dir, "42b_findings_batch.R")
+if (!file.exists(.fe_batch_path)) {
+  .fe_candidates <- c(
+    file.path(.fe_root, "\u7a0b\u5e8f", "42b_findings_batch.R"),
+    file.path(.fe_root, "\u4eea\u8868\u76d8", "\u7a0b\u5e8f\u5e93", "42b_findings_batch.R"),
+    file.path("\u7a0b\u5e8f", "42b_findings_batch.R"),
+    file.path("\u7a0b\u5e8f\u5e93", "42b_findings_batch.R")
+  )
+  .fe_batch_path <- .fe_candidates[file.exists(.fe_candidates)][1]
+}
+if (!length(.fe_batch_path) || is.na(.fe_batch_path) ||
+    !file.exists(.fe_batch_path)) {
+  stop("Cannot locate 42b_findings_batch.R")
+}
+source(.fe_batch_path, local = TRUE)
+rm(list = intersect(c(".fe_this_file", ".fe_source_dir", ".fe_find_root",
+                      ".fe_root", ".fe_batch_path",
+                      ".fe_candidates"), ls()))

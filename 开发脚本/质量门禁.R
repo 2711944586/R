@@ -479,6 +479,18 @@ check_shiny_bundle <- function() {
 check_static_navigation <- function() {
   index_path <- file.path("网站发布", "index.html")
   index <- read_text(index_path)
+  has_desktop_nav <- grepl("class='dock-links'", index, fixed = TRUE) ||
+    grepl("class=\"dock-links\"", index, fixed = TRUE) ||
+    grepl("class='links'", index, fixed = TRUE) ||
+    grepl("class=\"links\"", index, fixed = TRUE)
+  has_mobile_toc <- grepl("id='mobile-toc'", index, fixed = TRUE) ||
+    grepl("id=\"mobile-toc\"", index, fixed = TRUE)
+  has_figure_index <- grepl("id='figure-index'", index, fixed = TRUE) ||
+    grepl("id=\"figure-index\"", index, fixed = TRUE)
+  has_scroll_spy <- (
+    grepl(".mobile-toc-items a", index, fixed = TRUE) ||
+      grepl(".mobile-toc-links a", index, fixed = TRUE)
+  ) && grepl("classList.toggle('active'", index, fixed = TRUE)
   nav_ids <- c("executive", "kpi", "methods", "findings", "countries",
                "regional", "period", "sdg3", "lifeexp", "atlas",
                "cluster-detail", "extreme", "simulator", "figure-index",
@@ -491,22 +503,20 @@ check_static_navigation <- function() {
              "figure search", "scroll spy", "navigation anchors"),
     value = c(
       as.character(file.exists(index_path)),
-      as.character(grepl("class='links'", index, fixed = TRUE)),
-      as.character(grepl("id='mobile-toc'", index, fixed = TRUE)),
-      as.character(grepl("id='figure-index'", index, fixed = TRUE)),
+      as.character(has_desktop_nav),
+      as.character(has_mobile_toc),
+      as.character(has_figure_index),
       as.character(grepl("filterFigureIndex", index, fixed = TRUE)),
-      as.character(grepl(".mobile-toc-links a", index, fixed = TRUE) &&
-                     grepl("classList.toggle('active'", index, fixed = TRUE)),
+      as.character(has_scroll_spy),
       paste(names(nav_ok)[!nav_ok], collapse = ";")
     ),
     status = c(
       if (file.exists(index_path)) "pass" else "fail",
-      if (grepl("class='links'", index, fixed = TRUE)) "pass" else "fail",
-      if (grepl("id='mobile-toc'", index, fixed = TRUE)) "pass" else "fail",
-      if (grepl("id='figure-index'", index, fixed = TRUE)) "pass" else "fail",
+      if (has_desktop_nav) "pass" else "fail",
+      if (has_mobile_toc) "pass" else "fail",
+      if (has_figure_index) "pass" else "fail",
       if (grepl("filterFigureIndex", index, fixed = TRUE)) "pass" else "fail",
-      if (grepl(".mobile-toc-links a", index, fixed = TRUE) &&
-          grepl("classList.toggle('active'", index, fixed = TRUE)) "pass" else "fail",
+      if (has_scroll_spy) "pass" else "fail",
       if (all(nav_ok)) "pass" else "fail"
     ),
     stringsAsFactors = FALSE

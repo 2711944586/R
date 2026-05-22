@@ -6,10 +6,10 @@
 mod_methods_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128218; \u65b9\u6cd5 Methods"),
+    title = "\u65b9\u6cd5 Methods",
     value = "methods",
     mod_v3_hero(
-      kicker = "METHODOLOGY",
+      kicker = "\u65b9\u6cd5\u624b\u518c",
       title = "\u65b9\u6cd5\u4e0e\u6570\u636e\u8bf4\u660e",
       lead = paste(
         "\u672c\u9879\u76ee\u5c06 WHO GHED \u536b\u751f\u652f\u51fa\u8868\u3001WDI \u5b8f\u89c2\u6307\u6807\u548c\u591a\u4e2a\u8f85\u52a9\u6570\u636e\u6e90",
@@ -36,19 +36,19 @@ mod_methods_ui <- function(id) {
       mod_v3_story_grid(
         columns = 3,
         mod_v3_insight(
-          kicker = "Design principle",
+          kicker = "\u8bbe\u8ba1\u539f\u5219",
           title = "\u5148\u7edf\u4e00\u53e3\u5f84\uff0c\u518d\u505a\u6a21\u578b",
           text = "\u6240\u6709\u7edf\u8ba1\u91cf\u90fd\u5148\u5728 master_enriched \u5bbd\u8868\u4e2d\u786e\u5b9a\u5355\u4f4d\u3001\u5e74\u4efd\u3001\u5206\u7ec4\u548c\u7f3a\u5931\u89c4\u5219\u3002",
           tone = "primary"
         ),
         mod_v3_insight(
-          kicker = "Interpretation",
+          kicker = "\u89e3\u91ca\u539f\u5219",
           title = "\u533a\u5206\u63cf\u8ff0\u4e0e\u56e0\u679c",
           text = "\u672c\u4eea\u8868\u76d8\u4e2d\u7684\u5f39\u6027\u3001\u6b8b\u5dee\u548c\u60c5\u666f\u7ed3\u679c\u662f\u53ef\u89e3\u91ca\u7684\u4fe1\u53f7\uff0c\u4e0d\u76f4\u63a5\u7b49\u540c\u4e8e\u56e0\u679c\u6548\u5e94\u3002",
           tone = "secondary"
         ),
         mod_v3_insight(
-          kicker = "Reproducibility",
+          kicker = "\u590d\u73b0\u6027",
           title = "\u811a\u672c\u5316\u590d\u73b0",
           text = "\u6570\u636e\u6784\u5efa\u3001\u7279\u5f81\u5de5\u7a0b\u3001\u56fe\u8868\u8f93\u51fa\u548c Shiny \u542f\u52a8\u5747\u4fdd\u7559\u547d\u4ee4\u5165\u53e3\u3002",
           tone = "good"
@@ -57,7 +57,7 @@ mod_methods_ui <- function(id) {
 
       # ---- 数据来源 ----
       mod_v3_card(
-        kicker = "DATA SOURCES",
+        kicker = "\u6570\u636e\u6765\u6e90",
         title = "\u6570\u636e\u6765\u6e90\u4e0e\u7528\u9014",
         htmltools::tags$table(
           class = "table table-sm",
@@ -108,7 +108,7 @@ mod_methods_ui <- function(id) {
 
       # ---- 统计方法 ----
       mod_v3_card(
-        kicker = "STATISTICAL METHODS",
+        kicker = "\u7edf\u8ba1\u65b9\u6cd5",
         title = "\u7edf\u8ba1\u65b9\u6cd5\u7ba1\u7ebf",
         mod_v3_steps(list(
           list(title = "\u6570\u636e\u6e05\u7406\u4e0e\u5bbd\u8868\u5316",
@@ -128,7 +128,7 @@ mod_methods_ui <- function(id) {
 
       # ---- 变量字典 ----
       mod_v3_card(
-        kicker = "CODEBOOK",
+        kicker = "\u53d8\u91cf\u5b57\u5178",
         title = "\u6838\u5fc3\u53d8\u91cf\u5b57\u5178",
         htmltools::p(
           class = "card-note",
@@ -139,7 +139,7 @@ mod_methods_ui <- function(id) {
 
       # ---- 复现命令 ----
       mod_v3_card(
-        kicker = "REPRODUCIBILITY",
+        kicker = "\u590d\u73b0\u547d\u4ee4",
         title = "\u590d\u73b0\u547d\u4ee4",
         mod_v3_code_block(
           paste(
@@ -167,13 +167,13 @@ mod_methods_ui <- function(id) {
           "# \u542f\u52a8 Shiny",
           "Rscript \u542f\u52a8\u4eea\u8868\u76d8.R 4848",
           sep = "\n"),
-          title = "R command line"
+          title = "R \u547d\u4ee4\u884c"
         )
       ),
 
       # ---- 引用 ----
       mod_v3_card(
-        kicker = "CITATIONS",
+        kicker = "\u5f15\u7528",
         title = "\u5f15\u7528",
         htmltools::tags$ul(
           style = "line-height: 1.8;",

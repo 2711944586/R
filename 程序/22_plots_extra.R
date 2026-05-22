@@ -57,7 +57,7 @@
     ggplot2::geom_boxplot(width = .15, fill = "white",
                           outlier.size = .8, alpha = .8) +
     ggplot2::geom_jitter(width = .12, alpha = .25, size = .9,
-                         color = " 1d3f5f") +
+                         color = "#1d3f5f") +
     ggplot2::scale_fill_brewer(palette = "OrRd", guide = "none") +
     ggplot2::scale_y_continuous(labels = scales::label_percent(scale = 1)) +
     ggplot2::labs(
@@ -66,7 +66,14 @@
       x = NULL, y = "OOPS / CHE",
       caption = "WHO GHED \u00b7 hf3_che / che * 100"
     ) +
-    .gxe_theme(12)
+    .gxe_theme(12) +
+    ggplot2::theme(
+      plot.background = ggplot2::element_rect(fill = "#fbf6ee", color = NA),
+      panel.background = ggplot2::element_rect(fill = "#fbf6ee", color = NA),
+      panel.grid.major.y = ggplot2::element_line(color = "#ded6c9", linewidth = .35),
+      axis.text.x = ggplot2::element_text(color = "#292524", size = 10),
+      plot.title = ggplot2::element_text(color = "#292524", face = "bold")
+    )
 }
 
 .gxe_oops_heatmap_grid <- function(master, top_n = 35) {
@@ -82,9 +89,9 @@
     dplyr::filter(.data$iso3_code %in% pop_rank$iso3_code) |>
     dplyr::mutate(country_name = factor(.data$country_name,
                                         levels = rev(pop_rank$country_name)))
-  ggplot2::ggplot(d2, ggplot2::aes(.data$year, .data$country_name,
+    ggplot2::ggplot(d2, ggplot2::aes(.data$year, .data$country_name,
                                     fill = .data$hf3_che)) +
-    ggplot2::geom_tile(color = " fbf6ee", linewidth = .2) +
+    ggplot2::geom_tile(color = "#fbf6ee", linewidth = .2) +
     ggplot2::scale_fill_distiller(
       palette = "RdYlBu", direction = -1,
       name = "OOPS %",
@@ -114,7 +121,7 @@
   ggplot2::ggplot(d, ggplot2::aes(.data$che_pc_usd2023, .data$life_exp,
                                    color = .data$continent)) +
     ggplot2::geom_smooth(ggplot2::aes(group = 1), method = "lm",
-                         se = TRUE, color = " 1d3f5f", linewidth = .8,
+                         se = TRUE, color = "#1d3f5f", linewidth = .8,
                          linetype = "dashed", alpha = .12) +
     ggplot2::geom_point(alpha = .85, size = 2.2) +
     ggrepel::geom_text_repel(
@@ -123,7 +130,7 @@
                         stats::quantile(d$che_pc_usd2023, .92, na.rm = TRUE) |
                       .data$life_exp <
                         stats::quantile(d$life_exp, .08, na.rm = TRUE)),
-      ggplot2::aes(label = .data$iso3_code), size = 3, color = " 0d121b",
+      ggplot2::aes(label = .data$iso3_code), size = 3, color = "#0d121b",
       max.overlaps = 14
     ) +
     ggplot2::scale_x_log10(labels = scales::label_dollar()) +
@@ -209,13 +216,13 @@
     ggplot2::geom_segment(ggplot2::aes(x = 0, xend = .data$d_life,
                                         y = .data$country_name,
                                         yend = .data$country_name),
-                          color = " c46327", linewidth = 1.5) +
+                          color = "#c46327", linewidth = 1.5) +
     ggplot2::geom_point(ggplot2::aes(.data$d_life, .data$country_name),
-                        color = " 1d3f5f", size = 3) +
+                        color = "#1d3f5f", size = 3) +
     ggplot2::geom_text(ggplot2::aes(.data$d_life, .data$country_name,
                                      label = sprintf("+%.1f / -%.0f",
                                                      .data$d_life, .data$d_u5)),
-                       hjust = -0.15, size = 3.2, color = " 0d121b") +
+                       hjust = -0.15, size = 3.2, color = "#0d121b") +
     ggplot2::expand_limits(x = max(d$d_life) * 1.25) +
     ggplot2::labs(
       title    = "SDG-3 \u8fdb\u5c55 \u00b7 23 \u5e74\u9884\u671f\u5bff\u547d\u6700\u5feb\u589e\u957f\u7684 20 \u56fd",
@@ -294,15 +301,15 @@
   })
   preds <- do.call(rbind, preds)
   ggplot2::ggplot(d, ggplot2::aes(.data$lgdp, .data$lche)) +
-    ggplot2::geom_point(alpha = .12, size = .7, color = " 1d3f5f") +
+    ggplot2::geom_point(alpha = .12, size = .7, color = "#1d3f5f") +
     ggplot2::geom_line(data = preds,
                        ggplot2::aes(.data$lgdp, .data$lche,
                                      color = .data$tau, group = .data$tau),
                        linewidth = 1.05) +
     ggplot2::scale_color_manual(
-      values = c("\u03c4 = 0.1" = " 2a857a",
-                 "\u03c4 = 0.5" = " 1d3f5f",
-                 "\u03c4 = 0.9" = " c46327"),
+      values = c("\u03c4 = 0.1" = "#2a857a",
+                 "\u03c4 = 0.5" = "#1d3f5f",
+                 "\u03c4 = 0.9" = "#c46327"),
       name = NULL
     ) +
     ggplot2::labs(
@@ -338,12 +345,12 @@
   }
   if (is.na(cp_year)) cp_year <- 2008L
   ggplot2::ggplot(d, ggplot2::aes(.data$year, .data$g)) +
-    ggplot2::geom_col(fill = " 1d3f5f", alpha = .85) +
+    ggplot2::geom_col(fill = "#1d3f5f", alpha = .85) +
     ggplot2::geom_vline(xintercept = cp_year, linetype = "dashed",
-                        color = " c46327", linewidth = .9) +
+                        color = "#c46327", linewidth = .9) +
     ggplot2::annotate("text", x = cp_year + .5, y = max(d$g, na.rm = TRUE),
       label = sprintf("\u53d8\u70b9 \u2248 %d", cp_year),
-      color = " c46327", fontface = "bold", hjust = 0, vjust = 1) +
+      color = "#c46327", fontface = "bold", hjust = 0, vjust = 1) +
     ggplot2::scale_y_continuous(labels = scales::label_percent()) +
     ggplot2::scale_x_continuous(breaks = seq(2000, 2023, 4)) +
     ggplot2::labs(
@@ -428,9 +435,9 @@
   long <- as.data.frame(as.table(m))
   names(long) <- c("a", "b", "r")
   ggplot2::ggplot(long, ggplot2::aes(.data$a, .data$b, fill = .data$r)) +
-    ggplot2::geom_tile(color = " fbf6ee") +
+    ggplot2::geom_tile(color = "#fbf6ee") +
     ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", .data$r)),
-                       size = 3.2, color = " 0d121b") +
+                       size = 3.2, color = "#0d121b") +
     ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-1, 1),
                                    name = "r") +
     ggplot2::labs(
@@ -477,9 +484,9 @@
                           arrow = grid::arrow(length = grid::unit(0.18, "cm"),
                                               type = "closed")) +
     ggplot2::geom_point(ggplot2::aes(.data[[yrs[1]]], .data$country_name),
-                        color = " 5d667a", size = 2) +
-    ggplot2::scale_color_manual(values = c("\u8df3\u8dc3\u589e\u957f" = " c46327",
-                                            "\u589e\u901f\u6700\u6162" = " 1d3f5f"),
+                        color = "#5d667a", size = 2) +
+    ggplot2::scale_color_manual(values = c("\u8df3\u8dc3\u589e\u957f" = "#c46327",
+                                            "\u589e\u901f\u6700\u6162" = "#1d3f5f"),
                                  name = NULL) +
     ggplot2::scale_x_log10(labels = scales::label_dollar()) +
     ggplot2::labs(
@@ -525,15 +532,15 @@
                           alpha = .15, linewidth = 1) +
     ggplot2::geom_point(size = 2.3) +
     ggplot2::coord_polar() +
-    ggplot2::scale_color_manual(values = c("\u653f\u5e9c\u4e3b\u5bfc" = " 1d3f5f",
-                                            "\u79c1\u4eba\u4fdd\u9669" = " 2a857a",
-                                            "\u81ea\u4ed8\u9a71\u52a8" = " c46327",
-                                            "\u5916\u63f4\u4f9d\u8d56" = " 774314"),
+    ggplot2::scale_color_manual(values = c("\u653f\u5e9c\u4e3b\u5bfc" = "#1d3f5f",
+                                            "\u79c1\u4eba\u4fdd\u9669" = "#2a857a",
+                                            "\u81ea\u4ed8\u9a71\u52a8" = "#c46327",
+                                            "\u5916\u63f4\u4f9d\u8d56" = "#774314"),
                                  name = "Cluster") +
-    ggplot2::scale_fill_manual(values = c("\u653f\u5e9c\u4e3b\u5bfc" = " 1d3f5f",
-                                           "\u79c1\u4eba\u4fdd\u9669" = " 2a857a",
-                                           "\u81ea\u4ed8\u9a71\u52a8" = " c46327",
-                                           "\u5916\u63f4\u4f9d\u8d56" = " 774314"),
+    ggplot2::scale_fill_manual(values = c("\u653f\u5e9c\u4e3b\u5bfc" = "#1d3f5f",
+                                           "\u79c1\u4eba\u4fdd\u9669" = "#2a857a",
+                                           "\u81ea\u4ed8\u9a71\u52a8" = "#c46327",
+                                           "\u5916\u63f4\u4f9d\u8d56" = "#774314"),
                                 guide = "none") +
     ggplot2::labs(
       title    = sprintf("4 \u7c7b archetype \u96f7\u8fbe \u00b7 %d", yr),

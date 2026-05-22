@@ -1,4 +1,4 @@
-﻿if (!dir.exists("程序") && basename(getwd()) == "开发脚本") setwd("..")
+if (!dir.exists("程序") && basename(getwd()) == "开发脚本") setwd("..")
 
 source_all <- function() {
   files <- list.files("程序", pattern = "[.]R$", full.names = TRUE)
@@ -52,10 +52,20 @@ deploy_shinyapps <- function(app_name = "ghs-dashboard",
   prepare_shiny_app()
   token <- read_env_or_prompt("SHINYAPPS_TOKEN", "shinyapps.io credential 1: ")
   secret <- read_env_or_prompt("SHINYAPPS_SECRET", "shinyapps.io credential 2: ")
-  if (!nzchar(account) || !nzchar(token) || !nzchar(secret)) {
-    stop("Missing shinyapps.io credentials. Set SHINYAPPS_NAME, SHINYAPPS_TOKEN and SHINYAPPS_SECRET in .Renviron or the current R session.")
+  if (!nzchar(account)) {
+    stop("Missing shinyapps.io account name. Set SHINYAPPS_NAME or pass the account name to deploy_shinyapps().")
   }
-  rsconnect::setAccountInfo(name = account, token = token, secret = secret)
+  if (nzchar(token) && nzchar(secret)) {
+    rsconnect::setAccountInfo(name = account, token = token, secret = secret)
+  } else {
+    saved_accounts <- rsconnect::accounts()
+    has_saved <- nrow(saved_accounts) &&
+      any(saved_accounts$name == account & saved_accounts$server == "shinyapps.io")
+    if (!has_saved) {
+      stop("Missing shinyapps.io credentials. Set SHINYAPPS_TOKEN and SHINYAPPS_SECRET, or add the account with rsconnect::setAccountInfo().")
+    }
+    message("[deploy] using saved shinyapps.io account: ", account)
+  }
   app_files <- list.files("仪表盘", recursive = TRUE, full.names = FALSE, all.files = TRUE, no.. = TRUE)
   app_files <- app_files[!grepl("(^|/)rsconnect(/|$)", app_files)]
   rsconnect::deployApp(
@@ -64,7 +74,7 @@ deploy_shinyapps <- function(app_name = "ghs-dashboard",
     appTitle = "Global Health Spending Dashboard",
     appFiles = app_files,
     forceUpdate = TRUE,
-    launch.browser = TRUE
+    launch.browser = FALSE
   )
 }
 

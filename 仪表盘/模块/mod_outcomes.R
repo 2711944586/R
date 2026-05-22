@@ -6,10 +6,10 @@
 mod_outcomes_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#127973; \u4ea7\u51fa Outcomes"),
+    title = "\u4ea7\u51fa Outcomes",
     value = "outcomes",
     mod_v3_hero(
-      kicker = "HEALTH OUTCOMES",
+      kicker = "\u5065\u5eb7\u4ea7\u51fa",
       title = "\u8d44\u91d1 \u2192 \u5bff\u547d\uff1a\u6536\u5165\u7ec4\u95f4\u7684\u8fb9\u9645\u4ea7\u51fa",
       lead = paste(
         "\u5c06\u6700\u65b0\u5e74\u7684\u4eba\u5747 CHE \u4e0e\u9884\u671f\u5bff\u547d\u8054\u7cfb\u8d77\u6765\uff0c",
@@ -57,7 +57,7 @@ mod_outcomes_ui <- function(id) {
             selected = c("Low income", "Lower middle income",
                           "Upper middle income", "High income")),
           mod_v3_sidebar_note(
-            "Elasticity definition",
+            "\u5f39\u6027\u5b9a\u4e49",
             "\u5f39\u6027\u8868\u683c\u4e2d\u7684 \u03b2 \u6765\u81ea\u6bcf\u4e2a\u6536\u5165\u7ec4\u5185\u90e8\u7684 life_exp ~ log(CHE/cap) \u56de\u5f52\u3002",
             bullets = c("\u4ec5\u7528\u6700\u65b0\u5e74\u622a\u9762", "\u6bcf\u7ec4\u81f3\u5c11 5 \u4e2a\u89c2\u6d4b\u624d\u4f30\u8ba1", "\u4fe1\u8d56\u533a\u95f4\u8d8a\u5bbd\u4ee3\u8868\u4e0d\u786e\u5b9a\u6027\u8d8a\u9ad8")
           )
@@ -70,7 +70,7 @@ mod_outcomes_ui <- function(id) {
           list(title = "\u907f\u514d\u8fc7\u5ea6\u89e3\u8bfb", text = "\u8fd9\u662f\u622a\u9762\u5173\u8054\uff0c\u4e0d\u662f\u968f\u673a\u5b9e\u9a8c\u6216\u51c6\u5b9e\u9a8c\u3002")
         )),
         mod_card(
-          kicker = "OUTCOME GRADIENT",
+          kicker = "\u4ea7\u51fa\u68af\u5ea6",
           title = "log CHE \u00d7 \u5bff\u547d \u00d7 \u6536\u5165\u7ec4",
           mod_v3_chart_guide(
             "\u8bfb\u56fe\u65b9\u6cd5",
@@ -80,7 +80,7 @@ mod_outcomes_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("elasticity_plot"), height = 540))
         ),
         mod_card(
-          kicker = "OLS PARAMETERS",
+          kicker = "\u56de\u5f52\u53c2\u6570",
           title = "\u5f39\u6027\u7cfb\u6570\uff08\u6309\u6536\u5165\u7ec4\u5206\u6bb5 OLS\uff09",
           mod_v3_chart_guide(
             "\u8868\u683c\u7528\u9014",
@@ -141,9 +141,9 @@ mod_outcomes_server <- function(id, master_r, year_max) {
         ggplot2::geom_point(size = 2.4, alpha = 0.85) +
         ggplot2::geom_smooth(method = "lm", se = TRUE, linewidth = 1,
                               ggplot2::aes(group = income_group)) +
-        ggplot2::scale_colour_manual(values = pal, name = "Income group") +
-        ggplot2::labs(x = "log CHE / cap (USD 2023)",
-                      y = "Life expectancy at birth (years)") +
+        ggplot2::scale_colour_manual(values = pal, name = "\u6536\u5165\u7ec4") +
+        ggplot2::labs(x = "log \u4eba\u5747 CHE\uff08USD 2023\uff09",
+                      y = "\u51fa\u751f\u65f6\u9884\u671f\u5bff\u547d\uff08\u5e74\uff09") +
         ggplot2::theme_minimal(base_size = 12)
       plotly::ggplotly(p, tooltip = "text") |>
         plotly::config(displaylogo = FALSE)
@@ -168,8 +168,8 @@ mod_outcomes_server <- function(id, master_r, year_max) {
           )
         }) |>
         do.call(rbind, args = _)
-      out_tab$IncomeGroup <- rownames(out_tab)
-      out_tab <- out_tab[, c("IncomeGroup", "n", "beta", "ci_low", "ci_high", "r2")]
+      out_tab$income_group <- rownames(out_tab)
+      out_tab <- out_tab[, c("income_group", "n", "beta", "ci_low", "ci_high", "r2")]
       names(out_tab) <- c("收入组", "n", "弹性 \u03b2",
                           "CI 下", "CI 上", "R\u00b2")
       reactable::reactable(out_tab, defaultPageSize = 4,

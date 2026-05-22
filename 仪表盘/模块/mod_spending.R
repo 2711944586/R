@@ -6,10 +6,10 @@
 mod_spending_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128178; \u652f\u51fa Spending"),
+    title = "\u652f\u51fa Spending",
     value = "spending",
     mod_v3_hero(
-      kicker = "SPENDING LEVELS & PATTERNS",
+      kicker = "\u652f\u51fa\u6c34\u5e73\u4e0e\u6a21\u5f0f",
       title = "\u536b\u751f\u652f\u51fa\u6c34\u5e73\u4e0e\u6a21\u5f0f",
       lead = paste(
         "\u4eba\u5747 CHE \u5728\u5168\u7403\u5448\u73b0 100 \u500d\u5dee\u8ddd\uff1a",
@@ -116,7 +116,7 @@ mod_spending_ui <- function(id) {
           mod_spinner(leaflet::leafletOutput(ns("spending_map"), height = 400))
         ),
         mod_card(
-          kicker = "F6 · Audit table",
+          kicker = "F6 \u00b7 \u5ba1\u8ba1\u8868",
           title = "\u652f\u51fa\u6570\u636e\u8868",
           mod_v3_chart_guide(
             "\u8868\u683c\u7528\u4e8e\u590d\u6838",

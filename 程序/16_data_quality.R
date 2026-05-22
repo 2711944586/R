@@ -115,7 +115,7 @@ data_quality_outliers <- function(master, cols = c("che_pc_usd2023", "hf3_che"))
   do.call(rbind, out)
 }
 
-#' 一键导出质量报告（CSV → 分析输出/模型表/data_quality_*.csv）
+#' 导出质量报告（CSV → 分析输出/模型表/data_quality_*.csv）
 #' @export
 data_quality_export <- function(master,
                                  out_dir = file.path("分析输出", "模型表")) {

@@ -18,7 +18,7 @@ if (length(gallery_def) != 1L) stop("Cannot find .ghs_gallery")
 # "完整证据附录"区块中，每个 Finding 一组
 # 
 # 但更简洁的方案是：让 gallery 本身展示所有图的完整版本，
-# 每张图附带一句自动生成的 note（基于 .ghs_gallery_note）
+# 每张图附带一段 gallery 说明（基于 .ghs_gallery_note）
 # Gallery 已经做了这件事！它展示所有 300 张图+note。
 #
 # 真正的问题是：F1-F14 的代码每个只引用了 2-4 张图。
@@ -59,14 +59,14 @@ inject_fn <- c(
 '  fig_groups <- split(all_figs, vapply(all_figs, .fb_assign_fig, character(1)))',
 '  wgt_groups <- split(all_widgets, vapply(all_widgets, .fb_assign_widget, character(1)))',
 '  ',
-'  # 为每个 Finding 生成补充内容',
+'  # 按 Finding 拼接补充内容',
 '  findings <- paste0("F", 1:36)',
 '  parts <- vapply(findings, function(fid) {',
 '    figs <- fig_groups[[fid]]',
 '    wgts <- wgt_groups[[fid]]',
 '    if (!length(figs) && !length(wgts)) return("")',
 '    ',
-'    # 生成图卡片',
+'    # 拼接图卡片',
 '    fig_html <- if (length(figs)) {',
 '      cards <- vapply(figs, function(f) {',
 '        p <- file.path(fig_dir, f)',
@@ -79,7 +79,7 @@ inject_fn <- c(
 '      paste(cards[nzchar(cards)], collapse = "")',
 '    } else ""',
 '    ',
-'    # 生成widget锚点',
+'    # 拼接 widget 锚点',
 '    wgt_html <- if (length(wgts)) {',
 '      cards <- vapply(wgts, function(w) {',
 '        if (exists(".ghs_widget_anchor", mode = "function"))',

@@ -1,4 +1,4 @@
-﻿# 开发脚本/测试仪表盘模块.R
+# 开发脚本/测试仪表盘模块.R
 # 验证 Shiny 模块化能 source/parse 通过且 UI 对象可生成
 
 cat("[shiny test] starting\n")

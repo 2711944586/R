@@ -6,10 +6,10 @@
 mod_pandemic_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#129516; \u97e7\u6027 Pandemic"),
+    title = "\u97e7\u6027 Pandemic",
     value = "pandemic",
     mod_v3_hero(
-      kicker = "SHOCK & RESILIENCE",
+      kicker = "\u51b2\u51fb\u4e0e\u97e7\u6027",
       title = "COVID \u51b2\u51fb\u4e0b\u7684\u8d22\u52a1\u97e7\u6027\u8bc4\u4ef7",
       lead = paste(
         "\u5bf9\u6bd4 2019 \u4e0e 2022 \u7684\u7b79\u8d44\u7ed3\u6784\u53d8\u5316\uff0c\u7528 \u0394GGHE-D \u548c \u0394OOPS \u5224\u65ad\u516c\u5171\u8d22\u653f\u662f\u5426\u5728\u51b2\u51fb\u671f\u95f4\u627f\u62c5\u4e86\u66f4\u591a\u4fdd\u62a4\u529f\u80fd\u3002",
@@ -50,10 +50,10 @@ mod_pandemic_ui <- function(id) {
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           width = 292,
-          shiny::numericInput(ns("top_n"), "Dumbbell Top N", value = 25,
+          shiny::numericInput(ns("top_n"), "Dumbbell \u663e\u793a\u6570\u91cf Top N", value = 25,
                                min = 10, max = 60, step = 5),
           mod_v3_sidebar_note(
-            "Color logic",
+            "\u989c\u8272\u903b\u8f91",
             "Dumbbell \u6bd4\u8f83 2019 \u4e0e 2022 \u7684 OOPS \u5360\u6bd4\u53d8\u5316\uff1a\u6a59\u7ea2\u8868\u793a\u5bb6\u5ead\u538b\u529b\u4e0a\u5347\uff0c\u7eff\u8272\u8868\u793a\u81ea\u4ed8\u5360\u6bd4\u4e0b\u964d\u3002",
             bullets = c("\u4ec5\u5c55\u793a\u53d8\u5316\u7edd\u5bf9\u503c\u6700\u5927\u7684 Top N", "\u6563\u70b9\u56fe\u5efa\u8bae\u5148\u770b\u8c61\u9650", "\u8868\u683c\u53ef\u641c\u7d22\u56fd\u5bb6\u6216\u6536\u5165\u7ec4")
           )
@@ -68,7 +68,7 @@ mod_pandemic_ui <- function(id) {
         bslib::layout_columns(
           col_widths = c(6, 6),
           mod_card(
-            kicker = "PUBLIC VS HOUSEHOLD",
+            kicker = "\u516c\u5171\u7b79\u8d44 vs \u5bb6\u5ead\u538b\u529b",
             title = "COVID \u524d\u540e GGHE-D \u548c OOPS \u53d8\u5316",
             mod_v3_chart_guide(
               "\u8c61\u9650\u89e3\u8bfb",
@@ -78,7 +78,7 @@ mod_pandemic_ui <- function(id) {
             mod_spinner(plotly::plotlyOutput(ns("covid_scatter"), height = 500))
           ),
           mod_card(
-            kicker = "OOPS SHIFT",
+            kicker = "\u81ea\u4ed8\u53d8\u5316",
             title = "OOPS \u53d8\u5316 dumbbell",
             mod_v3_chart_guide(
               "\u7aef\u70b9\u5bf9\u7167",
@@ -89,7 +89,7 @@ mod_pandemic_ui <- function(id) {
           )
         ),
         mod_card(
-          kicker = "RESILIENCE RANK",
+          kicker = "\u97e7\u6027\u6392\u540d",
           title = "\u97e7\u6027\u8bc4\u5206\uff08\u0394GGHE-D \u4e0a\u5347 - \u0394OOPS \u4e0a\u5347\uff09",
           mod_v3_chart_guide(
             "\u8868\u683c\u7528\u9014",
@@ -167,6 +167,7 @@ mod_pandemic_server <- function(id, master_r) {
         ggplot2::labs(x = "\u0394 GGHE-D %", y = "\u0394 OOPS %") +
         ggplot2::theme_minimal(base_size = 12)
       plotly::ggplotly(p, tooltip = "text") |>
+        ghs_plotly_layout() |>
         plotly::config(displaylogo = FALSE)
     })
 
@@ -201,7 +202,9 @@ mod_pandemic_server <- function(id, master_r) {
         ggplot2::labs(x = "OOPS / CHE  (%)", y = NULL) +
         ggplot2::theme_minimal(base_size = 11) +
         ggplot2::theme(legend.position = "top")
-      plotly::ggplotly(p) |> plotly::config(displaylogo = FALSE)
+      plotly::ggplotly(p) |>
+        ghs_plotly_layout() |>
+        plotly::config(displaylogo = FALSE)
     })
 
     output$resilience_table <- reactable::renderReactable({
@@ -217,25 +220,25 @@ mod_pandemic_server <- function(id, master_r) {
       d$resilience <- round(d$delta_gghe - d$delta_oops, 2)
       d <- d[order(-d$resilience), ]
       tab <- data.frame(
-        Rank        = seq_len(nrow(d)),
-        Country     = d$country_name,
-        Continent   = d$continent,
-        IncomeGroup = d$income_group,
+        rank        = seq_len(nrow(d)),
+        country     = d$country_name,
+        continent   = d$continent,
+        income_group = d$income_group,
         delta_GGHE  = round(d$delta_gghe, 1),
         delta_OOPS  = round(d$delta_oops, 1),
-        Resilience  = d$resilience
+        resilience  = d$resilience
       )
-      names(tab) <- c("Rank", "Country", "Continent", "IncomeGroup",
-                       "\u0394 GGHE-D %", "\u0394 OOPS %", "Resilience")
+      names(tab) <- c("\u6392\u540d", "\u56fd\u5bb6", "\u5927\u6d32", "\u6536\u5165\u7ec4",
+                       "\u0394 GGHE-D %", "\u0394 OOPS %", "\u97e7\u6027\u5206\u6570")
       reactable::reactable(tab, searchable = TRUE, defaultPageSize = 15,
         pagination = TRUE, highlight = TRUE,
         defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
-        columns = list(
-          Resilience = reactable::colDef(style = function(value) {
+        columns = stats::setNames(list(
+          reactable::colDef(style = function(value) {
             col <- if (value > 0) "#3F8F4A" else "#C0504D"
             list(color = col, fontWeight = "bold")
           })
-        ))
+        ), "\u97e7\u6027\u5206\u6570"))
     })
   })
 }

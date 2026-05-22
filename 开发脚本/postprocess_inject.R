@@ -7,7 +7,7 @@
 # 不对，应该是R端直接修改HTML字符串。
 # 但这需要改 .ghs_render 的返回值。
 #
-# 最简方案：修改 .ghs_inject_all_assets 让它生成的HTML
+# 直接修改 .ghs_inject_all_assets，使其返回可注入的 HTML。
 # 用CSS隐藏section包装，只用div包装，并用JS在DOMContentLoaded后
 # 把每个 data-for="Fx" 的div移动到对应finding section内部
 #
@@ -19,7 +19,7 @@ src <- readLines("程序/21_static_showcase.R", encoding = "UTF-8")
 inject_start <- grep("^\\.ghs_inject_all_assets <- function", src)
 if (length(inject_start) != 1L) stop("Cannot find function")
 
-# 找到函数结尾（下一个顶级函数）
+# 定位当前函数块的结束位置
 gallery_fn <- grep("^\\.ghs_gallery <- function", src)
 gallery_fn <- gallery_fn[gallery_fn > inject_start][1]
 inject_end <- gallery_fn - 1L
@@ -28,7 +28,7 @@ while (inject_end > inject_start && trimws(src[inject_end]) == "") inject_end <-
 # 完全重写这个函数
 new_fn <- c(
 '.ghs_inject_all_assets <- function(fig_dir, widget_dir, mode, repo_url) {',
-'  # 把所有图和widget按Finding主题生成HTML块',
+'  # 按 Finding 主题拼接图表和 widget 块',
 '  # 每个块会直接出现在Findings之后，但通过CSS与对应Finding视觉关联',
 '  # 每张图附带完整的阐述性段落',
 '  ',
@@ -100,7 +100,7 @@ new_fn <- c(
 '  fig_groups <- split(all_figs, vapply(all_figs, assign_fig, character(1)))',
 '  wgt_groups <- split(all_widgets, vapply(all_widgets, assign_widget, character(1)))',
 '  ',
-'  # 为每个Finding生成内联内容（不是独立section，而是一个div）',
+'  # 每个 Finding 追加内联内容块',
 '  findings <- paste0("F", 1:36)',
 '  parts <- vapply(findings, function(fid) {',
 '    figs <- fig_groups[[fid]]',

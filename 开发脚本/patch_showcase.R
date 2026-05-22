@@ -8,7 +8,7 @@ src <- readLines("程序/21_static_showcase.R", encoding = "UTF-8")
 # ---- 1. 替换 .ghs_repro 函数 ----
 repro_start <- grep("^\\.ghs_repro <- function", src)
 if (length(repro_start) == 1L) {
-  # 找到下一个顶级函数定义
+  # 定位当前函数块的结束位置
   repro_end <- grep("^\\.ghs_conclusion <- function", src)
   if (length(repro_end) == 1L) {
     repro_end <- repro_end - 1L
@@ -56,7 +56,7 @@ if (length(repro_start) == 1L) {
 # ---- 2. 替换 .ghs_conclusion 函数 ----
 conc_start <- grep("^\\.ghs_conclusion <- function", src)
 if (length(conc_start) == 1L) {
-  # 找到函数结尾（下一个顶级函数或 .ghs_footer）
+  # 定位函数块结尾或 .ghs_footer 前的位置
   conc_end <- grep("^\\.ghs_footer <- function", src)
   if (length(conc_end) == 1L) {
     conc_end <- conc_end - 1L

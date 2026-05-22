@@ -229,8 +229,12 @@ imap_change_che_pc <- function(master, world_sf,
   m <- merge(d1, d2, by = "iso3_code", suffixes = c(".y1", ".y2"))
   m$delta <- log(m$che_pc_usd2023.y2 / m$che_pc_usd2023.y1)
   g <- merge(world_sf, m, by = "iso3_code", all.x = TRUE)
+  finite_delta <- g$delta[is.finite(g$delta)]
+  max_abs <- if (length(finite_delta)) max(abs(finite_delta), na.rm = TRUE) else 1
+  if (!is.finite(max_abs) || max_abs <= 0) max_abs <- 1
   pal <- leaflet::colorNumeric(palette = c("#a23b3b", "#fbf6ee", "#1d3f5f"),
-                                 domain = c(-1, 1), na.color = "#cccccc")
+                                 domain = c(-max_abs, max_abs),
+                                 na.color = "#cccccc")
   labs <- vapply(seq_len(nrow(g)), function(i) {
     if (is.na(g$delta[i])) "" else
       sprintf("<strong>%s</strong><br>%d\u2192%d log\u500d = %.2f",
@@ -241,7 +245,7 @@ imap_change_che_pc <- function(master, world_sf,
     leaflet::addPolygons(fillColor = ~pal(delta),
       weight = 0.5, color = "#1a1f28", fillOpacity = 0.85,
       label = lapply(labs, htmltools::HTML)) |>
-    leaflet::addLegend(pal = pal, values = c(-1, -0.5, 0, 0.5, 1),
+    leaflet::addLegend(pal = pal, values = c(-max_abs, 0, max_abs),
       title = sprintf("log(\u500d\u6570) %d\u2192%d", y1, y2),
       position = "bottomright")
 }
@@ -255,8 +259,12 @@ imap_change_oop <- function(master, world_sf, y1 = 2000, y2 = NULL) {
   m <- merge(d1, d2, by = "iso3_code", suffixes = c(".y1", ".y2"))
   m$delta <- m$hf3_che.y2 - m$hf3_che.y1
   g <- merge(world_sf, m, by = "iso3_code", all.x = TRUE)
+  finite_delta <- g$delta[is.finite(g$delta)]
+  max_abs <- if (length(finite_delta)) max(abs(finite_delta), na.rm = TRUE) else 1
+  if (!is.finite(max_abs) || max_abs <= 0) max_abs <- 1
   pal <- leaflet::colorNumeric(palette = c("#2a857a", "#fbf6ee", "#a23b3b"),
-                                 domain = c(-30, 30), na.color = "#cccccc")
+                                 domain = c(-max_abs, max_abs),
+                                 na.color = "#cccccc")
   labs <- vapply(seq_len(nrow(g)), function(i) {
     if (is.na(g$delta[i])) "" else
       sprintf("<strong>%s</strong><br>\u0394 OOP = %+.1f pp",
@@ -267,7 +275,7 @@ imap_change_oop <- function(master, world_sf, y1 = 2000, y2 = NULL) {
     leaflet::addPolygons(fillColor = ~pal(delta),
       weight = 0.5, color = "#1a1f28", fillOpacity = 0.85,
       label = lapply(labs, htmltools::HTML)) |>
-    leaflet::addLegend(pal = pal, values = c(-30, -10, 0, 10, 30),
+    leaflet::addLegend(pal = pal, values = c(-max_abs, 0, max_abs),
       title = sprintf("\u0394 OOP / CHE %d\u2192%d (pp)", y1, y2),
       position = "bottomright")
 }
@@ -284,8 +292,12 @@ imap_efficiency <- function(master, world_sf, year = NULL) {
   d$res <- stats::residuals(fit)
   g <- merge(world_sf, d[, c("iso3_code", "country_name", "res")],
               by = "iso3_code", all.x = TRUE)
+  finite_res <- g$res[is.finite(g$res)]
+  max_abs <- if (length(finite_res)) max(abs(finite_res), na.rm = TRUE) else 1
+  if (!is.finite(max_abs) || max_abs <= 0) max_abs <- 1
   pal <- leaflet::colorNumeric(palette = c("#a23b3b", "#fbf6ee", "#2a857a"),
-                                 domain = c(-10, 10), na.color = "#cccccc")
+                                 domain = c(-max_abs, max_abs),
+                                 na.color = "#cccccc")
   labs <- vapply(seq_len(nrow(g)), function(i) {
     if (is.na(g$res[i])) "" else
       sprintf("<strong>%s</strong><br>\u5bff\u547d\u6b8b\u5dee = %+.1f\u5e74",
@@ -296,7 +308,7 @@ imap_efficiency <- function(master, world_sf, year = NULL) {
     leaflet::addPolygons(fillColor = ~pal(res),
       weight = 0.5, color = "#1a1f28", fillOpacity = 0.85,
       label = lapply(labs, htmltools::HTML)) |>
-    leaflet::addLegend(pal = pal, values = c(-10, 0, 10),
+    leaflet::addLegend(pal = pal, values = c(-max_abs, 0, max_abs),
       title = sprintf("\u5bff\u547d\u6b8b\u5dee (\u540c\u6863 CHE \u4e0b) \u00b7 %d",
                        year),
       position = "bottomright")
@@ -314,7 +326,7 @@ imap_bubble_che_total <- function(master, world_sf, year = NULL) {
   if (!nrow(d)) return(NULL)
   g <- merge(world_sf, d[, c("iso3_code", "country_name", "che_usd2023")],
               by = "iso3_code", all.x = TRUE)
-  ce <- sf::st_centroid(sf::st_make_valid(g))
+  ce <- suppressWarnings(sf::st_centroid(sf::st_make_valid(g)))
   ce$radius <- sqrt(pmax(ce$che_usd2023, 0)) / 800
   ce <- ce[is.finite(ce$radius) & ce$radius > 0, ]
   if (!nrow(ce)) return(NULL)
@@ -337,7 +349,7 @@ imap_bubble_oop_continent <- function(master, world_sf, year = NULL) {
   g <- merge(world_sf, d[, c("iso3_code", "country_name",
                                  "continent", "hf3_che", "pop")],
               by = "iso3_code", all.x = TRUE)
-  ce <- sf::st_centroid(sf::st_make_valid(g))
+  ce <- suppressWarnings(sf::st_centroid(sf::st_make_valid(g)))
   ce <- ce[is.finite(ce$hf3_che) & is.finite(ce$pop), ]
   if (!nrow(ce)) return(NULL)
   cont_colors <- c("Asia" = "#c46327", "Europe" = "#1d3f5f",
@@ -364,7 +376,7 @@ imap_top10_oop <- function(master, world_sf, year = NULL) {
   picked <- utils::head(d, 10)
   g <- merge(world_sf, picked[, c("iso3_code", "country_name", "hf3_che")],
               by = "iso3_code")
-  ce <- sf::st_centroid(sf::st_make_valid(g))
+  ce <- suppressWarnings(sf::st_centroid(sf::st_make_valid(g)))
   leaflet::leaflet(world_sf) |>
     leaflet::addProviderTiles("CartoDB.Positron") |>
     leaflet::addPolygons(weight = 0.3, color = "#a8b0c0",
@@ -387,7 +399,7 @@ imap_country_points <- function(master, world_sf, year = NULL) {
                                  "che_pc_usd2023", "hf3_che",
                                  "life_exp", "u5mr")],
               by = "iso3_code", all.x = TRUE)
-  ce <- sf::st_centroid(sf::st_make_valid(g))
+  ce <- suppressWarnings(sf::st_centroid(sf::st_make_valid(g)))
   ce <- ce[is.finite(ce$che_pc_usd2023), ]
   if (!nrow(ce)) return(NULL)
   popup_html <- vapply(seq_len(nrow(ce)), function(i) {

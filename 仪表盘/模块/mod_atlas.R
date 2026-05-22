@@ -6,10 +6,10 @@
 mod_atlas_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128218; Atlas"),
+    title = "Atlas",
     value = "atlas",
     mod_v3_hero(
-      kicker = "DATA ATLAS",
+      kicker = "\u6570\u636e\u56fe\u8c31",
       title = "全球 Atlas · 数据资产与导出中枢",
       lead = paste(
         "把 Shiny 中使用的完整国家年度宽表、不平等年度面板和 COVID 冲击表集中到一个可检索的数据台账。",
@@ -29,21 +29,21 @@ mod_atlas_ui <- function(id) {
       mod_v3_story_grid(
         columns = 3,
         mod_v3_insight(
-          kicker = "Inventory",
+          kicker = "\u5b57\u6bb5\u76d8\u70b9",
           title = "把变量先变成可审计资产",
           text = "每个数据集都会同步展示字段类型、非缺失记录数和覆盖比例，避免只下载文件而不了解字段质量。",
           tone = "primary",
           icon = "A"
         ),
         mod_v3_insight(
-          kicker = "Export",
+          kicker = "\u7edf\u4e00\u5bfc\u51fa",
           title = "同一口径服务 Shiny 与静态报告",
           text = "Master、inequality 和 COVID 三类表与分析模块共用函数生成，导出的数据就是图表和模型正在读取的数据。",
           tone = "secondary",
           icon = "D"
         ),
         mod_v3_insight(
-          kicker = "Review",
+          kicker = "\u4e0b\u8f7d\u524d\u590d\u6838",
           title = "先预览，再下载",
           text = "预览表保留搜索、排序、分页能力，适合快速检查某个国家、年份或变量是否按预期进入当前数据集。",
           tone = "good",
@@ -89,7 +89,7 @@ mod_atlas_ui <- function(id) {
         bslib::layout_columns(
           col_widths = c(8, 4),
           mod_card(
-            kicker = "TABLE PREVIEW",
+            kicker = "\u6570\u636e\u9884\u89c8",
             title = "数据预览（前 200 行 · 可搜索 · 可排序）",
             mod_v3_chart_guide(
               title = "如何检查",
@@ -104,7 +104,7 @@ mod_atlas_ui <- function(id) {
             footer = "预览不会改变下载内容；导出文件包含当前数据集的完整记录。"
           ),
           mod_card(
-            kicker = "FIELD INVENTORY",
+            kicker = "\u5b57\u6bb5\u5e93\u5b58",
             title = "字段库存与覆盖率",
             mod_v3_chart_guide(
               title = "读表提示",

@@ -171,15 +171,15 @@ mod_v3_kpi <- function(label, value, hint = NULL, trend = NULL,
     value <- tmp
   }
   tone_color <- switch(tone,
-    primary = "#1d3f5f", secondary = "#c46327",
-    good = "#2a857a", warn = "#c89a3b", bad = "#a23b3b",
-    "#5d667a")
+    primary = "#254f5c", secondary = "#6b6077",
+    good = "#587669", warn = "#8f743d", bad = "#8b544e",
+    "#5d6965")
   trend_html <- ""
   if (!is.null(trend) && is.finite(trend)) {
     arr <- if (trend > 0) "\u2197" else if (trend < 0) "\u2198" else "\u2192"
-    col <- if (trend > 0) "#2a857a"
-           else if (trend < 0) "#a23b3b"
-           else "#5d667a"
+    col <- if (trend > 0) "#587669"
+           else if (trend < 0) "#8b544e"
+           else "#5d6965"
     trend_html <- sprintf(
       "<span class='v3-kpi-trend' style='color:%s'>%s %+0.1f%%</span>",
       col, arr, trend * 100)
@@ -228,9 +228,9 @@ mod_v3_badge_row <- function(..., tone = c("primary", "secondary", "good",
                                            "warn", "bad", "neutral")) {
   tone <- match.arg(tone)
   tone_color <- switch(tone,
-    primary = "#1d3f5f", secondary = "#c46327",
-    good = "#2a857a", warn = "#c89a3b", bad = "#a23b3b",
-    "#5d667a")
+    primary = "#254f5c", secondary = "#6b6077",
+    good = "#587669", warn = "#8f743d", bad = "#8b544e",
+    "#5d6965")
   labels <- unlist(list(...), use.names = FALSE)
   labels <- labels[!is.na(labels) & nzchar(labels)]
   htmltools::div(
@@ -247,9 +247,9 @@ mod_v3_insight <- function(title, text, kicker = NULL,
                            icon = NULL, meta = NULL) {
   tone <- match.arg(tone)
   tone_color <- switch(tone,
-    primary = "#1d3f5f", secondary = "#c46327",
-    good = "#2a857a", warn = "#c89a3b", bad = "#a23b3b",
-    "#5d667a")
+    primary = "#254f5c", secondary = "#6b6077",
+    good = "#587669", warn = "#8f743d", bad = "#8b544e",
+    "#5d6965")
   htmltools::div(
     class = "v3-insight",
     style = sprintf("--tone:%s", tone_color),
@@ -323,7 +323,7 @@ mod_v3_topic_registry <- list(
       list(kicker = "Gradient", title = "收入组是第一解释层",
            text = "GDP/cap 与 CHE/cap 的共同移动揭示了支付能力、财政空间和服务价格共同构成的支出梯度。",
            tone = "secondary"),
-      list(kicker = "Outliers", title = "偏离拟合线才是重点",
+      list(kicker = "异常点", title = "偏离拟合线才是重点",
            text = "同等经济水平下支出明显偏高或偏低的国家，更适合继续进入效率、财政和产出模块复核。",
            tone = "good")
     ),
@@ -342,7 +342,7 @@ mod_v3_topic_registry <- list(
       list(kicker = "Structure", title = "结构比总量更接近制度",
            text = "公共筹资、私人支出和外部援助的相对权重，反映卫生系统风险如何在政府、家庭和捐助方之间分配。",
            tone = "primary"),
-      list(kicker = "Protection", title = "OOPS 是保护压力信号",
+      list(kicker = "保护", title = "OOPS 是保护压力信号",
            text = "自付比例高并不一定等于灾难性支出高，但二者同时偏高时，家庭财务风险通常更集中。",
            tone = "bad"),
       list(kicker = "Transition", title = "观察替代而不是孤立变化",
@@ -474,7 +474,7 @@ mod_v3_topic_registry <- list(
       list(kicker = "Shape", title = "先判断分布形状",
            text = "卫生支出和 GDP 常呈右偏分布，均值容易被极端高值拉动，中位数和分位数更稳健。",
            tone = "primary"),
-      list(kicker = "Tail", title = "尾部决定政策关注点",
+      list(kicker = "尾部", title = "尾部决定政策关注点",
            text = "高端尾部反映高支出系统，低端尾部则指向资源不足和数据覆盖问题。",
            tone = "warn"),
       list(kicker = "Evolution", title = "分布移动比单点更有信息",
@@ -906,9 +906,9 @@ mod_v3_module_card <- function(ns, target, kicker, title, desc,
                                 icon = "\u25b8",
                                 tone = "primary") {
   tone_color <- switch(tone,
-    primary = "#1d3f5f", secondary = "#c46327",
-    good = "#2a857a", warn = "#c89a3b", bad = "#a23b3b",
-    "#5d667a")
+    primary = "#254f5c", secondary = "#6b6077",
+    good = "#587669", warn = "#8f743d", bad = "#8b544e",
+    "#5d6965")
   htmltools::tags$button(
     class = "v3-module-card",
     type  = "button",
@@ -939,7 +939,7 @@ mod_v3_stat_strip <- function(items) {
                           paste(cards, collapse = "")))
 }
 
-#' 卡片容器（升级版 mod_card；带可选 kicker / footer）
+#' 卡片容器（带可选 kicker / footer）
 mod_v3_card <- function(..., title = NULL, kicker = NULL, footer = NULL,
                           class = NULL) {
   head_html <- ""
@@ -1026,3 +1026,572 @@ mod_reactable_themed <- mod_v3_reactable
 fmt_usd_v <- fmt_v3_usd
 fmt_pct_v <- fmt_v3_pct
 fmt_num_v <- fmt_v3_num
+
+# =============================================================================
+# 原生交互组件注册与地图工作台 helpers
+# =============================================================================
+
+mod_widget_project_root <- function(start = getwd(), max_up = 6) {
+  d <- normalizePath(start, mustWork = FALSE)
+  for (i in seq_len(max_up + 1)) {
+    if (dir.exists(file.path(d, "程序")) ||
+        file.exists(file.path(d, "DESCRIPTION"))) {
+      return(d)
+    }
+    parent <- dirname(d)
+    if (identical(parent, d)) break
+    d <- parent
+  }
+  normalizePath(start, mustWork = FALSE)
+}
+
+mod_widget_ensure_interactive_fns <- function() {
+  sentinels <- c(
+    "widget_v2_gapminder_bubble",
+    "widget_more_continent_oops",
+    "imap_che_pc",
+    "iadv_che_pc_lines"
+  )
+  if (all(vapply(sentinels, exists, logical(1),
+                 envir = .GlobalEnv, mode = "function"))) {
+    return(invisible(TRUE))
+  }
+  root <- mod_widget_project_root()
+  source_dir <- if (dir.exists(file.path(root, "程序"))) {
+    file.path(root, "程序")
+  } else {
+    file.path(root, "程序库")
+  }
+  files <- file.path(source_dir, c(
+    "17_widgets_plotly.R",
+    "18_widgets_other.R",
+    "25_widgets_more.R",
+    "36_widgets_map.R",
+    "37_widgets_advanced.R"
+  ))
+  files <- files[file.exists(files)]
+  if (!length(files)) return(invisible(FALSE))
+  old_wd <- getwd()
+  on.exit(setwd(old_wd), add = TRUE)
+  setwd(root)
+  for (f in files) {
+    suppressWarnings(suppressMessages(
+      source(f, encoding = "UTF-8", local = .GlobalEnv)
+    ))
+  }
+  invisible(TRUE)
+}
+
+mod_widget_registry <- function() {
+  mod_widget_ensure_interactive_fns()
+  mk <- function(id, title, desc, source, fn, type,
+                 deps = character(), needs_world = FALSE,
+                 params = list(), group = "交互组件") {
+    data.frame(
+      id = id, title = title, desc = desc, source = source, fn = fn,
+      type = type, deps = paste(deps, collapse = ","),
+      needs_world = isTRUE(needs_world), group = group,
+      stringsAsFactors = FALSE
+    ) |>
+      transform(params = I(list(params)))
+  }
+  rows <- list(
+    mk("widget_v2_gapminder_bubble", "动态气泡：GDP、寿命与人均支出", "年份滑块展示经济水平、预期寿命与人均卫生支出的共同移动，适合作为全局结构的第一张交互图。", "程序/17_widgets_plotly.R", "widget_v2_gapminder_bubble", "plotly", "plotly", FALSE, group = "Plotly 基础"),
+    mk("widget_v2_highlight_lines", "多国人均 CHE 高亮时序", "点击图例可隔离国家，观察高收入经济体与主要新兴经济体在人均支出上的长期距离。", "程序/17_widgets_plotly.R", "widget_v2_highlight_lines", "plotly", "plotly", FALSE, group = "Plotly 基础"),
+    mk("widget_v2_oops_heatmap", "OOPS 国家年份热力图", "把自付比例波动最大的国家排成热力矩阵，快速识别家庭现金支付压力的持续高位和结构性转折。", "程序/17_widgets_plotly.R", "widget_v2_oops_heatmap", "plotly", c("plotly", "reshape2"), FALSE, group = "Plotly 基础"),
+    mk("widget_v2_ternary", "HF1/HF2/HF3 三元结构", "用三元坐标呈现政府、保险与自付三类筹资方案的相对位置，适合比较制度型态。", "程序/17_widgets_plotly.R", "widget_v2_ternary", "plotly", "plotly", FALSE, list(year = 2022), group = "Plotly 基础"),
+    mk("widget_v2_income_violin", "收入组人均支出分布动画", "按收入组展示人均 CHE 分布随年份移动，重点看组间距离和组内离散度是否同步变化。", "程序/17_widgets_plotly.R", "widget_v2_income_violin", "plotly", "plotly", FALSE, group = "Plotly 基础"),
+    mk("widget_v2_splom", "多指标散点矩阵", "在同一年横截面中查看人均 CHE、GDP、寿命和 OOPS 的相关结构，适合寻找非线性和异常国家。", "程序/17_widgets_plotly.R", "widget_v2_splom", "plotly", "plotly", FALSE, list(year = 2022), group = "Plotly 基础"),
+    mk("widget_v2_mc_fan", "蒙特卡洛情景扇形图", "用区间带展示未来情景的不确定性，强调预测不是单条线，而是一组可能路径。", "程序/17_widgets_plotly.R", "widget_v2_mc_fan", "plotly", "plotly", FALSE, group = "Plotly 基础"),
+    mk("widget_v2_scenarios", "政策情景比较", "围绕单国政策参数构造未来轨迹，适合把历史走势转化为可讨论的假设空间。", "程序/17_widgets_plotly.R", "widget_v2_scenarios", "plotly", "plotly", FALSE, group = "Plotly 基础"),
+
+    mk("widget_v2_leaflet_choropleth", "世界地图：多指标切换", "在同一张 Leaflet 地图中切换 OOPS、GGHED、EXT、人均 CHE 与预防支出占比。", "程序/18_widgets_other.R", "widget_v2_leaflet_choropleth", "leaflet", c("leaflet", "sf"), TRUE, list(year = 2022), group = "地图"),
+    mk("widget_v2_reactable_rank", "国家排行表", "带搜索、排序和趋势条的国家排行，用于把图上的空间模式落回国家明细。", "程序/18_widgets_other.R", "widget_v2_reactable_rank", "reactable", "reactable", FALSE, list(year = 2023), group = "表格"),
+    mk("widget_v2_dt_atlas", "DT 全字段浏览", "以可筛选表格浏览主面板核心字段，适合复核国家、年份和变量口径。", "程序/18_widgets_other.R", "widget_v2_dt_atlas", "dt", "DT", FALSE, group = "表格"),
+    mk("widget_v2_country_network", "国家相似网络", "基于筹资和支出指标的距离构造相似国家网络，帮助发现同类制度组合。", "程序/18_widgets_other.R", "widget_v2_country_network", "ui", "networkD3", FALSE, list(year = 2022), group = "网络"),
+    mk("widget_v2_sankey_flows", "三段资金流 Sankey", "把来源、筹资方案和用途连接为一张流向图，用于说明结构不是单一比例，而是多级分配。", "程序/18_widgets_other.R", "widget_v2_sankey_flows", "ui", "networkD3", FALSE, list(year = 2022), group = "网络"),
+    mk("widget_v2_kpi_grid", "指标卡片组", "以 HTML 原生卡片呈现总量、人均、自付和外援依赖等关键数值。", "程序/18_widgets_other.R", "widget_v2_kpi_grid", "ui", "htmltools", FALSE, list(year = 2022), group = "HTML 摘要")
+  )
+
+  more_fns <- ls(envir = .GlobalEnv, pattern = "^widget_more_[a-z]")
+  rows <- c(rows, lapply(more_fns, function(fn) {
+    label <- gsub("_", " ", sub("^widget_more_", "", fn))
+    type <- if (grepl("_dt_", fn)) "dt" else "plotly"
+    deps <- if (identical(type, "dt")) "DT" else "plotly"
+    mk(fn, paste("扩展图表", label), "第二批 Plotly 扩展组件，覆盖排行、趋势、热力图、相关矩阵和国家比较等常用分析视角。", "程序/25_widgets_more.R", fn, type, deps, FALSE, group = "Plotly 扩展")
+  }))
+
+  imap_fns <- ls(envir = .GlobalEnv, pattern = "^imap_[a-z]")
+  rows <- c(rows, lapply(imap_fns, function(fn) {
+    label <- gsub("_", " ", sub("^imap_", "", fn))
+    type <- if (fn %in% c("imap_plotly_animation", "imap_plotly_choropleth", "imap_plotly_density")) "plotly"
+            else if (fn == "imap_dual_compare") "ui"
+            else "leaflet"
+    deps <- switch(type,
+      plotly = "plotly",
+      leaflet = c("leaflet", "sf"),
+      c("leaflet", "sf", "htmltools")
+    )
+    mk(fn, paste("地图", label), "地图工作台同源函数，可作为独立原生组件渲染；适合对照 Map Studio 的联动版本。", "程序/36_widgets_map.R", fn, type, deps, TRUE, group = "地图")
+  }))
+
+  iadv_fns <- ls(envir = .GlobalEnv, pattern = "^iadv_[a-z]")
+  iadv_fns <- setdiff(iadv_fns, c("iadv_callout"))
+  rows <- c(rows, lapply(iadv_fns, function(fn) {
+    label <- gsub("_", " ", sub("^iadv_", "", fn))
+    type <- if (grepl("^iadv_rt_", fn)) "reactable"
+            else if (grepl("^iadv_dt_", fn)) "dt"
+            else if (grepl("^iadv_hc_|^iadv_ec_", fn)) "ui"
+            else if (grepl("^iadv_kpi_|^iadv_progress_|^iadv_rank_strip|^iadv_swatch|^iadv_alert|^iadv_dashboard|^iadv_country_card|^iadv_spark|^iadv_extreme|^iadv_finding|^iadv_milestone|^iadv_quote|^iadv_stats|^iadv_top_banner|^iadv_table_plus|^iadv_ctk_", fn)) "ui"
+            else if (grepl("^iadv_sankey|^iadv_force|^iadv_chord|^iadv_diagonal", fn)) "ui"
+            else "plotly"
+    deps <- switch(type,
+      plotly = "plotly",
+      reactable = "reactable",
+      dt = "DT",
+      "htmltools"
+    )
+    params <- switch(fn,
+      iadv_finding_card = list(
+        title = "从图表回到证据",
+        abstract = "这个卡片用于承载专题发现的摘要，让组件中枢能够直接预览叙事型 HTML 组件。",
+        evidence_text = "组件中枢会为需要文本输入的 HTML 组件补充默认文案；正式页面仍应使用专题模块中的实际证据。"
+      ),
+      iadv_quote_callout = list(
+        quote_text = "卫生支出比较的重点不只是高低，而是资金结构、风险保护和健康产出是否彼此支撑。",
+        attrib = "Global Health Spending Dashboard"
+      ),
+      list()
+    )
+    mk(fn, paste("高级组件", label), "高级交互组件库中的原生输出，覆盖分布、结构、网络、表格、KPI 与专题摘要。", "程序/37_widgets_advanced.R", fn, type, deps, FALSE, params, group = "高级组件")
+  }))
+
+  reg <- do.call(rbind, rows)
+  reg <- reg[!duplicated(reg$id), , drop = FALSE]
+  featured <- c(
+    "widget_v2_gapminder_bubble",
+    "widget_v2_leaflet_choropleth",
+    "widget_v2_reactable_rank",
+    "widget_v2_dt_atlas",
+    "widget_v2_oops_heatmap",
+    "iadv_che_pc_lines",
+    "iadv_oop_lines",
+    "iadv_bar_race"
+  )
+  group_rank <- match(
+    reg$group,
+    c("Plotly 基础", "地图", "表格", "Plotly 扩展", "高级组件",
+      "网络", "HTML 摘要"),
+    nomatch = 99
+  )
+  type_rank <- match(reg$type, c("plotly", "leaflet", "reactable", "dt", "ui"),
+                     nomatch = 99)
+  featured_rank <- match(reg$id, featured, nomatch = length(featured) + 1L)
+  reg <- reg[order(group_rank, featured_rank, type_rank, reg$title), ,
+             drop = FALSE]
+  rownames(reg) <- NULL
+  reg
+}
+
+mod_widget_output_ui <- function(ns, widget_id, type, height = "620px") {
+  output_id <- ns(paste0("widget_", widget_id))
+  switch(type,
+    plotly = plotly::plotlyOutput(output_id, height = height),
+    leaflet = leaflet::leafletOutput(output_id, height = height),
+    reactable = reactable::reactableOutput(output_id),
+    dt = DT::DTOutput(output_id),
+    ui = shiny::uiOutput(output_id),
+    shiny::uiOutput(output_id)
+  )
+}
+
+mod_render_native_widget <- function(output, output_id, builder, type) {
+  fallback_plotly <- function(x) {
+    msg <- if (inherits(x, "shiny.tag") || inherits(x, "html")) {
+      gsub("<[^>]+>", " ", as.character(x))
+    } else {
+      as.character(x %||% "组件不可用")
+    }
+    plotly::plotly_empty(type = "scatter", mode = "markers") |>
+      plotly::layout(
+        annotations = list(list(
+          text = msg, x = 0.5, y = 0.5, showarrow = FALSE,
+          font = list(color = "#5d667a", size = 13)
+        )),
+        paper_bgcolor = "#ffffff",
+        plot_bgcolor = "#ffffff"
+      )
+  }
+  fallback_leaflet <- function(x) {
+    msg <- if (inherits(x, "shiny.tag") || inherits(x, "html")) {
+      gsub("<[^>]+>", " ", as.character(x))
+    } else {
+      as.character(x %||% "组件不可用")
+    }
+    leaflet::leaflet() |>
+      leaflet::addProviderTiles("CartoDB.Positron") |>
+      leaflet::addControl(html = htmltools::htmlEscape(msg), position = "topright")
+  }
+  fallback_table <- function(x) {
+    msg <- if (inherits(x, "shiny.tag") || inherits(x, "html")) {
+      gsub("<[^>]+>", " ", as.character(x))
+    } else {
+      as.character(x %||% "组件不可用")
+    }
+    data.frame(message = msg, stringsAsFactors = FALSE)
+  }
+  switch(type,
+    plotly = { output[[output_id]] <- plotly::renderPlotly({
+      obj <- builder()
+      if (inherits(obj, "plotly")) obj else fallback_plotly(obj)
+    }) },
+    leaflet = { output[[output_id]] <- leaflet::renderLeaflet({
+      obj <- builder()
+      if (inherits(obj, "leaflet")) obj else fallback_leaflet(obj)
+    }) },
+    reactable = { output[[output_id]] <- reactable::renderReactable({
+      obj <- builder()
+      if (inherits(obj, "reactable") || inherits(obj, "htmlwidget")) obj
+      else reactable::reactable(fallback_table(obj), pagination = FALSE)
+    }) },
+    dt = { output[[output_id]] <- DT::renderDT({
+      obj <- builder()
+      if (inherits(obj, "datatables") || inherits(obj, "htmlwidget")) obj
+      else DT::datatable(fallback_table(obj), options = list(dom = "t"), rownames = FALSE)
+    }) },
+    ui = { output[[output_id]] <- shiny::renderUI(builder()) },
+    { output[[output_id]] <- shiny::renderUI(builder()) }
+  )
+  invisible(output_id)
+}
+
+mod_widget_missing <- function(title, text) {
+  htmltools::div(
+    class = "v3-empty-state",
+    htmltools::strong(title),
+    htmltools::p(text)
+  )
+}
+
+mod_mapstudio_indicator_specs <- function() {
+  list(
+    che_pc_usd2023 = list(label = "人均 CHE", unit = "USD 2023", palette = "Blues", transform = "log", fmt = fmt_v3_usd),
+    che_usd2023 = list(label = "总 CHE", unit = "USD 2023", palette = "Blues", transform = "log", fmt = fmt_v3_usd),
+    hf3_che = list(label = "OOPS / CHE", unit = "%", palette = "YlOrRd", transform = "linear", fmt = fmt_v3_pct),
+    gghed_che = list(label = "GGHED / CHE", unit = "%", palette = "GnBu", transform = "linear", fmt = fmt_v3_pct),
+    pvtd_che = list(label = "PVT-D / CHE", unit = "%", palette = "PuRd", transform = "linear", fmt = fmt_v3_pct),
+    ext_che = list(label = "EXT / CHE", unit = "%", palette = "YlGn", transform = "linear", fmt = fmt_v3_pct),
+    hc6_che = list(label = "预防支出占比", unit = "%", palette = "BuGn", transform = "linear", fmt = fmt_v3_pct),
+    life_exp = list(label = "预期寿命", unit = "年", palette = "Viridis", transform = "linear", fmt = function(x) fmt_v3_num(x, 1, " 年")),
+    u5mr = list(label = "5 岁以下死亡率", unit = "/1000", palette = "OrRd", transform = "log", fmt = function(x) fmt_v3_num(x, 1))
+  )
+}
+
+mod_mapstudio_metric_label <- function(var) {
+  specs <- mod_mapstudio_indicator_specs()
+  if (!is.null(specs[[var]])) specs[[var]]$label else var
+}
+
+mod_mapstudio_metric_value <- function(x, var) {
+  specs <- mod_mapstudio_indicator_specs()
+  fmt <- if (!is.null(specs[[var]])) specs[[var]]$fmt else fmt_v3_num
+  fmt(x)
+}
+
+mod_mapstudio_point_data <- function(master, world_sf, year,
+                                     vars = c("che_usd2023", "che_pc_usd2023",
+                                              "hf3_che", "gghed_che",
+                                              "life_exp", "u5mr")) {
+  if (is.null(world_sf) || !requireNamespace("sf", quietly = TRUE)) return(NULL)
+  keep <- intersect(c("iso3_code", "country_name", "continent", "income_group", "pop", vars), names(master))
+  d <- master[master$year == year, keep, drop = FALSE]
+  g <- merge(world_sf, d, by = "iso3_code", all.x = TRUE)
+  g <- suppressWarnings(sf::st_centroid(sf::st_make_valid(g)))
+  g
+}
+
+mod_mapstudio_leaflet <- function(spec, master, world_sf) {
+  if (is.null(world_sf) || !requireNamespace("leaflet", quietly = TRUE) ||
+      !requireNamespace("sf", quietly = TRUE)) {
+    return(leaflet::leaflet() |> leaflet::addTiles())
+  }
+  mode <- spec$mode %||% "choropleth"
+  var <- spec$indicator %||% "hf3_che"
+  year <- spec$year %||% max(master$year, na.rm = TRUE)
+  y1 <- spec$year_start %||% min(master$year, na.rm = TRUE)
+  y2 <- spec$year_end %||% year
+  continents <- spec$continents %||% character()
+  incomes <- spec$incomes %||% character()
+  selected_iso <- spec$iso %||% NULL
+
+  base_provider <- switch(spec$basemap %||% "positron",
+    voyager = "CartoDB.Voyager",
+    dark = "CartoDB.DarkMatter",
+    terrain = "Esri.WorldTopoMap",
+    "CartoDB.Positron"
+  )
+  add_base <- function(m) {
+    leaflet::addProviderTiles(m, base_provider, options = leaflet::providerTileOptions(opacity = 0.92))
+  }
+  filter_slice <- function(d) {
+    if (length(continents)) d <- d[d$continent %in% continents | is.na(d$continent), , drop = FALSE]
+    if (length(incomes)) d <- d[d$income_group %in% incomes | is.na(d$income_group), , drop = FALSE]
+    d
+  }
+  join_year <- function(y, value_var = var) {
+    keep <- intersect(c("iso3_code", "country_name", "continent", "income_group", "pop",
+                        value_var, "che_pc_usd2023", "hf3_che", "gghed_che", "life_exp", "u5mr"),
+                      names(master))
+    d <- master[master$year == y, keep, drop = FALSE]
+    d <- filter_slice(d)
+    merge(world_sf, d, by = "iso3_code", all.x = TRUE)
+  }
+  label_for <- function(g, value_col = var, extra = NULL) {
+    vals <- g[[value_col]]
+    nm <- if ("country_name" %in% names(g)) g$country_name else g$iso3_code
+    vapply(seq_len(nrow(g)), function(i) {
+      paste0(
+        "<strong>", htmltools::htmlEscape(nm[i] %||% g$iso3_code[i]), "</strong> (", g$iso3_code[i], ")<br>",
+        htmltools::htmlEscape(mod_mapstudio_metric_label(value_col)), ": ",
+        htmltools::htmlEscape(mod_mapstudio_metric_value(vals[i], value_col)),
+        if (!is.null(extra)) paste0("<br>", extra(g, i)) else ""
+      )
+    }, character(1))
+  }
+
+  if (mode == "dual_compare") {
+    g1 <- join_year(y1)
+    g2 <- join_year(y2)
+    vals <- c(g1[[var]], g2[[var]])
+    vals <- vals[is.finite(vals)]
+    pal <- leaflet::colorNumeric("YlOrRd", domain = vals, na.color = "#d9d4ca")
+    m <- leaflet::leaflet(options = leaflet::leafletOptions(minZoom = 1.5, worldCopyJump = FALSE)) |> add_base()
+    g1$map_value <- g1[[var]]
+    g2$map_value <- g2[[var]]
+    m <- leaflet::addPolygons(m, data = g1, group = paste0(y1),
+      layerId = ~iso3_code, fillColor = ~pal(map_value), fillOpacity = 0.82,
+      color = "#ffffff", weight = 0.35, label = lapply(label_for(g1), htmltools::HTML),
+      highlightOptions = leaflet::highlightOptions(weight = 1.5, color = "#1d3f5f", bringToFront = TRUE))
+    m <- leaflet::addPolygons(m, data = g2, group = paste0(y2),
+      layerId = ~iso3_code, fillColor = ~pal(map_value), fillOpacity = 0.82,
+      color = "#ffffff", weight = 0.35, label = lapply(label_for(g2), htmltools::HTML),
+      highlightOptions = leaflet::highlightOptions(weight = 1.5, color = "#1d3f5f", bringToFront = TRUE))
+    return(m |>
+      leaflet::addLayersControl(baseGroups = c(paste0(y1), paste0(y2)),
+        options = leaflet::layersControlOptions(collapsed = FALSE)) |>
+      leaflet::hideGroup(paste0(y1)) |>
+      leaflet::addLegend(pal = pal, values = vals, title = mod_mapstudio_metric_label(var)))
+  }
+
+  if (mode == "year_layers") {
+    years <- unique(round(seq(y1, y2, length.out = min(5, max(1, y2 - y1 + 1)))))
+    vals <- master[[var]]
+    vals <- vals[is.finite(vals)]
+    pal <- leaflet::colorNumeric("YlOrRd", domain = vals, na.color = "#d9d4ca")
+    m <- leaflet::leaflet(options = leaflet::leafletOptions(minZoom = 1.5, worldCopyJump = FALSE)) |> add_base()
+    for (yy in years) {
+      gy <- join_year(yy)
+      gy$map_value <- gy[[var]]
+      m <- leaflet::addPolygons(m, data = gy, group = paste0(yy), layerId = ~iso3_code,
+        fillColor = ~pal(map_value), fillOpacity = 0.82, color = "#ffffff", weight = 0.35,
+        label = lapply(label_for(gy), htmltools::HTML),
+        highlightOptions = leaflet::highlightOptions(weight = 1.5, color = "#1d3f5f", bringToFront = TRUE))
+    }
+    return(m |>
+      leaflet::addLayersControl(baseGroups = paste0(years),
+        options = leaflet::layersControlOptions(collapsed = FALSE)) |>
+      leaflet::hideGroup(paste0(years[-length(years)])) |>
+      leaflet::addLegend(pal = pal, values = vals, title = mod_mapstudio_metric_label(var)))
+  }
+
+  if (mode %in% c("change_che_pc", "change_oop")) {
+    value_var <- if (mode == "change_oop") "hf3_che" else "che_pc_usd2023"
+    keep_change <- intersect(c("iso3_code", "country_name", "continent",
+                               "income_group", value_var), names(master))
+    d1 <- master[master$year == y1, keep_change, drop = FALSE]
+    d1 <- filter_slice(d1)
+    d2 <- master[master$year == y2,
+                 intersect(c("iso3_code", value_var), names(master)),
+                 drop = FALSE]
+    mdat <- merge(d1, d2, by = "iso3_code", suffixes = c(".y1", ".y2"))
+    mdat$delta <- if (mode == "change_oop") {
+      mdat[[paste0(value_var, ".y2")]] - mdat[[paste0(value_var, ".y1")]]
+    } else {
+      log(mdat[[paste0(value_var, ".y2")]] / mdat[[paste0(value_var, ".y1")]])
+    }
+    g <- merge(world_sf, mdat, by = "iso3_code", all.x = TRUE)
+    finite_delta <- g$delta[is.finite(g$delta)]
+    max_abs <- if (length(finite_delta)) max(abs(finite_delta), na.rm = TRUE) else 1
+    if (!is.finite(max_abs) || max_abs <= 0) max_abs <- 1
+    pal <- leaflet::colorNumeric(c("#a23b3b", "#fbf6ee", "#2a857a"),
+      domain = c(-max_abs, max_abs), na.color = "#d9d4ca")
+    labs <- vapply(seq_len(nrow(g)), function(i) {
+      paste0("<strong>", htmltools::htmlEscape(g$country_name[i] %||% g$iso3_code[i]), "</strong><br>",
+             y1, " 到 ", y2, "：", ifelse(is.finite(g$delta[i]), sprintf("%+.2f", g$delta[i]), "NA"))
+    }, character(1))
+    return(leaflet::leaflet(g, options = leaflet::leafletOptions(minZoom = 1.5)) |>
+      add_base() |>
+      leaflet::addPolygons(layerId = ~iso3_code, fillColor = ~pal(delta), fillOpacity = 0.84,
+        color = "#ffffff", weight = 0.35, label = lapply(labs, htmltools::HTML),
+        highlightOptions = leaflet::highlightOptions(weight = 1.5, color = "#1d3f5f", bringToFront = TRUE)) |>
+      leaflet::addLegend(pal = pal, values = c(-1, 0, 1), title = if (mode == "change_oop") "OOPS 变化 pp" else "log 倍数变化"))
+  }
+
+  if (mode %in% c("bubble_che_total", "bubble_oop", "country_points", "top10_oop")) {
+    g <- mod_mapstudio_point_data(master, world_sf, year)
+    if (is.null(g)) return(leaflet::leaflet() |> leaflet::addTiles())
+    if (length(continents)) g <- g[g$continent %in% continents, ]
+    if (length(incomes)) g <- g[g$income_group %in% incomes, ]
+    if (mode == "top10_oop") {
+      g <- g[is.finite(g$hf3_che), ]
+      g <- utils::head(g[order(-g$hf3_che), ], 10)
+    }
+    rad <- switch(mode,
+      bubble_che_total = sqrt(pmax(if ("che_usd2023" %in% names(g)) g$che_usd2023 else 0, 0)) / 900000,
+      bubble_oop = pmax(4, pmin(18, g$hf3_che / 4)),
+      top10_oop = rep(11, nrow(g)),
+      rep(5, nrow(g))
+    )
+    rad[!is.finite(rad)] <- 5
+    fill <- if (mode == "top10_oop") "#a23b3b" else "#1d3f5f"
+    labs <- vapply(seq_len(nrow(g)), function(i) {
+      paste0("<strong>", htmltools::htmlEscape(g$country_name[i] %||% g$iso3_code[i]), "</strong> (", g$iso3_code[i], ")<br>",
+             "人均 CHE: ", mod_mapstudio_metric_value(g$che_pc_usd2023[i], "che_pc_usd2023"), "<br>",
+             "OOPS: ", mod_mapstudio_metric_value(g$hf3_che[i], "hf3_che"), "<br>",
+             "GGHED: ", mod_mapstudio_metric_value(g$gghed_che[i], "gghed_che"))
+    }, character(1))
+    return(leaflet::leaflet(world_sf, options = leaflet::leafletOptions(minZoom = 1.5)) |>
+      add_base() |>
+      leaflet::addPolygons(fillColor = "#f2eadf", fillOpacity = 0.72, color = "#ffffff", weight = 0.25) |>
+      leaflet::addCircleMarkers(data = g, layerId = ~iso3_code, radius = rad, color = "#0d121b",
+        weight = 0.7, fillColor = fill, fillOpacity = 0.72, label = lapply(labs, htmltools::HTML)))
+  }
+
+  g <- join_year(year)
+  vals <- g[[var]]
+  scale_mode <- spec$scale %||% "auto"
+  z <- vals
+  legend_values <- z
+  legend_title <- mod_mapstudio_metric_label(var)
+  spec_var <- mod_mapstudio_indicator_specs()[[var]]
+  default_transform <- if (is.null(spec_var)) "" else spec_var$transform %||% ""
+  if (scale_mode == "log" || (scale_mode == "auto" && default_transform == "log")) {
+    z <- log10(pmax(vals, 1))
+    legend_title <- paste0("log10 ", legend_title)
+  }
+  if (mode == "quintile" || scale_mode == "quantile") {
+    bins <- unique(stats::quantile(vals, probs = seq(0, 1, 0.2), na.rm = TRUE))
+    if (length(bins) < 3) bins <- pretty(vals[is.finite(vals)], n = 5)
+    pal <- leaflet::colorBin("YlOrRd", domain = vals, bins = bins, na.color = "#d9d4ca")
+    g$map_value <- vals
+    fill_expr <- ~pal(map_value)
+    legend_values <- vals
+  } else if (mode == "bivariate") {
+    d <- master[master$year == year & is.finite(master$che_pc_usd2023) & is.finite(master$life_exp), ]
+    d <- filter_slice(d)
+    if (nrow(d) < 3) {
+      d <- d[FALSE, , drop = FALSE]
+      d$cell <- character()
+    } else {
+      qx <- unique(as.numeric(stats::quantile(d$che_pc_usd2023,
+        c(1/3, 2/3), na.rm = TRUE)))
+      qy <- unique(as.numeric(stats::quantile(d$life_exp,
+        c(1/3, 2/3), na.rm = TRUE)))
+      if (length(qx) < 2 || length(qy) < 2) {
+        d$cell <- NA_character_
+      } else {
+        d$cell <- paste0(
+          cut(d$che_pc_usd2023, c(-Inf, qx[1:2], Inf), labels = 1:3),
+          cut(d$life_exp, c(-Inf, qy[1:2], Inf), labels = 1:3)
+        )
+      }
+    }
+    cell_pal <- c("11" = "#e8e8e8", "12" = "#aac4d1", "13" = "#6c9fbf",
+                  "21" = "#e5b099", "22" = "#b29ab2", "23" = "#7090b8",
+                  "31" = "#d97539", "32" = "#b56c6c", "33" = "#7d4a72")
+    g <- merge(world_sf, d[, c("iso3_code", "country_name", "continent", "income_group", "che_pc_usd2023", "life_exp", "cell")], by = "iso3_code", all.x = TRUE)
+    g$fill_col <- cell_pal[g$cell]
+    g$fill_col[is.na(g$fill_col)] <- "#d9d4ca"
+    pal <- NULL
+    fill_expr <- ~fill_col
+    legend_values <- NULL
+    legend_title <- "CHE x 寿命"
+  } else if (mode == "efficiency") {
+    d <- master[master$year == year & is.finite(master$life_exp) & is.finite(master$che_pc_usd2023) & master$che_pc_usd2023 > 0, ]
+    d <- filter_slice(d)
+    if (nrow(d) >= 3 && length(unique(log(d$che_pc_usd2023))) >= 2) {
+      fit <- stats::lm(life_exp ~ log(che_pc_usd2023), data = d)
+      d$res <- stats::residuals(fit)
+    } else {
+      d <- d[FALSE, , drop = FALSE]
+      d$res <- numeric()
+    }
+    g <- merge(world_sf, d[, c("iso3_code", "country_name", "continent", "income_group", "res")], by = "iso3_code", all.x = TRUE)
+    finite_res <- d$res[is.finite(d$res)]
+    max_abs_res <- if (length(finite_res)) max(abs(finite_res), na.rm = TRUE) else 1
+    if (!is.finite(max_abs_res) || max_abs_res <= 0) max_abs_res <- 1
+    pal <- leaflet::colorNumeric(c("#a23b3b", "#fbf6ee", "#2a857a"),
+      domain = c(-max_abs_res, max_abs_res), na.color = "#d9d4ca")
+    g$map_value <- g$res
+    fill_expr <- ~pal(map_value)
+    legend_values <- g$map_value
+    legend_title <- "同支出水平寿命残差"
+  } else {
+    g$z_value <- z
+    pal <- leaflet::colorNumeric("YlOrRd", domain = z, na.color = "#d9d4ca")
+    fill_expr <- ~pal(z_value)
+    legend_values <- z
+  }
+  labs <- if (mode == "efficiency") {
+    vapply(seq_len(nrow(g)), function(i) paste0("<strong>", htmltools::htmlEscape(g$country_name[i] %||% g$iso3_code[i]), "</strong><br>寿命残差: ", fmt_v3_num(g$res[i], 1, " 年")), character(1))
+  } else if (mode == "bivariate") {
+    vapply(seq_len(nrow(g)), function(i) paste0("<strong>", htmltools::htmlEscape(g$country_name[i] %||% g$iso3_code[i]), "</strong><br>人均 CHE: ", mod_mapstudio_metric_value(g$che_pc_usd2023[i], "che_pc_usd2023"), "<br>寿命: ", mod_mapstudio_metric_value(g$life_exp[i], "life_exp"), "<br>格: ", g$cell[i]), character(1))
+  } else {
+    label_for(g)
+  }
+  m <- leaflet::leaflet(g, options = leaflet::leafletOptions(minZoom = 1.5, worldCopyJump = FALSE)) |>
+    add_base() |>
+    leaflet::addPolygons(layerId = ~iso3_code, fillColor = fill_expr, fillOpacity = 0.84,
+      color = "#ffffff", weight = 0.35, label = lapply(labs, htmltools::HTML),
+      highlightOptions = leaflet::highlightOptions(weight = 1.6, color = "#0d121b", bringToFront = TRUE))
+  if (!is.null(selected_iso) && selected_iso %in% g$iso3_code) {
+    sg <- g[g$iso3_code == selected_iso, ]
+    m <- leaflet::addPolygons(m, data = sg, fillColor = "transparent", fillOpacity = 0,
+      color = "#0d121b", weight = 2.6, group = "selected")
+  }
+  if (!is.null(pal)) {
+    m <- leaflet::addLegend(m, pal = pal, values = legend_values,
+      title = legend_title, position = "bottomright")
+  }
+  m
+}
+
+mod_mapstudio_plotly <- function(spec, master) {
+  if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
+  var <- spec$indicator %||% "hf3_che"
+  mode <- spec$mode %||% "choropleth"
+  year <- spec$year %||% max(master$year, na.rm = TRUE)
+  d <- master
+  if (length(spec$continents %||% character())) d <- d[d$continent %in% spec$continents, ]
+  if (length(spec$incomes %||% character())) d <- d[d$income_group %in% spec$incomes, ]
+  d <- d[is.finite(d[[var]]), ]
+  if (!nrow(d)) return(plotly::plotly_empty())
+  if (mode == "plotly_animation") {
+    z <- if (var %in% c("che_pc_usd2023", "u5mr", "che_usd2023")) log10(pmax(d[[var]], 1)) else d[[var]]
+    hover_text <- paste(d$country_name, "<br>", mod_mapstudio_metric_label(var), "=", signif(d[[var]], 4))
+    p <- plotly::plot_ly(d, type = "choropleth", locations = ~iso3_code,
+      z = z, frame = ~year, text = hover_text,
+      colorscale = "YlOrRd", colorbar = list(title = mod_mapstudio_metric_label(var))) |>
+      plotly::layout(geo = list(projection = list(type = "robinson"), showcountries = TRUE, countrycolor = "#ffffff", showframe = FALSE),
+        margin = list(t = 40, b = 10, l = 10, r = 10), paper_bgcolor = "#fbf6ee")
+    return(p)
+  }
+  d <- d[d$year == year, ]
+  z <- if (var %in% c("che_pc_usd2023", "u5mr", "che_usd2023")) log10(pmax(d[[var]], 1)) else d[[var]]
+  plotly::plot_ly(d, type = "choropleth", locations = ~iso3_code,
+    z = z, text = ~country_name, colorscale = "YlOrRd",
+    colorbar = list(title = mod_mapstudio_metric_label(var))) |>
+    plotly::layout(geo = list(projection = list(type = "mollweide"), showframe = FALSE),
+      title = list(text = paste0(mod_mapstudio_metric_label(var), " · ", year), x = 0),
+      margin = list(t = 60, b = 10, l = 10, r = 10), paper_bgcolor = "#fbf6ee")
+}

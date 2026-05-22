@@ -6,10 +6,10 @@
 mod_dataquality_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128202; \u6570\u636e\u8d28\u91cf Data Quality"),
+    title = "\u6570\u636e\u8d28\u91cf Data Quality",
     value = "dataquality",
     mod_v3_hero(
-      kicker = "DATA QUALITY",
+      kicker = "\u6570\u636e\u8d28\u91cf",
       title = "\u6570\u636e\u8d28\u91cf\u4e0e\u5b8c\u6574\u6027",
       lead = paste(
         "\u901a\u8fc7\u56fd\u5bb6-\u5e74\u4efd\u7c92\u5ea6\u68c0\u67e5\u6838\u5fc3\u5b57\u6bb5\u7684\u8986\u76d6\u7a33\u5b9a\u6027\u3001\u7f3a\u5931\u805a\u96c6\u533a\u548c\u5e74\u5ea6\u65ad\u70b9\u3002",
@@ -29,21 +29,21 @@ mod_dataquality_ui <- function(id) {
       mod_v3_story_grid(
         columns = 3,
         mod_v3_insight(
-          kicker = "Coverage",
+          kicker = "\u8986\u76d6",
           title = "\u8986\u76d6\u7387\u5148\u4e8e\u7ed3\u8bba",
           text = "\u5f53\u67d0\u4e2a\u6307\u6807\u5728\u7279\u5b9a\u5e74\u4efd\u6216\u5730\u533a\u6301\u7eed\u7f3a\u5931\uff0c\u8be5\u6a21\u5757\u4f1a\u628a\u5b83\u663e\u6027\u66b4\u9732\uff0c\u907f\u514d\u56fe\u8868\u88ab\u6837\u672c\u504f\u79fb\u8bef\u5bfc\u3002",
           tone = "primary",
           icon = "C"
         ),
         mod_v3_insight(
-          kicker = "Pattern",
+          kicker = "\u6a21\u5f0f",
           title = "\u770b\u7f3a\u5931\u662f\u968f\u673a\u8fd8\u662f\u6210\u7247",
           text = "\u70ed\u56fe\u628a\u56fd\u5bb6\u4e0e\u5e74\u4efd\u5c55\u5f00\uff0c\u53ef\u533a\u5206\u5355\u5e74\u7f3a\u53e3\u3001\u8fde\u7eed\u65ad\u6863\u548c\u957f\u671f\u65e0\u8bb0\u5f55\u56fd\u5bb6\u3002",
           tone = "secondary",
           icon = "M"
         ),
         mod_v3_insight(
-          kicker = "Audit",
+          kicker = "\u5ba1\u8ba1",
           title = "\u4e0e\u65b9\u6cd5\u9875\u4e92\u76f8\u6821\u9a8c",
           text = "\u5b57\u6bb5\u8986\u76d6\u8868\u548c\u56fd\u5bb6\u8986\u76d6\u8868\u53ef\u76f4\u63a5\u4f5c\u4e3a\u65b9\u6cd5\u9644\u5f55\u7684\u8d28\u91cf\u8bf4\u660e\u3002",
           tone = "good",
@@ -85,7 +85,7 @@ mod_dataquality_ui <- function(id) {
         bslib::layout_columns(
           col_widths = c(7, 5),
           mod_card(
-            kicker = "MISSINGNESS MAP",
+            kicker = "\u7f3a\u5931\u70ed\u56fe",
             title = "\u7f3a\u5931\u6a21\u5f0f\u70ed\u529b\u56fe",
             mod_v3_chart_guide(
               title = "\u70ed\u56fe\u89e3\u8bfb",
@@ -100,7 +100,7 @@ mod_dataquality_ui <- function(id) {
             footer = "\u70ed\u56fe\u4ec5\u5c55\u793a\u8986\u76d6\u8f83\u9ad8\u7684\u524d 40 \u4e2a ISO3\uff0c\u7528\u4e8e\u4fdd\u6301\u53ef\u8bfb\u6027\u3002"
           ),
           mod_card(
-            kicker = "COVERAGE TREND",
+            kicker = "\u8986\u76d6\u8d8b\u52bf",
             title = "\u8986\u76d6\u7387\u968f\u5e74\u53d8\u5316",
             mod_v3_chart_guide(
               title = "\u8d8b\u52bf\u89e3\u8bfb",
@@ -111,10 +111,21 @@ mod_dataquality_ui <- function(id) {
             footer = "\u8d8b\u52bf\u7a81\u7136\u4e0b\u964d\u901a\u5e38\u9700\u8981\u56de\u5230\u6570\u636e\u6e90\u6216\u6e05\u6d17\u811a\u672c\u6838\u5bf9\u3002"
           )
         ),
+        mod_card(
+          kicker = "\u5e74\u5ea6\u65ad\u70b9",
+          title = "\u5e74\u5ea6\u8986\u76d6\u8bca\u65ad\u8868",
+          mod_v3_chart_guide(
+            title = "\u5b9a\u4f4d\u65ad\u70b9",
+            text = "\u628a\u5f53\u524d\u6307\u6807\u6309\u5e74\u5ea6\u5c55\u5f00\uff0c\u540c\u65f6\u7ed9\u51fa\u6709\u8bb0\u5f55\u56fd\u5bb6\u3001\u7f3a\u5931\u6570\u548c\u8986\u76d6\u7387\u6807\u8bb0\uff0c\u4fbf\u4e8e\u627e\u51fa\u9700\u8981\u56de\u5230\u539f\u59cb\u6570\u636e\u590d\u6838\u7684\u5e74\u4efd\u3002",
+            tone = "warn"
+          ),
+          mod_spinner(reactable::reactableOutput(ns("year_coverage_table"))),
+          footer = "\u72b6\u6001\u6807\u8bb0\u53ea\u662f\u53ef\u89c6\u5316\u9608\u503c\uff1a\u4f4e\u8986\u76d6\u5e74\u4efd\u4e0d\u5e94\u627f\u62c5\u4e3b\u7ed3\u8bba\u3002"
+        ),
         bslib::layout_columns(
           col_widths = c(6, 6),
           mod_card(
-            kicker = "FIELD RANKING",
+            kicker = "\u5b57\u6bb5\u6392\u540d",
             title = "\u5404\u6307\u6807\u8986\u76d6\u6982\u89c8",
             mod_v3_chart_guide(
               title = "\u5b57\u6bb5\u5c42\u9762",
@@ -123,7 +134,7 @@ mod_dataquality_ui <- function(id) {
             mod_spinner(reactable::reactableOutput(ns("var_coverage_table")))
           ),
           mod_card(
-            kicker = "COUNTRY RANKING",
+            kicker = "\u56fd\u5bb6\u6392\u540d",
             title = "\u6309\u56fd\u5bb6\u67e5\u770b\u8986\u76d6\u7387",
             mod_v3_chart_guide(
               title = "\u56fd\u5bb6\u5c42\u9762",
@@ -141,6 +152,23 @@ mod_dataquality_ui <- function(id) {
 mod_dataquality_server <- function(id, master_r) {
   shiny::moduleServer(id, function(input, output, session) {
 
+    indicator_labels <- c(
+      che_pc_usd2023 = "\u4eba\u5747 CHE\uff08USD 2023\uff09",
+      che_usd2023 = "CHE \u603b\u989d\uff08USD 2023\uff09",
+      gghed_che = "GGHE-D \u5360 CHE",
+      pvtd_che = "PVT-D \u5360 CHE",
+      ext_che = "EXT \u5360 CHE",
+      hf3_che = "OOPS \u5360 CHE",
+      life_exp = "\u9884\u671f\u5bff\u547d",
+      u5mr = "5 \u5c81\u4ee5\u4e0b\u6b7b\u4ea1\u7387",
+      gdp_pc_usd = "\u4eba\u5747 GDP\uff08USD\uff09",
+      pop = "\u4eba\u53e3"
+    )
+    indicator_label <- function(x) {
+      lab <- indicator_labels[[x]]
+      if (is.null(lab) || is.na(lab)) x else unname(lab)
+    }
+
     filtered <- shiny::reactive({
       m <- master_r()
       m[m$year >= input$year_range[1] & m$year <= input$year_range[2], , drop = FALSE]
@@ -153,10 +181,17 @@ mod_dataquality_server <- function(id, master_r) {
       has_data <- sum(is.finite(m[[ind]]))
       coverage <- if (total > 0) has_data / total * 100 else 0
       mod_v3_kpi_grid(
-        mod_v3_kpi(format(total, big.mark = ","), "\u603b\u89c2\u6d4b", tone = "primary"),
-        mod_v3_kpi(format(has_data, big.mark = ","), "\u6709\u6570\u636e", tone = "good"),
-        mod_v3_kpi(sprintf("%.1f%%", coverage), "\u8986\u76d6\u7387", tone = "secondary"),
-        mod_v3_kpi(format(total - has_data, big.mark = ","), "\u7f3a\u5931", tone = "bad")
+        mod_v3_kpi(format(total, big.mark = ","), "\u603b\u89c2\u6d4b",
+                   hint = indicator_label(ind), tone = "primary"),
+        mod_v3_kpi(format(has_data, big.mark = ","), "\u6709\u6570\u636e",
+                   hint = "\u5728\u5f53\u524d\u5e74\u4efd\u7a97\u53e3\u5185\u975e\u7f3a\u5931\u7684\u56fd\u5bb6-\u5e74\u4efd\u8bb0\u5f55",
+                   tone = "good"),
+        mod_v3_kpi(sprintf("%.1f%%", coverage), "\u8986\u76d6\u7387",
+                   hint = "\u6709\u6548\u8bb0\u5f55 / \u603b\u89c2\u6d4b",
+                   tone = "secondary"),
+        mod_v3_kpi(format(total - has_data, big.mark = ","), "\u7f3a\u5931",
+                   hint = "\u9700\u8981\u5728\u56fe\u8868\u89e3\u8bfb\u4e2d\u964d\u6743\u5904\u7406",
+                   tone = "bad")
       )
     })
 
@@ -168,11 +203,17 @@ mod_dataquality_server <- function(id, master_r) {
       top_isos <- names(sort(coverage_by_iso, decreasing = TRUE))[1:40]
       d <- m[m$iso3_code %in% top_isos, c("iso3_code", "year", ind)]
       d$has <- as.integer(is.finite(d[[ind]]))
+      d$status <- ifelse(d$has == 1, "\u6709\u8bb0\u5f55", "\u7f3a\u5931")
       safe_plotly({
         plotly::plot_ly(d, x = ~year, y = ~iso3_code, z = ~has,
                         type = "heatmap",
                         colorscale = list(c(0, "#a23b3b"), c(1, "#2a857a")),
-                        showscale = FALSE) |>
+                        showscale = FALSE,
+                        text = ~paste0("ISO3: ", iso3_code,
+                                        "<br>\u5e74\u4efd: ", year,
+                                        "<br>\u6307\u6807: ", indicator_label(ind),
+                                        "<br>\u72b6\u6001: ", status),
+                        hoverinfo = "text") |>
           ghs_plotly_layout() |>
           plotly::layout(xaxis = list(title = ""), yaxis = list(title = ""))
       })
@@ -191,11 +232,59 @@ mod_dataquality_server <- function(id, master_r) {
         plotly::plot_ly(agg, x = ~year, y = ~pct,
                         type = "scatter", mode = "lines+markers",
                         line = list(color = "#1d3f5f", width = 3),
-                        marker = list(color = "#1d3f5f", size = 6)) |>
+                        marker = list(color = "#1d3f5f", size = 6),
+                        text = ~paste0("\u5e74\u4efd: ", year,
+                                        "<br>\u8986\u76d6\u7387: ", round(pct, 1), "%",
+                                        "<br>\u6709\u8bb0\u5f55: ", n_has,
+                                        "<br>\u603b\u89c2\u6d4b: ", n_total),
+                        hoverinfo = "text") |>
           ghs_plotly_layout() |>
           plotly::layout(xaxis = list(title = ""),
                          yaxis = list(title = "\u8986\u76d6\u7387 (%)", range = c(0, 100)))
       })
+    })
+
+    output$year_coverage_table <- reactable::renderReactable({
+      m <- filtered()
+      ind <- input$indicator
+      agg <- do.call(rbind, lapply(split(m, m$year), function(ch) {
+        n_total <- nrow(ch)
+        n_has <- sum(is.finite(ch[[ind]]))
+        pct <- if (n_total > 0) n_has / n_total * 100 else NA_real_
+        data.frame(
+          year = ch$year[1],
+          total = n_total,
+          valid = n_has,
+          missing = n_total - n_has,
+          coverage = round(pct, 1),
+          status = if (is.na(pct)) "\u65e0\u89c2\u6d4b"
+                   else if (pct >= 90) "\u8986\u76d6\u7a33\u5b9a"
+                   else if (pct >= 75) "\u8c28\u614e\u4f7f\u7528"
+                   else "\u590d\u6838\u4f18\u5148"
+        )
+      }))
+      agg <- agg[order(agg$year), ]
+      names(agg) <- c("\u5e74\u4efd", "\u603b\u89c2\u6d4b", "\u6709\u6548\u8bb0\u5f55",
+                      "\u7f3a\u5931\u8bb0\u5f55", "\u8986\u76d6\u7387(%)", "\u72b6\u6001")
+      reactable::reactable(agg, defaultPageSize = 12, highlight = TRUE,
+        defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
+        columns = list(
+          "\u5e74\u4efd" = reactable::colDef(align = "center"),
+          "\u603b\u89c2\u6d4b" = reactable::colDef(align = "right",
+            format = reactable::colFormat(separators = TRUE)),
+          "\u6709\u6548\u8bb0\u5f55" = reactable::colDef(align = "right",
+            format = reactable::colFormat(separators = TRUE)),
+          "\u7f3a\u5931\u8bb0\u5f55" = reactable::colDef(align = "right",
+            format = reactable::colFormat(separators = TRUE)),
+          "\u8986\u76d6\u7387(%)" = reactable::colDef(align = "right"),
+          "\u72b6\u6001" = reactable::colDef(
+            style = function(value) {
+              col <- if (identical(value, "\u8986\u76d6\u7a33\u5b9a")) "#2F7D5B"
+                     else if (identical(value, "\u8c28\u614e\u4f7f\u7528")) "#B46A1B"
+                     else "#B24A4A"
+              list(color = col, fontWeight = 700)
+            })
+        ))
     })
 
     output$var_coverage_table <- reactable::renderReactable({
@@ -205,17 +294,20 @@ mod_dataquality_server <- function(id, master_r) {
       vars <- vars[vars %in% names(m)]
       total <- nrow(m)
       df <- data.frame(
-        variable = vars,
+        variable = vapply(vars, indicator_label, character(1)),
+        code = vars,
         valid_records = sapply(vars, function(v) sum(is.finite(m[[v]]))),
         coverage_pct = sapply(vars, function(v) round(sum(is.finite(m[[v]])) / total * 100, 1))
       )
       df <- df[order(-df$valid_records), ]
-      names(df) <- c("\u6307\u6807", "\u6709\u6548\u8bb0\u5f55", "\u8986\u76d6\u7387(%)")
+      names(df) <- c("\u6307\u6807", "\u5b57\u6bb5\u4ee3\u7801", "\u6709\u6548\u8bb0\u5f55", "\u8986\u76d6\u7387(%)")
       reactable::reactable(df, defaultPageSize = 10, highlight = TRUE,
         defaultColDef = reactable::colDef(headerStyle = list(background = "#f1f3f7")),
         columns = list(
           "\u6307\u6807" = reactable::colDef(minWidth = 150,
-            style = list(fontFamily = "'JetBrains Mono', monospace", fontWeight = 600)),
+            style = list(fontWeight = 600)),
+          "\u5b57\u6bb5\u4ee3\u7801" = reactable::colDef(minWidth = 140,
+            style = list(fontFamily = "'JetBrains Mono', monospace", color = "#5f6978")),
           "\u6709\u6548\u8bb0\u5f55" = reactable::colDef(align = "right",
             format = reactable::colFormat(separators = TRUE)),
           "\u8986\u76d6\u7387(%)" = reactable::colDef(align = "right")

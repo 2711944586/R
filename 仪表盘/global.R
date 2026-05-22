@@ -7,14 +7,18 @@
 # 沿 cwd 向上爬，直到找到含 程序/ 子目录的项目根
 .find_proj_root <- function(start = getwd(), max_up = 4) {
   d <- normalizePath(start, mustWork = FALSE)
+  candidates <- character()
   for (i in seq_len(max_up + 1)) {
+    candidates <- c(candidates, d)
     if (dir.exists(file.path(d, "程序")) &&
         file.exists(file.path(d, "DESCRIPTION"))) return(d)
-    if (dir.exists(file.path(d, "程序库")) &&
-        file.exists(file.path(d, "global.R"))) return(d)
     d <- dirname(d)
   }
-  start  # fallback
+  for (d in candidates) {
+    if (dir.exists(file.path(d, "程序库")) &&
+        file.exists(file.path(d, "global.R"))) return(d)
+  }
+  start
 }
 proj_root_env <- .find_proj_root()
 # setwd() 说明：shinyapps.io 部署时 cwd 被设为 app 目录（仪表盘/），
@@ -27,12 +31,22 @@ if (!identical(normalizePath(getwd(), mustWork = FALSE),
 cat("[global.R] proj root:", proj_root_env, "\n")
 
 # ---- 2. 加载项目函数库（程序/00–25） --------------------------------------
-source_dir <- if (dir.exists(file.path(proj_root_env, "程序"))) {
+app_dir_env <- if (basename(proj_root_env) == "仪表盘") {
+  proj_root_env
+} else {
+  file.path(proj_root_env, "仪表盘")
+}
+
+source_dir <- if (dir.exists(file.path(proj_root_env, "程序库"))) {
+  file.path(proj_root_env, "程序库")
+} else if (dir.exists(file.path(app_dir_env, "程序库"))) {
+  file.path(app_dir_env, "程序库")
+} else if (dir.exists(file.path(proj_root_env, "程序"))) {
   file.path(proj_root_env, "程序")
 } else {
-  file.path(proj_root_env, "程序库")
+  file.path(app_dir_env, "程序库")
 }
-for (f in list.files(source_dir, pattern = "\\.R$", full.names = TRUE)) {
+for (f in sort(list.files(source_dir, pattern = "\\.R$", full.names = TRUE))) {
   source(f, encoding = "UTF-8")
 }
 
@@ -67,7 +81,9 @@ suppressWarnings(suppressMessages({
 }))
 
 # ---- 3c. 加载所有 Shiny 模块（_helpers.R 优先） ---------------------------
-mods_dir <- if (dir.exists(file.path(proj_root_env, "仪表盘", "模块"))) {
+mods_dir <- if (dir.exists(file.path(app_dir_env, "模块"))) {
+  file.path(app_dir_env, "模块")
+} else if (dir.exists(file.path(proj_root_env, "仪表盘", "模块"))) {
   file.path(proj_root_env, "仪表盘", "模块")
 } else {
   file.path(proj_root_env, "模块")
@@ -76,10 +92,16 @@ mods_files <- sort(list.files(mods_dir, pattern = "\\.R$", full.names = TRUE))
 for (f in mods_files) source(f, encoding = "UTF-8")
 
 # ---- 4. 准备数据（带磁盘缓存以避免每次冷启动 30s） -------------------------
-cache_dir <- file.path(proj_root_env, "派生数据", "处理结果")
+cache_dir <- if (dir.exists(file.path(proj_root_env, "派生数据", "处理结果"))) {
+  file.path(proj_root_env, "派生数据", "处理结果")
+} else {
+  file.path(app_dir_env, "派生数据", "处理结果")
+}
 dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 master_cache <- file.path(cache_dir, "master_enriched.rds")
-snapshot_cache <- if (dir.exists(file.path(proj_root_env, "仪表盘", "数据快照"))) {
+snapshot_cache <- if (dir.exists(file.path(app_dir_env, "数据快照"))) {
+  file.path(app_dir_env, "数据快照", "snapshot.rds")
+} else if (dir.exists(file.path(proj_root_env, "仪表盘", "数据快照"))) {
   file.path(proj_root_env, "仪表盘", "数据快照", "snapshot.rds")
 } else {
   file.path(proj_root_env, "数据快照", "snapshot.rds")
@@ -138,35 +160,36 @@ world_sf_obj <- tryCatch({
 ghs_theme <- bslib::bs_theme(
   version      = 5,
   preset       = "shiny",
-  bg           = "#fbf6ee",     # paper
-  fg           = "#0d121b",     # ink
-  primary      = "#1d3f5f",     # primary
-  secondary    = "#5d667a",     # neutral
-  success      = "#2a857a",     # good
-  info         = "#3a6e8f",
-  warning      = "#c89a3b",     # warn
-  danger       = "#a23b3b",     # bad
+  bg           = "#f4f5f0",
+  fg           = "#17211f",
+  primary      = "#254f5c",
+  secondary    = "#5d6965",
+  success      = "#587669",
+  info         = "#6b6077",
+  warning      = "#8f743d",
+  danger       = "#8b544e",
   base_font    = bslib::font_google("Inter",         local = FALSE),
   heading_font = bslib::font_google("Source Serif 4", local = FALSE),
   code_font    = bslib::font_google("JetBrains Mono", local = FALSE),
-  "card-border-color" = "rgba(13,18,27,.10)",
-  "card-bg"           = "#fbf6ee",
-  "navbar-bg"         = "#0d121b",          # 深色玻璃态导航
-  "navbar-fg"         = "#f7eedf",
-  "border-radius"     = "14px",
-  "body-secondary-color" = "#5d667a"
+  "card-border-color" = "rgba(23,33,31,.13)",
+  "card-bg"           = "#fbfaf6",
+  "navbar-bg"         = "#fafaf6",
+  "navbar-fg"         = "#17211f",
+  "border-radius"     = "8px",
+  "body-secondary-color" = "#5d6965",
+  "nav-link-font-weight" = "600"
 )
 
 # ---- 5b. 注入 CSS（Shiny 全局样式） -------------------------------------
 # 让 Shiny 内的组件类能用
 ghs_v3_shiny_css <- htmltools::tags$style(htmltools::HTML(paste(c(
   ":root{",
-    "--g3-primary:#1d3f5f;--g3-secondary:#c46327;--g3-good:#2a857a;",
-    "--g3-warn:#c89a3b;--g3-bad:#a23b3b;--g3-neutral:#5d667a;",
-    "--g3-paper:#fbf6ee;--g3-paper2:#f1e8da;--g3-ink:#0d121b;",
-    "--g3-line:rgba(13,18,27,.10);--g3-line-strong:rgba(13,18,27,.18);",
-    "--g3-radius:14px;--g3-shadow-sm:0 4px 12px rgba(13,18,27,.06);",
-    "--g3-shadow:0 16px 40px rgba(13,18,27,.08);",
+    "--g3-primary:#254f5c;--g3-secondary:#6b6077;--g3-good:#587669;",
+    "--g3-warn:#8f743d;--g3-bad:#8b544e;--g3-neutral:#5d6965;",
+    "--g3-paper:#f4f5f0;--g3-paper2:#eef3f2;--g3-ink:#17211f;",
+    "--g3-line:rgba(23,33,31,.13);--g3-line-strong:rgba(23,33,31,.20);",
+    "--g3-radius:8px;--g3-shadow-sm:0 1px 2px rgba(23,33,31,.05),0 10px 26px rgba(23,33,31,.075);",
+    "--g3-shadow:0 2px 4px rgba(23,33,31,.06),0 16px 34px rgba(23,33,31,.10);",
   "}",
   # ---- Hero ----
   ".v3-hero{background:linear-gradient(135deg,#0d121b 0%,#1d3f5f 100%);color:#f7eedf;padding:42px 48px;border-radius:0 0 24px 24px;margin:0 0 24px;position:relative;overflow:hidden}",
@@ -221,8 +244,8 @@ ghs_v3_shiny_css <- htmltools::tags$style(htmltools::HTML(paste(c(
   ".v3-card-title{font-family:'Source Serif 4',serif;font-size:18px;font-weight:700;color:var(--g3-ink);margin:0}",
   ".v3-card-body{padding:18px}",
   ".v3-card-footer{padding:10px 18px;border-top:1px solid var(--g3-line);font-size:12.5px;color:var(--g3-neutral);background:var(--g3-paper2)}",
-  # ---- Navbar 升级 ----
-  ".navbar.bg-primary{background:linear-gradient(90deg,#0d121b 0%,#1d3f5f 100%) !important}",
+  # ---- Navbar ----
+  ".navbar.bg-primary{background:linear-gradient(180deg,rgba(255,253,248,.98),rgba(248,241,231,.96)) !important;color:#0d121b !important;border-bottom:1px solid rgba(13,18,27,.10) !important}",
   ".navbar-brand{font-family:'Source Serif 4',serif;font-weight:700;letter-spacing:.04em}",
   # ---- 响应断点 ----
   "@media(max-width:1024px){.v3-kpi-grid,.v3-stat-strip{grid-template-columns:repeat(2,1fr)}.v3-module-grid{grid-template-columns:repeat(2,1fr)}}",
@@ -308,6 +331,11 @@ ghs_v3_shiny_css <- htmltools::tags$style(htmltools::HTML(paste(c(
   ".leaflet-container{background:#eef2ed}",
   ".rt-table{border-radius:12px;overflow:hidden}",
   ".rt-th{background:#f1e8da !important;color:#5d667a !important}",
+  # ---- Final material baseline: external CSS refines this further ---------
+  ".v3-hero,.ghs-hero,.panel-hero{background:#eef3f2 !important;background-image:none !important;color:#17211f !important;border-radius:0 0 8px 8px !important;box-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 12px 28px rgba(23,33,31,.07) !important}",
+  ".v3-hero:before,.v3-hero:after,.ghs-hero:before,.ghs-hero:after,.panel-hero:before,.panel-hero:after,.v3-kpi:before,.v3-insight:before,.v3-chart-guide:before,.v3-module-card:before,.kpi-card:before{content:none !important;display:none !important;background:none !important}",
+  ".v3-card,.panel-content,.v3-kpi,.v3-insight,.v3-chart-guide,.v3-sidebar-note,.kpi-card,.card,.bslib-card{background:#fbfaf6 !important;background-image:none !important;border:1px solid rgba(23,33,31,.13) !important;border-left:1px solid rgba(23,33,31,.13) !important;border-radius:8px !important;box-shadow:0 1px 2px rgba(23,33,31,.05),0 10px 26px rgba(23,33,31,.075) !important}",
+  ".navbar,.navbar.bg-primary,nav.navbar{background:#fafaf6 !important;background-image:none !important;color:#17211f !important;border-bottom:1px solid rgba(23,33,31,.13) !important;box-shadow:0 1px 0 rgba(255,255,255,.72),0 10px 24px rgba(23,33,31,.065) !important}",
   "@media(max-width:1024px){.v3-story-grid,.v3-rail{grid-template-columns:repeat(2,minmax(0,1fr))}.panel-hero{padding:32px 28px}.v3-page-body{padding-left:8px;padding-right:8px}}",
   "@media(max-width:640px){.v3-story-grid,.v3-rail{grid-template-columns:1fr}.panel-hero{padding:26px 20px}.panel-hero h2{font-size:23px}.bslib-sidebar-layout>.main{padding:16px 14px 24px !important}.v3-page-body{padding-left:0;padding-right:0}}"
 ), collapse = "")))

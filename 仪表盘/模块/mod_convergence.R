@@ -6,10 +6,10 @@
 mod_convergence_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128200; \u6536\u655b Convergence"),
+    title = "\u6536\u655b Convergence",
     value = "convergence",
     mod_v3_hero(
-      kicker = "CONVERGENCE DIAGNOSTICS",
+      kicker = "\u6536\u655b\u8bca\u65ad",
       title = "\u536b\u751f\u652f\u51fa\u6536\u655b\u4e0e\u8ffd\u8d76\u901f\u5ea6",
       lead = paste(
         "\u68c0\u9a8c\u5168\u7403\u4eba\u5747 CHE \u662f\u5426\u5b58\u5728 beta \u6536\u655b\u548c sigma \u6536\u655b\uff1a",
@@ -76,7 +76,7 @@ mod_convergence_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("beta_by_income"), height = 400))
         ),
         mod_card(
-          kicker = "F4 \u00b7 Country audit",
+          kicker = "F4 \u00b7 \u56fd\u5bb6\u660e\u7ec6",
           title = "\u56fd\u5bb6\u8ffd\u8d76\u660e\u7ec6\u8868",
           mod_v3_chart_guide(
             "\u8868\u683c\u4fdd\u7559\u6392\u540d\u4e0e\u6570\u503c",

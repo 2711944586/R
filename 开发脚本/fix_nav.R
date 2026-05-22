@@ -11,7 +11,7 @@ src <- readLines("程序/21_static_showcase.R", encoding = "UTF-8")
 nav_start <- grep("^\\.ghs_nav_items <- function", src)
 if (length(nav_start) != 1L) stop("Cannot find .ghs_nav_items")
 
-# 找到函数结尾（下一个顶级函数定义）
+# 定位当前函数块的结束位置
 nav_end <- grep("^\\.ghs_nav_links <- function", src)
 if (length(nav_end) != 1L) stop("Cannot find .ghs_nav_links")
 nav_end <- nav_end - 1L

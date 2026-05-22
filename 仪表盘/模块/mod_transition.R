@@ -6,10 +6,10 @@
 mod_transition_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
-    title = htmltools::HTML("&#128260; \u8f6c\u578b Transition"),
+    title = "\u8f6c\u578b Transition",
     value = "transition",
     mod_v3_hero(
-      kicker = "FINANCING TRANSITION",
+      kicker = "\u7b79\u8d44\u8f6c\u578b",
       title = "\u536b\u751f\u7b79\u8d44\u8f6c\u578b\u4e0e\u6536\u5165\u664b\u5347",
       lead = paste(
         "\u968f\u7740\u56fd\u5bb6\u7ecf\u6d4e\u589e\u957f\uff0c\u536b\u751f\u7b79\u8d44\u7ed3\u6784\u4ece\u5916\u63f4\u4f9d\u8d56\u578b\u8f6c\u5411\u653f\u5e9c\u4e3b\u5bfc\u578b\u3002",
@@ -17,7 +17,10 @@ mod_transition_ui <- function(id) {
       ),
       meta = list("\u6536\u5165\u7ec4\u664b\u5347", "\u7b79\u8d44\u8f6c\u578b", "2000\u20132023")
     ),
-    bslib::layout_sidebar(
+    mod_v3_page_body(
+      wide = TRUE,
+      mod_v3_topic_brief("transition"),
+      bslib::layout_sidebar(
       sidebar = bslib::sidebar(
         width = 260,
         shiny::sliderInput(ns("year_range"), "\u65f6\u6bb5",
@@ -29,10 +32,14 @@ mod_transition_ui <- function(id) {
             "\u4e2d\u4f4e\u2192\u4e2d\u9ad8" = "lm_to_um",
             "\u4e2d\u9ad8\u2192\u9ad8" = "um_to_high"
           ), selected = "all"),
-        shiny::tags$hr(),
-        shiny::helpText(
-          "\u6536\u5165\u7ec4\u664b\u5347\u57fa\u4e8e\u4e16\u754c\u94f6\u884c\u5e74\u5ea6\u5206\u7c7b\u3002",
-          "\u7b5b\u8d44\u8f6c\u578b = EXT \u4e0b\u964d + GGHED \u4e0a\u5347\u3002"
+        mod_v3_sidebar_note(
+          "\u8f6c\u578b\u53e3\u5f84",
+          "\u6536\u5165\u7ec4\u664b\u5347\u57fa\u4e8e\u4e16\u754c\u94f6\u884c\u5e74\u5ea6\u5206\u7c7b\uff1b\u7b79\u8d44\u8f6c\u578b\u4e3b\u8981\u89c2\u5bdf EXT \u4e0b\u964d\u3001GGHE-D \u4e0a\u5347\u548c OOPS \u662f\u5426\u540c\u6b65\u6539\u5584\u3002",
+          bullets = c(
+            "\u65f6\u6bb5\u8d8a\u957f\uff0c\u8d8a\u9002\u5408\u5224\u65ad\u5236\u5ea6\u8f6c\u578b\u800c\u975e\u5355\u5e74\u6ce2\u52a8\u3002",
+            "\u7bad\u5934\u8f68\u8ff9\u770b\u65b9\u5411\uff1a\u5de6\u4e0b\u5230\u53f3\u4e0a\u4e0d\u4e00\u5b9a\u662f\u7406\u60f3\u8f6c\u578b\u3002",
+            "\u5916\u63f4\u9000\u51fa\u9700\u8981\u653f\u5e9c\u7b79\u8d44\u6216\u9884\u4ed8\u673a\u5236\u63a5\u7eed\u3002"
+          )
         )
       ),
       shiny::uiOutput(ns("kpi_strip")),
@@ -40,37 +47,69 @@ mod_transition_ui <- function(id) {
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
+          kicker = "F1 · Funding path",
           title = "\u7b79\u8d44\u8f6c\u578b\u8f68\u8ff9",
           htmltools::p(class = "card-note",
             "\u6a2a\u8f74 = EXT \u5360\u6bd4\uff0c\u7eb5\u8f74 = GGHED \u5360\u6bd4\u3002\u7bad\u5934 = \u65f6\u95f4\u65b9\u5411\u3002"),
-          mod_spinner(plotly::plotlyOutput(ns("transition_path"), height = 440))
+          mod_v3_chart_guide(
+            "\u8bfb\u8f68\u8ff9\u800c\u4e0d\u53ea\u8bfb\u7ec8\u70b9",
+            "\u771f\u6b63\u6709\u4ef7\u503c\u7684\u4fe1\u53f7\u662f\u5916\u63f4\u4f9d\u8d56\u4e0b\u964d\u65f6\uff0c\u516c\u5171\u7b79\u8d44\u662f\u5426\u540c\u6b65\u8865\u4f4d\u3002",
+            bullets = c("\u8d77\u70b9\u548c\u7ec8\u70b9\u8ddd\u79bb\u8d8a\u5927\uff0c\u8f6c\u578b\u5e45\u5ea6\u8d8a\u660e\u663e\u3002", "\u53f3\u4e0b\u8c61\u9650\u901a\u5e38\u4ee3\u8868\u9ad8\u5916\u63f4\u3001\u4f4e\u653f\u5e9c\u7b79\u8d44\u7684\u8106\u5f31\u8d77\u70b9\u3002")
+          ),
+          mod_spinner(plotly::plotlyOutput(ns("transition_path"), height = 440)),
+          footer = "\u4ec5\u663e\u793a EXT \u6216 GGHE-D \u53d8\u5316\u8f83\u660e\u663e\u7684\u56fd\u5bb6\uff0c\u4fbf\u4e8e\u805a\u7126\u8f6c\u578b\u8def\u5f84\u3002"
         ),
         mod_card(
+          kicker = "F2 · Income movement",
           title = "\u6536\u5165\u7ec4\u53d8\u52a8\u7edf\u8ba1",
           htmltools::p(class = "card-note",
             "\u5404\u7c7b\u664b\u5347/\u964d\u7ea7\u7684\u56fd\u5bb6\u6570\u91cf\u3002"),
-          mod_spinner(plotly::plotlyOutput(ns("transition_sankey"), height = 440))
+          mod_v3_chart_guide(
+            "\u664b\u5347\u901a\u9053\u5e76\u975e\u7b49\u5bbd",
+            "\u7a33\u5b9a\u7559\u5728\u539f\u6536\u5165\u7ec4\u7684\u56fd\u5bb6\u5f80\u5f80\u6700\u591a\uff1b\u771f\u6b63\u9700\u8981\u653f\u7b56\u590d\u6838\u7684\u662f\u664b\u5347\u540e\u7b79\u8d44\u7ed3\u6784\u662f\u5426\u8ddf\u4e0a\u3002",
+            tone = "warn"
+          ),
+          mod_spinner(plotly::plotlyOutput(ns("transition_sankey"), height = 440)),
+          footer = "\u6761\u5f62\u56fe\u4ee3\u8868\u8d77\u70b9\u6536\u5165\u7ec4\u5230\u7ec8\u70b9\u6536\u5165\u7ec4\u7684\u6837\u672c\u6570\u3002"
         )
       ),
       # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
-          title = "\u664b\u5347\u56fd\u5bb6\u7684\u7b5b\u8d44\u53d8\u5316",
+          kicker = "F3 · Before / after",
+          title = "\u664b\u5347\u56fd\u5bb6\u7684\u7b79\u8d44\u53d8\u5316",
           htmltools::p(class = "card-note",
             "\u664b\u5347\u56fd\u5bb6\u5728\u664b\u5347\u524d\u540e\u7684 GGHED/EXT/OOPS \u53d8\u5316\u3002"),
+          mod_v3_chart_guide(
+            "\u540c\u65f6\u770b\u4e09\u6761\u7ebf",
+            "GGHE-D \u4e0a\u5347\u3001EXT \u4e0b\u964d\u3001OOPS \u4e0d\u4e0a\u5347\uff0c\u624d\u66f4\u63a5\u8fd1\u53ef\u6301\u7eed\u8f6c\u578b\u3002",
+            tone = "good"
+          ),
           mod_spinner(plotly::plotlyOutput(ns("pre_post_bar"), height = 380))
         ),
         mod_card(
-          title = "GDP \u4e0e\u7b5b\u8d44\u7ed3\u6784\u7684\u5173\u8054",
+          kicker = "F4 · Fiscal linkage",
+          title = "GDP \u4e0e\u7b79\u8d44\u7ed3\u6784\u7684\u5173\u8054",
           htmltools::p(class = "card-note",
             "\u6a2a\u8f74 = GDP/cap\uff0c\u7eb5\u8f74 = GGHED%\u3002\u968f\u6536\u5165\u4e0a\u5347\uff0c\u653f\u5e9c\u5360\u6bd4\u8d8b\u5347\u3002"),
+          mod_v3_chart_guide(
+            "\u8bc6\u522b\u6536\u5165\u4e0e\u653f\u5e9c\u8d23\u4efb\u7684\u9519\u4f4d",
+            "\u9ad8 GDP/cap \u4f46 GGHE-D \u5360\u6bd4\u504f\u4f4e\u7684\u70b9\uff0c\u5e38\u5e38\u63d0\u793a\u536b\u751f\u4f18\u5148\u7ea7\u6216\u7b79\u8d44\u5236\u5ea6\u9700\u8981\u8fdb\u4e00\u6b65\u89e3\u91ca\u3002"
+          ),
           mod_spinner(plotly::plotlyOutput(ns("gdp_gghed_scatter"), height = 380))
         )
       ),
       mod_card(
+        kicker = "F5 · Transition audit",
         title = "\u8f6c\u578b\u56fd\u5bb6\u8be6\u8868",
-        mod_spinner(reactable::reactableOutput(ns("transition_table")))
+        mod_v3_chart_guide(
+          "\u8868\u683c\u7528\u4e8e\u9501\u5b9a\u6837\u672c",
+          "\u6536\u5165\u7ec4\u53d8\u52a8\u56fd\u5bb6\u53ef\u4ee5\u6309\u5927\u6d32\u3001\u8d77\u59cb\u7ec4\u548c\u65b9\u5411\u7ee7\u7eed\u7b5b\u9009\uff0c\u518d\u56de\u5230\u4e0a\u65b9\u8f68\u8ff9\u56fe\u68c0\u67e5\u7b79\u8d44\u8def\u5f84\u3002"
+        ),
+        mod_spinner(reactable::reactableOutput(ns("transition_table"))),
+        footer = "\u6536\u5165\u5206\u7c7b\u53ef\u80fd\u51fa\u73b0\u77ed\u671f\u5f80\u8fd4\uff0c\u5efa\u8bae\u7ed3\u5408\u591a\u5e74\u8d8b\u52bf\u5224\u65ad\u3002"
+      )
       )
     )
   )
@@ -221,8 +260,8 @@ mod_transition_server <- function(id, master_r) {
                         marker = list(size = 8, opacity = 0.7)) |>
           ghs_plotly_layout() |>
           plotly::layout(
-            xaxis = list(title = "GDP per capita (USD)", type = "log"),
-            yaxis = list(title = "GGHE-D / CHE (%)"),
+            xaxis = list(title = "\u4eba\u5747 GDP\uff08USD\uff09", type = "log"),
+            yaxis = list(title = "GGHE-D / CHE\uff08%\uff09"),
             legend = list(orientation = "h", y = -0.15)
           )
       })
