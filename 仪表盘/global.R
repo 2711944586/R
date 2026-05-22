@@ -5,7 +5,8 @@
   for (i in seq_len(max_up + 1)) {
     candidates <- c(candidates, d)
     if (dir.exists(file.path(d, "程序")) &&
-        file.exists(file.path(d, "DESCRIPTION"))) return(d)
+        (file.exists(file.path(d, "DESCRIPTION")) ||
+         file.exists(file.path(d, "项目入口", "DESCRIPTION")))) return(d)
     d <- dirname(d)
   }
   for (d in candidates) {
@@ -27,12 +28,12 @@ app_dir_env <- if (basename(proj_root_env) == "仪表盘") {
   file.path(proj_root_env, "仪表盘")
 }
 
-source_dir <- if (dir.exists(file.path(proj_root_env, "程序库"))) {
+source_dir <- if (dir.exists(file.path(proj_root_env, "程序"))) {
+  file.path(proj_root_env, "程序")
+} else if (dir.exists(file.path(proj_root_env, "程序库"))) {
   file.path(proj_root_env, "程序库")
 } else if (dir.exists(file.path(app_dir_env, "程序库"))) {
   file.path(app_dir_env, "程序库")
-} else if (dir.exists(file.path(proj_root_env, "程序"))) {
-  file.path(proj_root_env, "程序")
 } else {
   file.path(app_dir_env, "程序库")
 }
