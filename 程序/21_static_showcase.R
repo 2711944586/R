@@ -923,7 +923,7 @@ if (!exists("%||%", mode = "function")) {
     dock_nav,
     "<div class='dock-footer'>",
     "<a href='", .ghs_e(project_url), "' target='_blank'>GitHub</a>",
-    "<a href='./\u4eea\u8868\u76d8/'>Shiny</a>",
+    "<a href='https://constantine1433223.shinyapps.io/ghs-dashboard/' target='_blank' rel='noreferrer'>Shiny</a>",
     "</div>",
     "</div>",
     "</div>"
