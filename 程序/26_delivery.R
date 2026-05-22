@@ -57,9 +57,9 @@ ghs_file_purpose <- function(rel) {
   purpose[rel == "README.md"] <- "最终交付包总说明；说明推荐评阅顺序、目录结构、核心产物、复现命令、质量门禁和注意事项。"
   purpose[rel == file.path("交付索引", "交付清单.csv")] <- "核心交付项核验表；用于快速检查关键文件或目录是否存在、文件数和体积是否符合预期。"
   purpose[rel == file.path("交付索引", "完整文件索引.csv")] <- "交付包内全部文件的机器可读索引；逐文件记录路径、目录、扩展名、体积和用途类别。"
-  purpose[rel == "网站发布/图表"] <- "发布页使用的 PNG 图表目录；比完整图表目录更轻，保留网站首页本地预览能力。"
+  purpose[rel == "网站发布"] <- "静态发布页入口；完整图表和交互资源以 GitHub Pages 线上版本为准。"
   purpose[rel == "网站发布/仪表盘"] <- "静态网站中的浏览器版 Shiny 或备用仪表盘入口目录。"
-  purpose[rel == "分析输出/模型表"] <- "模型、指标、预测、聚类、效率、公平性和情景模拟结果表目录；轻量包仅保留 CSV。"
+  purpose[rel == "分析输出/模型表"] <- "模型、指标、预测、聚类、效率、公平性和情景模拟结果表目录；提交包仅保留 CSV。"
   purpose[rel == "分析输出/质量报告"] <- "质量门禁报告目录；包含 summary、HTML 报告和各模块明细表。"
   purpose[rel == "原始数据"] <- "课程原始数据目录；包含 GHED 三张 CSV 和数据说明文档。"
   purpose[rel == "程序"] <- "R 函数库目录；支撑数据处理、建模、绘图、widget、静态页、Shiny 和交付包生成。"
@@ -68,7 +68,6 @@ ghs_file_purpose <- function(rel) {
   purpose[grepl("^课程提交/.*[.]Rmd$", rel)] <- "课程要求的 RMarkdown 源文档；可在交付包根目录结构下重新 knit 或调用统一生成器。"
   purpose[grepl("^课程提交/.*[.]html$", rel)] <- "课程要求的 HTML 结果文档；作为离线评阅主入口。"
   purpose[rel == "网站发布/index.html"] <- "GitHub Pages 同源首页；与课程提交 HTML 使用同一生成器生成。"
-  purpose[grepl("^网站发布/图表/.*[.]png$", rel)] <- "网站首页使用的 PNG 图表；用于轻量本地预览。"
   purpose[grepl("^网站发布/仪表盘/", rel)] <- "浏览器版 Shiny 或备用发布资源；用于检查静态网站中的仪表盘入口。"
   purpose[grepl("^分析输出/模型表/.*[.]csv$", rel)] <- "模型、指标、预测、聚类、效率、公平性或情景模拟结果 CSV。"
   purpose[grepl("^分析输出/质量报告/", rel)] <- "质量门禁输出；记录语法、图像、链接、widget、文本、secret、Shiny 和 README 一致性检查。"
@@ -119,7 +118,6 @@ ghs_delivery_manifest <- function(delivery_dir) {
     file.path("课程提交", "庄颂_20241334.Rmd"),
     file.path("课程提交", "庄颂_20241334.html"),
     file.path("网站发布", "index.html"),
-    file.path("网站发布", "图表"),
     file.path("网站发布", "仪表盘"),
     file.path("分析输出", "模型表"),
     file.path("分析输出", "质量报告"),
@@ -187,23 +185,23 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "本目录名为 `庄颂_20241334/`，与作业提交命名保持一致。最终提交时可直接压缩整个文件夹为 `庄颂_20241334.zip`。根目录只保留一个 `README.md` 文件；安装、启动、构建、依赖和索引类文件均放入专门文件夹，避免评阅入口被杂项文件淹没。",
     "",
-    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成，内容同源，只是服务场景不同。交付包保留课程主件、网站首页、Shiny 应用、核心派生数据、CSV 模型结果、质量报告、项目文档和复现脚本；大型图表目录与 widget 依赖不再重复打包，完整交互以首行两个线上地址为准。",
+    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html`、`课程提交/庄颂_20241334.Rmd` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成。Rmd 会从课程 HTML 抽取样式、正文和脚本，保证内容与 HTML 一致。交付包保留课程主件、网站首页、Shiny 应用、核心派生数据、CSV 模型结果、质量报告、项目文档和复现脚本；大型图表目录与 widget 依赖不再重复打包，完整静态图表和交互体验以首行两个线上地址为准。",
     "",
-    sprintf("本交付包共包含 **%s 个文件**，总大小约 **%s MB**。本版为轻量提交包：保留评阅和复现最有用的文件，删除重复的发布资源副本。", total_files, total_size),
+    sprintf("本交付包共包含 **%s 个文件**，总大小约 **%s MB**。当前版本保留完整课程 HTML/Rmd 与 Shiny 运行文件，同时删除重复的发布资源副本。", total_files, total_size),
     "",
     "## 2. 核心规模",
     "",
     sprintf("- **内容结构**：36 个内容章节，包含数据说明、核心发现、图集、交互组件、复现说明和结论。"),
     sprintf("- **核心发现**：14 项，每项对应研究问题、方法、代码入口、图表、表格和解释。"),
-    sprintf("- **静态图集**：完整项目当前生成 %s 张 PNG + %s 张 SVG；课程 HTML 已嵌入主要展示图，轻量包不再复制完整图表目录。", png_count, svg_count),
+    sprintf("- **静态图集**：完整项目当前生成 %s 张 PNG + %s 张 SVG；课程 HTML/Rmd 已嵌入主要展示图，提交包不再复制完整图表目录。", png_count, svg_count),
     sprintf("- **交互组件**：完整项目当前生成 %s 个 HTML widget；课程 HTML 与网站首页通过发布地址按需打开，不在提交包内重复保存 widget 依赖。", widget_count),
     sprintf("- **模型表**：`分析输出/模型表/` 中保留 %s 个 CSV 模型或指标产物，适合快速复核。", model_count),
-    "- **Shiny**：39 个页面与交互模块；首页调整为纯标题封面，导航支持点击空白处关闭，交互组件页增加更多代表性快速入口。",
+    "- **Shiny**：39 个页面与交互模块；首页调整为纯标题封面，导航支持点击空白处关闭，交互组件页新增动态气泡、地图、排行动画、旭日结构、平行坐标、相似网络、专题看板、热力图、雷达画像、树状结构、功能流图、液体仪表和主表浏览。",
     "",
     "## 3. 推荐评阅顺序",
     "",
     "1. 打开 `课程提交/庄颂_20241334.html`：这是课程要求的 HTML 结果文档，也是最稳妥的离线评阅主入口。",
-    sprintf("2. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，已同步为当前 14 项核心发现、%s 张 PNG 图、%s 张 SVG 图和 %s 个交互组件口径。", png_count, svg_count, widget_count),
+    sprintf("2. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，样式、正文和脚本与课程 HTML 同源同步。"),
     "3. 打开 `网站发布/index.html`：这是 GitHub Pages 同源首页，适合检查发布路径和交互组件。",
     "4. 查看 `项目文档/方法手册.md`：逐项核查 F1–F14 的研究问题、数据口径、变量、方法、代码入口、主要产物和局限。",
     "5. 查看 `分析输出/质量报告/quality_gate.html`：确认语法、图像、链接、widget、secret、Shiny bundle、README 一致性等质量门禁。",
@@ -218,13 +216,13 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "### `课程提交/`",
     "",
-    "- `课程提交/庄颂_20241334.Rmd`：课程源文档。它已同步到当前项目口径，包含提交说明、作业要求对照、当前规模、复现命令、质量摘要和 sessionInfo。",
+    "- `课程提交/庄颂_20241334.Rmd`：课程源文档。它由课程 HTML 同步生成，保留同一套样式、正文、导航、交互入口和结论。",
     sprintf("- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接打开；页面包含 36 个内容章节、14 项发现、图表库、交互入口和结论。"),
     "",
     "### `网站发布/`",
     "",
     "- `网站发布/index.html`：GitHub Pages 首页，与课程提交 HTML 同源。dock 定位和移动目录关闭逻辑已统一修复。",
-    "- 完整发布版的 standalone widgets 位于线上 GitHub Pages 与仓库发布目录，轻量提交包不再复制这批大体积依赖。",
+    "- 完整发布版的 PNG 图表和 standalone widgets 位于线上 GitHub Pages 与仓库发布目录，提交包不再复制这批大体积依赖。",
     "- `网站发布/仪表盘/`：浏览器版 Shiny 或备用页面入口，用于静态站中的仪表盘跳转。",
     "",
     "### `分析输出/`",
@@ -246,7 +244,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "### `程序/`",
     "",
-    "- R 函数库。包含数据读取、清洗、特征工程、指标、模型、绘图主题、静态图导出、widget 导出、静态页生成、Shiny 辅助和交付包生成逻辑。",
+    "- R 函数库。包含数据读取、清洗、特征工程、指标、模型、绘图主题、静态图导出、widget 导出、静态页生成、Shiny 辅助和交付包生成逻辑；大段解释型注释已清理。",
     "- 关键入口包括 `21_static_showcase.R`（生成课程 HTML 与网站首页）和 `26_delivery.R`（生成本交付包）。",
     "",
     "### `仪表盘/`",
@@ -309,13 +307,13 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "## 9. 注意事项",
     "",
     "- 不要把 shinyapps.io token、secret、`.Renviron`、`.env` 或 `rsconnect/` 提交到仓库。",
-    "- `网站发布/index.html` 的完整交互体验以线上静态发布版为准；轻量提交包中的课程 HTML 会把 widget 打开到线上发布地址。",
+    "- `网站发布/index.html` 的完整交互体验以线上静态发布版为准；提交包中的课程 HTML 会把 widget 打开到线上发布地址。",
     "- `课程提交/庄颂_20241334.Rmd` 依赖交付包内的 `程序/`，因此不要单独移动 Rmd；如需单独提交，仍建议同时提交整个 `庄颂_20241334/` 文件夹。",
-    "- 单页 HTML 体积较大是为了课程提交可直接阅读；提交包已避免重复复制 widget 和完整图表资源。",
+    "- 单页 HTML 和同源 Rmd 体积较大是为了课程提交可直接阅读和复核；提交包已避免重复复制 widget 和完整图表资源。",
     "",
     "## 10. 已知限制",
     "",
-    "- 轻量包不包含完整 widget 依赖目录；如需逐个离线打开 standalone widget，请使用完整仓库或 GitHub Pages 发布目录。",
+    "- 提交包不包含完整 widget 依赖目录和发布图表目录；如需逐个打开 standalone widget 或完整图表库，请使用完整仓库或 GitHub Pages 发布目录。",
     "- 当前质量门禁覆盖语法、图像、链接、widget、文本、secret、Shiny bundle 与 README 一致性，未包含跨断点截图测试。",
     "- `renv.lock` 放在 `项目入口/`；不同 R 与系统库版本下仍可能出现细小渲染差异。",
     "- 多数交互组件是 standalone widget，Shiny 模块之间未共享筛选状态。",
@@ -343,7 +341,6 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.html"), file.path(delivery_dir, "课程提交", "庄颂_20241334.html"))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.Rmd"), file.path(delivery_dir, "课程提交", "庄颂_20241334.Rmd"))
   ghs_copy_path(file.path(root, "网站发布", "index.html"), file.path(delivery_dir, "网站发布", "index.html"))
-  ghs_copy_matching(file.path(root, "网站发布", "图表"), file.path(delivery_dir, "网站发布", "图表"), "[.]png$", recursive = FALSE)
   ghs_copy_path(file.path(root, "网站发布", "仪表盘"), file.path(delivery_dir, "网站发布", "仪表盘"))
   ghs_copy_matching(file.path(root, "分析输出", "模型表"), file.path(delivery_dir, "分析输出", "模型表"), "[.]csv$", recursive = TRUE)
   ghs_copy_path(file.path(root, "分析输出", "质量报告"), file.path(delivery_dir, "分析输出", "质量报告"))

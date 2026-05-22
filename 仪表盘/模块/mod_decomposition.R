@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_decomposition.R
-# 分解分析：卫生支出增长的来源分解与结构变迁
-# =============================================================================
 
 mod_decomposition_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -122,7 +118,6 @@ mod_decomposition_server <- function(id, master_r) {
               is.finite(m$gdp_pc_usd) & !is.na(m[[grp]]), ]
       d2 <- m[m$year == yr2 & is.finite(m$che_pc_usd2023) &
               is.finite(m$gdp_pc_usd) & !is.na(m[[grp]]), ]
-      # Aggregate by group
       agg1 <- stats::aggregate(
         cbind(che_pc_usd2023, gdp_pc_usd, gghed_che, pvtd_che, ext_che) ~ get(grp),
         data = d1, FUN = mean, na.rm = TRUE
@@ -133,18 +128,14 @@ mod_decomposition_server <- function(id, master_r) {
       )
       names(agg1)[1] <- names(agg2)[1] <- "group"
       merged <- merge(agg1, agg2, by = "group", suffixes = c("_t0", "_t1"))
-      # Decompose: CHE growth = GDP effect + priority effect + interaction
       merged$delta_che <- merged$che_pc_usd2023_t1 - merged$che_pc_usd2023_t0
       merged$delta_gdp <- merged$gdp_pc_usd_t1 - merged$gdp_pc_usd_t0
-      # CHE/GDP ratio
       merged$ratio_t0 <- merged$che_pc_usd2023_t0 / pmax(merged$gdp_pc_usd_t0, 1)
       merged$ratio_t1 <- merged$che_pc_usd2023_t1 / pmax(merged$gdp_pc_usd_t1, 1)
       merged$delta_ratio <- merged$ratio_t1 - merged$ratio_t0
-      # Decomposition
       merged$gdp_effect <- merged$delta_gdp * merged$ratio_t0
       merged$priority_effect <- merged$gdp_pc_usd_t0 * merged$delta_ratio
       merged$interaction <- merged$delta_gdp * merged$delta_ratio
-      # CAGR
       n_years <- yr2 - yr1
       merged$cagr <- ((merged$che_pc_usd2023_t1 / pmax(merged$che_pc_usd2023_t0, 1))^(1/n_years) - 1) * 100
       merged

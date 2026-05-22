@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-plots.R
-# 程序/14-15 静态图工厂的烟雾测试
+
+
 
 skip_if_no_master <- function() {
   if (!file.exists("派生数据/处理结果/master_enriched.rds") &&
@@ -105,7 +105,7 @@ test_that("ghs_export_v2_thematic returns count > 0", {
   tmp <- tempfile()
   dir.create(tmp)
   n <- ghs_export_v2_thematic(m, out_dir = tmp, verbose = FALSE)
-  expect_gte(n, 6)   # 允许部分失败
+  expect_gte(n, 6)
   pngs <- list.files(tmp, pattern = "\\.png$", full.names = TRUE)
   expect_true(length(pngs) >= 6)
   unlink(tmp, recursive = TRUE)

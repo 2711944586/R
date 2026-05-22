@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-shiny-widget-registry.R
-# Shiny 原生组件中枢注册表
+
+
 
 local({
   proj_root <- (function() {

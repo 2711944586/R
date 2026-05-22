@@ -1,22 +1,10 @@
-# =============================================================================
-# 程序/07_plot_static.R
-# -----------------------------------------------------------------------------
-# 静态图工厂函数：输入 tidy tibble，输出 ggplot 对象。
-# 所有函数签名：plot_*(data, ..., title, subtitle, caption)
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
   source(file.path("程序", "06_plot_theme.R"))
 }
 
-# =============================================================================
-# A. 趋势 / 时序
-# =============================================================================
 
-#' 全球三源（政府/私人/外援）占比时序堆叠面积
-#'
-#' @param master 宽表 (含 gghed_che, pvtd_che, ext_che, year, pop)
 plot_source_area <- function(master,
                              title = "\u5168\u7403\u536b\u751f\u652f\u51fa\u6765\u6e90\u7ed3\u6784\u6f14\u5316 Global Health Financing Sources",
                              subtitle = NULL) {
@@ -64,7 +52,6 @@ plot_source_area <- function(master,
     theme_ghs()
 }
 
-#' OOPS 占比 TOP/BOTTOM lollipop
 plot_oops_ranking <- function(master, year_focus = 2023, top_n = 15,
                               title = "\u81ea\u4ed8\u4f9d\u8d56 OOPS Ranking",
                               subtitle = NULL) {
@@ -98,11 +85,7 @@ plot_oops_ranking <- function(master, year_focus = 2023, top_n = 15,
     ggplot2::theme(legend.position = "none")
 }
 
-# =============================================================================
-# B. 结构 / 分布
-# =============================================================================
 
-#' 大洲 OOPS 占比箱线 + 点
 plot_oops_box_continent <- function(master, year_focus = 2023,
                                     title = "\u5404\u5927\u6d32 OOPS \u5360\u6bd4\u5206\u5e03  By Continent",
                                     subtitle = NULL) {
@@ -124,7 +107,6 @@ plot_oops_box_continent <- function(master, year_focus = 2023,
     ggplot2::theme(legend.position = "none")
 }
 
-#' 收入组 OOPS 占比 ridge
 plot_oops_ridges_income <- function(master, year_focus = 2023,
                                     title = "\u4e0d\u540c\u6536\u5165\u7ec4 OOPS \u5206\u5e03  By Income Group",
                                     subtitle = NULL) {
@@ -151,11 +133,7 @@ plot_oops_ridges_income <- function(master, year_focus = 2023,
     ggplot2::theme(legend.position = "none")
 }
 
-# =============================================================================
-# C. 地图（choropleth）
-# =============================================================================
 
-#' 世界 choropleth：某指标某年
 plot_world_choropleth <- function(master, world_sf,
                                   indicator_col = "hf3_che",
                                   year_focus = 2023,
@@ -184,11 +162,7 @@ plot_world_choropleth <- function(master, world_sf,
                    legend.key.width = ggplot2::unit(1.2, "cm"))
 }
 
-# =============================================================================
-# D. 一国画像（6 合 1 拼图）
-# =============================================================================
 
-#' 单个国家的 6 合 1 画像（给 Phase 1 报告和 Shiny 共用）
 plot_country_profile <- function(master, iso = "CHN",
                                  title = NULL) {
   ensure_pkgs(c("dplyr", "tidyr", "ggplot2", "patchwork", "scales"))
@@ -198,14 +172,12 @@ plot_country_profile <- function(master, iso = "CHN",
   cn <- unique(d$country_name)[1]
   title <- title %||% sprintf("%s \u536b\u751f\u652f\u51fa\u753b\u50cf  Health Spending Profile", cn)
 
-  # (1) 总支出（USD）
   p1 <- ggplot2::ggplot(d, ggplot2::aes(.data$year, .data$che_usd2023 / 1e9)) +
     ggplot2::geom_area(fill = "#1B5E88", alpha = 0.85) +
     ggplot2::labs(subtitle = "\u5f53\u524d\u536b\u751f\u603b\u652f\u51fa CHE (\u5341\u4ebf\u7f8e\u5143)",
                   x = NULL, y = NULL) +
     theme_ghs(base_size = 10)
 
-  # (2) 三源占比
   d2 <- d |>
     dplyr::select("year", gghed = "gghed_che", pvtd = "pvtd_che", ext = "ext_che") |>
     tidyr::pivot_longer(c("gghed", "pvtd", "ext"), names_to = "src", values_to = "pct")
@@ -219,7 +191,6 @@ plot_country_profile <- function(master, iso = "CHN",
                   x = NULL, y = NULL, fill = NULL) +
     theme_ghs(base_size = 10)
 
-  # (3) 筹资方案占比（堆叠）
   d3 <- d |>
     dplyr::select("year", hf1 = "hf1_che", hf2 = "hf2_che",
                   hf3 = "hf3_che", hf4 = "hf4_che", hfnec = "hfnec_che") |>
@@ -233,7 +204,6 @@ plot_country_profile <- function(master, iso = "CHN",
                   x = NULL, y = NULL, fill = NULL) +
     theme_ghs(base_size = 10)
 
-  # (4) 人均 CHE（若可得）
   p4 <- if ("che_pc_usd2023" %in% names(d)) {
     ggplot2::ggplot(d, ggplot2::aes(.data$year, .data$che_pc_usd2023)) +
       ggplot2::geom_line(colour = "#C0504D", linewidth = 1.2) +
@@ -245,7 +215,6 @@ plot_country_profile <- function(master, iso = "CHN",
     patchwork::plot_spacer()
   }
 
-  # (5) 预防 vs 治疗（2016+）
   d5 <- d |>
     dplyr::select("year", hc1 = "hc1_che", hc6 = "hc6_che") |>
     tidyr::drop_na() |>
@@ -266,7 +235,6 @@ plot_country_profile <- function(master, iso = "CHN",
     patchwork::plot_spacer()
   }
 
-  # (6) 2023 快照 KPI 卡
   p6 <- {
     last_row <- d |> dplyr::filter(.data$year == max(.data$year, na.rm = TRUE))
     kpi <- data.frame(
@@ -300,16 +268,7 @@ plot_country_profile <- function(master, iso = "CHN",
     )
 }
 
-# =============================================================================
-# E. 时序拓展（slope / bump / dumbbell / streamgraph）
-# =============================================================================
 
-#' 2 个时点之间的 Slope chart
-#' @param master 宽表
-#' @param value_col 数值列名（默认 OOPS 占比 hf3_che）
-#' @param year_a 起始年（默认 2000）
-#' @param year_b 终点年（默认 2023）
-#' @param top_n 仅展示绝对变化最大的 top_n 国
 plot_slope_chart <- function(master,
                               value_col = "hf3_che",
                               year_a = 2000, year_b = 2023,
@@ -357,7 +316,6 @@ plot_slope_chart <- function(master,
     theme_ghs(grid = "y")
 }
 
-#' Bump chart：Top-N 国家 OOPS 占比逐年排名
 plot_bump_chart <- function(master, value_col = "hf3_che",
                             top_n = 15,
                             year_min = 2000, year_max = 2023,
@@ -399,7 +357,6 @@ plot_bump_chart <- function(master, value_col = "hf3_che",
     ggplot2::theme(legend.position = "none")
 }
 
-#' Dumbbell：每国 2019 vs 2022 (COVID)
 plot_covid_dumbbell <- function(master,
                                  value_col = "hf3_che",
                                  base_year = 2019, shock_year = 2022,
@@ -451,7 +408,6 @@ plot_covid_dumbbell <- function(master,
     ggplot2::guides(colour = ggplot2::guide_legend(title = NULL))
 }
 
-#' Streamgraph：按大洲三源演化
 plot_stream_continent <- function(master,
                                    value_col = "che_pc_usd2023",
                                    title = NULL) {
@@ -484,11 +440,7 @@ plot_stream_continent <- function(master,
     theme_ghs()
 }
 
-# =============================================================================
-# F. 结构 / 分布拓展
-# =============================================================================
 
-#' Ternary plot: hf1 / hf2 / hf3 三元组
 plot_ternary_schemes <- function(master, year_focus = 2022,
                                   title = NULL) {
   d <- master |>
@@ -570,7 +522,6 @@ plot_ternary_schemes <- function(master, year_focus = 2022,
   }
 }
 
-#' 国家 × 年份 OOPS 热力图（按大洲分面）
 plot_oops_heatmap <- function(master, top_n = 60, title = NULL) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   pool <- master |>
@@ -600,7 +551,6 @@ plot_oops_heatmap <- function(master, top_n = 60, title = NULL) {
     ggplot2::theme(axis.text.y = ggplot2::element_text(size = 8))
 }
 
-#' Ridges: 各收入组人均 CHE 分布
 plot_pc_ridges_income <- function(master, year_focus = 2022, title = NULL) {
   ensure_pkgs(c("dplyr", "ggplot2", "ggridges", "scales"))
   d <- master |>
@@ -628,7 +578,6 @@ plot_pc_ridges_income <- function(master, year_focus = 2022, title = NULL) {
     ggplot2::theme(legend.position = "none")
 }
 
-#' Treemap: 2023 年各国 CHE 绝对规模
 plot_che_treemap <- function(master, year_focus = 2022, title = NULL) {
   d <- master |>
     dplyr::filter(.data$year == year_focus,
@@ -678,7 +627,6 @@ plot_che_treemap <- function(master, year_focus = 2022, title = NULL) {
     )
 }
 
-#' Lollipop: 收入组中位 OOPS
 plot_income_oops_lollipop <- function(master, year_focus = 2022, title = NULL) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   d <- master |>
@@ -713,7 +661,6 @@ plot_income_oops_lollipop <- function(master, year_focus = 2022, title = NULL) {
     ggplot2::theme(legend.position = "none")
 }
 
-#' Density 对比: 高/低外援依赖
 plot_ext_density <- function(master, year_focus = 2022, title = NULL) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   d <- master |>
@@ -741,11 +688,7 @@ plot_ext_density <- function(master, year_focus = 2022, title = NULL) {
     theme_ghs()
 }
 
-# =============================================================================
-# G. 排行 / 比较拓展
-# =============================================================================
 
-#' 大洲均值雷达图（用极坐标条柱代替）
 plot_continent_radar <- function(master, year_focus = 2022, title = NULL) {
   ensure_pkgs(c("dplyr", "tidyr", "ggplot2"))
   d <- master |>
@@ -774,7 +717,6 @@ plot_continent_radar <- function(master, year_focus = 2022, title = NULL) {
     theme_ghs(grid = "y")
 }
 
-#' 10 国小多面：CHE/OOPS/政府份额
 plot_small_multiples <- function(master,
                                   isos = c("USA", "CHN", "DEU", "JPN", "GBR",
                                            "IND", "BRA", "ZAF", "NGA", "RUS"),
@@ -802,11 +744,7 @@ plot_small_multiples <- function(master,
     theme_ghs(grid = "y")
 }
 
-# =============================================================================
-# H. 模型结果
-# =============================================================================
 
-#' Gini / Theil / Atkinson 时间序列
 plot_inequality_timeseries <- function(master, title = NULL) {
   ensure_pkgs(c("dplyr", "tidyr", "ggplot2"))
   ineq <- inequality_by_year(master)
@@ -826,7 +764,6 @@ plot_inequality_timeseries <- function(master, title = NULL) {
     theme_ghs()
 }
 
-#' β-收敛散点图（起始水平 vs 增速）
 plot_beta_convergence_scatter <- function(beta_obj, title = NULL) {
   if (is.null(beta_obj)) return(NULL)
   ensure_pkgs(c("ggplot2", "ggrepel"))
@@ -852,7 +789,6 @@ plot_beta_convergence_scatter <- function(beta_obj, title = NULL) {
     theme_ghs()
 }
 
-#' PCA biplot + cluster
 plot_pca_biplot <- function(pca_obj, cluster_obj = NULL, title = NULL) {
   if (is.null(pca_obj)) return(NULL)
   ensure_pkgs(c("ggplot2", "ggrepel"))
@@ -899,7 +835,6 @@ plot_pca_biplot <- function(pca_obj, cluster_obj = NULL, title = NULL) {
     theme_ghs()
 }
 
-#' 预测扇形图（多国 facet）
 plot_forecast_fan <- function(master, isos = c("CHN", "USA", "IND", "BRA"),
                                value_col = "che_pc_usd2023",
                                h = 5, title = NULL) {
@@ -946,8 +881,6 @@ plot_forecast_fan <- function(master, isos = c("CHN", "USA", "IND", "BRA"),
     theme_ghs()
 }
 
-#' Sankey 静态图（用 ggalluvial 实现，不依赖 networkD3）
-#' 三列：来源类型 -> 筹资方案 -> 用途
 plot_sankey_static <- function(master, year_focus = 2022, title = NULL) {
   if (!requireNamespace("ggalluvial", quietly = TRUE)) {
     warning("ggalluvial not installed; returning placeholder")
@@ -981,7 +914,6 @@ plot_sankey_static <- function(master, year_focus = 2022, title = NULL) {
       .data$src_id == "ext" ~ src_lbl_ext
     ))
 
-  # 构造 alluvium 长表（启发式: 按经验权重映射到 hf 方案）
   flows <- tibble::tribble(
     ~source,     ~scheme,  ~weight,
     src_lbl_gov, hf1_lbl,  0.75,
@@ -1017,7 +949,6 @@ plot_sankey_static <- function(master, year_focus = 2022, title = NULL) {
                     axis.ticks.y = ggplot2::element_blank())
 }
 
-#' Waffle / pictogram：治疗 vs 预防（C5）
 plot_waffle_purpose <- function(master, year_focus = 2022,
                                   isos = c("USA", "DEU", "CHN", "BRA",
                                             "IND", "ZAF"),
@@ -1099,7 +1030,6 @@ plot_waffle_purpose <- function(master, year_focus = 2022,
                     axis.ticks = ggplot2::element_blank())
 }
 
-#' Animated map (gganimate): OOPS world choropleth × year
 animate_oops_map <- function(master, world_sf,
                                 years = NULL,
                                 fps = 4, width = 1100, height = 600,
@@ -1141,7 +1071,6 @@ animate_oops_map <- function(master, world_sf,
   invisible(out_path)
 }
 
-#' 双变量地图（OOPS × 政府份额）—— 用 sf + 自定义 9 色调色板
 plot_bivariate_map <- function(master, world_sf,
                                 year_focus = 2022,
                                 title = NULL) {

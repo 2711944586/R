@@ -6,43 +6,33 @@ close(con)
 cat("=== HTML 结构审核 ===\n")
 cat("total lines:", format(length(html), big.mark = ","), "\n")
 
-# Finding sections (F1-F36)
 finds <- length(grep("class='finding' id='f-", html))
 cat("finding sections (F-cards):", finds, "\n")
 
-# Top-level sections
 top_sections <- length(grep("<section class='section[^']*'", html))
 cat("top-level sections:", top_sections, "\n")
 
-# Chips
 chips <- length(grep("<span class='chip", html))
 cat("chip elements:", chips, "\n")
 
-# Images
 imgs <- length(grep("<img ", html))
 cat("img tags:", imgs, "\n")
 
-# Iframes (widgets)
 iframes <- length(grep("<iframe", html))
 cat("iframe (widgets):", iframes, "\n")
 
-# Method blocks
 methods <- length(grep("class='method-block'", html))
 cat("method blocks:", methods, "\n")
 
-# Callouts
 callouts <- length(grep("class='callout", html))
 cat("callouts:", callouts, "\n")
 
-# Limit notes
 limits <- length(grep("class='limit-note'", html))
 cat("limit notes:", limits, "\n")
 
-# Deep dive grids
 deep <- length(grep("class='deep-dive-grid'", html))
 cat("deep-dive grids:", deep, "\n")
 
-# Code figures
 codes <- length(grep("class='code-figure'", html))
 cat("code figures:", codes, "\n")
 

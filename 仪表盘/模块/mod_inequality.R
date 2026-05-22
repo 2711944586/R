@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_inequality.R
-# 不平等指数：Gini、Theil、Atkinson 的时序演化与分解
-# =============================================================================
 
 mod_inequality_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -47,7 +43,6 @@ mod_inequality_ui <- function(id) {
           )
         ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1: Gini trend + Lorenz
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -77,7 +72,6 @@ mod_inequality_ui <- function(id) {
           footer = "Lorenz \u66f2\u7ebf\u6309\u56fd\u5bb6\u7b49\u6743\u6392\u5e8f\uff0c\u4e0d\u662f\u6309\u4eba\u53e3\u6743\u91cd\u6392\u5e8f\u3002"
         )
       ),
-      # Row 2: decomposition + between/within
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -106,7 +100,6 @@ mod_inequality_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("group_gini"), height = 380))
         )
       ),
-      # Row 3
       mod_card(
         kicker = "I5 \u00b7 Inequality audit",
         title = "\u4e0d\u5e73\u7b49\u6307\u6570\u8be6\u8868",
@@ -223,7 +216,6 @@ mod_inequality_server <- function(id, master_r) {
         d <- m[m$year == yr & is.finite(m[[ind]]) & m[[ind]] > 0 & !is.na(m[[grp]]), ]
         if (nrow(d) < 10) return(NULL)
         total_theil <- calc_theil(d[[ind]])
-        # Between-group Theil
         group_means <- tapply(d[[ind]], d[[grp]], mean, na.rm = TRUE)
         group_ns <- tapply(d[[ind]], d[[grp]], length)
         mu <- mean(d[[ind]])

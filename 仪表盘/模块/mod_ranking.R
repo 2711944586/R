@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_ranking.R
-# 排行榜：多指标国家排名与排名变动追踪
-# =============================================================================
 
 mod_ranking_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -50,7 +46,6 @@ mod_ranking_ui <- function(id) {
           )
         ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -79,7 +74,6 @@ mod_ranking_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("rank_change"), height = 520))
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -130,13 +124,12 @@ mod_ranking_server <- function(id, master_r) {
       d <- m[m$year == yr & is.finite(m[[ind]]), ]
       d <- d[order(if (input$direction == "desc") -d[[ind]] else d[[ind]]), ]
       d$rank <- seq_len(nrow(d))
-      # Get rank from 5 years ago
       yr_prev <- yr - 5
       d_prev <- m[m$year == yr_prev & is.finite(m[[ind]]), ]
       d_prev <- d_prev[order(if (input$direction == "desc") -d_prev[[ind]] else d_prev[[ind]]), ]
       d_prev$rank_prev <- seq_len(nrow(d_prev))
       d <- merge(d, d_prev[, c("iso3_code", "rank_prev")], by = "iso3_code", all.x = TRUE)
-      d$rank_change <- d$rank_prev - d$rank  # positive = improved
+      d$rank_change <- d$rank_prev - d$rank
       d[order(d$rank), ]
     })
 

@@ -1,9 +1,3 @@
-# =============================================================================
-# 程序/36_widgets_map.R   —— 交互式地图 widget（C1 阶段）
-# -----------------------------------------------------------------------------
-# 20 个 imap_* 函数（leaflet / plotly choropleth / mapbox 风格）
-# 命名前缀：imap_
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -33,11 +27,7 @@ if (!exists("ensure_pkgs", mode = "function")) {
          "<span style='font-size:11px'>", var, " = ", fmt(val), "</span>")
 }
 
-# =============================================================================
-# 1-5 · leaflet 单指标 choropleth（5 个指标）
-# =============================================================================
 
-#' imap1 \u4eba\u5747 CHE leaflet
 imap_che_pc <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -65,7 +55,6 @@ imap_che_pc <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-#' imap2 OOP \u5360 CHE leaflet
 imap_oop <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -91,7 +80,6 @@ imap_oop <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-#' imap3 GGHED leaflet
 imap_gghed <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -114,7 +102,6 @@ imap_gghed <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-#' imap4 \u9884\u671f\u5bff\u547d leaflet
 imap_lifeexp <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -136,7 +123,6 @@ imap_lifeexp <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-#' imap5 U5MR leaflet
 imap_u5mr <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -159,11 +145,7 @@ imap_u5mr <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-# =============================================================================
-# 6-10 · 五分位 / bivariate / 变化
-# =============================================================================
 
-#' imap6 \u4eba\u5747 CHE \u4e94\u5206\u4f4d leaflet
 imap_quintile_che_pc <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -184,7 +166,6 @@ imap_quintile_che_pc <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-#' imap7 bivariate leaflet (CHE_pc \u00d7 life_exp)
 imap_bivariate <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -218,7 +199,6 @@ imap_bivariate <- function(master, world_sf, year = NULL) {
       label = lapply(labs, htmltools::HTML))
 }
 
-#' imap8 CHE\u4eba\u5747 \u53d8\u5316 (2000 \u2192 latest)
 imap_change_che_pc <- function(master, world_sf,
                                  y1 = 2000, y2 = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
@@ -250,7 +230,6 @@ imap_change_che_pc <- function(master, world_sf,
       position = "bottomright")
 }
 
-#' imap9 OOP \u53d8\u5316 (2000 \u2192 latest)
 imap_change_oop <- function(master, world_sf, y1 = 2000, y2 = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(y2)) y2 <- max(master$year, na.rm = TRUE)
@@ -280,7 +259,6 @@ imap_change_oop <- function(master, world_sf, y1 = 2000, y2 = NULL) {
       position = "bottomright")
 }
 
-#' imap10 effiency (life_exp residual after CHE/cap)
 imap_efficiency <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -314,11 +292,7 @@ imap_efficiency <- function(master, world_sf, year = NULL) {
       position = "bottomright")
 }
 
-# =============================================================================
-# 11-15 · 比例气泡 / 点叠加 / leaflet 高级
-# =============================================================================
 
-#' imap11 \u603b CHE \u6c14\u6ce1\u53e0\u52a0
 imap_bubble_che_total <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -340,7 +314,6 @@ imap_bubble_che_total <- function(master, world_sf, year = NULL) {
         formatC(che_usd2023 / 1e9, digits = 1, format = "f"), "B"))
 }
 
-#' imap12 OOP \u6c14\u6ce1\u00b7\u5927\u6d32\u989c\u8272
 imap_bubble_oop_continent <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -367,7 +340,6 @@ imap_bubble_oop_continent <- function(master, world_sf, year = NULL) {
         sprintf("%.1f%%", hf3_che)))
 }
 
-#' imap13 \u70ed\u70b9\u00b7Top10 \u9ad8 OOP \u56fd\u5bb6\u6807\u8bb0
 imap_top10_oop <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -390,7 +362,6 @@ imap_top10_oop <- function(master, world_sf, year = NULL) {
         "font-weight" = "600")))
 }
 
-#' imap14 \u56fd\u5bb6\u70b9\u5e7f\u544a\u00b7\u70b9\u51fb\u67e5\u770b
 imap_country_points <- function(master, world_sf, year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -421,7 +392,6 @@ imap_country_points <- function(master, world_sf, year = NULL) {
       popup = popup_html)
 }
 
-#' imap15 \u9ad8\u4eae\u5355\u56fd\u00b7\u4ee5\u4f8b USA / CHN
 imap_highlight_country <- function(master, world_sf, iso = "CHN",
                                      year = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
@@ -441,11 +411,7 @@ imap_highlight_country <- function(master, world_sf, iso = "CHN",
       label = ~country_name)
 }
 
-# =============================================================================
-# 16-20 · plotly choropleth / 高级布局
-# =============================================================================
 
-#' imap16 plotly choropleth \u00b7 year frame
 imap_plotly_animation <- function(master, world_sf = NULL,
                                     var = "che_pc_usd2023") {
   if (!.has_pkg("plotly")) return(NULL)
@@ -470,7 +436,6 @@ imap_plotly_animation <- function(master, world_sf = NULL,
   p
 }
 
-#' imap17 plotly choropleth \u00b7 single year
 imap_plotly_choropleth <- function(master, world_sf = NULL,
                                      year = NULL,
                                      var = "che_pc_usd2023") {
@@ -488,13 +453,11 @@ imap_plotly_choropleth <- function(master, world_sf = NULL,
                    paper_bgcolor = "#fbf6ee")
 }
 
-#' imap18 plotly mapbox density (need token; fallback)
 imap_plotly_density <- function(master, world_sf = NULL, year = NULL) {
   if (!.has_pkg("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
   d <- master[master$year == year & is.finite(master$che_usd2023), ]
   if (!nrow(d)) return(NULL)
-  # mapbox 需 token，这里用 scatter_geo 近似
   plotly::plot_ly(d, type = "scattergeo", locations = ~iso3_code,
     mode = "markers", marker = list(
       size = ~sqrt(pmax(che_usd2023, 0)) / 1e4,
@@ -512,7 +475,6 @@ imap_plotly_density <- function(master, world_sf = NULL, year = NULL) {
                    paper_bgcolor = "#fbf6ee")
 }
 
-#' imap19 leaflet \u53cc\u9762\u677f \u00b7 \u5e74\u4efd\u5bf9\u6bd4
 imap_dual_compare <- function(master, world_sf,
                                  y1 = 2000, y2 = NULL) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf") || !.has_pkg("htmltools"))
@@ -535,7 +497,6 @@ imap_dual_compare <- function(master, world_sf,
                     l2))
 }
 
-#' imap20 leaflet \u8de8\u5e74 layer \u5207\u6362\uff080 1 0 6 0 2 2\uff09
 imap_layer_years <- function(master, world_sf,
                               years = c(2000, 2010, 2018, 2022)) {
   if (!.has_pkg("leaflet") || !.has_pkg("sf")) return(NULL)
@@ -562,11 +523,7 @@ imap_layer_years <- function(master, world_sf,
       title = "log10 \u4eba\u5747 CHE", position = "bottomright")
 }
 
-# =============================================================================
-# 导出器：批量验证 widget 函数能创建对象
-# =============================================================================
 
-#' 批量校验 C1 widget 函数（不写文件）
 ghs_validate_widgets_map <- function(master = NULL, world_sf = NULL) {
   if (is.null(master)) {
     cache <- file.path(proj_root(), "\u6d3e\u751f\u6570\u636e",
@@ -607,11 +564,6 @@ ghs_validate_widgets_map <- function(master = NULL, world_sf = NULL) {
   results
 }
 
-#' \u6279\u91cf\u5bfc\u51fa C1 \u5730\u56fe widget \u4e3a HTML \u6587\u4ef6
-#' @param master \u4e3b\u6570\u636e
-#' @param world_sf sf \u5bf9\u8c61
-#' @param out_dir \u8f93\u51fa\u76ee\u5f55
-#' @param verbose \u662f\u5426\u6253\u5370\u8fdb\u5ea6
 ghs_export_widgets_map <- function(master = NULL, world_sf = NULL,
                                      out_dir = file.path("\u5206\u6790\u8f93\u51fa",
                                                           "\u4ea4\u4e92\u7ec4\u4ef6"),

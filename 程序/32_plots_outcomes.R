@@ -1,14 +1,3 @@
-# =============================================================================
-# 程序/32_plots_outcomes.R   —— 产出 / 寿命专题图集（B3 阶段）
-# -----------------------------------------------------------------------------
-# 5 个组：
-#   A. Lexis-like 热力面（year × CHE-decile → outcome）        × 3
-#   B. SDG-3-ish 趋势与差距                                   × 10
-#   C. DEA-style 生产前沿                                      × 5
-#   D. 弹性与残差地理                                          × 5
-#   E. 其他耦合视图                                            × 2
-# 总：25 个 plot_outcome_* + ghs_export_outcomes() 导出器
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -22,7 +11,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
   else paste0(base, " \u00b7 ", extra)
 }
 
-# 把样本按某指标切五分位 / 十分位
 .decile_bin <- function(x, n = 10) {
   probs <- seq(0, 1, length.out = n + 1)
   brks <- stats::quantile(x, probs, na.rm = TRUE)
@@ -32,7 +20,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
       labels = paste0("D", seq_len(length(brks) - 1)))
 }
 
-# 简单凸包前沿（最大化 y，给定 x，单调上包络）
 .upper_envelope <- function(x, y, n = 25) {
   ok <- is.finite(x) & is.finite(y)
   x <- x[ok]; y <- y[ok]
@@ -48,19 +35,16 @@ if (!exists("ensure_pkgs", mode = "function")) {
       x = stats::median(x[sel]), y = max(y[sel])))
   }
   out <- out[order(out$x), ]
-  # 累积最大（保证单调不减）
   out$y <- cummax(out$y)
   out
 }
 
-# 下包络（最小化 y）
 .lower_envelope <- function(x, y, n = 25) {
   env <- .upper_envelope(x, -y, n)
   env$y <- -env$y
   env
 }
 
-# median + IQR (Q1/Q3) -> 兼容 ggplot2::stat_summary 的 fun.data 接口
 .median_iqr <- function(v) {
   v <- v[is.finite(v)]
   if (!length(v)) return(data.frame(y = NA_real_, ymin = NA_real_,
@@ -71,11 +55,7 @@ if (!exists("ensure_pkgs", mode = "function")) {
              ymax = unname(qs[3]))
 }
 
-# =============================================================================
-# A. Lexis-like 热力面
-# =============================================================================
 
-#' year × CHE_pc 十分位 → 寿命中位数热力图
 plot_outcome_lexis_lifeexp <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$life_exp) &
@@ -102,7 +82,6 @@ plot_outcome_lexis_lifeexp <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' year × CHE_pc 十分位 → U5MR 中位数热力（log）
 plot_outcome_lexis_u5mr <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$u5mr) &
@@ -128,7 +107,6 @@ plot_outcome_lexis_u5mr <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' 双面板对比 寿命 vs U5MR（同一年份 × decile）
 plot_outcome_lexis_dual <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$life_exp) &
@@ -162,11 +140,7 @@ plot_outcome_lexis_dual <- function(master) {
       caption = .cap_outcomes())
 }
 
-# =============================================================================
-# B. SDG-3-ish 趋势与差距（10）
-# =============================================================================
 
-#' 全球寿命中位数 + IQR
 plot_outcome_lifeexp_trend_global <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$life_exp), ]
@@ -192,7 +166,6 @@ plot_outcome_lifeexp_trend_global <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' 寿命按收入组分面
 plot_outcome_lifeexp_trend_income <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$life_exp) &
@@ -219,7 +192,6 @@ plot_outcome_lifeexp_trend_income <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' 寿命按大洲分面
 plot_outcome_lifeexp_trend_continent <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$life_exp) &
@@ -239,7 +211,6 @@ plot_outcome_lifeexp_trend_continent <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' 全球 U5MR 中位数（log）
 plot_outcome_u5mr_trend_global <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$u5mr) & master$u5mr > 0, ]
@@ -257,7 +228,6 @@ plot_outcome_u5mr_trend_global <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' U5MR 按收入组
 plot_outcome_u5mr_trend_income <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$u5mr) & master$u5mr > 0 &
@@ -281,7 +251,6 @@ plot_outcome_u5mr_trend_income <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' U5MR 按大洲
 plot_outcome_u5mr_trend_continent <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$u5mr) & master$u5mr > 0 &
@@ -302,7 +271,6 @@ plot_outcome_u5mr_trend_continent <- function(master) {
       caption = .cap_outcomes())
 }
 
-#' 寿命差距：与 top-5 国家均值的 gap
 plot_outcome_lifeexp_gap_to_frontier <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -327,7 +295,6 @@ plot_outcome_lifeexp_gap_to_frontier <- function(master, year = NULL) {
       caption = .cap_outcomes())
 }
 
-#' U5MR 差距：与 top-5 (最低) 的 gap
 plot_outcome_u5mr_gap_to_frontier <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -352,7 +319,6 @@ plot_outcome_u5mr_gap_to_frontier <- function(master, year = NULL) {
       caption = .cap_outcomes())
 }
 
-#' 寿命增长：2000-2022 Δ life_exp，Top/Bottom
 plot_outcome_lifeexp_gain <- function(master,
                                         y1 = NULL, y2 = NULL,
                                         n = 12) {
@@ -388,7 +354,6 @@ plot_outcome_lifeexp_gain <- function(master,
       caption = .cap_outcomes())
 }
 
-#' U5MR 削减：2000-2022 Δ U5MR Top/Bottom（越负越好）
 plot_outcome_u5mr_reduction <- function(master,
                                           y1 = NULL, y2 = NULL,
                                           n = 12) {
@@ -424,11 +389,7 @@ plot_outcome_u5mr_reduction <- function(master,
       caption = .cap_outcomes())
 }
 
-# =============================================================================
-# C. DEA-style 生产前沿（5）
-# =============================================================================
 
-#' log CHE_pc vs life_exp + 上包络
 plot_outcome_frontier_lifeexp <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -456,7 +417,6 @@ plot_outcome_frontier_lifeexp <- function(master, year = NULL) {
       caption = .cap_outcomes())
 }
 
-#' log CHE_pc vs log U5MR + 下包络（U5MR 越低越好）
 plot_outcome_frontier_u5mr <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -487,7 +447,6 @@ plot_outcome_frontier_u5mr <- function(master, year = NULL) {
       caption = .cap_outcomes())
 }
 
-#' 复合产出指数：z(life_exp) - z(log U5MR)，越大越优
 plot_outcome_frontier_composite <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -515,7 +474,6 @@ plot_outcome_frontier_composite <- function(master, year = NULL) {
       caption = .cap_outcomes())
 }
 
-#' 效率 dotplot：实际 vs 前沿期望（log-log 线性模型残差最大的 12 国）
 plot_outcome_efficiency_score <- function(master, year = NULL, n = 14) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -549,7 +507,6 @@ plot_outcome_efficiency_score <- function(master, year = NULL, n = 14) {
       caption = .cap_outcomes("OLS residual"))
 }
 
-#' 收入组分面前沿
 plot_outcome_frontier_panel_income <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -582,11 +539,7 @@ plot_outcome_frontier_panel_income <- function(master, year = NULL) {
       caption = .cap_outcomes())
 }
 
-# =============================================================================
-# D. 弹性与残差（5）
-# =============================================================================
 
-#' log-log 弹性：CHE_pc → life_exp
 plot_outcome_elasticity_lifeexp <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -619,7 +572,6 @@ plot_outcome_elasticity_lifeexp <- function(master, year = NULL) {
       caption = .cap_outcomes("OLS log-log"))
 }
 
-#' log-log 弹性：CHE_pc → U5MR（应为负）
 plot_outcome_elasticity_u5mr <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -649,7 +601,6 @@ plot_outcome_elasticity_u5mr <- function(master, year = NULL) {
       caption = .cap_outcomes("OLS log-log"))
 }
 
-#' 寿命残差：每国残差 Top/Bot dotplot
 plot_outcome_residual_lifeexp <- function(master, year = NULL, n = 12) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -681,7 +632,6 @@ plot_outcome_residual_lifeexp <- function(master, year = NULL, n = 12) {
       caption = .cap_outcomes("OLS log-log residual"))
 }
 
-#' U5MR 残差：每国残差 Top/Bot
 plot_outcome_residual_u5mr <- function(master, year = NULL, n = 12) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -693,10 +643,9 @@ plot_outcome_residual_u5mr <- function(master, year = NULL, n = 12) {
   d$logche <- log(d$che_pc_usd2023)
   fit <- stats::lm(logu5 ~ logche, data = d)
   d$res <- stats::residuals(fit) * 100
-  # 负残差 = 比预期低 = 好；正残差 = 比预期高 = 坏
   d <- d[order(d$res), ]
-  top <- utils::head(d, n)  # 最好
-  bot <- utils::tail(d, n)  # 最坏
+  top <- utils::head(d, n)
+  bot <- utils::tail(d, n)
   top$grp <- "\u6bd4\u9884\u671f\u4f4e (\u597d)"
   bot$grp <- "\u6bd4\u9884\u671f\u9ad8 (\u574f)"
   m <- rbind(top, bot)
@@ -717,7 +666,6 @@ plot_outcome_residual_u5mr <- function(master, year = NULL, n = 12) {
       caption = .cap_outcomes("OLS log-log residual"))
 }
 
-#' 寿命残差地理：choropleth
 plot_outcome_residual_map_lifeexp <- function(master, world_sf,
                                                 year = NULL) {
   ensure_pkgs(c("ggplot2", "sf"))
@@ -751,11 +699,7 @@ plot_outcome_residual_map_lifeexp <- function(master, world_sf,
       caption = .cap_outcomes("OLS log-log residual"))
 }
 
-# =============================================================================
-# E. 其他耦合 (2)
-# =============================================================================
 
-#' CHE_pc vs life_exp 散点 + 5 时点轨迹（少数国家）
 plot_outcome_decoupling_track <- function(master,
                                             isos = c("USA", "CHN", "IND",
                                                        "BRA", "JPN", "DEU",
@@ -788,7 +732,6 @@ plot_outcome_decoupling_track <- function(master,
       caption = .cap_outcomes())
 }
 
-#' U5MR 年化下降速率分布（按收入组）
 plot_outcome_u5mr_velocity <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$u5mr) & master$u5mr > 0 &
@@ -797,7 +740,6 @@ plot_outcome_u5mr_velocity <- function(master) {
     levels = c("Low income", "Lower middle income",
                "Upper middle income", "High income"))
   d <- d[order(d$iso3_code, d$year), ]
-  # 计算年化 % 变化
   rates <- do.call(rbind, lapply(split(d, d$iso3_code), function(g) {
     if (nrow(g) < 2) return(NULL)
     g$lag <- c(NA, g$u5mr[-nrow(g)])
@@ -825,11 +767,7 @@ plot_outcome_u5mr_velocity <- function(master) {
       caption = .cap_outcomes("WDI U5MR, country-level annualised"))
 }
 
-# =============================================================================
-# 导出器
-# =============================================================================
 
-#' 批量导出 B3 产出图集
 ghs_export_outcomes <- function(master = NULL, world_sf = NULL,
                                   fig_dir = NULL) {
   if (is.null(master)) {

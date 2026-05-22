@@ -1,19 +1,8 @@
-# =============================================================================
-# 程序/42_findings_extra.R
-# -----------------------------------------------------------------------------
-# E 阶段：F15–F36 共 22 个新发现。每个 finding 完整结构：
-#   研究问题 / 方法 / 多图 / 多段分析解读 / 数据口径 / widget / 局限。
-# 依赖 21_static_showcase.R 中的辅助：
-#   .ghs_finding / .ghs_method / .ghs_para / .ghs_fig / .ghs_chip /
-#   .ghs_callout / .ghs_code / .ghs_limit / .ghs_widget_anchor / .ghs_e
-# 入口：ghs_findings_extra(s, fig_dir, programs_dir, widget_dir, mode, repo_url)
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
 }
 
-# ---- 内部辅助：兼容降级（21_static_showcase.R 未加载时仍可独立测试）-------
 
 .fe_fig_fallback <- c(
   adv_aging_scatter.png = "279_facet_scatter_che_life.png",
@@ -234,7 +223,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 }
 
 
-# ---- F15 · 老龄化 × 卫生支出 ------------------------------------------------
 
 .fe_f15 <- function(fig_dir, widget_dir, mode, repo_url) {
   chips <- paste0(
@@ -291,7 +279,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
     body, chips)
 }
 
-# ---- F16 · 城镇化 × CHE -----------------------------------------------------
 
 .fe_f16 <- function(fig_dir, widget_dir, mode, repo_url) {
   chips <- paste0(
@@ -344,7 +331,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 }
 
 
-# ---- F17 · 公共财政空间 ------------------------------------------------------
 
 .fe_f17 <- function(fig_dir, widget_dir, mode, repo_url) {
   chips <- paste0(
@@ -402,7 +388,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
     body, chips)
 }
 
-# ---- F18 · 价格与可及性 ------------------------------------------------------
 
 .fe_f18 <- function(fig_dir, widget_dir, mode, repo_url) {
   chips <- paste0(
@@ -455,7 +440,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 }
 
 
-# ---- F19 · 区域协议效应 ------------------------------------------------------
 
 .fe_f19 <- function(fig_dir, widget_dir, mode, repo_url) {
   chips <- paste0(
@@ -513,7 +497,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 }
 
 
-# ---- F20 · 通胀冲击 ----------------------------------------------------------
 
 .fe_f20 <- function(fig_dir, widget_dir, mode, repo_url) {
   chips <- paste0(
@@ -566,8 +549,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 }
 
 
-# ---- F21-F36: 批量紧凑型生成（保留完整结构但以函数列表驱动）-----------------
-# 与 F15-F20 同等质量，使用数据驱动模式减少重复代码
 
 .fe_batch_spec <- function() { list(
   list(id="f-ncd", num="F21", kicker="DISEASE BURDEN", title="\u6b7b\u56e0\u7ed3\u6784\u4e0e\u9884\u7b97",
@@ -640,7 +621,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 )}
 
 
-# ---- Source batch specs and entry function -----------------------------------
 .fe_this_file <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
 .fe_source_dir <- if (!is.null(.fe_this_file) && nzchar(.fe_this_file)) {
   dirname(normalizePath(.fe_this_file, mustWork = FALSE))

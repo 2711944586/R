@@ -11,7 +11,8 @@
     ".v3-chart-guide",
     ".widget-workbench-bar",
     ".overview-signal-card",
-    ".widget-type-card"
+    ".widget-type-card",
+    ".widget-feature-btn"
   ].join(", ");
 
   function markWidgetContainers() {
@@ -58,7 +59,7 @@
   }
 
   function applyRevealStagger() {
-    document.querySelectorAll(".tab-pane.active .v3-card, .tab-pane.active .v3-kpi, .tab-pane.active .v3-insight, .tab-pane.active .overview-signal-card, .tab-pane.active .widget-type-card")
+    document.querySelectorAll(".tab-pane.active .v3-card, .tab-pane.active .v3-kpi, .tab-pane.active .v3-insight, .tab-pane.active .overview-signal-card, .tab-pane.active .widget-type-card, .tab-pane.active .widget-feature-btn")
       .forEach(function (node, index) {
         node.style.setProperty("--ghs-stagger", String(Math.min(index, 10) * 34) + "ms");
       });
@@ -137,7 +138,7 @@
       window.setTimeout(closeOpenNavigation, 80);
     }
 
-    if (event.target.closest(".home-route-card, .home-action, .v3-module-card, .module-card")) {
+    if (event.target.closest(".v3-module-card, .module-card")) {
       scrollTabToTop();
     }
   });

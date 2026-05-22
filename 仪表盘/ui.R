@@ -1,4 +1,3 @@
-# Shiny 页面结构与局部样式。
 
 ghs_app_css <- htmltools::tags$style(htmltools::HTML("
 :root {

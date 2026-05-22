@@ -1,9 +1,4 @@
-# =============================================================================
-# 程序/20_deploy.R  ·  部署辅助：拷贝 widgets / sitemap / 预热缓存 / 体积报告
-# -----------------------------------------------------------------------------
 
-#' 把 分析输出/交互组件/*.html 拷贝到 网站发布/交互组件/
-#' @export
 deploy_copy_widgets <- function(src = file.path("分析输出", "交互组件"),
                                   dst = file.path("网站发布", "交互组件"),
                                   pattern = "\\.html$",
@@ -20,8 +15,6 @@ deploy_copy_widgets <- function(src = file.path("分析输出", "交互组件"),
   invisible(sum(copied))
 }
 
-#' 把 分析输出/图表/*.png 拷贝到 网站发布/图表/（供 README 截图引用）
-#' @export
 deploy_copy_figures <- function(src = file.path("分析输出", "图表"),
                                   dst = file.path("网站发布", "图表"),
                                   pattern = "\\.(png|svg)$",
@@ -38,8 +31,6 @@ deploy_copy_figures <- function(src = file.path("分析输出", "图表"),
   invisible(sum(copied))
 }
 
-#' 生成 sitemap.xml（简化版）
-#' @export
 deploy_sitemap <- function(网站发布_dir = "网站发布",
                             base_url = "https://2711944586.github.io/R/") {
   if (!dir.exists(网站发布_dir)) {
@@ -65,8 +56,6 @@ deploy_sitemap <- function(网站发布_dir = "网站发布",
   invisible(file.path(网站发布_dir, "sitemap.xml"))
 }
 
-#' 体积报告：列出 网站发布/ 各目录大小
-#' @export
 deploy_size_report <- function(网站发布_dir = "网站发布") {
   if (!dir.exists(网站发布_dir)) return(invisible(NULL))
   subs <- list.dirs(网站发布_dir, recursive = FALSE, full.names = TRUE)
@@ -85,8 +74,6 @@ deploy_size_report <- function(网站发布_dir = "网站发布") {
   out
 }
 
-#' 预热缓存：master_enriched + world_sf + external 一次跑完
-#' @export
 deploy_warm_cache <- function() {
   cat("[deploy] warming cache...\n")
   if (exists("load_ghs", mode = "function") &&
@@ -109,8 +96,6 @@ deploy_warm_cache <- function() {
   invisible(TRUE)
 }
 
-#' 汇总构建产物，生成 widgets、figures、sitemap 与体积报告
-#' @export
 deploy_finalize <- function(网站发布_dir = "网站发布",
                               base_url = "https://2711944586.github.io/R/",
                               verbose = TRUE) {

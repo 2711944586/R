@@ -1,18 +1,8 @@
-# =============================================================================
-# 程序/09_maps.R  ---  地理可视化（leaflet + sf）
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 1. leaflet choropleth ------------------------------------------------
-#' 用 leaflet + sf 画一个交互世界地图
-#'
-#' @param master 主宽表
-#' @param world_sf load_world_sf() 的结果
-#' @param indicator_col 指标列名（默认 hf3_che）
-#' @param year_focus 关注年
 leaflet_choropleth <- function(master, world_sf,
                                 indicator_col = "hf3_che",
                                 year_focus = 2023,
@@ -52,7 +42,6 @@ leaflet_choropleth <- function(master, world_sf,
     )
 }
 
-# ---- 2. 简单地图比例尺 + 经纬度网格 ----------------------------------------
 add_map_basics <- function(map) {
   if (!requireNamespace("leaflet", quietly = TRUE)) return(map)
   map |>

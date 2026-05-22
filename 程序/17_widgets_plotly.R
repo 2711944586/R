@@ -1,9 +1,3 @@
-# =============================================================================
-# 程序/17_widgets_plotly.R  ·  高级 plotly widget（8 个）
-# -----------------------------------------------------------------------------
-# - 全部返回 plotly object，可独立保存为 standalone HTML
-# - 字体使用 Inter，背景透明，hover 模式 unified
-# =============================================================================
 
 .plotly_v2_layout <- function(p, title = NULL, subtitle = NULL,
                                source = "WHO GHED 2024") {
@@ -37,8 +31,6 @@
   )
 }
 
-#' W2.1 · Gapminder 经典气泡（年份 frame）— GDP/cap × 寿命 × CHE 大小
-#' @export
 widget_v2_gapminder_bubble <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$gdp_pc_usd) &
@@ -72,8 +64,6 @@ widget_v2_gapminder_bubble <- function(master) {
     subtitle = "GDP/cap \u00d7 \u5bff\u547d \u00d7 CHE/cap \u5927\u5c0f\u00b7\u62d6\u5e74\u4efd")
 }
 
-#' W2.2 · 高亮多线时序（点击 legend 隔离国家）
-#' @export
 widget_v2_highlight_lines <- function(master,
                                        countries = c("USA","CHN","IND","BRA","NGA","DEU","JPN","KEN","BRA","NOR")) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
@@ -100,8 +90,6 @@ widget_v2_highlight_lines <- function(master,
     subtitle = "\u70b9\u51fb\u56fe\u4f8b\u9ad8\u4eae\u5355\u56fd")
 }
 
-#' W2.3 · OOPS 国家×年份热力图
-#' @export
 widget_v2_oops_heatmap <- function(master, top_n = 30) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   if (!"hf3_che" %in% names(master)) return(NULL)
@@ -133,8 +121,6 @@ widget_v2_oops_heatmap <- function(master, top_n = 30) {
     subtitle = "\u989c\u8272\u8d8a\u7ea2\u00b7OOPS \u8d8a\u9ad8")
 }
 
-#' W2.4 · ternary 三源结构（hf1/hf2/hf3）
-#' @export
 widget_v2_ternary <- function(master, year = 2022) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[master$year == year &
@@ -169,8 +155,6 @@ widget_v2_ternary <- function(master, year = 2022) {
     subtitle = sprintf("%d\u5e74\u00b7%d\u4e2a\u56fd\u5bb6", year, nrow(d)))
 }
 
-#' W2.5 · 收入组人均 CHE 分布动画（year frame + violin）
-#' @export
 widget_v2_income_violin <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -194,8 +178,6 @@ widget_v2_income_violin <- function(master) {
     subtitle = "\u62d6\u5e74\u4efd\u00b7\u67e5\u770b\u5206\u5e03\u6f02\u79fb")
 }
 
-#' W2.6 · 散点矩阵（6 维相关）
-#' @export
 widget_v2_splom <- function(master, year = 2022) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[master$year == year &
@@ -226,8 +208,6 @@ widget_v2_splom <- function(master, year = 2022) {
     subtitle = sprintf("%d\u5e74\u00b7\u989c\u8272=\u5927\u6d32", year))
 }
 
-#' W2.7 · MC 情景 fan（OECD 维持 7% GDP 投入的寿命增益分布）
-#' @export
 widget_v2_mc_fan <- function(master, n_sim = 500, country_iso = "BRA") {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   if (!exists("mc_scenarios", mode = "function")) {
@@ -265,8 +245,6 @@ widget_v2_mc_fan <- function(master, n_sim = 500, country_iso = "BRA") {
     subtitle = sprintf("%d \u6b21\u6a21\u62df\u00b7\u5bff\u547d\u589e\u76ca\u533a\u95f4", n_sim))
 }
 
-#' W2.8 · scenario 切换（基线 / OECD / 紧缩三情景）
-#' @export
 widget_v2_scenarios <- function(master, country_iso = "CHN") {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[master$iso3_code == country_iso &
@@ -310,10 +288,7 @@ widget_v2_scenarios <- function(master, country_iso = "CHN") {
     subtitle = "\u57fa\u7ebf 3% / OECD 6% / \u7d27\u7f29 -1%\u00b7\u672a\u67657\u5e74")
 }
 
-# ---- 批量导出 -------------------------------------------------------------
 
-#' plotly widget（8 个）批量保存为 standalone HTML
-#' @export
 ghs_export_v2_widgets_plotly <- function(master,
                                           out_dir = file.path("分析输出", "交互组件"),
                                           verbose = TRUE) {

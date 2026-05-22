@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-widgets-map.R
-# C1: 交互地图 widget imap_*
+
+
 
 skip_unless_master <- function() {
   proj <- (function() {

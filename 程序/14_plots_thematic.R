@@ -1,13 +1,4 @@
-# =============================================================================
-# 程序/14_plots_thematic.R  ·  主题深度静态图（8 张）
-# -----------------------------------------------------------------------------
-# 命名约定 plot_v2_<topic>_<id>(master, ...) → ggplot
-# 每张图自带 labs_news() + caption_news() + theme_ghs2()（在 build 时由
-# theme_set 接管，函数内部不重复指定）
-# =============================================================================
 
-#' 主题 A · 公平 — 不平等三指数时序（含置信带）
-#' @export
 plot_v2_equity_indices <- function(master) {
   if (!exists("inequality_by_year", mode = "function"))
     stop("程序/04_metrics.R::inequality_by_year() not loaded")
@@ -42,8 +33,6 @@ plot_v2_equity_indices <- function(master) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 主题 A · 公平 — Lorenz 曲线（多年对比）
-#' @export
 plot_v2_equity_lorenz <- function(master, years = c(2000, 2010, 2023)) {
   if (!exists("fit_lorenz", mode = "function"))
     stop("程序/12_advanced_models.R::fit_lorenz() not loaded")
@@ -78,8 +67,6 @@ plot_v2_equity_lorenz <- function(master, years = c(2000, 2010, 2023)) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 主题 B · 财政 — GHE/GGE 散点（卫生支出 % 政府总支出）
-#' @export
 plot_v2_fiscal_ghe_share <- function(master, year = 2022) {
   if (!"gghed_usd2023" %in% names(master)) return(ggplot2::ggplot())
   d <- master[master$year == year &
@@ -107,8 +94,6 @@ plot_v2_fiscal_ghe_share <- function(master, year = 2022) {
     )
 }
 
-#' 主题 B · 财政 — GHE/GGE 排行（重点国 + 收入组分组）
-#' @export
 plot_v2_fiscal_ghe_rank <- function(master, year = 2022, n_top = 25) {
   if (!"hf1_che" %in% names(master)) return(ggplot2::ggplot())
   d <- master[master$year == year &
@@ -133,8 +118,6 @@ plot_v2_fiscal_ghe_rank <- function(master, year = 2022, n_top = 25) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 主题 C · 效率 — DEA 前沿散点（CHE/cap → HALE）
-#' @export
 plot_v2_efficiency_dea <- function(master, year = 2021) {
   if (!"life_exp" %in% names(master)) return(ggplot2::ggplot())
   d <- master[master$year == year &
@@ -142,7 +125,6 @@ plot_v2_efficiency_dea <- function(master, year = 2021) {
               is.finite(master$life_exp), ]
   if (nrow(d) < 20) return(ggplot2::ggplot())
 
-  # 上包络近似（每 log(CHE) 区间内取 max life_exp 国家高亮）
   d$bin <- cut(log10(d$che_pc_usd2023),
                breaks = pretty(log10(d$che_pc_usd2023), 12))
   frontier <- d |>
@@ -170,8 +152,6 @@ plot_v2_efficiency_dea <- function(master, year = 2021) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 主题 D · 产出 — CHE/cap → HALE 弹性曲线（分段）
-#' @export
 plot_v2_outcomes_elasticity <- function(master) {
   if (!"life_exp" %in% names(master)) return(ggplot2::ggplot())
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -201,8 +181,6 @@ plot_v2_outcomes_elasticity <- function(master) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 主题 E · 援助 — 外援依赖排行（Top 25, 2021）
-#' @export
 plot_v2_aid_dependency <- function(master, year = 2021, n_top = 25) {
   if (!"ext_che" %in% names(master)) return(ggplot2::ggplot())
   d <- master[master$year == year & is.finite(master$ext_che), ]
@@ -229,8 +207,6 @@ plot_v2_aid_dependency <- function(master, year = 2021, n_top = 25) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 主题 F · 联合 — 收入组人均 CHE 山脊图（2000 / 2010 / 2023）
-#' @export
 plot_v2_combined_ridges <- function(master, years = c(2000, 2010, 2023)) {
   if (!requireNamespace("ggridges", quietly = TRUE)) {
     return(ggplot2::ggplot() + ggplot2::ggtitle("ggridges not installed"))
@@ -258,10 +234,7 @@ plot_v2_combined_ridges <- function(master, years = c(2000, 2010, 2023)) {
     ggplot2::theme(legend.position = "top")
 }
 
-# ---- 批量导出 -------------------------------------------------------------
 
-#' 把 主题图（8 张）批量保存到 分析输出/图表/
-#' @export
 ghs_export_v2_thematic <- function(master,
                                     out_dir = file.path("分析输出", "图表"),
                                     verbose = TRUE) {

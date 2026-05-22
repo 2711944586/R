@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_methods.R
-# 方法手册嵌入版：数据来源、统计方法、变量字典、复现命令
-# =============================================================================
 
 mod_methods_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -55,7 +51,6 @@ mod_methods_ui <- function(id) {
         )
       ),
 
-      # ---- 数据来源 ----
       mod_v3_card(
         kicker = "\u6570\u636e\u6765\u6e90",
         title = "\u6570\u636e\u6765\u6e90\u4e0e\u7528\u9014",
@@ -106,7 +101,6 @@ mod_methods_ui <- function(id) {
         )
       ),
 
-      # ---- 统计方法 ----
       mod_v3_card(
         kicker = "\u7edf\u8ba1\u65b9\u6cd5",
         title = "\u7edf\u8ba1\u65b9\u6cd5\u7ba1\u7ebf",
@@ -126,7 +120,6 @@ mod_methods_ui <- function(id) {
         ))
       ),
 
-      # ---- 变量字典 ----
       mod_v3_card(
         kicker = "\u53d8\u91cf\u5b57\u5178",
         title = "\u6838\u5fc3\u53d8\u91cf\u5b57\u5178",
@@ -137,41 +130,39 @@ mod_methods_ui <- function(id) {
         reactable::reactableOutput(ns("codebook_table"))
       ),
 
-      # ---- 复现命令 ----
       mod_v3_card(
         kicker = "\u590d\u73b0\u547d\u4ee4",
         title = "\u590d\u73b0\u547d\u4ee4",
         mod_v3_code_block(
           paste(
-          "# \u5b89\u88c5\u4f9d\u8d56",
+          "\u5b89\u88c5\u4f9d\u8d56",
           "Rscript \u5b89\u88c5\u4f9d\u8d56.R",
           "",
-          "# \u6570\u636e\u7f13\u5b58",
+          "\u6570\u636e\u7f13\u5b58",
           "Rscript \u6784\u5efa.R data",
           "",
-          "# \u7279\u5f81\u5de5\u7a0b",
+          "\u7279\u5f81\u5de5\u7a0b",
           "Rscript \u6784\u5efa.R features",
           "",
-          "# \u9759\u6001\u56fe",
+          "\u9759\u6001\u56fe",
           "Rscript \u6784\u5efa.R figures",
           "",
-          "# \u4ea4\u4e92\u7ec4\u4ef6",
+          "\u4ea4\u4e92\u7ec4\u4ef6",
           "Rscript \u6784\u5efa.R widgets",
           "",
-          "# \u6a21\u578b",
+          "\u6a21\u578b",
           "Rscript \u6784\u5efa.R models",
           "",
-          "# \u8bfe\u7a0b HTML",
+          "\u8bfe\u7a0b HTML",
           "Rscript \u6784\u5efa.R submission",
           "",
-          "# \u542f\u52a8 Shiny",
+          "\u542f\u52a8 Shiny",
           "Rscript \u542f\u52a8\u4eea\u8868\u76d8.R 4848",
           sep = "\n"),
           title = "R \u547d\u4ee4\u884c"
         )
       ),
 
-      # ---- 引用 ----
       mod_v3_card(
         kicker = "\u5f15\u7528",
         title = "\u5f15\u7528",

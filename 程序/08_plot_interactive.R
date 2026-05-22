@@ -1,17 +1,8 @@
-# =============================================================================
-# 程序/08_plot_interactive.R
-# -----------------------------------------------------------------------------
-# 交互图工厂：plotly / dygraphs / networkD3 包装。所有函数都在缺依赖时降级。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 1. 时序折线（plotly hover + 范围滑块） --------------------------------
-#' 一国一指标的交互时序
-#' @param df 长表 (year, country_name, value) 或宽表（自动检测）
-#' @param value_col 数值列名（仅在宽表时使用）
 ts_plotly <- function(df, value_col = NULL,
                       title = NULL, ylab = NULL,
                       smooth = FALSE) {
@@ -60,7 +51,6 @@ ts_plotly <- function(df, value_col = NULL,
   fig
 }
 
-# ---- 2. 散点 (Gapminder 风格) -----------------------------------------------
 gapminder_plotly <- function(df, x = "gdp_pc_usd", y = "che_pc_usd2023",
                              size = "pop", color = "continent",
                              frame = "year",
@@ -104,9 +94,6 @@ gapminder_plotly <- function(df, x = "gdp_pc_usd", y = "che_pc_usd2023",
   fig
 }
 
-# ---- 3. 桑基图（来源 -> 筹资方案 -> 用途） ---------------------------------
-#' 简单的桑基：各源 (政府/私人/外援) -> 各筹资方案
-#' @param master 宽表（含份额列）
 sankey_sources_to_schemes <- function(master, year_focus = 2022,
                                        region = NULL) {
   ensure_pkgs(c("dplyr"))
@@ -127,8 +114,6 @@ sankey_sources_to_schemes <- function(master, year_focus = 2022,
       hf4   = mean(.data$hf4_che,   na.rm = TRUE),
       hfnec = mean(.data$hfnec_che, na.rm = TRUE)
     )
-  # 启发式映射：政府主导 -> hf1; 私人 -> hf2+hf3; 外援 -> hf4 等。
-  # 这里只做近似流向（数据本身没有给精确映射）。
   src_lbl <- c("\u653f\u5e9c GGHE-D", "\u79c1\u4eba PVT-D", "\u5916\u63f4 EXT")
   sch_lbl <- c("HF1 \u653f\u5e9c\u8ba1\u5212", "HF2 \u793e\u4fdd",
                "HF3 OOPS", "HF4 \u81ea\u613f", "HFnec")
@@ -139,7 +124,7 @@ sankey_sources_to_schemes <- function(master, year_focus = 2022,
     value  = c(agg$gghed * 0.7, agg$gghed * 0.3,
                agg$pvtd * 0.6, agg$pvtd * 0.3, agg$pvtd * 0.1,
                agg$ext  * 0.5, agg$ext  * 0.5)
-  ) - 0  # 注意 plotly 桑基要求 source/target 是节点 index
+  ) - 0
   links$source <- links$source
   links$target <- links$target
 
@@ -164,7 +149,6 @@ sankey_sources_to_schemes <- function(master, year_focus = 2022,
     )
 }
 
-# ---- 4. 高亮国家时序：plotly + crosstalk-friendly --------------------------
 highlight_country_ts <- function(master,
                                   isos = c("CHN", "USA", "IND", "BRA", "ZAF"),
                                   value_col = "che_pc_usd2023",
@@ -189,7 +173,6 @@ highlight_country_ts <- function(master,
     )
 }
 
-# ---- 5. dygraphs（适合时序仪表盘小图） -------------------------------------
 ts_dygraph <- function(df, value_col, country_name = NULL, title = NULL) {
   if (!requireNamespace("dygraphs", quietly = TRUE)) return(NULL)
   if (!requireNamespace("xts", quietly = TRUE)) return(NULL)
@@ -205,8 +188,6 @@ ts_dygraph <- function(df, value_col, country_name = NULL, title = NULL) {
                         colors = "#1B5E88")
 }
 
-# ---- 6. \u96f7\u8fbe\u56fe (echarts4r) -------------------------------------
-#' \u591a\u56fd 5 \u7ef4\u96f7\u8fbe
 radar_echarts <- function(master,
                           isos = c("CHN", "USA", "DEU", "BRA", "ZAF"),
                           year_focus = 2022,
@@ -241,7 +222,6 @@ radar_echarts <- function(master,
                                    year_focus))
 }
 
-# ---- 7. \u8d5b\u8dd1\u67f1\u72b6\u56fe (plotly bar race) -------------------
 bar_race_plotly <- function(master, value_col = "che_pc_usd2023",
                               top_n = 15, title = NULL) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
@@ -271,8 +251,6 @@ bar_race_plotly <- function(master, value_col = "che_pc_usd2023",
     plotly::config(displaylogo = FALSE)
 }
 
-# ---- 8. reactable rich table ----------------------------------------------
-#' \u56fd\u5bb6\u6392\u884c reactable\uff0c\u542b\u8ff7\u4f60\u6761\u5217
 reactable_country_rank <- function(master, value_col = "hf3_che",
                                      year_focus = 2022, top_n = 30) {
   if (!requireNamespace("reactable", quietly = TRUE)) return(NULL)
@@ -321,7 +299,6 @@ reactable_country_rank <- function(master, value_col = "hf3_che",
   )
 }
 
-# ---- 9. ternary plotly ----------------------------------------------------
 ternary_plotly <- function(master, year_focus = 2022, title = NULL) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   ensure_pkgs("dplyr")
@@ -363,7 +340,6 @@ ternary_plotly <- function(master, year_focus = 2022, title = NULL) {
     plotly::config(displaylogo = FALSE)
 }
 
-# ---- 10. forecast subplot --------------------------------------------------
 forecast_plotly <- function(master, isos = c("CHN", "USA", "IND", "BRA"),
                               value_col = "che_pc_usd2023", h = 5,
                               title = NULL) {
@@ -405,7 +381,6 @@ forecast_plotly <- function(master, isos = c("CHN", "USA", "IND", "BRA"),
     plotly::config(displaylogo = FALSE)
 }
 
-# ---- 11. inequality plotly ------------------------------------------------
 inequality_plotly <- function(master, title = NULL) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   ensure_pkgs(c("dplyr", "tidyr"))
@@ -427,7 +402,6 @@ inequality_plotly <- function(master, title = NULL) {
     plotly::config(displaylogo = FALSE)
 }
 
-# ---- 12. heatmap plotly ---------------------------------------------------
 heatmap_oops_plotly <- function(master, top_n = 40, title = NULL) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   ensure_pkgs(c("dplyr", "tidyr"))
@@ -459,7 +433,6 @@ heatmap_oops_plotly <- function(master, top_n = 40, title = NULL) {
     plotly::config(displaylogo = FALSE)
 }
 
-# ---- 13. wbplot world bank style line for country  ------------------------
 country_wb_plotly <- function(master, iso = "CHN",
                                 value_col = "che_pc_usd2023",
                                 title = NULL) {

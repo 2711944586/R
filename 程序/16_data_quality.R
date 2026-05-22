@@ -1,14 +1,4 @@
-# =============================================================================
-# 程序/16_data_quality.R  ·  数据质量诊断
-# -----------------------------------------------------------------------------
-# - 缺失模式（按列、按年份、按收入组）
-# - 加总一致性（hf1+...+hfnec ≈ 100；gghed+pvtd+ext ≈ 100）
-# - 异常值（IQR + 3σ 双标准）
-# - 数据完备度报告（适合附录方法论引用）
-# =============================================================================
 
-#' 缺失值矩阵：返回 list(by_var, by_year, by_income, total_pct_missing)
-#' @export
 data_quality_missing <- function(master) {
   if (!is.data.frame(master)) return(list())
   cols_num <- names(master)[vapply(master, is.numeric, logical(1))]
@@ -53,8 +43,6 @@ data_quality_missing <- function(master) {
   )
 }
 
-#' 加总一致性：hf1+hf2+hf3+hf4+hfnec ≈ 100；gghed+pvtd+ext ≈ 100
-#' @export
 data_quality_consistency <- function(master, tol = 5) {
   if (!is.data.frame(master)) return(list())
 
@@ -85,8 +73,6 @@ data_quality_consistency <- function(master, tol = 5) {
   res
 }
 
-#' 异常值：IQR + 3σ 双标准，返回标记
-#' @export
 data_quality_outliers <- function(master, cols = c("che_pc_usd2023", "hf3_che")) {
   cols <- intersect(cols, names(master))
   if (length(cols) == 0) return(data.frame())
@@ -115,8 +101,6 @@ data_quality_outliers <- function(master, cols = c("che_pc_usd2023", "hf3_che"))
   do.call(rbind, out)
 }
 
-#' 导出质量报告（CSV → 分析输出/模型表/data_quality_*.csv）
-#' @export
 data_quality_export <- function(master,
                                  out_dir = file.path("分析输出", "模型表")) {
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)

@@ -1,18 +1,8 @@
-# =============================================================================
-# 程序/30_plots_advanced.R   ——  高级静态图集（B1 阶段）
-# -----------------------------------------------------------------------------
-# 主题：所有函数返回 ggplot 对象；导出器 ghs_export_advanced() 同时输出 PNG/SVG。
-# 依赖：ggplot2 + 可选 ggridges / ggbeeswarm / ggrepel / ggh4x / ggbump /
-#       ggdist / treemapify。缺包时自动降级为基础几何图。
-# 命名：plot_adv_<topic>_<chart>(master, ...)；输出文件前缀 `adv_*`。
-# 设计系统：theme_ghs3() + palette_ghs3* + scale_*_ghs3*
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
 }
 
-# ---- 0. 辅助：包可用性检查 -------------------------------------------------
 
 .has_pkg <- function(pkg) requireNamespace(pkg, quietly = TRUE)
 
@@ -22,11 +12,7 @@ if (!exists("ensure_pkgs", mode = "function")) {
   else paste0(base, " \u00b7 ", extra)
 }
 
-# ---- 1. Ridgeline 系列 ----------------------------------------------------
 
-#' OOPS 占比的 ridgeline：按收入组并排（年份选择）
-#' @param master master_enriched 数据
-#' @param year 单一年份（默认最近年份）
 plot_adv_ridge_oops_by_income <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -63,7 +49,6 @@ plot_adv_ridge_oops_by_income <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-#' 人均 CHE 分布演化 ridgeline（多年份并排）
 plot_adv_ridge_che_pc_evolution <- function(master,
                                             years = c(2000, 2008, 2014, 2020,
                                                        max(master$year))) {
@@ -98,7 +83,6 @@ plot_adv_ridge_che_pc_evolution <- function(master,
       caption = .cap_news("USD2023 constant"))
 }
 
-#' GGHED 占比 ridgeline 按大洲并排
 plot_adv_ridge_gghed_by_continent <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -132,9 +116,7 @@ plot_adv_ridge_gghed_by_continent <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-# ---- 2. Beeswarm 系列 -----------------------------------------------------
 
-#' Beeswarm: CHE_pc 分布按大洲（最近年份）
 plot_adv_beeswarm_che_pc <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -168,7 +150,6 @@ plot_adv_beeswarm_che_pc <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-#' Beeswarm: OOPS 分布
 plot_adv_beeswarm_oops <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -202,7 +183,6 @@ plot_adv_beeswarm_oops <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-#' Beeswarm: GGHED 占比
 plot_adv_beeswarm_gghed <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -231,7 +211,6 @@ plot_adv_beeswarm_gghed <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-#' Beeswarm: 寿命预期 vs CHE_pc（多变量散点）
 plot_adv_beeswarm_lifeexp <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -262,9 +241,7 @@ plot_adv_beeswarm_lifeexp <- function(master, year = NULL) {
       caption = .cap_news("WDI life expectancy"))
 }
 
-# ---- 3. Streamgraph 与堆叠 -----------------------------------------------
 
-#' 全球三大资金来源 streamgraph 替代（堆叠面积带平滑）
 plot_adv_stream_global_sources <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$year) &
@@ -302,7 +279,6 @@ plot_adv_stream_global_sources <- function(master) {
       caption = .cap_news())
 }
 
-#' 大洲 CHE 总额堆叠面积
 plot_adv_stream_continent <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$year) &
@@ -327,7 +303,6 @@ plot_adv_stream_continent <- function(master) {
       caption = .cap_news())
 }
 
-#' 收入组堆叠面积
 plot_adv_stream_income <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$year) &
@@ -356,9 +331,7 @@ plot_adv_stream_income <- function(master) {
       caption = .cap_news())
 }
 
-# ---- 4. Bump / slope / lollipop -------------------------------------------
 
-#' Top 25 国家排名变迁 bump chart（2000 vs 2010 vs 2023）
 plot_adv_bump_top25 <- function(master,
                                  years = c(2000, 2010,
                                            max(master$year)),
@@ -407,7 +380,6 @@ plot_adv_bump_top25 <- function(master,
       caption = .cap_news("rank \u00b7 lower is better"))
 }
 
-#' Slope chart 6 大洲 small multiples
 plot_adv_slope_smallmultiples <- function(master,
                                           var = "che_pc_usd2023",
                                           y1 = NULL, y2 = NULL,
@@ -447,7 +419,6 @@ plot_adv_slope_smallmultiples <- function(master,
       caption = .cap_news())
 }
 
-#' Lollipop top/bottom 变化（最近年份 vs 起点）
 plot_adv_lollipop_che_change <- function(master, n = 15) {
   ensure_pkgs(c("ggplot2"))
   yrs <- range(master$year, na.rm = TRUE)
@@ -490,9 +461,7 @@ plot_adv_lollipop_che_change <- function(master, n = 15) {
       caption = .cap_news())
 }
 
-# ---- 5. Treemap / parallel / waffle 类 ------------------------------------
 
-#' Treemap 大洲 \u00d7 国家 CHE 总额（最近年份）
 plot_adv_treemap_continent_che <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -524,7 +493,6 @@ plot_adv_treemap_continent_che <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-#' Parallel coordinates: 4 维筹资结构 \u00b7 按收入组着色
 plot_adv_parallel_finance <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -538,7 +506,6 @@ plot_adv_parallel_finance <- function(master, year = NULL) {
   d$income_group <- factor(d$income_group,
     levels = c("Low income", "Lower middle income",
                "Upper middle income", "High income"))
-  # 手工 long（避免 stats::reshape 在复合 idvar 上的限制）
   cols <- c(GGHED = "gghed_che", `OOPS` = "hf3_che",
             `PVT-D` = "pvtd_che", EXT = "ext_che")
   long <- do.call(rbind, lapply(seq_along(cols), function(i) data.frame(
@@ -565,7 +532,6 @@ plot_adv_parallel_finance <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-#' Marimekko (\u4f2a)：收入组 × 资金来源（按 CHE 加权）
 plot_adv_marimekko_finance <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -613,9 +579,7 @@ plot_adv_marimekko_finance <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-# ---- 6. 雷达 / 极坐标 / 多变量 -------------------------------------------
 
-#' Radial bar: HC1\u2013HC9 用途占比（单国）
 plot_adv_radial_hc_purpose <- function(master,
                                        iso = "USA", year = NULL) {
   ensure_pkgs(c("ggplot2"))
@@ -652,7 +616,6 @@ plot_adv_radial_hc_purpose <- function(master,
       caption = .cap_news())
 }
 
-#' Calendar heatmap: 国家 \u00d7 年份 \u00d7 增速
 plot_adv_calendar_growth <- function(master, top_n = 36) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$year) &
@@ -688,7 +651,6 @@ plot_adv_calendar_growth <- function(master, top_n = 36) {
       caption = .cap_news())
 }
 
-#' Density 2D: GGHED \u00d7 OOPS（按收入组分面）
 plot_adv_density_2d_finance <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -722,9 +684,7 @@ plot_adv_density_2d_finance <- function(master, year = NULL) {
       caption = .cap_news())
 }
 
-# ---- 7. 多面板时间序列 ---------------------------------------------------
 
-#' 6 大洲并排：人均 CHE 时间序列（带置信区间）
 plot_adv_che_pc_by_continent <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$year) &
@@ -732,7 +692,6 @@ plot_adv_che_pc_by_continent <- function(master) {
               master$che_pc_usd2023 > 0 &
               !is.na(master$continent), ]
   if (!nrow(d)) return(ggplot2::ggplot() + ggplot2::theme_void())
-  # 分别聚合 median / p25 / p75 然后合并，避免 aggregate matrix-列陷阱
   med <- stats::aggregate(che_pc_usd2023 ~ year + continent, data = d,
                           FUN = function(x) stats::median(x, na.rm = TRUE))
   p25 <- stats::aggregate(che_pc_usd2023 ~ year + continent, data = d,
@@ -769,7 +728,6 @@ plot_adv_che_pc_by_continent <- function(master) {
       caption = .cap_news())
 }
 
-#' 三大资金源占比时间序列（多收入组分面）
 plot_adv_sources_by_income <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$year) &
@@ -812,9 +770,7 @@ plot_adv_sources_by_income <- function(master) {
       caption = .cap_news())
 }
 
-# ---- 8. 排名 / Top-Bottom 类 ----------------------------------------------
 
-#' Dot plot Top/Bottom（一个变量，最近年份）
 plot_adv_topbot_dotplot <- function(master, var = "che_pc_usd2023",
                                     n = 15, year = NULL) {
   ensure_pkgs(c("ggplot2"))
@@ -853,12 +809,7 @@ plot_adv_topbot_dotplot <- function(master, var = "che_pc_usd2023",
       caption = .cap_news())
 }
 
-# ---- 9. 导出器 ------------------------------------------------------------
 
-#' 把 B1 高级图集一次性导出 PNG + SVG 到 分析输出/图表/
-#' @param master 主数据
-#' @param fig_dir 图表目录（默认 分析输出/图表）
-#' @return 写入的文件路径向量
 ghs_export_advanced <- function(master = NULL, fig_dir = NULL,
                                  base_size = 12) {
   if (is.null(master)) {

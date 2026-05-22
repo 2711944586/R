@@ -1,11 +1,4 @@
-# =============================================================================
-# 程序/15_plots_dataviz.R  ·  数据新闻级图（6 张）
-# -----------------------------------------------------------------------------
-# 重点：小多面 / 双变量地图 / dumbbell / slope / streamgraph / scrollytell 素材
-# =============================================================================
 
-#' 数据新闻 1 · OOPS 23 年小多面（6×4 = 24 帧）
-#' @export
 plot_v2_oops_small_multiples <- function(master,
                                           n_year_step = 1,
                                           year_min = 2000,
@@ -51,8 +44,6 @@ plot_v2_oops_small_multiples <- function(master,
     )
 }
 
-#' 数据新闻 2 · 双变量地图：OOPS × 政府份额
-#' @export
 plot_v2_bivariate_oops_gov <- function(master, year = 2022, world_sf = NULL) {
   if (is.null(world_sf)) {
     world_sf <- tryCatch(load_world_sf("medium", 0.08), error = function(e) NULL)
@@ -105,8 +96,6 @@ plot_v2_bivariate_oops_gov <- function(master, year = 2022, world_sf = NULL) {
     )
 }
 
-#' 数据新闻 3 · COVID dumbbell（2019 vs 2022 OOPS 变化）
-#' @export
 plot_v2_covid_dumbbell <- function(master, n_top = 30) {
   if (!"hf3_che" %in% names(master)) return(ggplot2::ggplot())
   d19 <- master[master$year == 2019 & is.finite(master$hf3_che),
@@ -144,8 +133,6 @@ plot_v2_covid_dumbbell <- function(master, n_top = 30) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 数据新闻 4 · slope chart（2000 vs 2023 OOPS）
-#' @export
 plot_v2_slope_oops <- function(master, n_show = 25) {
   if (!"hf3_che" %in% names(master)) return(ggplot2::ggplot())
   d00 <- master[master$year == 2000 & is.finite(master$hf3_che),
@@ -186,8 +173,6 @@ plot_v2_slope_oops <- function(master, n_show = 25) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 数据新闻 5 · streamgraph 大洲三源演化
-#' @export
 plot_v2_continent_stream <- function(master) {
   d <- master[is.finite(master$gghed_usd2023) &
               is.finite(master$pvtd_usd2023) &
@@ -219,8 +204,6 @@ plot_v2_continent_stream <- function(master) {
     ggplot2::theme(legend.position = "top")
 }
 
-#' 数据新闻 6 · scrollytell 素材：3 国 hc1/hc6 占比变化（突出对比）
-#' @export
 plot_v2_country_compare_hc <- function(master,
                                         countries = c("USA", "CHN", "KEN")) {
   if (!all(c("hc1_che", "hc6_che") %in% names(master)))
@@ -261,10 +244,7 @@ plot_v2_country_compare_hc <- function(master,
     )
 }
 
-# ---- 批量导出 -------------------------------------------------------------
 
-#' 数据新闻级图（6 张）批量保存
-#' @export
 ghs_export_v2_dataviz <- function(master,
                                    world_sf = NULL,
                                    out_dir = file.path("分析输出", "图表"),

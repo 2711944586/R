@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_prevention.R
-# 预防性支出：HC6 预防性护理在卫生总支出中的占比与效果
-# =============================================================================
 
 mod_prevention_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -42,7 +38,6 @@ mod_prevention_ui <- function(id) {
           )
         ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -71,7 +66,6 @@ mod_prevention_ui <- function(id) {
           footer = "\u6298\u7ebf\u4e3a\u7ec4\u5185\u56fd\u5bb6\u5747\u503c\uff0c\u7528\u4e8e\u5224\u65ad\u5927\u65b9\u5411\u800c\u975e\u5355\u56fd\u8def\u5f84\u3002"
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -99,7 +93,6 @@ mod_prevention_ui <- function(id) {
           footer = "HC1 \u548c HC6 \u90fd\u662f\u5360 CHE \u6bd4\u4f8b\uff0c\u5c0f\u7cfb\u7edf\u7684\u5206\u7c7b\u53d8\u52a8\u53ef\u80fd\u653e\u5927\u6bd4\u4f8b\u6ce2\u52a8\u3002"
         )
       ),
-      # Row 3
       bslib::layout_columns(
         col_widths = c(5, 7),
         mod_card(

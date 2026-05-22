@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-plots-equity.R
-# B4: 不平等 / 财务保护图集 plot_equity_*
+
+
 
 skip_unless_master <- function() {
   proj <- (function() {

@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_mapstudio.R
-# Map Studio · 原生地图工作台
-# =============================================================================
 
 mod_mapstudio_ui <- function(id, country_choices, indicator_choices,
                              year_min, year_max) {

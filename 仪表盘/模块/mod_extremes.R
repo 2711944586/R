@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_extremes.R
-# 极端值分析：异常高/低支出国家的识别与特征
-# =============================================================================
 
 mod_extremes_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -238,7 +234,6 @@ mod_extremes_server <- function(id, master_r) {
       normal_means <- vapply(compare_vars, function(v) {
         mean(d[[v]][!d$is_outlier], na.rm = TRUE)
       }, numeric(1))
-      # Normalize for comparison
       ratio <- outlier_means / pmax(normal_means, 0.01)
       df <- data.frame(variable = compare_labels, ratio = ratio)
       safe_plotly({

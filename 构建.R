@@ -1,21 +1,3 @@
-# =============================================================================
-# 构建.R  ---  统一本地构建脚本
-# -----------------------------------------------------------------------------
-# 用法：
-#   Rscript 构建.R all       # 全量：data + features + models + figures + widgets + submission + shiny
-#   Rscript 构建.R data      # 仅生成 master_enriched + external 缓存
-#   Rscript 构建.R features  # 生成统一 country-year 特征表 + 变量字典
-#   Rscript 构建.R models    # 仅跑统计与机器学习模型 → 分析输出/模型表/
-#   Rscript 构建.R figures   # 仅生成静态图 → 分析输出/图表/
-#   Rscript 构建.R widgets   # 仅生成交互 widget → 分析输出/交互组件/
-#   Rscript 构建.R shinylive # 仅编译 shinylive → 网站发布/仪表盘/
-#   Rscript 构建.R submission# 生成课程提交与可转发静态 HTML
-#   Rscript 构建.R deploy    # submission + shinylive + copy widgets → 网站发布/（部署用）
-#   Rscript 构建.R delivery  # 刷新课程 HTML 与质量报告（默认不打 庄颂_20241334/ 包；
-#                           #   设 GHS_BUILD_DELIVERY=TRUE 才会生成最终交付包）
-#   Rscript 构建.R clean     # 删除 网站发布/ 与 分析输出/（慎用）
-#   Rscript 构建.R audit     # 检查项目主要交付目录是否齐备
-# =============================================================================
 
 args <- commandArgs(trailingOnly = TRUE)
 target <- if (length(args)) args[[1]] else "audit"
@@ -23,11 +5,10 @@ target <- if (length(args)) args[[1]] else "audit"
 cat("[make] target =", target, "\n")
 cat("[make] cwd    =", getwd(), "\n")
 
-# ---- GHS_STRICT 模式：错误即停止，用于 release 构建 --------------------------
 .ghs_strict <- isTRUE(as.logical(Sys.getenv("GHS_STRICT", "FALSE")))
 if (.ghs_strict) {
   cat("[make] GHS_STRICT=TRUE: errors will stop() instead of continuing\n")
-  options(warn = 2)  # warnings → errors
+  options(warn = 2)
 }
 .ghs_try <- function(expr, label = "") {
 
@@ -42,7 +23,6 @@ if (.ghs_strict) {
   }
 }
 
-# ---- common ---------------------------------------------------------------
 source_all_r <- function() {
   for (f in list.files("程序", pattern = "\\.R$", full.names = TRUE)) {
     source(f, encoding = "UTF-8")
@@ -65,7 +45,6 @@ ensure_cache <- function() {
   master
 }
 
-# ---- 目标分发 --------------------------------------------------------------
 
 target_data <- function() {
   master <- ensure_cache()
@@ -128,32 +107,26 @@ target_figures <- function() {
                     outputs_dir = file.path("分析输出", "图表"),
                     verbose = TRUE)
   }
-  # B1: 高级静态图集
   if (exists("ghs_export_advanced", mode = "function")) {
     cat("[make] ghs_export_advanced (B1)\n")
     .ghs_try(ghs_export_advanced(master, fig_dir = file.path("分析输出", "图表")), "B1")
   }
-  # B2: 地图集
   if (exists("ghs_export_maps_advanced", mode = "function")) {
     cat("[make] ghs_export_maps_advanced (B2)\n")
     .ghs_try(ghs_export_maps_advanced(master, world_sf, fig_dir = file.path("分析输出", "图表")), "B2")
   }
-  # B3: 产出图集
   if (exists("ghs_export_outcomes", mode = "function")) {
     cat("[make] ghs_export_outcomes (B3)\n")
     .ghs_try(ghs_export_outcomes(master, world_sf, fig_dir = file.path("分析输出", "图表")), "B3")
   }
-  # B4: 不平等图集
   if (exists("ghs_export_equity", mode = "function")) {
     cat("[make] ghs_export_equity (B4)\n")
     .ghs_try(ghs_export_equity(master, fig_dir = file.path("分析输出", "图表")), "B4")
   }
-  # B5: 国家专题图集
   if (exists("ghs_export_country", mode = "function")) {
     cat("[make] ghs_export_country (B5)\n")
     .ghs_try(ghs_export_country(master, fig_dir = file.path("分析输出", "图表")), "B5")
   }
-  # B6: 冲击图集
   if (exists("ghs_export_shocks", mode = "function")) {
     cat("[make] ghs_export_shocks (B6)\n")
     .ghs_try(ghs_export_shocks(master, fig_dir = file.path("分析输出", "图表")), "B6")
@@ -186,12 +159,10 @@ target_widgets <- function() {
                             out_dir = file.path("分析输出", "交互组件"),
                             verbose = TRUE)
   }
-  # C1: leaflet/plotly 地图 widget (~20)
   if (exists("ghs_export_widgets_map", mode = "function")) {
     cat("[make] ghs_export_widgets_map (C1)\n")
     .ghs_try(ghs_export_widgets_map(master, world_sf, out_dir = file.path("分析输出", "交互组件")), "C1")
   }
-  # C2: 高级 widget (~80)
   if (exists("ghs_export_widgets_advanced", mode = "function")) {
     cat("[make] ghs_export_widgets_advanced (C2)\n")
     .ghs_try(ghs_export_widgets_advanced(master, out_dir = file.path("分析输出", "交互组件")), "C2")
@@ -201,7 +172,6 @@ target_widgets <- function() {
 
 target_shinylive <- function() {
   dir.create("网站发布/仪表盘", recursive = TRUE, showWarnings = FALSE)
-  # Snapshot master 到 仪表盘/数据快照/ 供 shinylive 加载
   master <- ensure_cache()
   dir.create("仪表盘/数据快照", recursive = TRUE, showWarnings = FALSE)
   saveRDS(master, "仪表盘/数据快照/snapshot.rds")
@@ -267,8 +237,6 @@ target_submission <- function() {
 }
 
 target_deploy <- function() {
-  # 单一标准：网站发布/index.html 由 21_static_showcase.R 生成的整合页
-  # 不再渲染旧的 Quarto book 章节（已弃用）；shinylive + 整合首页 + widget assets 即可。
   target_shinylive()
   target_submission()
   cat("\n[make] deploy bundle ready at 网站发布/\n")
@@ -334,7 +302,6 @@ target_all <- function() {
   cat("\n[make] ALL done.\n")
 }
 
-# ---- dispatch -------------------------------------------------------------
 switch(
   target,
   all       = target_all(),

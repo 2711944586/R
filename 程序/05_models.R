@@ -1,19 +1,8 @@
-# =============================================================================
-# 程序/05_models.R
-# -----------------------------------------------------------------------------
-# 建模：PCA + 聚类 / 变点 / 面板固定效应 / 时序预测。
-# 所有函数在缺依赖时优雅 fallback（返回带 warning 的占位结果）。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 1. PCA -----------------------------------------------------------------
-#' 对截面数据做 PCA
-#' @param df 宽表（必须含 iso3_code）
-#' @param vars 用于 PCA 的数值列
-#' @param scale 是否标准化
 fit_pca <- function(df, vars, scale = TRUE) {
   ensure_pkgs(c("dplyr"))
   keep <- df |>
@@ -36,8 +25,6 @@ fit_pca <- function(df, vars, scale = TRUE) {
   )
 }
 
-# ---- 2. k-means 聚类 --------------------------------------------------------
-#' 在 PCA 前两主成分上做 k-means
 fit_cluster <- function(pca_obj, k = 4, seed = 1L) {
   if (is.null(pca_obj)) return(NULL)
   set.seed(seed)
@@ -52,8 +39,6 @@ fit_cluster <- function(pca_obj, k = 4, seed = 1L) {
   list(km = km, scores = scores, k = k)
 }
 
-# ---- 3. 变点检测 ------------------------------------------------------------
-#' 对单国某指标的时序做均值变点检测
 detect_changepoints <- function(ts_vec, years, method = "PELT", min_seg = 4) {
   if (!requireNamespace("changepoint", quietly = TRUE)) {
     warning("changepoint package not installed; returning NULL")
@@ -76,9 +61,6 @@ detect_changepoints <- function(ts_vec, years, method = "PELT", min_seg = 4) {
   )
 }
 
-# ---- 4. β-收敛（面板回归） --------------------------------------------------
-#' log(人均 CHE) 增速 ~ log(起始水平) + 固定效应
-#' 输入：master 宽表（含 iso3_code, year, che_pc_usd2023, continent）
 fit_beta_convergence <- function(master, start_year = 2000, end_year = 2023) {
   ensure_pkgs(c("dplyr"))
   if (!requireNamespace("fixest", quietly = TRUE)) {
@@ -113,8 +95,6 @@ fit_beta_convergence <- function(master, start_year = 2000, end_year = 2023) {
   )
 }
 
-# ---- 5. ARIMA 预测 ----------------------------------------------------------
-#' 用 fable 或 forecast 对一国一指标做 h 期预测
 fit_forecast <- function(ts_vec, years, h = 5, method = c("auto", "prophet")) {
   method <- match.arg(method)
   ts_vec <- as.numeric(ts_vec)
@@ -163,8 +143,6 @@ fit_forecast <- function(ts_vec, years, h = 5, method = c("auto", "prophet")) {
   NULL
 }
 
-# ---- 6. 面板固定效应回归 ----------------------------------------------------
-#' log(人均 CHE) ~ log(GDP/cap) + income_group | country + year
 fit_panel_fe <- function(master) {
   ensure_pkgs("dplyr")
   if (!requireNamespace("fixest", quietly = TRUE)) {

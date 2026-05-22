@@ -1,6 +1,6 @@
-# 自动测试/testthat/test-design.R
-# 设计系统扩展层的烟雾测试
-# helper-source.R 已自动加载 程序/13_design_system.R
+
+
+
 
 test_that("palette_ghs3 语义槽返回正确颜色", {
   expect_equal(palette_ghs3("primary"), "#1d3f5f")

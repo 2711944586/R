@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_robustness.R
-# 稳健性分析：用户可拖动样本切片，实时观察结论敏感性
-# =============================================================================
 
 mod_robustness_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -176,7 +172,6 @@ mod_robustness_server <- function(id, master_r) {
       if (length(input$exclude_continents) > 0) {
         d <- d[!d$continent %in% input$exclude_continents, , drop = FALSE]
       }
-      # Apply minimum observations per country
       iso_counts <- table(d$iso3_code)
       keep_isos <- names(iso_counts[iso_counts >= input$min_obs])
       d[d$iso3_code %in% keep_isos, , drop = FALSE]
@@ -199,7 +194,6 @@ mod_robustness_server <- function(id, master_r) {
       d <- d[is.finite(d$che_pc_usd2023) & is.finite(d$gdp_pc_usd) &
              d$che_pc_usd2023 > 0 & d$gdp_pc_usd > 0, ]
       shiny::req(nrow(d) > 50)
-      # Different sub-samples
       results <- list()
       for (sub in c("Africa", "Asia", "Europe", "Americas", "All")) {
         sub_d <- if (sub == "All") d else d[d$continent == sub, ]

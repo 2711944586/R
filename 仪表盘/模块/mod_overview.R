@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_overview.R
-# Tab 1 · 总览：KPI + 全球三源面积 + leaflet 世界地图 + OOPS 排行
-# =============================================================================
 
 mod_overview_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -229,7 +225,6 @@ mod_overview_ui <- function(id) {
             "\u6bcf\u4e2a\u6a21\u5757\u90fd\u53ef\u72ec\u7acb\u4ea4\u4e92\u3001\u9884\u8bbe\u53ef\u590d\u5236\uff0c",
             "\u5e76\u4e0e\u9759\u6001\u56fe\u3001\u62a5\u544a\u6b63\u6587\u5171\u7528\u4e00\u5957\u6307\u6807\u4f53\u7cfb\u3002")
     ),
-    # ---- Group 1: 总览 -----------------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -245,7 +240,6 @@ mod_overview_ui <- function(id) {
                   "\u8be6\u7ec6\u7684\u5206\u6790\u65b9\u6cd5\u3001\u6307\u6807\u53e3\u5f84\u4e0e\u8d28\u91cf\u63a7\u5236\u8bf4\u660e\u3002",
                   "02 Methods")
     ),
-    # ---- Group 2: 国家与区域 ----------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -267,7 +261,6 @@ mod_overview_ui <- function(id) {
                   "\u4ee5\u540c\u6536\u5165\u7ec4 / \u540c\u533a\u57df / \u540c\u4eba\u53e3\u89c4\u6a21\u4f5c\u5750\u6807\u53c2\u7167\u3002",
                   "06 Benchmark")
     ),
-    # ---- Group 3: 筹资结构 ------------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -292,7 +285,6 @@ mod_overview_ui <- function(id) {
                   "GGHED / GGE / GDP \u00b7 \u8d22\u653f\u7a7a\u95f4\u4e0e\u501f\u8d37\u6210\u672c\u4ea4\u4e92\u3002",
                   "11 Fiscal")
     ),
-    # ---- Group 4: 公平与效率 ----------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -317,7 +309,6 @@ mod_overview_ui <- function(id) {
                   "Shapley / Theil \u5206\u89e3 \u00b7 \u53d8\u91cf\u8d21\u732e\u4e0e\u589e\u91cf\u53e3\u5f84\u3002",
                   "16 Decompose")
     ),
-    # ---- Group 5: 健康产出 ------------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -339,7 +330,6 @@ mod_overview_ui <- function(id) {
                   "65+ \u4eba\u53e3\u5360\u6bd4\u4e0e CHE \u538b\u529b \u00b7 OECD vs LMIC \u5bf9\u6bd4\u3002",
                   "20 Aging")
     ),
-    # ---- Group 6: 冲击与变化 ----------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -364,7 +354,6 @@ mod_overview_ui <- function(id) {
                   "\u9ad8 OOP \u00b7 \u4f4e GGHED \u00b7 \u9ad8\u589e\u957f \u00b7 \u8de8\u95e8\u69db\u8bc6\u522b\u3002",
                   "25 Extremes")
     ),
-    # ---- Group 7: 分析工具 ------------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",
@@ -398,7 +387,6 @@ mod_overview_ui <- function(id) {
                   "\u5bc6\u5ea6\u00b7\u5206\u4f4d\u6570\u00b7\u8108\u7eb9 \u00b7 \u8de8\u5e74\u5206\u5e03\u6f14\u5316\u3002",
                   "33 Distribution")
     ),
-    # ---- Group 8: 质量与稳健 ----------------------------------------------
     htmltools::div(
       class = "ghs-section-head-nav",
       style = "margin-top:24px;",

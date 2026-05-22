@@ -1,27 +1,9 @@
-# =============================================================================
-# 程序/12_advanced_models.R  ---  高级统计模型
-# -----------------------------------------------------------------------------
-#  M1 · catastrophic_oop_share()    — 灾难性医疗支出占比（>10/25%）
-#  M2 · fit_elasticity_segments()   — 分段弹性（log-log + breakpoint）
-#  M3 · fit_dea_efficiency()        — 简化 DEA 效率前沿（CRS / VRS）
-#  M4 · mc_scenarios()              — 蒙特卡罗 1000 次情景模拟
-#  M5 · fit_lorenz()                — Lorenz 曲线 + 基尼收敛分解
-#  M6 · concentration_index()       — Kakwani / 累进性
-#  M7 · fit_panel_iv()              — 工具变量替代式
-#  M8 · changepoint_panel()         — 国家级变点检测面板
-#  M9 · fit_growth_decomposition()  — 增长分解（Δlog CHE = β·Δlog GDP + …）
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- M1 · 灾难性医疗支出 ---------------------------------------------------
 
-#' 灾难性 OOP 支出占人口比（已有指标用 WHO 数据，未有则用近似）
-#'
-#' @param master_panel 含 hf3_che 与 health_oop_pct 的数据
-#' @param threshold 阈值（10 或 25，对应 WHO/WB 标准）
 catastrophic_oop_share <- function(master_panel, threshold = c(10, 25)) {
   threshold <- match.arg(as.character(threshold), c("10", "25"))
   ensure_pkgs("dplyr")
@@ -40,12 +22,7 @@ catastrophic_oop_share <- function(master_panel, threshold = c(10, 25)) {
     )
 }
 
-# ---- M2 · 分段弹性 ----------------------------------------------------------
 
-#' log(CHE/cap) 对 log(GDP/cap) 的弹性，分段：低/中/高收入区
-#'
-#' @param master_panel master 宽表
-#' @param breaks log GDP/cap 断点（默认 7.5, 9.5 ≈ ~$1800, $13400）
 fit_elasticity_segments <- function(master_panel, breaks = c(7.5, 9.5)) {
   ensure_pkgs("dplyr")
   d <- master_panel |>
@@ -76,15 +53,9 @@ fit_elasticity_segments <- function(master_panel, breaks = c(7.5, 9.5)) {
   list(panel = d, fits = fits)
 }
 
-# ---- M3 · 简化 DEA 效率前沿 -----------------------------------------------
 
-#' 单输入（CHE/cap）单输出（HALE）DEA — CRS 假设
-#'
-#' @param master_panel 含 che_pc_usd2023 + HALE
-#' @param year_focus 关注年（HALE 数据 2000/2010/2019/2021）
 fit_dea_efficiency <- function(master_panel, year_focus = 2019) {
   ensure_pkgs("dplyr")
-  # 优雅处理缺 HALE 列（外部 GHO/GBD 数据未拉取时返回 NULL）
   if (!all(c("HALE", "che_pc_usd2023") %in% names(master_panel))) {
     return(NULL)
   }
@@ -93,13 +64,11 @@ fit_dea_efficiency <- function(master_panel, year_focus = 2019) {
                   is.finite(.data$che_pc_usd2023), .data$che_pc_usd2023 > 0,
                   is.finite(.data$HALE), .data$HALE > 0)
   if (nrow(d) < 10) return(NULL)
-  # 简化 CRS DEA：效率 = (HALE / CHE_pc) / max(HALE / CHE_pc)
   d <- d |>
     dplyr::mutate(
       ratio = .data$HALE / .data$che_pc_usd2023,
       eff_crs = .data$ratio / max(.data$ratio, na.rm = TRUE)
     )
-  # VRS 近似：分收入组归一
   if ("income_group" %in% names(d)) {
     d <- d |>
       dplyr::group_by(.data$income_group) |>
@@ -116,14 +85,7 @@ fit_dea_efficiency <- function(master_panel, year_focus = 2019) {
     dplyr::arrange(dplyr::desc(.data$eff_crs))
 }
 
-# ---- M4 · 蒙特卡罗情景 ----------------------------------------------------
 
-#' 1000 次模拟 OECD 国家"维持 7% GDP 投入"对寿命的增益
-#'
-#' @param master_panel 主面板
-#' @param target_pct 目标 CHE/GDP 比例
-#' @param n_sims 模拟次数
-#' @param horizon 模拟年数
 mc_scenarios <- function(master_panel, target_pct = 0.07,
                          n_sims = 1000, horizon = 7,
                          seed = 42) {
@@ -135,12 +97,10 @@ mc_scenarios <- function(master_panel, target_pct = 0.07,
                   is.finite(.data$gdp_pc_usd),
                   is.finite(.data$life_exp))
   if (!nrow(baseline)) return(NULL)
-  # 弹性来自历史回归：每 +1% CHE/cap → 寿命 +η（年）
   elastic <- tryCatch({
     fit <- stats::lm(life_exp ~ log(che_pc_usd2023), data = baseline)
     as.numeric(stats::coef(fit)["log(che_pc_usd2023)"])
   }, error = function(e) 1.5)
-  # 模拟
   sim <- expand.grid(iso3_code = baseline$iso3_code, sim = seq_len(n_sims),
                      year_offset = seq_len(horizon)) |>
     tibble::as_tibble() |>
@@ -166,12 +126,7 @@ mc_scenarios <- function(master_panel, target_pct = 0.07,
   list(elasticity = elastic, summary = sim, n_sims = n_sims, horizon = horizon)
 }
 
-# ---- M5 · Lorenz / 基尼分解 ------------------------------------------------
 
-#' Lorenz 曲线坐标（人均 CHE 加权）
-#'
-#' @param values 数值向量（如人均 CHE）
-#' @param weights 权重（如人口）
 fit_lorenz <- function(values, weights = NULL) {
   ok <- is.finite(values) & values >= 0
   values <- values[ok]
@@ -185,12 +140,7 @@ fit_lorenz <- function(values, weights = NULL) {
   tibble::tibble(p_pop = c(0, cum_w), p_value = c(0, cum_v))
 }
 
-# ---- M6 · 集中指数（Kakwani） ----------------------------------------------
 
-#' Kakwani 累进性指数：C - G（C=支出集中指数, G=收入基尼）
-#'
-#' @param values 卫生支出额（每人）
-#' @param income GDP/cap 等收入
 concentration_index <- function(values, income) {
   if (!requireNamespace("ineq", quietly = TRUE)) return(NULL)
   ok <- is.finite(values) & is.finite(income) & income > 0
@@ -204,9 +154,7 @@ concentration_index <- function(values, income) {
   list(C = c_i, G = g_i, kakwani = c_i - g_i)
 }
 
-# ---- M7 · 工具变量替代式 ---------------------------------------------------
 
-#' 用 GDP 滞后期作为 IV，估计真实弹性
 fit_panel_iv <- function(master_panel) {
   if (!requireNamespace("fixest", quietly = TRUE)) return(NULL)
   ensure_pkgs("dplyr")
@@ -233,9 +181,7 @@ fit_panel_iv <- function(master_panel) {
   )
 }
 
-# ---- M8 · 国家变点检测面板 ------------------------------------------------
 
-#' 对每国 OOPS 时序做 PELT 变点检测，输出全国汇总表
 changepoint_panel <- function(master_panel,
                                 indicator_col = "hf3_che",
                                 min_n = 10) {
@@ -268,9 +214,7 @@ changepoint_panel <- function(master_panel,
   dplyr::bind_rows(Filter(Negate(is.null), rows))
 }
 
-# ---- M9 · 增长分解 -------------------------------------------------------
 
-#' Δ log(CHE) ≈ β·Δ log(GDP) + γ·Δ pop_65 + ε（OECD 子集）
 fit_growth_decomposition <- function(master_panel) {
   if (!requireNamespace("fixest", quietly = TRUE)) return(NULL)
   ensure_pkgs("dplyr")

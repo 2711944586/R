@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-mapstudio.R
-# Map Studio 原生地图工作台
+
+
 
 skip_unless_master_mapstudio <- function() {
   proj <- (function() {

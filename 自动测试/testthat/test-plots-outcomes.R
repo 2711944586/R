@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-plots-outcomes.R
-# B3: 产出 / 寿命专题图集 plot_outcome_*
+
+
 
 skip_unless_master <- function() {
   proj <- (function() {

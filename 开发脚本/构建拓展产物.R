@@ -1,6 +1,3 @@
-# 开发脚本/构建拓展产物.R
-# 一次跑完静态图 + widget + 数据质量 + 部署整合
-# 用法：Rscript 开发脚本/构建拓展产物.R
 
 cat("[build_v2] start\n")
 t0 <- Sys.time()
@@ -10,7 +7,6 @@ for (f in list.files("程序", pattern = "\\.R$", full.names = TRUE)) {
 }
 cat("[build_v2] all 程序/ sourced\n")
 
-# 全局主题 + 字体
 suppressWarnings(suppressMessages({
   register_brand_fonts()
   ggplot2::theme_set(theme_ghs2())
@@ -33,31 +29,25 @@ world_sf <- tryCatch(load_world_sf("medium", 0.08), error = function(e) NULL)
 cat("[build_v2] world_sf:",
     if (is.null(world_sf)) "NULL" else paste(nrow(world_sf), "polygons"), "\n")
 
-# 1) 主题深度图（8 张）
 cat("\n========== thematic figures ==========\n")
 n_thematic <- tryCatch(ghs_export_v2_thematic(master),
                        error = function(e) { message(e); 0L })
 
-# 2) 数据新闻级图（6 张）
 cat("\n========== dataviz figures ==========\n")
 n_dataviz <- tryCatch(ghs_export_v2_dataviz(master, world_sf = world_sf),
                       error = function(e) { message(e); 0L })
 
-# 3) plotly widget（8 个）
 cat("\n========== plotly widgets ==========\n")
 n_plotly <- tryCatch(ghs_export_v2_widgets_plotly(master),
                      error = function(e) { message(e); 0L })
 
-# 4) 其他 widget（5 个）
 cat("\n========== other widgets ==========\n")
 n_other <- tryCatch(ghs_export_v2_widgets_other(master, world_sf = world_sf),
                     error = function(e) { message(e); 0L })
 
-# 5) 数据质量报告
 cat("\n========== data quality report ==========\n")
 data_quality_export(master)
 
-# 6) 报告
 elapsed <- difftime(Sys.time(), t0, units = "secs")
 cat(sprintf("\n[build_v2] DONE in %.1fs\n", elapsed))
 cat(sprintf("  thematic figures: %d / 8\n", n_thematic))
@@ -65,7 +55,6 @@ cat(sprintf("  dataviz figures:  %d / 6\n", n_dataviz))
 cat(sprintf("  plotly widgets:   %d / 8\n", n_plotly))
 cat(sprintf("  other widgets:    %d / 5\n", n_other))
 
-# 实际目录扫描
 fig_n <- length(list.files("分析输出/图表", pattern = "\\.png$"))
 svg_n <- length(list.files("分析输出/图表", pattern = "\\.svg$"))
 wid_n <- length(list.files("分析输出/交互组件", pattern = "\\.html$",

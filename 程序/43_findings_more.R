@@ -1,16 +1,8 @@
-# =============================================================================
-# 程序/43_findings_more.R
-# -----------------------------------------------------------------------------
-# F15–F36 元数据注册表。供 21_static_showcase.R 查询 finding 标题、claim 等。
-# 完整 HTML 生成逻辑在 42_findings_extra.R + 42b_findings_batch.R 中。
-# 注意：本文件不得定义 ghs_findings_extra() 函数，否则会覆盖 42_ 中的实现。
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
 }
 
-# 22 个新 finding 的元数据
 .findings_meta <- function() {
   list(
     list(id = "f-aging", num = "F15", kicker = "Aging",
@@ -104,10 +96,8 @@ if (!exists("ensure_pkgs", mode = "function")) {
   )
 }
 
-#' 获取 finding 元数据列表（供外部查询）
 get_findings_meta <- function() .findings_meta()
 
-#' 获取单个 finding 元数据
 get_finding_meta <- function(num) {
   meta <- .findings_meta()
   idx <- which(vapply(meta, function(x) x$num == num, logical(1)))

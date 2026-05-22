@@ -1,8 +1,8 @@
-# 自动测试/testthat/test-shiny-helpers.R
-# Shiny 共用组件烟雾测试
 
-# 注意：仪表盘/模块/_helpers.R 不在 helper-source.R 自动加载范围（只加载 程序/）
-# 因此显式 source 进来
+
+
+
+
 local({
   proj_root <- (function() {
     cwd <- getwd()

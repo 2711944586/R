@@ -1,19 +1,8 @@
-# =============================================================================
-# 程序/06_plot_theme.R
-# -----------------------------------------------------------------------------
-# 统一 ggplot 主题、字体、色板。色盲友好，中英双语友好。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 主题：ghs_theme --------------------------------------------------------
-#' 项目通用 ggplot 主题
-#'
-#' @param base_size 正文字号
-#' @param base_family 字体族（默认自动选择可用的中文字体，否则 sans）
-#' @param grid 是否显示网格 (logical 或 "x"/"y")
 theme_ghs <- function(base_size = 13, base_family = "", grid = TRUE) {
   ensure_pkgs(c("ggplot2"))
   family <- base_family
@@ -55,7 +44,6 @@ theme_ghs <- function(base_size = 13, base_family = "", grid = TRUE) {
   th
 }
 
-# ---- 色板 -------------------------------------------------------------------
 scale_fill_ghs_source  <- function(...) ggplot2::scale_fill_manual(
   values = c(
     `Domestic General Government Health Expenditure (GGHE-D)` = ghs_palette$funding[["gghed"]],
@@ -93,8 +81,6 @@ scale_colour_ghs_income <- function(...) ggplot2::scale_colour_manual(
   values = ghs_palette$income, na.value = "grey70", ...
 )
 
-# ---- 常用 annotation --------------------------------------------------------
-#' 给 ggplot 叠加一个统一的 caption
 labs_ghs <- function(title = NULL, subtitle = NULL,
                      x = NULL, y = NULL,
                      caption = ghs_caption_bi(),

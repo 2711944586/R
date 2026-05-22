@@ -1,9 +1,4 @@
-# =============================================================================
-# 程序/18_widgets_other.R  ·  leaflet / reactable / networkD3 / DT widget（6 个）
-# -----------------------------------------------------------------------------
 
-#' W3.1 · leaflet 主世界地图（5 指标可切换）
-#' @export
 widget_v2_leaflet_choropleth <- function(master, world_sf,
                                           year = 2022,
                                           metrics = c("hf3_che","gghed_che",
@@ -60,8 +55,6 @@ widget_v2_leaflet_choropleth <- function(master, world_sf,
     leaflet::hideGroup(setdiff(metrics, metrics[[1]]))
 }
 
-#' W3.2 · reactable 国家排行（含 sparkbar）
-#' @export
 widget_v2_reactable_rank <- function(master, year = 2023) {
   if (!requireNamespace("reactable", quietly = TRUE)) return(NULL)
   d <- master[master$year == year &
@@ -112,8 +105,6 @@ widget_v2_reactable_rank <- function(master, year = 2023) {
   )
 }
 
-#' W3.3 · DT 全量浏览（30 列字段）
-#' @export
 widget_v2_dt_atlas <- function(master) {
   if (!requireNamespace("DT", quietly = TRUE)) return(NULL)
   show_cols <- intersect(c(
@@ -154,8 +145,6 @@ widget_v2_dt_atlas <- function(master) {
                      digits = 1)
 }
 
-#' W3.4 · networkD3 国家相似图（基于 PCA 距离）
-#' @export
 widget_v2_country_network <- function(master, year = 2022, k = 5) {
   if (!requireNamespace("networkD3", quietly = TRUE)) return(NULL)
   cols <- intersect(c("hf1_che","hf2_che","hf3_che",
@@ -191,8 +180,6 @@ widget_v2_country_network <- function(master, year = 2022, k = 5) {
     bounded = TRUE, charge = -90)
 }
 
-#' W3.5 · sankey 三段（来源 → HF → HC）
-#' @export
 widget_v2_sankey_flows <- function(master, year = 2022) {
   if (!requireNamespace("networkD3", quietly = TRUE)) return(NULL)
   d <- master[master$year == year &
@@ -230,8 +217,6 @@ widget_v2_sankey_flows <- function(master, year = 2022) {
     sinksRight = FALSE)
 }
 
-#' W3.6 · KPI 卡片 grid（HTML 直接嵌入 Quarto）
-#' @export
 widget_v2_kpi_grid <- function(master, year = 2022) {
   if (!requireNamespace("htmltools", quietly = TRUE)) return(NULL)
   d <- master[master$year == year, ]
@@ -261,10 +246,7 @@ widget_v2_kpi_grid <- function(master, year = 2022) {
   )
 }
 
-# ---- 批量导出 -------------------------------------------------------------
 
-#' 其他 widget（4 个支持 saveWidget）批量保存
-#' @export
 ghs_export_v2_widgets_other <- function(master, world_sf = NULL,
                                          out_dir = file.path("分析输出", "交互组件"),
                                          verbose = TRUE) {

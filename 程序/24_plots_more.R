@@ -1,16 +1,9 @@
-# =============================================================================
-# 程序/24_plots_more.R
-# -----------------------------------------------------------------------------
-# 第二批静态图扩展（30 张），统一通过 ghs_export_more() 入口调用，
-# 与 22_plots_extra.R 互补。所有函数仅依赖 master_enriched 已有列。
-# =============================================================================
 
 .gxm_pkgs <- function() {
   ensure_pkgs(c("dplyr", "tidyr", "ggplot2", "scales", "ggrepel", "ggridges"))
 }
 
 .gxm_theme <- function() {
-  # 优先使用扩展主题，回退到 minimal
   if (exists("theme_ghs3", mode = "function")) theme_ghs3()
   else if (exists("theme_ghs2", mode = "function")) theme_ghs2()
   else ggplot2::theme_minimal(base_size = 12)
@@ -18,7 +11,6 @@
 
 .gxm_latest_year <- function(master) max(master$year, na.rm = TRUE)
 
-# ---- 1. global CHE total trend (USD trillions) ----
 .gxm_global_che_total <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$che_usd2023)) |>
@@ -40,7 +32,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 2. CHE per capita CAGR by continent ----
 .gxm_continent_cagr <- function(master) {
   d <- master |>
     dplyr::filter(.data$year %in% c(2000, .gxm_latest_year(master)),
@@ -74,7 +65,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 3. CHE per capita CAGR by income group ----
 .gxm_income_cagr <- function(master) {
   d <- master |>
     dplyr::filter(.data$year %in% c(2000, .gxm_latest_year(master)),
@@ -111,7 +101,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 4. OOPS share dumbbell 2000 vs latest, top 25 declines ----
 .gxm_oops_dumbbell_decline <- function(master) {
   yrs <- c(2000, .gxm_latest_year(master))
   d <- master |>
@@ -154,7 +143,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 5. OOPS share dumbbell 2000 vs latest, top 25 increases ----
 .gxm_oops_dumbbell_rise <- function(master) {
   yrs <- c(2000, .gxm_latest_year(master))
   d <- master |>
@@ -197,7 +185,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 6. CHE/cap top growth countries ----
 .gxm_che_top_growth <- function(master) {
   yrs <- c(2000, .gxm_latest_year(master))
   d <- master |>
@@ -236,7 +223,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 7. life expectancy change top ----
 .gxm_life_change_top <- function(master) {
   yrs <- c(2000, .gxm_latest_year(master))
   d <- master |>
@@ -269,7 +255,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 8. U5MR decline top ----
 .gxm_u5mr_decline_top <- function(master) {
   yrs <- c(2000, .gxm_latest_year(master))
   d <- master |>
@@ -302,7 +287,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 9. external aid top recipients ----
 .gxm_ext_top_recipients <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -329,7 +313,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 10. HC purpose breakdown latest year ----
 .gxm_hc_breakdown <- function(master) {
   yr <- .gxm_latest_year(master)
   cols <- intersect(c("hc1_che", "hc2_che", "hc3_che", "hc4_che",
@@ -364,7 +347,6 @@
     ggplot2::theme(legend.position = "bottom")
 }
 
-# ---- 11. OOPS vs GDP per capita scatter ----
 .gxm_oops_gdp <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -395,7 +377,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 12. OOPS vs life expectancy scatter ----
 .gxm_oops_life <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -425,7 +406,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 13. CHE per capita vs life expectancy log ----
 .gxm_che_life_log <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -457,7 +437,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 14. CHE per capita vs U5MR log ----
 .gxm_che_u5_log <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -488,7 +467,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 15. continent CHE per capita boxplot latest year ----
 .gxm_continent_che_box <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -511,7 +489,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 16. CHE/cap year-over-year YoY heatmap (top 30 by CHE) ----
 .gxm_yoy_heatmap <- function(master) {
   ranking <- master |>
     dplyr::filter(.data$year == .gxm_latest_year(master),
@@ -547,7 +524,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 17. efficiency frontier facet by continent ----
 .gxm_efficiency_frontier <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -570,7 +546,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 18. life expectancy residual after controlling GDP ----
 .gxm_life_residual <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -606,7 +581,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 19. income group OOPS box by decade ----
 .gxm_income_oops_decade <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$hf3_che),
@@ -636,7 +610,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 20. continent OOPS weighted average over time stacked area ----
 .gxm_continent_oops_area <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$hf3_che),
@@ -663,7 +636,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 21. continent GGHED weighted average over time ----
 .gxm_continent_gghed_area <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$gghed_che),
@@ -690,7 +662,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 22. global HF1/HF2/HF3 stacked area share over time ----
 .gxm_global_hf_share <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$hf1_usd2023),
@@ -724,7 +695,6 @@
     ) + .gxm_theme() + ggplot2::theme(legend.position = "bottom")
 }
 
-# ---- 23. CHE per capita ridges by income group latest year ----
 .gxm_income_ridges <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -751,7 +721,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 24. OOPS top10 vs bottom10 (latest year) ----
 .gxm_oops_top_bottom <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -784,7 +753,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 25. country compare panel: CHE per capita across CHN/IND/USA/BRA/NGA ----
 .gxm_compare_panel <- function(master) {
   picks <- c("CHN", "IND", "USA", "BRA", "NGA")
   d <- master |>
@@ -806,7 +774,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 26. global CHE/GDP share by year ----
 .gxm_che_gdp_share_world <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$che_usd2023),
@@ -833,7 +800,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 27. forecast CAGR fan: continent average historical + linear extrapolation 2024-2030 ----
 .gxm_continent_forecast <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$che_pc_usd2023),
@@ -878,7 +844,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 28. CHE / GDP rank top 25 latest year ----
 .gxm_che_gdp_top <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -909,7 +874,6 @@
     ) + .gxm_theme()
 }
 
-# ---- 29. global region share by GHED 2023 hf1/hf2/hf3 stacked bars ----
 .gxm_region_hf_breakdown <- function(master) {
   yr <- .gxm_latest_year(master)
   d <- master |>
@@ -950,7 +914,6 @@
     ) + .gxm_theme() + ggplot2::theme(legend.position = "bottom")
 }
 
-# ---- 30. correlation between CHE_pc and life_exp / U5MR / OOPS over time ----
 .gxm_correlation_overtime <- function(master) {
   d <- master |>
     dplyr::filter(is.finite(.data$che_pc_usd2023),
@@ -993,10 +956,7 @@
     ) + .gxm_theme()
 }
 
-# ---- 入口 ------------------------------------------------------------------
 
-#' 第二批 30 张静态图扩展
-#' @export
 ghs_export_more <- function(master,
                             outputs_dir = file.path("分析输出", "图表"),
                             verbose = TRUE) {

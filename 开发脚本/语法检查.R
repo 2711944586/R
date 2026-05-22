@@ -1,4 +1,3 @@
-# quick parse check across all 程序/ files
 files <- list.files("程序", pattern = "\\.R$", full.names = TRUE)
 ok_count <- 0L
 for (f in files) {

@@ -1,8 +1,8 @@
-# 自动测试/testthat/test-plots-advanced.R
-# B1: 高级图集 plot_adv_*
+
+
 
 skip_unless_master <- function() {
-  # 测试 cwd 是 testthat/，需要向上找项目根
+
   proj <- (function() {
     cwd <- getwd()
     for (up in 0:5) {
@@ -18,8 +18,8 @@ skip_unless_master <- function() {
   invisible(readRDS(cache))
 }
 
-# Make sure functions are sourced. helper-source.R should have done this,
-# but new file 30_plots_advanced.R may not be picked up by older patterns.
+
+
 local({
   f <- file.path("\u7a0b\u5e8f", "30_plots_advanced.R")
   if (!exists("plot_adv_ridge_oops_by_income", mode = "function") &&
@@ -82,7 +82,7 @@ test_that("ghs_export_advanced 在 tempdir 下能写出 PNG/SVG (\u5feb\u901f\u5
   m <- skip_unless_master()
   out_dir <- file.path(tempdir(), "ghs-adv-test")
   dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
-  # 用一个轻量子集子函数替代完整导出器，避免占用太久
+
   p <- plot_adv_beeswarm_che_pc(m)
   png_path <- file.path(out_dir, "_smoke.png")
   ggplot2::ggsave(png_path, p, width = 8, height = 5, dpi = 120)

@@ -1,10 +1,3 @@
-# =============================================================================
-# 程序/40_plots_supplement.R
-# -----------------------------------------------------------------------------
-# 多样化补充图集：补齐报告中的静态图类型。
-# 图表类型：密度脊线、蜂群、极坐标、华夫饼、哑铃、瀑布、点阵、
-#           面积堆叠、分面时序、相关矩阵、Lorenz 曲线、排名变化等。
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -24,7 +17,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 
 .yr_max <- function(m) max(m$year, na.rm = TRUE)
 
-# ---- 01. Lorenz 曲线（人均 CHE 不平等）------------------------------------
 plot_div_lorenz <- function(master, years = c(2000, 2010, 2023)) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   plots_data <- lapply(years, function(yr) {
@@ -52,7 +44,6 @@ plot_div_lorenz <- function(master, years = c(2000, 2010, 2023)) {
       caption = .sc(nrow(master[master$year == max(years), ])))
 }
 
-# ---- 02. 极坐标条形（HC1-HC9 支出用途）------------------------------------
 plot_div_polar_purpose <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   yr <- .yr_max(master)
@@ -82,7 +73,6 @@ plot_div_polar_purpose <- function(master) {
       caption = .sc(sum(master$year == yr & is.finite(master$hf3_che))))
 }
 
-# ---- 03. 哑铃图（2000 vs 2023 人均 CHE 变化 Top 20）-----------------------
 plot_div_dumbbell_che <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   yr_a <- min(master$year, na.rm = TRUE)
@@ -113,7 +103,6 @@ plot_div_dumbbell_che <- function(master) {
       caption = .sc(nrow(m)))
 }
 
-# ---- 04. 瀑布图（全球 CHE 增量分解）--------------------------------------
 plot_div_waterfall_che <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   d <- master[is.finite(master$che_usd2023) & !is.na(master$continent), ]
@@ -151,7 +140,6 @@ plot_div_waterfall_che <- function(master) {
       caption = .sc(length(unique(d$iso3_code))))
 }
 
-# ---- 05. 点阵图（OOPS 高风险国家标记）------------------------------------
 plot_div_dotmatrix_oops <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   yr <- .yr_max(master)
@@ -175,7 +163,6 @@ plot_div_dotmatrix_oops <- function(master) {
       caption = .sc(nrow(d)))
 }
 
-# ---- 06. 面积堆叠（全球三源结构演化）--------------------------------------
 plot_div_stacked_sources <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2", "tidyr"))
   d <- master[is.finite(master$gghed_che) & is.finite(master$pvtd_che) &
@@ -196,7 +183,6 @@ plot_div_stacked_sources <- function(master) {
       caption = .sc(length(unique(d$iso3_code))))
 }
 
-# ---- 07. 密度脊线（人均 CHE 按收入组 × 5 年份）---------------------------
 plot_div_ridges_income_years <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2", "ggridges"))
   yrs <- c(2000, 2005, 2010, 2015, 2020)
@@ -215,7 +201,6 @@ plot_div_ridges_income_years <- function(master) {
       caption = .sc(length(unique(d$iso3_code))))
 }
 
-# ---- 08. 相关热力图（关键变量间相关矩阵）----------------------------------
 plot_div_corr_heatmap <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   yr <- .yr_max(master)
@@ -225,7 +210,6 @@ plot_div_corr_heatmap <- function(master) {
   d <- d[stats::complete.cases(d), ]
   if (nrow(d) < 20) return(NULL)
   cor_mat <- stats::cor(d, use = "pairwise.complete.obs")
-  # Convert to long format
   long <- expand.grid(var1 = rownames(cor_mat), var2 = colnames(cor_mat), stringsAsFactors = FALSE)
   long$r <- as.vector(cor_mat)
   ggplot2::ggplot(long, ggplot2::aes(.data$var1, .data$var2, fill = .data$r)) +
@@ -241,7 +225,6 @@ plot_div_corr_heatmap <- function(master) {
       caption = .sc(nrow(d)))
 }
 
-# ---- 09. 蜂群图（OOPS 按大洲分布）----------------------------------------
 plot_div_beeswarm_oops <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   yr <- .yr_max(master)
@@ -259,7 +242,6 @@ plot_div_beeswarm_oops <- function(master) {
       caption = .sc(nrow(d)))
 }
 
-# ---- 10. 分面散点（6 大洲 × CHE vs 寿命）---------------------------------
 plot_div_facet_scatter_life <- function(master) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   yr <- .yr_max(master)
@@ -279,7 +261,6 @@ plot_div_facet_scatter_life <- function(master) {
       caption = .sc(nrow(d)))
 }
 
-# ---- 导出入口 --------------------------------------------------------------
 ghs_export_diverse <- function(master, fig_dir = NULL) {
   ensure_pkgs(c("dplyr", "ggplot2"))
   if (is.null(fig_dir)) fig_dir <- file.path(proj_root(), "\u5206\u6790\u8f93\u51fa", "\u56fe\u8868")
@@ -307,7 +288,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     }
   }
 
-  # Additional diversity: year-specific variants
   for (yr in c(2005, 2010, 2015)) {
     nm <- sprintf("265_facet_scatter_che_life_%d", yr)
     p <- tryCatch({
@@ -328,7 +308,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, nm, dir = fig_dir); saved <- c(saved, nm) }
   }
 
-  # Violin + jitter for different indicators
   for (info in list(
     list(col = "gghed_che", zh = "GGHE-D", nm = "268_violin_gghed"),
     list(col = "ext_che", zh = "\u5916\u63f4 EXT", nm = "269_violin_ext"),
@@ -347,7 +326,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, info$nm, dir = fig_dir); saved <- c(saved, info$nm) }
   }
 
-  # Period comparison grouped bars
   for (info in list(
     list(col = "che_pc_usd2023", zh = "\u4eba\u5747 CHE", nm = "271_period_che"),
     list(col = "hf3_che", zh = "OOPS", nm = "272_period_oops"),
@@ -370,7 +348,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, info$nm, dir = fig_dir); saved <- c(saved, info$nm) }
   }
 
-  # Income group trend lines for multiple indicators
   for (info in list(
     list(col = "che_pc_usd2023", zh = "\u4eba\u5747 CHE", nm = "274_trend_income_che"),
     list(col = "hf3_che", zh = "OOPS", nm = "275_trend_income_oops"),
@@ -391,7 +368,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, info$nm, dir = fig_dir); saved <- c(saved, info$nm) }
   }
 
-  # Continent-specific area charts
   for (cont in c("Africa", "Asia", "Europe", "Americas")) {
     nm <- sprintf("278_area_%s_sources", tolower(cont))
     p <- tryCatch({
@@ -411,7 +387,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, nm, dir = fig_dir); saved <- c(saved, nm) }
   }
 
-  # Histogram + density overlay
   for (info in list(
     list(col = "che_pc_usd2023", zh = "\u4eba\u5747 CHE", nm = "282_hist_che_pc", log = TRUE),
     list(col = "hf3_che", zh = "OOPS", nm = "283_hist_oops", log = FALSE),
@@ -436,7 +411,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, info$nm, dir = fig_dir); saved <- c(saved, info$nm) }
   }
 
-  # Lollipop charts for different rankings
   for (info in list(
     list(col = "hf3_che", zh = "OOPS \u6700\u9ad8", nm = "285_lollipop_oops_top", desc = TRUE),
     list(col = "gghed_che", zh = "GGHE-D \u6700\u9ad8", nm = "286_lollipop_gghed_top", desc = TRUE),
@@ -460,7 +434,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, info$nm, dir = fig_dir); saved <- c(saved, info$nm) }
   }
 
-  # Slope charts (start vs end year)
   for (info in list(
     list(col = "hf3_che", zh = "OOPS", nm = "288_slope_oops"),
     list(col = "gghed_che", zh = "GGHE-D", nm = "289_slope_gghed")
@@ -496,7 +469,6 @@ ghs_export_diverse <- function(master, fig_dir = NULL) {
     if (!is.null(p)) { save_fig(p, info$nm, width = 11, height = 8, dir = fig_dir); saved <- c(saved, info$nm) }
   }
 
-  # Final count
   total_png <- length(list.files(fig_dir, pattern = "\\.png$"))
   cat(sprintf("[diverse] exported %d new figures. Total PNG: %d\n", length(saved), total_png))
   invisible(saved)

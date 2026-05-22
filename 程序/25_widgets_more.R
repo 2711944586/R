@@ -1,9 +1,3 @@
-# =============================================================================
-# 程序/25_widgets_more.R
-# -----------------------------------------------------------------------------
-# 第二批交互 widget 扩展（18 个），统一通过 ghs_export_widgets_more() 入口调用，
-# 与 17/18_widgets_*.R 互补；只生成 standalone HTML，不修改既有文件。
-# =============================================================================
 
 .gxw_layout <- function(p, title = NULL, subtitle = NULL,
                          source = "WHO GHED 2024",
@@ -41,7 +35,6 @@
 
 .gxw_latest_year <- function(master) max(master$year, na.rm = TRUE)
 
-# 1. continent OOPS weighted trend lines
 widget_more_continent_oops <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$hf3_che) &
@@ -61,7 +54,6 @@ widget_more_continent_oops <- function(master) {
     subtitle = "2000\u20132023 \u00b7 \u9f20\u6807\u7559\u540d\u67e5\u770b\u5e74\u5ea6\u8be6\u7ec6")
 }
 
-# 2. global HF1/2/3 share area
 widget_more_global_hf <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$hf1_usd2023) &
@@ -93,7 +85,6 @@ widget_more_global_hf <- function(master) {
     subtitle = "HF1 \u653f\u5e9c \u00b7 HF2 \u4fdd\u9669 \u00b7 HF3 OOPS \u00b7 USD2023 \u52a0\u603b")
 }
 
-# 3. income-group CHE/cap weighted lines
 widget_more_income_che <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -117,7 +108,6 @@ widget_more_income_che <- function(master) {
     subtitle = "log \u7eb5\u8f74\u00b72000\u20132023")
 }
 
-# 4. CHE / GDP world share trend
 widget_more_che_gdp_world <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$che_usd2023) &
@@ -139,7 +129,6 @@ widget_more_che_gdp_world <- function(master) {
     subtitle = "\u7531 CHE \u603b\u989d / GDP \u603b\u989d \u8ba1\u7b97 \u00b7 \u9879\u542b\u5916\u63f4")
 }
 
-# 5. OOPS dumbbell decline 2000 vs latest plotly
 widget_more_oops_dumbbell <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yrs <- c(2000, .gxw_latest_year(master))
@@ -178,7 +167,6 @@ widget_more_oops_dumbbell <- function(master) {
     subtitle = "\u5de6\u70b9 = 2000\uff1b\u53f3\u70b9 = \u6700\u8fd1\u5e74")
 }
 
-# 6. CHE per capita CAGR top 30 bar
 widget_more_che_cagr_bar <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yrs <- c(2000, .gxw_latest_year(master))
@@ -206,7 +194,6 @@ widget_more_che_cagr_bar <- function(master) {
     subtitle = "\u590d\u5408\u589e\u901f\uff08\u8d77\u70b9 > USD30\uff09")
 }
 
-# 7. life expectancy delta top 25 bar
 widget_more_life_top_bar <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yrs <- c(2000, .gxw_latest_year(master))
@@ -231,7 +218,6 @@ widget_more_life_top_bar <- function(master) {
     subtitle = "2023 \u2212 2000 \u00b7 \u5355\u4f4d\uff1a\u5e74")
 }
 
-# 8. U5MR decline top 25 bar
 widget_more_u5mr_top_bar <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yrs <- c(2000, .gxw_latest_year(master))
@@ -256,7 +242,6 @@ widget_more_u5mr_top_bar <- function(master) {
     subtitle = "2000 \u2212 2023 \u00b7 \u5355\u4f4d\uff1a/1000 \u6d3b\u4ea7")
 }
 
-# 9. external aid top 25 bar (latest year)
 widget_more_ext_top_bar <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yr <- .gxw_latest_year(master)
@@ -276,7 +261,6 @@ widget_more_ext_top_bar <- function(master) {
     subtitle = "EXT > 30% \u4e3a\u9ad8\u4f9d\u8d56\u9608\u503c")
 }
 
-# 10. OOPS vs GDP/cap bubble (latest year)
 widget_more_oops_gdp <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yr <- .gxw_latest_year(master)
@@ -301,7 +285,6 @@ widget_more_oops_gdp <- function(master) {
     subtitle = "\u70b9\u5927\u5c0f = \u4eba\u53e3")
 }
 
-# 11. OOPS vs life expectancy bubble
 widget_more_oops_life <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yr <- .gxw_latest_year(master)
@@ -324,7 +307,6 @@ widget_more_oops_life <- function(master) {
     subtitle = "\u9ad8 OOPS \u4e0e\u4f4e\u5bff\u547d\u540c\u73b0")
 }
 
-# 12. CHE per capita vs life expectancy bubble (log)
 widget_more_che_life <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yr <- .gxw_latest_year(master)
@@ -349,7 +331,6 @@ widget_more_che_life <- function(master) {
     subtitle = "\u989c\u8272 = \u6536\u5165\u7ec4\uff1b\u70b9\u5927\u5c0f = \u4eba\u53e3")
 }
 
-# 13. CHE per capita vs U5MR log-log bubble
 widget_more_che_u5 <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yr <- .gxw_latest_year(master)
@@ -374,7 +355,6 @@ widget_more_che_u5 <- function(master) {
     subtitle = "\u53cc\u5bf9\u6570\u8f74\u5448\u73b0\u8d1f\u5e42\u5f8b")
 }
 
-# 14. yoy heatmap top 30 by CHE
 widget_more_yoy_heatmap <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   ranking <- master[master$year == .gxw_latest_year(master) &
@@ -408,7 +388,6 @@ widget_more_yoy_heatmap <- function(master) {
     subtitle = "\u8d1f\u503c\u8d1f\u589e\u957f\uff1b2008 \u00b7 2020 \u4e24\u8f6e\u51b2\u51fb\u53ef\u89c1")
 }
 
-# 15. correlation timeseries lines
 widget_more_corr_overtime <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -448,7 +427,6 @@ widget_more_corr_overtime <- function(master) {
     subtitle = "\u5404\u5e74\u72ec\u7acb\u8ba1\u7b97 Pearson r")
 }
 
-# 16. country compare CHE/cap multi-line
 widget_more_country_compare <- function(master,
                                           picks = c("CHN", "IND", "USA",
                                                     "BRA", "NGA", "DEU")) {
@@ -467,7 +445,6 @@ widget_more_country_compare <- function(master,
     subtitle = "CHN / IND / USA / BRA / NGA / DEU")
 }
 
-# 17. correlation matrix heatmap (latest year)
 widget_more_corr_matrix <- function(master) {
   if (!requireNamespace("plotly", quietly = TRUE)) return(NULL)
   yr <- .gxw_latest_year(master)
@@ -489,7 +466,6 @@ widget_more_corr_matrix <- function(master) {
     subtitle = "Pearson r \u00b7 \u4ec5\u4f9d\u9760\u88c5\u8f7d\u53d8\u91cf")
 }
 
-# 18. DT full master atlas (DT data atlas covering more columns)
 widget_more_dt_atlas <- function(master) {
   if (!requireNamespace("DT", quietly = TRUE)) return(NULL)
   show_cols <- intersect(c(
@@ -525,10 +501,7 @@ widget_more_dt_atlas <- function(master) {
                                           names(d)), digits = 1)
 }
 
-# ---- 入口 ------------------------------------------------------------------
 
-#' 第二批 18 个交互组件扩展
-#' @export
 ghs_export_widgets_more <- function(master,
                                     out_dir = file.path("分析输出", "交互组件"),
                                     verbose = TRUE) {

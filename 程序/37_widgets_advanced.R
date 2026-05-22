@@ -1,11 +1,3 @@
-# =============================================================================
-# 程序/37_widgets_advanced.R   —— 高级交互组件（C2 阶段）
-# -----------------------------------------------------------------------------
-# 75 个 iadv_* 函数，覆盖 plotly / highcharter / echarts4r / reactable / DT /
-#   networkD3 / crosstalk / htmltools 卡片。所有函数在包缺失时返回 NULL，
-#   保证在最小依赖下不中断。
-# 命名前缀：iadv_
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -39,11 +31,7 @@ if (!exists("ensure_pkgs", mode = "function")) {
     ...)
 }
 
-# =============================================================================
-# A. plotly time / series (15)
-# =============================================================================
 
-#' iadv1 \u4eba\u5747 CHE \u591a\u56fd\u65f6\u5e8f
 iadv_che_pc_lines <- function(master,
                                 isos = c("USA", "CHN", "JPN", "DEU",
                                           "BRA", "IND", "ZAF")) {
@@ -62,7 +50,6 @@ iadv_che_pc_lines <- function(master,
                               type = "log"))
 }
 
-#' iadv2 OOP \u5360 CHE \u591a\u56fd
 iadv_oop_lines <- function(master,
                             isos = c("USA", "CHN", "IND", "BRA",
                                       "DEU", "JPN", "NGA", "EGY")) {
@@ -80,7 +67,6 @@ iadv_oop_lines <- function(master,
                               ticksuffix = "%"))
 }
 
-#' iadv3 \u603b CHE \u5806\u53e0\u9762\u00b7\u6309\u5927\u6d32
 iadv_che_total_stacked <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -99,7 +85,6 @@ iadv_che_total_stacked <- function(master) {
                 yaxis = list(title = "\u603b CHE (USD2023, B)"))
 }
 
-#' iadv4 \u5168\u7403\u52a0\u6743\u5747\u503c
 iadv_global_weighted_avg <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -124,7 +109,6 @@ iadv_global_weighted_avg <- function(master) {
                 yaxis = list(title = "USD2023 / \u4eba"))
 }
 
-#' iadv5 \u9884\u671f\u5bff\u547d \u00b7 \u6536\u5165\u7ec4 facet
 iadv_lifeexp_byinc <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -146,7 +130,6 @@ iadv_lifeexp_byinc <- function(master) {
                 yaxis = list(title = "\u9884\u671f\u5bff\u547d\uff08\u5e74\uff09"))
 }
 
-#' iadv6 U5MR \u5e74\u4efd\u591a\u56fd
 iadv_u5mr_multi <- function(master,
                               isos = c("USA", "CHN", "IND", "NGA",
                                         "BRA", "ZAF", "DEU")) {
@@ -164,7 +147,6 @@ iadv_u5mr_multi <- function(master,
                               type = "log"))
 }
 
-#' iadv7 \u53cc\u8f74 \u00b7 OOP \u4e0e\u5bff\u547d
 iadv_dualaxis_oop_lifeexp <- function(master, iso = "BRA") {
   if (!.iadv_has("plotly")) return(NULL)
   d <- master[master$iso3_code == iso &
@@ -192,7 +174,6 @@ iadv_dualaxis_oop_lifeexp <- function(master, iso = "BRA") {
                 xaxis = list(title = "\u5e74\u4efd"))
 }
 
-#' iadv8 plotly bar race-style (year frame, top 15)
 iadv_bar_race <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -213,7 +194,6 @@ iadv_bar_race <- function(master) {
                 yaxis = list(title = NA))
 }
 
-#' iadv9 \u586b\u5145\u9762\u79ef \u00b7 HF1/HF2/HF3 \u5168\u7403\u5360\u6bd4
 iadv_hf_share_area <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   if (!all(c("hf1_che", "hf2_che", "hf3_che") %in% names(master))) return(NULL)
@@ -244,7 +224,6 @@ iadv_hf_share_area <- function(master) {
                 yaxis = list(title = "\u5360\u6bd4 (%)", ticksuffix = "%"))
 }
 
-#' iadv10 plotly waterfall \u00b7 \u4eba\u5747 CHE \u589e\u91cf\u9636\u68af
 iadv_waterfall_che <- function(master,
                                  isos = c("USA", "CHN", "DEU", "JPN", "BRA")) {
   if (!.iadv_has("plotly")) return(NULL)
@@ -265,7 +244,6 @@ iadv_waterfall_che <- function(master,
                 yaxis = list(title = "\u0394 USD2023"))
 }
 
-#' iadv11 ribbon \u00b7 \u5168\u7403 25/50/75 \u5206\u4f4d\u5305\u7edc
 iadv_ribbon_quantiles <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -296,7 +274,6 @@ iadv_ribbon_quantiles <- function(master) {
                 yaxis = list(title = "USD2023 / \u4eba", type = "log"))
 }
 
-#' iadv12 plotly funnel \u00b7 \u8d44\u91d1\u4e09\u6bb5
 iadv_funnel_sources <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -317,7 +294,6 @@ iadv_funnel_sources <- function(master, year = NULL) {
   .iadv_layout(p, sprintf("\u5168\u7403\u8d44\u91d1\u6765\u6e90\u6f0f\u6597 \u00b7 %d", year))
 }
 
-#' iadv13 plotly heatmap \u00b7 \u5e74\u00d7\u6536\u5165\u7ec4
 iadv_heatmap_year_inc <- function(master, var = "hf3_che") {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -338,7 +314,6 @@ iadv_heatmap_year_inc <- function(master, var = "hf3_che") {
                 yaxis = list(title = "\u5e74\u4efd"))
 }
 
-#' iadv14 plotly 3D \u00b7 GDP \u00d7 OOP \u00d7 \u5bff\u547d
 iadv_3d_scatter <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -364,7 +339,6 @@ iadv_3d_scatter <- function(master, year = NULL) {
     font = list(family = "PingFang SC, sans-serif"))
 }
 
-#' iadv15 \u591a\u56fd\u53e0\u52a0 \u00b7 latest year OOP \u6392\u5e8f
 iadv_oop_rank_latest <- function(master, top_n = 25) {
   if (!.iadv_has("plotly")) return(NULL)
   yr <- max(master$year, na.rm = TRUE)
@@ -383,11 +357,7 @@ iadv_oop_rank_latest <- function(master, top_n = 25) {
                 yaxis = list(title = NA))
 }
 
-# =============================================================================
-# B. plotly distribution / structure (10)
-# =============================================================================
 
-#' iadv16 \u4ea7\u51fa\u5206\u5e03 violin \u00b7 \u6536\u5165\u7ec4
 iadv_violin_inc <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -406,7 +376,6 @@ iadv_violin_inc <- function(master, year = NULL) {
                 yaxis = list(title = "USD2023 / \u4eba", type = "log"))
 }
 
-#' iadv17 \u7bb1\u7ebf\u00b7\u5927\u6d32
 iadv_box_continent <- function(master, year = NULL, var = "che_pc_usd2023") {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -423,7 +392,6 @@ iadv_box_continent <- function(master, year = NULL, var = "che_pc_usd2023") {
                               type = if (var == "che_pc_usd2023") "log" else "linear"))
 }
 
-#' iadv18 plotly histogram \u00b7 OOP
 iadv_hist_oop <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -438,7 +406,6 @@ iadv_hist_oop <- function(master, year = NULL) {
                 yaxis = list(title = "\u56fd\u5bb6\u6570"))
 }
 
-#' iadv19 plotly density \u00b7 \u4eba\u5747 CHE
 iadv_density_che <- function(master, years = c(2000, 2010, 2022)) {
   if (!.iadv_has("plotly")) return(NULL)
   d <- master[master$year %in% years & is.finite(master$che_pc_usd2023), ]
@@ -463,7 +430,6 @@ iadv_density_che <- function(master, years = c(2000, 2010, 2022)) {
                 yaxis = list(title = "\u5bc6\u5ea6"))
 }
 
-#' iadv20 plotly sunburst \u00b7 \u5927\u6d32 \u00b7 \u6536\u5165\u7ec4 \u00b7 \u56fd\u5bb6
 iadv_sunburst_che <- function(master, year = NULL) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -501,7 +467,6 @@ iadv_sunburst_che <- function(master, year = NULL) {
   .iadv_layout(p, sprintf("\u8d44\u91d1\u65ed\u65e5 \u00b7 \u5927\u6d32-\u6536\u5165-\u56fd \u00b7 %d", year))
 }
 
-#' iadv21 plotly treemap \u00b7 \u603b CHE
 iadv_treemap_che <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -526,7 +491,6 @@ iadv_treemap_che <- function(master, year = NULL) {
   .iadv_layout(p, sprintf("\u603b CHE Treemap \u00b7 Top60 \u00b7 %d", year))
 }
 
-#' iadv22 plotly parallel coordinates
 iadv_parcoords <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -547,7 +511,6 @@ iadv_parcoords <- function(master, year = NULL) {
   .iadv_layout(p, sprintf("\u591a\u53d8\u91cf\u5e73\u884c\u5750\u6807 \u00b7 %d", year))
 }
 
-#' iadv23 plotly polar \u00b7 6 \u5927\u6d32\u591a\u8f74
 iadv_polar_radar <- function(master, year = NULL) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -586,7 +549,6 @@ iadv_polar_radar <- function(master, year = NULL) {
     font = list(family = "PingFang SC, sans-serif"))
 }
 
-#' iadv24 plotly bubble matrix scatter
 iadv_bubble_matrix <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -608,7 +570,6 @@ iadv_bubble_matrix <- function(master, year = NULL) {
                 yaxis = list(title = "\u9884\u671f\u5bff\u547d"))
 }
 
-#' iadv25 \u9879\u76ee\u72b6\u6001\u7ed3\u6784 \u00b7 plotly icicle
 iadv_icicle <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -631,9 +592,6 @@ iadv_icicle <- function(master, year = NULL) {
   .iadv_layout(p, sprintf("Icicle \u00b7 \u603b CHE \u00b7 %d", year))
 }
 
-# =============================================================================
-# C. reactable \u8868 (10)
-# =============================================================================
 
 .iadv_sparkline_html <- function(values, color = .iadv_primary, w = 80, h = 24) {
   values <- values[is.finite(values)]
@@ -650,7 +608,6 @@ iadv_icicle <- function(master, year = NULL) {
     w, h, pts, color)
 }
 
-#' iadv26 reactable \u00b7 \u4eba\u5747 CHE Top 50 \u6392\u540d\u8868
 iadv_rt_top_che_pc <- function(master, year = NULL, top_n = 50) {
   if (!.iadv_has("reactable")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -703,7 +660,6 @@ iadv_rt_top_che_pc <- function(master, year = NULL, top_n = 50) {
       highlightColor = "#fbe5c8", style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv27 reactable \u00b7 OOP \u9ad8/\u4f4e\u53cc\u9762\u677f
 iadv_rt_oop_extremes <- function(master, year = NULL, n_each = 20) {
   if (!.iadv_has("reactable")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -746,7 +702,6 @@ iadv_rt_oop_extremes <- function(master, year = NULL, n_each = 20) {
       borderColor = "#d8c89e", style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv28 reactable \u00b7 \u5927\u6d32\u804a\u7c4d\u6c47\u603b
 iadv_rt_continent_summary <- function(master, year = NULL) {
   if (!.iadv_has("reactable") || !.iadv_has("dplyr")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -781,7 +736,6 @@ iadv_rt_continent_summary <- function(master, year = NULL) {
       borderColor = "#d8c89e", style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv29 reactable \u00b7 \u6536\u5165\u7ec4\u804a\u7c4d
 iadv_rt_income_summary <- function(master, year = NULL) {
   if (!.iadv_has("reactable") || !.iadv_has("dplyr")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -815,7 +769,6 @@ iadv_rt_income_summary <- function(master, year = NULL) {
       style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv30 reactable \u00b7 \u589e\u957f\u51a0\u519b\u8868\u00b7\u542b\u8f6e\u8be2 spark
 iadv_rt_growth_champions <- function(master) {
   if (!.iadv_has("reactable") || !.iadv_has("dplyr")) return(NULL)
   yrs <- range(master$year, na.rm = TRUE)
@@ -866,7 +819,6 @@ iadv_rt_growth_champions <- function(master) {
       style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv31 reactable \u00b7 \u5e74\u4efd\u00d7\u5927\u6d32\u00b7\u9762\u4eba CHE \u53d8\u5316
 iadv_rt_change_by_continent <- function(master) {
   if (!.iadv_has("reactable") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -892,7 +844,6 @@ iadv_rt_change_by_continent <- function(master) {
       style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv32 reactable \u00b7 \u51b2\u51fb\u54cd\u5e94\u8868
 iadv_rt_shock_response <- function(master) {
   if (!.iadv_has("reactable")) return(NULL)
   yrs <- c(2007, 2009, 2019, 2021)
@@ -932,7 +883,6 @@ iadv_rt_shock_response <- function(master) {
       style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv33 reactable \u00b7 \u8d22\u52a1\u4fdd\u62a4\u6307\u6570\u8868
 iadv_rt_finprot <- function(master, year = NULL) {
   if (!.iadv_has("reactable")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -970,7 +920,6 @@ iadv_rt_finprot <- function(master, year = NULL) {
       style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv34 reactable \u00b7 \u8de8\u5e74\u5bf9\u6bd4
 iadv_rt_compare_years <- function(master, isos = c("USA", "CHN",
                                                       "JPN", "DEU",
                                                       "GBR", "IND",
@@ -999,7 +948,6 @@ iadv_rt_compare_years <- function(master, isos = c("USA", "CHN",
       style = list(fontFamily = "PingFang SC")))
 }
 
-#' iadv35 reactable \u00b7 \u672a\u8fbe\u6807\u62a5\u8b66
 iadv_rt_below_threshold <- function(master, year = NULL,
                                        thr_oop = 30, thr_gghed = 50) {
   if (!.iadv_has("reactable")) return(NULL)
@@ -1040,9 +988,6 @@ iadv_rt_below_threshold <- function(master, year = NULL,
       style = list(fontFamily = "PingFang SC")))
 }
 
-# =============================================================================
-# D. DT \u8868 (10)
-# =============================================================================
 
 .iadv_dt_opts <- function() {
   list(pageLength = 15, lengthMenu = c(10, 15, 25, 50),
@@ -1050,7 +995,6 @@ iadv_rt_below_threshold <- function(master, year = NULL,
        dom = "Bfrtip", buttons = c("copy", "csv", "excel"))
 }
 
-#' iadv36 DT \u00b7 \u5168\u5b57\u6bb5\u6d4f\u89c8
 iadv_dt_master_browse <- function(master, year = NULL) {
   if (!.iadv_has("DT")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1071,7 +1015,6 @@ iadv_dt_master_browse <- function(master, year = NULL) {
     DT::formatRound(intersect("pop", cols), digits = 0)
 }
 
-#' iadv37 DT \u00b7 \u540c\u671f\u4e09\u5e74\u5bf9\u6bd4
 iadv_dt_threeyear <- function(master, years = c(2000, 2010, 2022)) {
   if (!.iadv_has("DT")) return(NULL)
   d <- master[master$year %in% years &
@@ -1088,7 +1031,6 @@ iadv_dt_threeyear <- function(master, years = c(2000, 2010, 2022)) {
                         currency = "$", digits = 0)
 }
 
-#' iadv38 DT \u00b7 \u4eba\u5747 CHE \u5e74\u5ea6\u53d8\u5316
 iadv_dt_yoy <- function(master, isos = c("USA", "CHN", "DEU", "JPN",
                                            "GBR", "BRA", "IND", "ZAF",
                                            "NGA")) {
@@ -1105,7 +1047,6 @@ iadv_dt_yoy <- function(master, isos = c("USA", "CHN", "DEU", "JPN",
     DT::formatRound(setdiff(names(w), "country_name"), digits = 1)
 }
 
-#' iadv39 DT \u00b7 \u9884\u671f\u5bff\u547d \u00b7 U5MR \u4ea4\u53c9
 iadv_dt_lifeexp_u5mr <- function(master, year = NULL) {
   if (!.iadv_has("DT")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1120,7 +1061,6 @@ iadv_dt_lifeexp_u5mr <- function(master, year = NULL) {
     DT::formatRound(c("life_exp", "u5mr"), digits = 1)
 }
 
-#' iadv40 DT \u00b7 GGHED \u00d7 OOP \u4e1c
 iadv_dt_gghed_oop <- function(master, year = NULL) {
   if (!.iadv_has("DT")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1136,7 +1076,6 @@ iadv_dt_gghed_oop <- function(master, year = NULL) {
     DT::formatRound(c("gghed_che", "hf3_che", "mix"), digits = 1)
 }
 
-#' iadv41 DT \u00b7 \u9ad8\u589e\u957f\u5012\u5e8f
 iadv_dt_growth_desc <- function(master) {
   if (!.iadv_has("DT")) return(NULL)
   yrs <- range(master$year, na.rm = TRUE)
@@ -1161,7 +1100,6 @@ iadv_dt_growth_desc <- function(master) {
     DT::formatRound("cagr", digits = 2)
 }
 
-#' iadv42 DT \u00b7 \u5916\u63f4\u00b7\u9ad8\u4f9d\u8d56
 iadv_dt_extdep <- function(master, year = NULL, thr = 15) {
   if (!.iadv_has("DT")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1178,7 +1116,6 @@ iadv_dt_extdep <- function(master, year = NULL, thr = 15) {
     DT::formatCurrency("che_pc_usd2023", currency = "$", digits = 0)
 }
 
-#' iadv43 DT \u00b7 GDP-CHE \u8ddf\u968f
 iadv_dt_gdp_che <- function(master, year = NULL) {
   if (!.iadv_has("DT")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1196,7 +1133,6 @@ iadv_dt_gdp_che <- function(master, year = NULL) {
     DT::formatRound("che_gdp_ratio", digits = 2)
 }
 
-#' iadv44 DT \u00b7 SDG 3.8 \u5012\u9000
 iadv_dt_sdg38_alarm <- function(master) {
   if (!.iadv_has("DT")) return(NULL)
   yrs <- range(master$year, na.rm = TRUE)
@@ -1217,7 +1153,6 @@ iadv_dt_sdg38_alarm <- function(master) {
     DT::formatRound(c("oop_y1", "oop_y2", "delta"), digits = 1)
 }
 
-#' iadv45 DT \u00b7 \u539f\u59cb\u9762\u677f\u00b7\u5168\u8a00\u4e2d\u8bcd
 iadv_dt_full_panel <- function(master) {
   if (!.iadv_has("DT")) return(NULL)
   cols <- intersect(c("country_name", "iso3_code", "year",
@@ -1231,11 +1166,7 @@ iadv_dt_full_panel <- function(master) {
                        "life_exp", "u5mr"), digits = 1)
 }
 
-# =============================================================================
-# E. networkD3 / sankey (5)
-# =============================================================================
 
-#' iadv46 sankey \u00b7 \u8d44\u91d1\u4e09\u6bb5 (\u5168\u7403)
 iadv_sankey_3stage <- function(master, year = NULL) {
   if (!.iadv_has("networkD3")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1262,7 +1193,6 @@ iadv_sankey_3stage <- function(master, year = NULL) {
     colourScale = "d3.scaleOrdinal().range([\"#1d3f5f\",\"#2a857a\",\"#c46327\",\"#a23b3b\",\"#774314\"])")
 }
 
-#' iadv47 sankey \u00b7 \u5927\u6d32 \u2192 \u6536\u5165\u7ec4 \u2192 OOP \u533a\u95f4
 iadv_sankey_continent_oop <- function(master, year = NULL) {
   if (!.iadv_has("networkD3") || !.iadv_has("dplyr")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1302,7 +1232,6 @@ iadv_sankey_continent_oop <- function(master, year = NULL) {
     NodeID = "name", units = "B$", fontSize = 11, nodeWidth = 20)
 }
 
-#' iadv48 forceNetwork \u00b7 \u56fd\u5bb6\u76f8\u4f3c
 iadv_force_country_sim <- function(master, year = NULL, k = 4) {
   if (!.iadv_has("networkD3")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1331,7 +1260,6 @@ iadv_force_country_sim <- function(master, year = NULL, k = 4) {
       "d3.scaleOrdinal(['#1d3f5f','#c46327','#2a857a','#7c5b9a','#a23b3b'])"))
 }
 
-#' iadv49 chord \u00b7 \u5e74\u4efd\u95f4\u6392\u540d\u8de8\u8d8a
 iadv_chord_rank_flow <- function(master, years = c(2000, 2022)) {
   if (!.iadv_has("networkD3")) return(NULL)
   d <- master[master$year %in% years &
@@ -1361,7 +1289,6 @@ iadv_chord_rank_flow <- function(master, years = c(2000, 2022)) {
     NodeID = "name", fontSize = 12, units = "\u56fd")
 }
 
-#' iadv50 diagonalNetwork \u00b7 \u5206\u7c7b\u6811
 iadv_diagonal_tree <- function(master, year = NULL) {
   if (!.iadv_has("networkD3")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1383,11 +1310,7 @@ iadv_diagonal_tree <- function(master, year = NULL) {
                               opacity = 0.95)
 }
 
-# =============================================================================
-# F. crosstalk linked views (5)
-# =============================================================================
 
-#' iadv51 crosstalk \u00b7 scatter \u00b7 \u5927\u6d32\u8054\u52a8
 iadv_ctk_scatter_table <- function(master, year = NULL) {
   if (!.iadv_has("crosstalk") || !.iadv_has("plotly") ||
       !.iadv_has("DT")) return(NULL)
@@ -1416,7 +1339,6 @@ iadv_ctk_scatter_table <- function(master, year = NULL) {
                   htmltools::tags$br(), tb)
 }
 
-#' iadv52 crosstalk \u00b7 \u8d8b\u52bf + \u8868
 iadv_ctk_trend_table <- function(master,
                                     isos = c("USA", "CHN", "DEU",
                                               "JPN", "BRA", "IND")) {
@@ -1440,7 +1362,6 @@ iadv_ctk_trend_table <- function(master,
   htmltools::div(plt, htmltools::tags$br(), tb)
 }
 
-#' iadv53 crosstalk \u00b7 \u53cc\u70b9\u9762\u677f
 iadv_ctk_dual_scatter <- function(master, year = NULL) {
   if (!.iadv_has("crosstalk") || !.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1472,7 +1393,6 @@ iadv_ctk_dual_scatter <- function(master, year = NULL) {
                   s1, s2)
 }
 
-#' iadv54 crosstalk \u00b7 \u70b9\u51fb\u9ad8\u4eae
 iadv_ctk_brushable <- function(master, year = NULL) {
   if (!.iadv_has("crosstalk") || !.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1500,7 +1420,6 @@ iadv_ctk_brushable <- function(master, year = NULL) {
     htmltools::tags$br(), p)
 }
 
-#' iadv55 crosstalk \u00b7 \u53cc\u9762\u677f trend + scatter
 iadv_ctk_panel_combo <- function(master) {
   if (!.iadv_has("crosstalk") || !.iadv_has("plotly")) return(NULL)
   d <- master[master$year %in% seq(2000, max(master$year, na.rm = TRUE), 2) &
@@ -1527,9 +1446,6 @@ iadv_ctk_panel_combo <- function(master) {
                   pl1, pl2)
 }
 
-# =============================================================================
-# G. htmltools / KPI \u5361\u7247 (10)
-# =============================================================================
 
 .iadv_kpi_card <- function(title, value, delta = NULL,
                             unit = "", color = .iadv_primary) {
@@ -1554,7 +1470,6 @@ iadv_ctk_panel_combo <- function(master) {
                 abs(delta))))
 }
 
-#' iadv56 KPI grid \u00b7 \u5168\u7403\u603b\u89c8
 iadv_kpi_global <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1585,7 +1500,6 @@ iadv_kpi_global <- function(master, year = NULL) {
                      "/1000", .iadv_bad))
 }
 
-#' iadv57 KPI grid \u00b7 \u5355\u56fd
 iadv_kpi_country <- function(master, iso = "USA", year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1612,7 +1526,6 @@ iadv_kpi_country <- function(master, iso = "USA", year = NULL) {
                      "/1000", .iadv_bad))
 }
 
-#' iadv58 KPI grid \u00b7 \u8de8\u5e74\u53d8\u5316
 iadv_kpi_change <- function(master) {
   if (!.iadv_has("htmltools")) return(NULL)
   yrs <- range(master$year, na.rm = TRUE)
@@ -1643,7 +1556,6 @@ iadv_kpi_change <- function(master) {
                      "/1000", .iadv_bad))
 }
 
-#' iadv59 progress bar grid \u00b7 SDG-3 \u8fdb\u5ea6
 iadv_progress_sdg3 <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1687,7 +1599,6 @@ iadv_progress_sdg3 <- function(master, year = NULL) {
     bar(targets$life), bar(targets$u5m), bar(targets$oop))
 }
 
-#' iadv60 ranking strip \u00b7 \u4eba\u5747 CHE Top10 \u6298\u53e0\u68a6
 iadv_rank_strip <- function(master, year = NULL, top_n = 10) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1720,7 +1631,6 @@ iadv_rank_strip <- function(master, year = NULL, top_n = 10) {
     rows)
 }
 
-#' iadv61 swatch \u00b7 \u989c\u8272\u4e0e\u67d3\u8272\u793a\u4f8b
 iadv_swatch_palette <- function() {
   if (!.iadv_has("htmltools")) return(NULL)
   pal <- .iadv_palette
@@ -1738,7 +1648,6 @@ iadv_swatch_palette <- function() {
                                 paste0(nm, " ", pal[[nm]])))))
 }
 
-#' iadv62 spark line group \u00b7 5 \u56fd\u8de8\u8868\u8d8b\u52bf
 iadv_sparkline_panel <- function(master,
                                     isos = c("USA", "CHN", "DEU",
                                               "JPN", "BRA")) {
@@ -1769,7 +1678,6 @@ iadv_sparkline_panel <- function(master,
     rows)
 }
 
-#' iadv63 alert \u9762\u677f
 iadv_alert_panel <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -1796,7 +1704,6 @@ iadv_alert_panel <- function(master, year = NULL) {
     alert(high_u5, "U5MR > 80 \u56fd\u5bb6\u6570", .iadv_bad))
 }
 
-#' iadv64 dashboard summary \u00b7 \u8868\u4e0a\u4f30\u91cf
 iadv_dashboard_overview <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   htmltools::tagList(
@@ -1807,7 +1714,6 @@ iadv_dashboard_overview <- function(master, year = NULL) {
     iadv_progress_sdg3(master, year))
 }
 
-#' iadv65 callout box \u00b7 finding banner
 iadv_callout <- function(title, body,
                            kind = c("info", "warn", "alert", "good")) {
   if (!.iadv_has("htmltools")) return(NULL)
@@ -1830,11 +1736,7 @@ iadv_callout <- function(title, body,
                                             body)))
 }
 
-# =============================================================================
-# H. plotly extras / \u53cc\u91cd\u4f9d\u8d56\u964d\u7ea7 (15)
-# =============================================================================
 
-#' iadv66 plotly area smooth \u00b7 \u5168\u7403\u603b CHE (\u52a0\u6743)
 iadv_area_smooth_che <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -1855,7 +1757,6 @@ iadv_area_smooth_che <- function(master) {
                               tickformat = ".1f"))
 }
 
-#' iadv67 plotly violin \u5c0f\u500d \u00b7 \u5927\u6d32
 iadv_violin_small_multi <- function(master, year = NULL,
                                        var = "che_pc_usd2023") {
   if (!.iadv_has("plotly")) return(NULL)
@@ -1874,7 +1775,6 @@ iadv_violin_small_multi <- function(master, year = NULL,
                                        else "linear"))
 }
 
-#' iadv68 plotly small multiples \u00b7 \u591a\u56fd trend grid
 iadv_small_multi_trend <- function(master,
                                        isos = c("USA", "CHN", "DEU",
                                                  "JPN", "BRA", "IND",
@@ -1892,7 +1792,6 @@ iadv_small_multi_trend <- function(master,
                 xaxis = list(title = "\u5e74\u4efd"))
 }
 
-#' iadv69 plotly conditional area \u00b7 \u51b2\u51fb\u68a6\u6cb3
 iadv_area_shock_bands <- function(master) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -1919,7 +1818,6 @@ iadv_area_shock_bands <- function(master) {
                 shapes = shapes)
 }
 
-#' iadv70 plotly slope chart
 iadv_slope_chart <- function(master, isos = NULL,
                                 years = c(2000, 2022)) {
   if (!.iadv_has("plotly")) return(NULL)
@@ -1943,7 +1841,6 @@ iadv_slope_chart <- function(master, isos = NULL,
                               title = "USD2023 / \u4eba"))
 }
 
-#' iadv71 plotly dot-plot dumbbell
 iadv_dumbbell <- function(master, years = c(2000, 2022),
                             isos = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
@@ -1989,7 +1886,6 @@ iadv_dumbbell <- function(master, years = c(2000, 2022),
                 yaxis = list(title = NA))
 }
 
-#' iadv72 plotly lollipop \u00b7 OOP
 iadv_lollipop_oop <- function(master, year = NULL, top_n = 30) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2015,7 +1911,6 @@ iadv_lollipop_oop <- function(master, year = NULL, top_n = 30) {
                 xaxis = list(title = "OOP / CHE (%)"))
 }
 
-#' iadv73 plotly ribbon \u00b7 \u5927\u6d32\u8de8\u5e74
 iadv_continent_ribbon <- function(master, var = "che_pc_usd2023") {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -2046,7 +1941,6 @@ iadv_continent_ribbon <- function(master, var = "che_pc_usd2023") {
                                        else "linear"))
 }
 
-#' iadv74 plotly waterfall \u8d44\u91d1\u5e8f\u5217
 iadv_waterfall_continents <- function(master, year = NULL) {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2069,7 +1963,6 @@ iadv_waterfall_continents <- function(master, year = NULL) {
                 yaxis = list(title = "USD2023 / B"))
 }
 
-#' iadv75 plotly indicator gauge group
 iadv_gauge_grid <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2106,7 +1999,6 @@ iadv_gauge_grid <- function(master, year = NULL) {
   p
 }
 
-#' iadv76 plotly density 2D
 iadv_density2d <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2128,7 +2020,6 @@ iadv_density2d <- function(master, year = NULL) {
                 yaxis = list(title = "\u9884\u671f\u5bff\u547d"))
 }
 
-#' iadv77 plotly indicator KPI grid (4)
 iadv_kpi_indicator <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2168,7 +2059,6 @@ iadv_kpi_indicator <- function(master, year = NULL) {
     paper_bgcolor = .iadv_paper)
 }
 
-#' iadv78 plotly polar bar \u00b7 \u8d44\u91d1\u6e90\u5934\u73af
 iadv_polar_bar <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2191,7 +2081,6 @@ iadv_polar_bar <- function(master, year = NULL) {
     font = list(family = "PingFang SC, sans-serif"))
 }
 
-#' iadv79 plotly subplot grid \u00b7 4 \u6307\u6807
 iadv_subplot_4metric <- function(master,
                                     isos = c("USA", "CHN", "DEU",
                                               "JPN", "BRA")) {
@@ -2215,7 +2104,6 @@ iadv_subplot_4metric <- function(master,
                     paper_bgcolor = .iadv_paper)
 }
 
-#' iadv80 plotly bar mean+CI
 iadv_bar_ci <- function(master, year = NULL,
                           var = "hf3_che") {
   if (!.iadv_has("plotly") || !.iadv_has("dplyr")) return(NULL)
@@ -2242,12 +2130,7 @@ iadv_bar_ci <- function(master, year = NULL,
                 yaxis = list(title = var))
 }
 
-# =============================================================================
-# I. highcharter / echarts4r \u53cc\u91cd\u4f9d\u8d56\u964d\u7ea7 (10)
-#    \u672a\u5b89\u88c5\u65f6\u8f6c\u4ea4 plotly \u540c\u6548\u53ef\u89c6\u5316
-# =============================================================================
 
-#' iadv81 hc \u00b7 \u591a\u56fd\u8d8b\u52bf (\u964d\u7ea7\u4e3a plotly)
 iadv_hc_country_lines <- function(master,
                                       isos = c("USA", "CHN", "DEU",
                                                 "JPN")) {
@@ -2265,7 +2148,6 @@ iadv_hc_country_lines <- function(master,
   iadv_che_pc_lines(master, isos)
 }
 
-#' iadv82 hc \u00b7 stream/area (\u964d\u7ea7 plotly)
 iadv_hc_stream <- function(master) {
   if (.iadv_has("highcharter") && .iadv_has("dplyr")) {
     d <- master |>
@@ -2282,7 +2164,6 @@ iadv_hc_stream <- function(master) {
   iadv_che_total_stacked(master)
 }
 
-#' iadv83 hc \u00b7 packed bubble (\u964d\u7ea7 plotly)
 iadv_hc_packed <- function(master, year = NULL) {
   if (.iadv_has("highcharter")) {
     if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2297,7 +2178,6 @@ iadv_hc_packed <- function(master, year = NULL) {
   iadv_treemap_che(master, year)
 }
 
-#' iadv84 hc \u00b7 dependency wheel (\u964d\u7ea7 networkD3)
 iadv_hc_wheel <- function(master, year = NULL) {
   if (.iadv_has("highcharter")) {
     if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2317,7 +2197,6 @@ iadv_hc_wheel <- function(master, year = NULL) {
   iadv_sankey_continent_oop(master, year)
 }
 
-#' iadv85 hc \u00b7 item chart (\u964d\u7ea7 plotly bar)
 iadv_hc_item <- function(master, year = NULL, top_n = 30) {
   if (.iadv_has("highcharter")) {
     if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2330,7 +2209,6 @@ iadv_hc_item <- function(master, year = NULL, top_n = 30) {
   iadv_oop_rank_latest(master, top_n)
 }
 
-#' iadv86 echarts4r calendar (\u964d\u7ea7 plotly heatmap)
 iadv_ec_calendar <- function(master) {
   if (.iadv_has("echarts4r") && .iadv_has("dplyr")) {
     d <- master |>
@@ -2347,7 +2225,6 @@ iadv_ec_calendar <- function(master) {
   iadv_heatmap_year_inc(master)
 }
 
-#' iadv87 echarts4r river (\u964d\u7ea7 plotly stack area)
 iadv_ec_river <- function(master) {
   if (.iadv_has("echarts4r") && .iadv_has("dplyr")) {
     d <- master |>
@@ -2362,7 +2239,6 @@ iadv_ec_river <- function(master) {
   iadv_che_total_stacked(master)
 }
 
-#' iadv88 echarts4r sunburst (\u964d\u7ea7 plotly sunburst)
 iadv_ec_sunburst <- function(master, year = NULL) {
   if (.iadv_has("echarts4r")) {
     return(NULL)
@@ -2370,7 +2246,6 @@ iadv_ec_sunburst <- function(master, year = NULL) {
   iadv_sunburst_che(master, year)
 }
 
-#' iadv89 echarts4r graph network (\u964d\u7ea7 forceNetwork)
 iadv_ec_graph <- function(master, year = NULL) {
   if (.iadv_has("echarts4r")) {
     return(NULL)
@@ -2378,7 +2253,6 @@ iadv_ec_graph <- function(master, year = NULL) {
   iadv_force_country_sim(master, year)
 }
 
-#' iadv90 echarts4r liquid (\u964d\u7ea7 indicator)
 iadv_ec_liquid <- function(master, year = NULL) {
   if (.iadv_has("echarts4r")) {
     if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2390,11 +2264,7 @@ iadv_ec_liquid <- function(master, year = NULL) {
   iadv_gauge_grid(master, year)
 }
 
-# =============================================================================
-# J. htmltools dashboards extras (10)
-# =============================================================================
 
-#' iadv91 caret card grid \u00b7 \u8de8\u56fd\u5e76\u6392
 iadv_country_card_grid <- function(master, isos = c("USA", "CHN", "DEU",
                                                        "JPN", "BRA", "IND"),
                                       year = NULL) {
@@ -2420,7 +2290,6 @@ iadv_country_card_grid <- function(master, isos = c("USA", "CHN", "DEU",
                   cards)
 }
 
-#' iadv92 spark trend banner \u00b7 5 \u5927\u6d32
 iadv_spark_continents <- function(master) {
   if (!.iadv_has("htmltools") || !.iadv_has("dplyr")) return(NULL)
   d <- master |>
@@ -2446,7 +2315,6 @@ iadv_spark_continents <- function(master) {
     rows)
 }
 
-#' iadv93 ranking pill \u00b7 \u4eba\u5747 CHE \u5927\u6d32\u6700\u9ad8\u4f4e
 iadv_extreme_pill <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2468,7 +2336,6 @@ iadv_extreme_pill <- function(master, year = NULL) {
     pill("MIN", bot$country_name[1], bot$che_pc_usd2023[1], .iadv_bad))
 }
 
-#' iadv94 finding card \u00b7 \u53d1\u73b0\u5361\u7247
 iadv_finding_card <- function(title, abstract, evidence_text,
                                  source_text = "WHO GHED 2024") {
   if (!.iadv_has("htmltools")) return(NULL)
@@ -2488,10 +2355,8 @@ iadv_finding_card <- function(title, abstract, evidence_text,
                         sprintf("Source: %s", source_text)))
 }
 
-#' iadv95 milestone timeline
 iadv_milestone_timeline <- function(master = NULL, events = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
-  # master \u4ec5\u7528\u4e8e\u7edf\u4e00\u7ea6\u5b9a\uff0c\u5185\u90e8\u4e0d\u4f9d\u8d56\uff1bevents \u63d0\u4f9b\u65f6\u4f7f\u7528
   if (is.null(events)) {
     events <- list(
       list(year = 2008,
@@ -2528,7 +2393,6 @@ iadv_milestone_timeline <- function(master = NULL, events = NULL) {
     }))
 }
 
-#' iadv96 quote callout
 iadv_quote_callout <- function(quote_text, attrib) {
   if (!.iadv_has("htmltools")) return(NULL)
   htmltools::div(
@@ -2543,7 +2407,6 @@ iadv_quote_callout <- function(quote_text, attrib) {
       paste0("\u2014 ", attrib)))
 }
 
-#' iadv97 stats badge row
 iadv_stats_badge <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2565,7 +2428,6 @@ iadv_stats_badge <- function(master, year = NULL) {
            sprintf("%.0f%%", cov / n * 100), .iadv_warn))
 }
 
-#' iadv98 \u9876\u90e8\u6982\u8981 banner
 iadv_top_banner <- function(master) {
   if (!.iadv_has("htmltools")) return(NULL)
   htmltools::div(
@@ -2585,7 +2447,6 @@ iadv_top_banner <- function(master) {
               max(master$year, na.rm = TRUE))))
 }
 
-#' iadv99 \u8d44\u91d1\u8c1b\u9762\u00b7\u5360\u6bd4\u73af
 iadv_donut_finance <- function(master, year = NULL) {
   if (!.iadv_has("plotly")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2604,7 +2465,6 @@ iadv_donut_finance <- function(master, year = NULL) {
   .iadv_layout(p, sprintf("\u5168\u7403\u8d44\u91d1\u73af \u00b7 %d", year))
 }
 
-#' iadv100 \u8868\u4e0e\u56fe\u5e76\u6392
 iadv_table_plus_plot <- function(master, year = NULL) {
   if (!.iadv_has("htmltools")) return(NULL)
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -2614,11 +2474,7 @@ iadv_table_plus_plot <- function(master, year = NULL) {
     iadv_donut_finance(master, year))
 }
 
-# =============================================================================
-# \u6279\u91cf\u9a8c\u8bc1\u5668
-# =============================================================================
 
-#' \u9a8c\u8bc1 C2 widget \u53ef\u6784\u9020
 ghs_validate_widgets_advanced <- function(master = NULL) {
   if (is.null(master)) {
     cache <- file.path(proj_root(), "\u6d3e\u751f\u6570\u636e",
@@ -2644,11 +2500,6 @@ ghs_validate_widgets_advanced <- function(master = NULL) {
   results
 }
 
-#' \u6279\u91cf\u5bfc\u51fa C2 \u9ad8\u7ea7 widget \u4e3a HTML
-#' @param master \u4e3b\u6570\u636e
-#' @param out_dir \u8f93\u51fa\u76ee\u5f55
-#' @param verbose \u8fdb\u5ea6
-#' @param max_n \u9650\u5236\u5bfc\u51fa\u4e2a\u6570\uff08\u9ed8\u8ba4 200\uff09\uff0c\u907f\u514d\u751f\u6210\u8fc7\u591a
 ghs_export_widgets_advanced <- function(master = NULL,
                                           out_dir = file.path("\u5206\u6790\u8f93\u51fa",
                                                                 "\u4ea4\u4e92\u7ec4\u4ef6"),

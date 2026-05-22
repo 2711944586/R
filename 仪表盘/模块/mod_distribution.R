@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_distribution.R
-# 分布形态：核心指标的统计分布、偏度、峰度与正态性检验
-# =============================================================================
 
 mod_distribution_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -235,7 +231,6 @@ mod_distribution_server <- function(id, master_r) {
 
     output$box_evolution <- plotly::renderPlotly({
       m <- master_r(); ind <- input$indicator
-      # Every 5 years
       years_show <- seq(2000, 2023, by = 5)
       if (!2023 %in% years_show) years_show <- c(years_show, 2023)
       d <- m[m$year %in% years_show & is.finite(m[[ind]]), ]

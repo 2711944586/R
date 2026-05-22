@@ -4,15 +4,15 @@ test_that("gini_weighted equals 0 for equal vector", {
 
 test_that("gini_weighted is monotonic in dispersion", {
   set.seed(1)
-  small <- runif(100, 9, 11)         # 几乎均匀
-  big   <- c(rep(0.01, 99), 100)     # 极不平等
+  small <- runif(100, 9, 11)
+  big   <- c(rep(0.01, 99), 100)
   expect_lt(gini_weighted(small), gini_weighted(big))
   expect_gte(gini_weighted(big), 0.9)
 })
 
 test_that("gini_weighted handles weights", {
   x <- c(1, 100); w <- c(99, 1)
-  # 大多数人是低收入：基尼应较高
+
   g <- gini_weighted(x, w)
   expect_true(is.finite(g) && g > 0.4)
 })

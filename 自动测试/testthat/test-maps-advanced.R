@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-maps-advanced.R
-# B2 高级地图集 plot_map_*
+
+
 
 .proj_root <- (function() {
   cwd <- getwd()
@@ -23,7 +23,7 @@ skip_unless_master_and_sf <- function() {
   list(master = readRDS(m_path), sf = readRDS(s_path))
 }
 
-# 显式 source 31_maps_advanced.R（若 helper 未加载）
+
 local({
   f <- file.path(.proj_root, "\u7a0b\u5e8f", "31_maps_advanced.R")
   if (!exists("plot_map_world_var", mode = "function") && file.exists(f)) {
@@ -54,7 +54,7 @@ test_that("Bivariate \u4e09\u56fe\u8fd4\u56de ggplot \u6216 cowplot \u7ec4\u5408
   p1 <- plot_map_bivariate_che_life(d$master, d$sf)
   p2 <- plot_map_bivariate_gghed_oops(d$master, d$sf)
   p3 <- plot_map_bivariate_gghed_u5mr(d$master, d$sf)
-  # ggdraw 返回 ggplot 子类
+
   expect_true(inherits(p1, "ggplot"))
   expect_true(inherits(p2, "ggplot"))
   expect_true(inherits(p3, "ggplot"))

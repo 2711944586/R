@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_regional.R
-# Tab · 区域对比：6 大洲 × 4 收入组的卫生支出结构与趋势
-# =============================================================================
 
 mod_regional_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -51,9 +47,7 @@ mod_regional_ui <- function(id) {
             )
           )
         ),
-      # KPI row
       shiny::uiOutput(ns("kpi_strip")),
-      # 主图组
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(

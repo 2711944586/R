@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_transition.R
-# 转型分析：国家收入组晋升与卫生筹资结构转型
-# =============================================================================
 
 mod_transition_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -43,7 +39,6 @@ mod_transition_ui <- function(id) {
         )
       ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -73,7 +68,6 @@ mod_transition_ui <- function(id) {
           footer = "\u6761\u5f62\u56fe\u4ee3\u8868\u8d77\u70b9\u6536\u5165\u7ec4\u5230\u7ec8\u70b9\u6536\u5165\u7ec4\u7684\u6837\u672c\u6570\u3002"
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -128,7 +122,6 @@ mod_transition_server <- function(id, master_r) {
       names(d1)[4] <- "income_t0"; names(d2)[2] <- "income_t1"
       merged <- merge(d1, d2, by = "iso3_code")
       merged$changed <- merged$income_t0 != merged$income_t1
-      # Determine direction
       levels_order <- c("Low income", "Lower middle income",
                         "Upper middle income", "High income")
       merged$level_t0 <- match(merged$income_t0, levels_order)
@@ -157,7 +150,6 @@ mod_transition_server <- function(id, master_r) {
     output$transition_path <- plotly::renderPlotly({
       m <- master_r()
       yr1 <- input$year_range[1]; yr2 <- input$year_range[2]
-      # Get start and end points for each country
       d1 <- m[m$year == yr1 & is.finite(m$ext_che) & is.finite(m$gghed_che),
               c("iso3_code", "country_name", "income_group", "ext_che", "gghed_che")]
       d2 <- m[m$year == yr2 & is.finite(m$ext_che) & is.finite(m$gghed_che),
@@ -165,7 +157,6 @@ mod_transition_server <- function(id, master_r) {
       names(d1)[4:5] <- c("ext_t0", "gghed_t0")
       names(d2)[2:3] <- c("ext_t1", "gghed_t1")
       merged <- merge(d1, d2, by = "iso3_code")
-      # Filter to countries with significant change
       merged$ext_change <- merged$ext_t1 - merged$ext_t0
       merged$gghed_change <- merged$gghed_t1 - merged$gghed_t0
       merged <- merged[abs(merged$ext_change) > 3 | abs(merged$gghed_change) > 3, ]
@@ -194,7 +185,6 @@ mod_transition_server <- function(id, master_r) {
 
     output$transition_sankey <- plotly::renderPlotly({
       tc <- transition_countries()
-      # Count transitions
       trans_counts <- as.data.frame(table(tc$income_t0, tc$income_t1))
       names(trans_counts) <- c("from", "to", "n")
       trans_counts <- trans_counts[trans_counts$n > 0, ]

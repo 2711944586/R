@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_country.R
-# Tab 2 · 国家画像：国家选择 + 4 KPI + 4 panel plotly
-# =============================================================================
 
 mod_country_ui <- function(id, country_choices_named, year_min, year_max) {
   ns <- shiny::NS(id)

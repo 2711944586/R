@@ -1,6 +1,3 @@
-# 开发脚本/运行自动测试.R
-# Run testthat suite via per-file source loop (avoids fs >= 2.1.0 requirement
-# triggered by testthat::test_dir on some environments).
 suppressMessages({
   options(testthat.progress.max_fails = 5)
   helper <- "自动测试/testthat/helper-source.R"

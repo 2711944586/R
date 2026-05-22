@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_forecast.R
-# Tab 9 · 预测：ARIMA fan + 80%/95% PI
-# =============================================================================
 
 mod_forecast_ui <- function(id, country_choices_named, indicator_choices) {
   ns <- shiny::NS(id)

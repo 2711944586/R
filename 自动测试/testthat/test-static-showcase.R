@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-static-showcase.R
-# 静态页扩展：CSS overlay + 章节/卡片渲染助手
+
+
 
 test_that("ghs_css 输出包含全部语义 token", {
   css <- .ghs_css_v3()
@@ -91,7 +91,7 @@ test_that("ghs_v3_fig_card / ghs_v3_fig_grid 处理缺失文件", {
   expect_match(card, "data:image/png;base64")
 
   card_pub <- .ghs_v3_fig_card(good_png, "demo caption", mode = "publish")
-  expect_match(card_pub, "demo.png")  # 外链仅文件名
+  expect_match(card_pub, "demo.png")
 
   miss <- .ghs_v3_fig_card("/nonexistent/foo.png", "x")
   expect_match(miss, "missing")

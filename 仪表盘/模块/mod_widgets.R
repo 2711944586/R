@@ -1,7 +1,21 @@
-# =============================================================================
-# 仪表盘/模块/mod_widgets.R
-# Native Widgets · 原生交互组件中枢
-# =============================================================================
+mod_widget_feature_button <- function(ns, id, icon, kicker, title, text,
+                                      meta, tone = "primary") {
+  shiny::actionButton(
+    ns(id),
+    label = htmltools::tagList(
+      htmltools::div(
+        class = "widget-feature-head",
+        htmltools::span(class = "widget-feature-icon", shiny::icon(icon)),
+        htmltools::span(class = "widget-feature-kicker", kicker)
+      ),
+      htmltools::strong(title),
+      htmltools::p(text),
+      htmltools::span(class = "widget-feature-meta", meta)
+    ),
+    class = paste("widget-feature-btn", paste0("widget-feature-", tone)),
+    title = paste("切换到", title)
+  )
+}
 
 mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
   ns <- shiny::NS(id)
@@ -14,49 +28,112 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
       lead = paste(
         "这里把静态报告中分散的交互组件还原为 Shiny 原生输出。",
         "目录只负责检索与选择，真正的图表、地图、表格和网络会在选中后懒加载，",
-        "既保留组件完整度，也避免一次性加载全部 htmlwidgets 造成页面迟滞。"
+        "既保留组件完整度，也避免一次性加载全部组件造成页面迟滞。"
       ),
-      meta = list("Plotly", "Leaflet", "Reactable", "DT", "Network / HTML widgets")
+      meta = list("Plotly", "Leaflet", "Reactable", "DT", "Network / HTML")
     ),
     mod_v3_page_body(
       wide = TRUE,
       mod_v3_badge_row(
-        "原生 render 调度",
-        "覆盖 widget_v2 / widget_more / imap / iadv",
+        "原生渲染",
+        "Plotly / Leaflet / Reactable / DT / Network",
         "按需加载",
-        "依赖缺失不崩溃",
+        "高级组件可直接切换",
         tone = "secondary"
       ),
-      mod_v3_story_grid(
-        columns = 3,
-        mod_v3_insight(
-          kicker = "Library",
-          title = "把组件变成可检索资产",
-          text = "每个组件都登记来源脚本、函数名、输出类型与依赖包，方便在 Shiny 中直接定位、复核和复用。",
-          tone = "primary",
-          icon = "A"
+      htmltools::div(
+        class = "widget-feature-grid",
+        mod_widget_feature_button(
+          ns, "feature_bubble", "chart-area", "Overview",
+          "动态气泡",
+          "年份推进时观察 GDP、寿命与人均卫生支出的共同移动。",
+          "Plotly animation", "primary"
         ),
-        mod_v3_insight(
-          kicker = "Native",
-          title = "优先原生输出而不是 iframe",
-          text = "Plotly、Leaflet、Reactable 和 DT 分别进入对应 render 通道；网络和组合型组件则通过 UI 输出承载。",
-          tone = "secondary",
-          icon = "B"
+        mod_widget_feature_button(
+          ns, "feature_map", "globe", "Spatial",
+          "世界地图",
+          "切换指标和年份，快速定位自付、公共筹资和外援的空间差异。",
+          "Leaflet map", "good"
         ),
-        mod_v3_insight(
-          kicker = "Fallback",
-          title = "依赖缺失时给出清楚解释",
-          text = "如果本地没有可选包，页面显示依赖说明，不会让整个仪表盘在加载某个高级组件时中断。",
-          tone = "good",
-          icon = "C"
+        mod_widget_feature_button(
+          ns, "feature_race", "ranking-star", "Motion",
+          "排行动画",
+          "用 year-frame 看高支出国家排序如何变化，适合做动态比较。",
+          "Plotly frame", "warn"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_sunburst", "circle-nodes", "Structure",
+          "旭日结构",
+          "按大洲、收入组和国家展开总 CHE，读出全球资金层级。",
+          "Sunburst", "secondary"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_parcoords", "sliders", "Profile",
+          "平行坐标",
+          "把 CHE、OOPS、公共筹资、寿命和儿童死亡率放在同一剖面。",
+          "Parallel coordinates", "neutral"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_force", "diagram-project", "Network",
+          "相似网络",
+          "用筹资和结果指标寻找相近国家，适合识别同伴比较对象。",
+          "networkD3", "primary"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_dashboard", "gauge-high", "HTML",
+          "专题看板",
+          "把 KPI、风险提醒和 SDG 进度条合并为一块原生信息板。",
+          "HTML widgets", "good"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_full_dt", "database", "Table",
+          "全字段表",
+          "保留字段浏览、筛选和逐项复核能力，用于从图回到数据。",
+          "DT table", "secondary"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_heatmap", "border-all", "Matrix",
+          "年份热力",
+          "把年份、收入组和指标强度压缩成一张矩阵，适合快速识别断点。",
+          "Heatmap", "warn"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_radar", "bullseye", "Profile",
+          "雷达画像",
+          "用多维评分同时看充足性、公平性和效率，适合做国家画像。",
+          "Radar", "primary"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_treemap", "sitemap", "Hierarchy",
+          "树状结构",
+          "按区域和国家分解 CHE 总量，把规模差异和层级关系放在同一屏。",
+          "Treemap", "good"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_stream", "wave-square", "Flow",
+          "功能流图",
+          "观察 HC 功能项随年份变化的结构流动，补足静态堆叠图的阅读。",
+          "Highcharter", "neutral"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_gauge", "gauge", "Gauge",
+          "液体仪表",
+          "用仪表化组件呈现覆盖率和风险状态，适合做专题页的视觉锚点。",
+          "Gauge UI", "secondary"
+        ),
+        mod_widget_feature_button(
+          ns, "feature_master", "table-list", "Audit",
+          "主表浏览",
+          "筛选 year-country 主面板，直接核查图表背后的国家和年份记录。",
+          "DT audit", "primary"
         )
       ),
       htmltools::div(
         class = "widget-workbench-bar",
         htmltools::div(
           class = "widget-workbench-title",
-          htmltools::span("Quick switch"),
-          htmltools::strong("一键切换代表性组件")
+          htmltools::span("Switchboard"),
+          htmltools::strong("常用组件快速切换")
         ),
         htmltools::div(
           class = "widget-quick-actions",
@@ -119,13 +196,55 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
             label = htmltools::tagList(shiny::icon("database"), "全字段表"),
             class = "widget-quick-btn",
             title = "切换到全字段浏览表"
+          ),
+          shiny::actionButton(
+            ns("quick_area"),
+            label = htmltools::tagList(shiny::icon("chart-simple"), "总量面积"),
+            class = "widget-quick-btn",
+            title = "切换到全球总 CHE 平滑面积图"
+          ),
+          shiny::actionButton(
+            ns("quick_dashboard"),
+            label = htmltools::tagList(shiny::icon("gauge-high"), "专题看板"),
+            class = "widget-quick-btn",
+            title = "切换到高级专题看板"
+          ),
+          shiny::actionButton(
+            ns("quick_treemap"),
+            label = htmltools::tagList(shiny::icon("sitemap"), "树状结构"),
+            class = "widget-quick-btn",
+            title = "切换到 CHE 树状结构"
+          ),
+          shiny::actionButton(
+            ns("quick_radar"),
+            label = htmltools::tagList(shiny::icon("bullseye"), "雷达画像"),
+            class = "widget-quick-btn",
+            title = "切换到综合雷达画像"
+          ),
+          shiny::actionButton(
+            ns("quick_stream"),
+            label = htmltools::tagList(shiny::icon("water"), "功能流图"),
+            class = "widget-quick-btn",
+            title = "切换到 HC 功能流图"
+          ),
+          shiny::actionButton(
+            ns("quick_gauge"),
+            label = htmltools::tagList(shiny::icon("gauge"), "液体仪表"),
+            class = "widget-quick-btn",
+            title = "切换到液体仪表组件"
+          ),
+          shiny::actionButton(
+            ns("quick_master"),
+            label = htmltools::tagList(shiny::icon("table-list"), "主表浏览"),
+            class = "widget-quick-btn",
+            title = "切换到主面板浏览表"
           )
         )
       ),
       shiny::uiOutput(ns("widget_type_deck")),
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
-          width = 350,
+          width = 310,
           shiny::textInput(ns("query"), "搜索组件",
             placeholder = "输入地图、排行、OOPS、Sankey、DT 等关键词"),
           shiny::selectInput(ns("group"), "组件分组",
@@ -158,24 +277,26 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
         ),
         shiny::uiOutput(ns("registry_kpis")),
         bslib::layout_columns(
-          col_widths = c(4, 8),
+          col_widths = c(3, 9),
           mod_card(
             kicker = "Registry",
             title = "组件目录",
             mod_v3_chart_guide(
               title = "如何选择",
-              text = "先按分组和类型筛选，再用关键词搜索。目录表中的函数名对应程序目录里的 widget 工厂函数，便于回到源码复核。",
+              text = "先用精选卡片进入典型组件，再按分组、类型和关键词缩小目录。函数名保留在表中，便于回到源码复核。",
               tone = "info"
             ),
             mod_spinner(reactable::reactableOutput(ns("registry_table"))),
-            footer = "点击表格行不会切换组件；请使用侧栏选择框保持 Shiny 状态清晰。"
+            footer = "目录用于检索和复核；实际切换使用侧栏选择框或上方按钮。",
+            class = "widget-registry-card"
           ),
           mod_card(
             kicker = "Live widget",
             title = "原生组件预览",
             shiny::uiOutput(ns("widget_header")),
             shiny::uiOutput(ns("widget_slot")),
-            footer = "输出在 Shiny 运行时由对应 render 函数生成，不读取 standalone HTML 文件。"
+            footer = "输出在 Shiny 运行时由对应 render 函数生成，不读取 standalone HTML 文件。",
+            class = "widget-preview-card"
           )
         )
       )
@@ -280,6 +401,90 @@ mod_widgets_server <- function(id, master_r, world_sf) {
 
     shiny::observeEvent(input$quick_full_dt, {
       switch_to_widget("iadv_dt_full_panel", "高级组件", "dt")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_area, {
+      switch_to_widget("iadv_area_smooth_che", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_dashboard, {
+      switch_to_widget("iadv_dashboard_overview", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_treemap, {
+      switch_to_widget("iadv_treemap_che", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_radar, {
+      switch_to_widget("iadv_polar_radar", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_stream, {
+      switch_to_widget("iadv_hc_stream", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_gauge, {
+      switch_to_widget("iadv_ec_liquid", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_master, {
+      switch_to_widget("iadv_dt_master_browse", "高级组件", "dt")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_bubble, {
+      switch_to_widget("widget_v2_gapminder_bubble", "Plotly 基础", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_map, {
+      switch_to_widget("widget_v2_leaflet_choropleth", "地图", "leaflet")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_race, {
+      switch_to_widget("iadv_bar_race", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_sunburst, {
+      switch_to_widget("iadv_sunburst_che", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_parcoords, {
+      switch_to_widget("iadv_parcoords", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_force, {
+      switch_to_widget("iadv_force_country_sim", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_dashboard, {
+      switch_to_widget("iadv_dashboard_overview", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_full_dt, {
+      switch_to_widget("iadv_dt_full_panel", "高级组件", "dt")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_heatmap, {
+      switch_to_widget("iadv_heatmap_year_inc", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_radar, {
+      switch_to_widget("iadv_polar_radar", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_treemap, {
+      switch_to_widget("iadv_treemap_che", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_stream, {
+      switch_to_widget("iadv_hc_stream", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_gauge, {
+      switch_to_widget("iadv_ec_liquid", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$feature_master, {
+      switch_to_widget("iadv_dt_master_browse", "高级组件", "dt")
     }, ignoreInit = TRUE)
 
     current_spec <- shiny::reactive({

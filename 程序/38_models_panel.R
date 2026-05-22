@@ -1,10 +1,3 @@
-# =============================================================================
-# 程序/38_models_panel.R   —— D1 阶段：面板与纵向模型扩展（20）
-# -----------------------------------------------------------------------------
-# 命名前缀：mp_   （model_panel）
-# 所有函数对依赖包缺失时返回 list(status="skipped", reason=…)
-# 所有函数对数据不足时返回 NULL，不抛错。
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -14,7 +7,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
 
 .mp_skip <- function(reason) list(status = "skipped", reason = reason)
 
-#' mp1 \u9762\u677f\u4e24\u5411\u56fa\u5b9a\u00b7log(CHE/pc) ~ log(GDP/pc)
 mp_panel_twoway_fe <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -28,7 +20,6 @@ mp_panel_twoway_fe <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp2 OOP \u9762\u677f\u00b7\u4e24\u5411\u56fa\u5b9a (\u673a\u6784/\u5e74\u4efd)
 mp_panel_oop_fe <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[is.finite(master$hf3_che) &
@@ -40,7 +31,6 @@ mp_panel_oop_fe <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp3 \u52a8\u6001\u9762\u677f\u00b7\u542b\u6ede\u540e\u9879 AR(1)
 mp_panel_dynamic_ar1 <- function(master) {
   if (!.mp_has("fixest") || !.mp_has("dplyr")) return(.mp_skip("fixest/dplyr"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -53,7 +43,6 @@ mp_panel_dynamic_ar1 <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp4 \u9762\u677f\u00b7\u6536\u5165\u7ec4\u4ea4\u4e92\u56fa\u5b9a
 mp_panel_inc_interact <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -68,7 +57,6 @@ mp_panel_inc_interact <- function(master) {
                  data = d, cluster = ~iso3_code)
 }
 
-#' mp5 \u9762\u677f\u00b7\u8de8\u5927\u6d32\u5f02\u8d28\u56fe
 mp_panel_continent_split <- function(master) {
   if (!.mp_has("fixest") || !.mp_has("dplyr")) return(.mp_skip("fixest/dplyr"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -88,7 +76,6 @@ mp_panel_continent_split <- function(master) {
   res
 }
 
-#' mp6 \u9762\u677f\u00b7\u5bff\u547d ~ log(CHE/pc) + \u63a7\u5236
 mp_panel_lifeexp <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[is.finite(master$life_exp) &
@@ -102,7 +89,6 @@ mp_panel_lifeexp <- function(master) {
                  data = d, cluster = ~iso3_code)
 }
 
-#' mp7 \u9762\u677f\u00b7U5MR ~ log(CHE/pc)
 mp_panel_u5mr <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[is.finite(master$u5mr) &
@@ -114,7 +100,6 @@ mp_panel_u5mr <- function(master) {
                  data = d, cluster = ~iso3_code)
 }
 
-#' mp8 \u4e8c\u9636\u6bb5\u6536\u655b\u00b7\u4eba\u5747\u589e\u901f ~ log(\u8d77\u70b9)
 mp_panel_growth_init <- function(master) {
   if (!.mp_has("dplyr")) return(.mp_skip("dplyr"))
   yrs <- range(master$year, na.rm = TRUE)
@@ -135,7 +120,6 @@ mp_panel_growth_init <- function(master) {
   stats::lm(cagr ~ linit + continent, data = m)
 }
 
-#' mp9 \u9762\u677f\u00b7\u4e9a\u6837\u672c (\u4ec5\u9ad8\u6536\u5165)
 mp_panel_high_income <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[master$income_group == "High income" &
@@ -148,7 +132,6 @@ mp_panel_high_income <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp10 \u9762\u677f\u00b7\u4e9a\u6837\u672c (\u4ec5\u4e2d/\u4f4e\u6536\u5165)
 mp_panel_lmic <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   inc_levels <- c("Low income", "Lower middle income",
@@ -163,7 +146,6 @@ mp_panel_lmic <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp11 \u9762\u677f IV \u00b7 log(CHE)\u00b7L1 \u4f5c\u4e3a\u5de5\u5177
 mp_panel_iv_lag <- function(master) {
   if (!.mp_has("fixest") || !.mp_has("dplyr")) return(.mp_skip("fixest/dplyr"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -180,7 +162,6 @@ mp_panel_iv_lag <- function(master) {
                  lgdp ~ lgdp_lag, data = d, cluster = ~iso3_code)
 }
 
-#' mp12 \u9762\u677f\u00b7\u6536\u5165\u00d7\u5e74\u4efd\u4ea4\u4e92
 mp_panel_inc_year <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   d <- master[is.finite(master$hf3_che) &
@@ -191,7 +172,6 @@ mp_panel_inc_year <- function(master) {
                  data = d, cluster = ~iso3_code)
 }
 
-#' mp13 \u4e2a\u4f53\u968f\u673a\u6548\u5e94 (RE)\u00b7lme4
 mp_panel_re <- function(master) {
   if (!.mp_has("lme4")) return(.mp_skip("lme4"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -202,7 +182,6 @@ mp_panel_re <- function(master) {
   lme4::lmer(lche ~ lgdp + (1 | iso3_code), data = d)
 }
 
-#' mp14 \u968f\u673a\u659c\u7387\u00b7\u4e0d\u540c\u56fd\u5bb6\u5f39\u6027
 mp_panel_random_slope <- function(master) {
   if (!.mp_has("lme4")) return(.mp_skip("lme4"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -215,7 +194,6 @@ mp_panel_random_slope <- function(master) {
                 check.conv.singular = "ignore"))
 }
 
-#' mp15 \u9762\u677f\u00b7\u5dee\u5206\u4e2d\u7684\u5dee\u5206 \u4f30\u8ba1
 mp_panel_first_diff <- function(master) {
   if (!.mp_has("dplyr")) return(.mp_skip("dplyr"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -231,7 +209,6 @@ mp_panel_first_diff <- function(master) {
   fit
 }
 
-#' mp16 \u9762\u677f\u00b7\u6743\u91cd OLS (\u4eba\u53e3\u52a0\u6743)
 mp_panel_pop_weighted <- function(master) {
   d <- master[is.finite(master$che_pc_usd2023) &
               is.finite(master$gdp_pc_usd) &
@@ -242,7 +219,6 @@ mp_panel_pop_weighted <- function(master) {
   stats::lm(lche ~ lgdp + factor(year), data = d, weights = d$pop)
 }
 
-#' mp17 \u9762\u677f\u00b7\u8001\u9f84\u4ea4\u4e92\u00d7log(CHE)
 mp_panel_aging <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   if (!"pop_65_share" %in% names(master)) return(NULL)
@@ -256,7 +232,6 @@ mp_panel_aging <- function(master) {
                  data = d, cluster = ~iso3_code)
 }
 
-#' mp18 \u9762\u677f\u00b7Sub-Saharan Africa \u4e13\u9879\u5bf9\u6bd4
 mp_panel_ssa <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   if (!"region" %in% names(master)) {
@@ -273,7 +248,6 @@ mp_panel_ssa <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp19 \u4e3b\u6210\u5206\u9762\u677f (PC1) ~ \u5e74\u4efd
 mp_panel_pc1_trend <- function(master) {
   if (!.mp_has("fixest")) return(.mp_skip("fixest"))
   cols <- intersect(c("hf1_che", "hf2_che", "hf3_che",
@@ -287,7 +261,6 @@ mp_panel_pc1_trend <- function(master) {
                  cluster = ~iso3_code)
 }
 
-#' mp20 \u9762\u677f Mundlak \u68c0\u9a8c
 mp_panel_mundlak <- function(master) {
   if (!.mp_has("fixest") || !.mp_has("dplyr")) return(.mp_skip("fixest/dplyr"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -300,11 +273,7 @@ mp_panel_mundlak <- function(master) {
                  data = d, cluster = ~iso3_code)
 }
 
-# =============================================================================
-# 批量验证
-# =============================================================================
 
-#' 验证 mp_* 模型
 ghs_validate_models_panel <- function(master = NULL) {
   if (is.null(master)) {
     cache <- file.path(proj_root(), "\u6d3e\u751f\u6570\u636e",

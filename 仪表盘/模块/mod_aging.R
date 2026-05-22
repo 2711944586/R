@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_aging.R
-# 老龄化与卫生支出：人口结构变迁对医疗资金需求的影响
-# =============================================================================
 
 mod_aging_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -115,18 +111,15 @@ mod_aging_ui <- function(id) {
 mod_aging_server <- function(id, master_r) {
   shiny::moduleServer(id, function(input, output, session) {
 
-    # The pop_65 column may not exist in master, use a derived proxy if needed
     aging_col_name <- shiny::reactive({
       m <- master_r()
       if ("pop_65" %in% names(m)) "pop_65" else if ("aging" %in% names(m)) "aging" else NULL
     })
 
-    # Fallback: synthesize aging proxy if missing
     enriched <- shiny::reactive({
       m <- master_r()
       ac <- aging_col_name()
       if (is.null(ac)) {
-        # Use life_exp as proxy: countries with higher life_exp tend to be older
         m$pop_65_proxy <- pmax(0, (m$life_exp - 50) * 0.6)
         ac <- "pop_65_proxy"
       }

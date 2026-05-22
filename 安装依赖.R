@@ -1,15 +1,4 @@
-#!/usr/bin/env Rscript
-# =============================================================================
-# 安装依赖.R  ·  安装本项目所需的 R 包
-# -----------------------------------------------------------------------------
-# 用法:
-#   Rscript 安装依赖.R           # 命令行
-#   source("安装依赖.R")         # 在 R 会话里
-# 策略:
-#   1. 先装 renv, 如果 renv.lock 存在则 renv::restore()
-#   2. 否则对照内置清单逐包检测 + 安装
-#   3. 分 "必需 / 推荐 / 可选" 三档, 任一档失败不影响其他档
-# =============================================================================
+
 
 options(Ncpus = max(1L, parallel::detectCores() - 1L), timeout = 600)
 repos <- c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
@@ -17,7 +6,6 @@ options(repos = repos)
 
 cat("\n[setup] R version: ", R.version.string, "\n", sep = "")
 
-# ---- 0. renv ---------------------------------------------------------------
 if (!requireNamespace("renv", quietly = TRUE)) {
   cat("[setup] Installing renv ...\n")
   install.packages("renv")
@@ -30,31 +18,22 @@ if (file.exists("renv.lock")) {
   return(invisible(NULL))
 }
 
-# ---- 1. 分档依赖清单 --------------------------------------------------------
 pkgs_core <- c(
-  # 数据与核心
   "tidyverse", "data.table", "janitor", "here", "glue", "rlang",
   "base64enc",
   "arrow", "parquetize", "fs",
-  # 国家映射 / 外部数据
   "countrycode", "wbstats",
-  # 可视化核心
   "ggplot2", "scales", "ggtext", "ggrepel", "patchwork",
-  # 报告
   "rmarkdown", "knitr",
-  # 探索
   "skimr", "DataExplorer", "naniar"
 )
 
 pkgs_viz <- c(
-  # 高级 ggplot 扩展
   "ggridges", "ggstream", "ggbump", "ggdist", "treemapify", "ggtern",
   "ggalluvial", "waffle",
   "gganimate", "gifski", "av", "showtext", "systemfonts", "colorBlindness",
-  # 交互可视化
   "plotly", "leaflet", "leaflet.extras", "highcharter", "echarts4r",
   "DT", "reactable", "reactablefmtr", "networkD3", "ggiraph",
-  # 地图
   "sf", "rnaturalearth", "rnaturalearthdata", "tmap", "rmapshaper"
 )
 

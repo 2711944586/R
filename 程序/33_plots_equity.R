@@ -1,14 +1,3 @@
-# =============================================================================
-# 程序/33_plots_equity.R   —— 不平等 / 财务保护图集（B4 阶段）
-# -----------------------------------------------------------------------------
-# 5 个组：
-#   A. OOP / 自付与财务保护                                    × 5
-#   B. Gini / Lorenz / 集中度                                  × 5
-#   C. 跨国分布（分位/极差/方差）                              × 5
-#   D. 区域内分布（大洲/区域分面）                             × 5
-#   E. 灾难性支出与替代视图                                    × 5
-# 总：25 个 plot_equity_* + ghs_export_equity() 导出器
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -20,7 +9,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
   else paste0(base, " \u00b7 ", extra)
 }
 
-# 加权 Gini ----------------------------------------------------------------
 .weighted_gini <- function(x, w = NULL) {
   ok <- is.finite(x) & x >= 0
   if (!is.null(w)) ok <- ok & is.finite(w) & w > 0
@@ -30,12 +18,10 @@ if (!exists("ensure_pkgs", mode = "function")) {
   x <- x[ord]; w <- w[ord]
   cw <- cumsum(w) / sum(w)
   cx <- cumsum(x * w) / sum(x * w)
-  # trapezoidal Lorenz area
   L <- sum((cw[-1] - cw[-length(cw)]) * (cx[-1] + cx[-length(cx)]) / 2)
   1 - 2 * L
 }
 
-# 加权 Lorenz 曲线坐标 ----------------------------------------------------
 .weighted_lorenz <- function(x, w = NULL) {
   ok <- is.finite(x) & x >= 0
   if (!is.null(w)) ok <- ok & is.finite(w) & w > 0
@@ -48,7 +34,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
   data.frame(p = cw, L = cx)
 }
 
-# Theil-T 加权
 .weighted_theil_t <- function(x, w = NULL) {
   ok <- is.finite(x) & x > 0
   if (!is.null(w)) ok <- ok & is.finite(w) & w > 0
@@ -58,7 +43,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
   sum((w / W) * (x / xb) * log(x / xb))
 }
 
-# Theil 组内 / 组间分解
 .theil_between_within <- function(x, group, w = NULL) {
   ok <- is.finite(x) & x > 0 & !is.na(group)
   if (!is.null(w)) ok <- ok & is.finite(w) & w > 0
@@ -77,11 +61,7 @@ if (!exists("ensure_pkgs", mode = "function")) {
   c(between = T_b, within = T_w)
 }
 
-# =============================================================================
-# A. OOP / 自付与财务保护
-# =============================================================================
 
-#' OOP 占 CHE 比例 \u00b7 全球中位/IQR 时间序列
 plot_equity_oop_share_global <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$hf3_che), ]
@@ -108,7 +88,6 @@ plot_equity_oop_share_global <- function(master) {
       caption = .cap_equity())
 }
 
-#' OOP 占 CHE \u00b7 按收入组中位
 plot_equity_oop_share_income <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$hf3_che) &
@@ -132,7 +111,6 @@ plot_equity_oop_share_income <- function(master) {
       caption = .cap_equity("\u533b\u9886\u519c\u9020\u8865\u52a9\u4e3b\u8981\u9006\u8f6c\u4e2d\u9ad8\u6536\u5165\u56fd"))
 }
 
-#' OOP 占 CHE \u00b7 按大洲分面
 plot_equity_oop_share_continent <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$hf3_che) & !is.na(master$continent), ]
@@ -152,7 +130,6 @@ plot_equity_oop_share_continent <- function(master) {
       caption = .cap_equity())
 }
 
-#' OOP 分布箱线/小提琴 \u00b7 收入组（同年）
 plot_equity_oop_box_income <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -181,7 +158,6 @@ plot_equity_oop_box_income <- function(master, year = NULL) {
       caption = .cap_equity())
 }
 
-#' 灾难性支出代理：OOP_pc / GDP_pc \u00b7 散点
 plot_equity_catastrophic_proxy <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -214,11 +190,7 @@ plot_equity_catastrophic_proxy <- function(master, year = NULL) {
       caption = .cap_equity("\u5b97\u6307\u6807 SDG 3.8.2 \u8fd1\u4f3c"))
 }
 
-# =============================================================================
-# B. Gini / Lorenz / 集中度
-# =============================================================================
 
-#' Lorenz 曲线 \u00b7 多年份对比
 plot_equity_lorenz_che <- function(master,
                                     years = c(2000, 2010, 2018, 2022)) {
   ensure_pkgs(c("ggplot2"))
@@ -252,7 +224,6 @@ plot_equity_lorenz_che <- function(master,
       caption = .cap_equity("\u4ee5 WDI \u4eba\u53e3\u4e3a\u6743"))
 }
 
-#' 全球 Gini 时间序列（人口加权人均 CHE）
 plot_equity_gini_trend <- function(master) {
   ensure_pkgs(c("ggplot2"))
   yrs <- sort(unique(master$year))
@@ -274,7 +245,6 @@ plot_equity_gini_trend <- function(master) {
       caption = .cap_equity())
 }
 
-#' Theil 分解：组内 vs 组间（收入组）
 plot_equity_theil_between_within <- function(master) {
   ensure_pkgs(c("ggplot2"))
   yrs <- sort(unique(master$year))
@@ -308,7 +278,6 @@ plot_equity_theil_between_within <- function(master) {
       caption = .cap_equity("\u4eba\u53e3\u52a0\u6743"))
 }
 
-#' 集中度曲线：CHE \u2194 寿命（同年）
 plot_equity_concentration_lifeexp <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -335,7 +304,6 @@ plot_equity_concentration_lifeexp <- function(master, year = NULL) {
       caption = .cap_equity("WHO GHED + WDI life expectancy"))
 }
 
-#' 不平等指数 \u00b7 多指标 dotplot
 plot_equity_index_dot <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -379,11 +347,7 @@ plot_equity_index_dot <- function(master, year = NULL) {
       caption = .cap_equity())
 }
 
-# =============================================================================
-# C. 跨国分布
-# =============================================================================
 
-#' CHE_pc 中位 + IQR \u00b7 跨国分布
 plot_equity_che_pc_iqr <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -410,7 +374,6 @@ plot_equity_che_pc_iqr <- function(master) {
       caption = .cap_equity())
 }
 
-#' Top/Bottom 五分位均值比（CHE_pc）
 plot_equity_top_bottom_ratio <- function(master) {
   ensure_pkgs(c("ggplot2"))
   yrs <- sort(unique(master$year))
@@ -435,7 +398,6 @@ plot_equity_top_bottom_ratio <- function(master) {
       caption = .cap_equity("80/20 \u5206\u4f4d"))
 }
 
-#' CV / SD \u00b7 收入组分面
 plot_equity_dispersion_income <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -460,7 +422,6 @@ plot_equity_dispersion_income <- function(master) {
       caption = .cap_equity())
 }
 
-#' 全球 log 方差时间序列
 plot_equity_logvar_trend <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -479,7 +440,6 @@ plot_equity_logvar_trend <- function(master) {
       caption = .cap_equity())
 }
 
-#' 分位 fan chart：CHE_pc 多分位历史
 plot_equity_che_fan <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -506,11 +466,7 @@ plot_equity_che_fan <- function(master) {
       caption = .cap_equity())
 }
 
-# =============================================================================
-# D. 区域内分布
-# =============================================================================
 
-#' 大洲箱线 \u00b7 OOP 占比（同年）
 plot_equity_continent_oop_box <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -533,7 +489,6 @@ plot_equity_continent_oop_box <- function(master, year = NULL) {
       caption = .cap_equity())
 }
 
-#' region23 \u00d7 year \u00b7 CHE_pc 中位热图
 plot_equity_region_heat <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -560,7 +515,6 @@ plot_equity_region_heat <- function(master) {
       caption = .cap_equity("WB Region23"))
 }
 
-#' 大洲 CV 趋势线
 plot_equity_continent_cv <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -582,7 +536,6 @@ plot_equity_continent_cv <- function(master) {
       caption = .cap_equity())
 }
 
-#' 收入组分面：OOP 与 CHE_pc 散点（同年）
 plot_equity_oop_vs_che_facet <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -612,7 +565,6 @@ plot_equity_oop_vs_che_facet <- function(master, year = NULL) {
       caption = .cap_equity())
 }
 
-#' 大洲排名变化 bumpchart：CHE_pc 中位
 plot_equity_continent_rank <- function(master,
                                         years = c(2000, 2010, 2015, 2020, 2022)) {
   ensure_pkgs(c("ggplot2"))
@@ -641,11 +593,7 @@ plot_equity_continent_rank <- function(master,
       caption = .cap_equity())
 }
 
-# =============================================================================
-# E. 灾难性支出与替代视图
-# =============================================================================
 
-#' 高 OOP 比例国家 \u00b7 Top 20
 plot_equity_high_oop_top <- function(master, year = NULL, n = 20) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -667,7 +615,6 @@ plot_equity_high_oop_top <- function(master, year = NULL, n = 20) {
       caption = .cap_equity("WHO GHED HF3"))
 }
 
-#' OOP 改善 Top/Bot：Δ HF3_che
 plot_equity_oop_change <- function(master, y1 = NULL, y2 = NULL, n = 12) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(y1)) y1 <- min(master$year, na.rm = TRUE)
@@ -704,7 +651,6 @@ plot_equity_oop_change <- function(master, y1 = NULL, y2 = NULL, n = 12) {
       caption = .cap_equity())
 }
 
-#' OOP 与 政府卫生支出 散点（替代关系）
 plot_equity_oop_vs_gghed <- function(master, year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -732,11 +678,9 @@ plot_equity_oop_vs_gghed <- function(master, year = NULL) {
       caption = .cap_equity("\u653f\u5e9c\u6295\u5165\u4e0a\u5347 \u2192 OOP \u4e0b\u964d"))
 }
 
-#' 阈值标记：OOP > 25% / 40%（高负担国家份额）
 plot_equity_threshold_share <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$hf3_che), ]
-  # hf3_che 单位为 0-100 百分数
   thresh <- c(25, 40, 55)
   rows <- list()
   for (th in thresh) {
@@ -763,7 +707,6 @@ plot_equity_threshold_share <- function(master) {
       caption = .cap_equity())
 }
 
-#' OOP 收敛速率 violin（按收入组）
 plot_equity_oop_velocity <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$hf3_che) & master$hf3_che > 0 &
@@ -796,11 +739,7 @@ plot_equity_oop_velocity <- function(master) {
       caption = .cap_equity("country-year diff(OOP)/lag"))
 }
 
-# =============================================================================
-# 导出器
-# =============================================================================
 
-#' 批量导出 B4 不平等 / 财务保护图集
 ghs_export_equity <- function(master = NULL, fig_dir = NULL) {
   if (is.null(master)) {
     cache <- file.path(proj_root(), "\u6d3e\u751f\u6570\u636e",

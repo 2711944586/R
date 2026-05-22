@@ -1,5 +1,5 @@
-# 自动测试/testthat/test-plots-country.R
-# B5: 国家专题图集 plot_country_*
+
+
 
 skip_unless_master <- function() {
   proj <- (function() {

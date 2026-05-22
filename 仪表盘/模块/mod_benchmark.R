@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_benchmark.R
-# 基准对标：选择参照国组，量化差距与追赶路径
-# =============================================================================
 
 mod_benchmark_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -56,7 +52,6 @@ mod_benchmark_ui <- function(id) {
           )
         ),
         shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -83,7 +78,6 @@ mod_benchmark_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("gap_trend"), height = 480))
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -145,7 +139,7 @@ mod_benchmark_server <- function(id, master_r) {
           if (nrow(hi) > 5) stats::median(hi[[ind]], na.rm = TRUE) else NA_real_
         },
         "global_median" = stats::median(d[[ind]], na.rm = TRUE),
-        "peer_income" = NA_real_  # handled per-country
+        "peer_income" = NA_real_
       )
     }
 
@@ -177,7 +171,6 @@ mod_benchmark_server <- function(id, master_r) {
       }
       d$gap_pct <- (d[[ind]] - bench_val) / abs(bench_val) * 100
       d <- d[order(d$gap_pct), ]
-      # Show top 15 below + top 5 above
       below <- utils::head(d[d$gap_pct < 0, ], 15)
       above <- utils::tail(d[d$gap_pct > 0, ], 5)
       show <- rbind(below, above)
@@ -251,7 +244,6 @@ mod_benchmark_server <- function(id, master_r) {
       merged$gap_now <- (merged$val_now - bench_now) / abs(bench_now) * 100
       merged$gap_then <- (merged$val_then - bench_then) / abs(bench_then) * 100
       merged$gap_change <- merged$gap_now - merged$gap_then
-      # 曾低于基准且追赶幅度最大的国家
       catchers <- merged[merged$gap_then < 0, ]
       catchers <- catchers[order(-catchers$gap_change), ]
       top <- utils::head(catchers, 15)
@@ -273,11 +265,9 @@ mod_benchmark_server <- function(id, master_r) {
       m <- master_r(); yr <- input$year
       indicators <- c("che_pc_usd2023", "gghed_che", "hf3_che", "life_exp")
       labels <- c("CHE/cap", "GGHED%", "OOPS%", "Life exp")
-      # Get benchmark values
       bench_vals <- vapply(indicators, function(ind) {
         get_benchmark_value(m, yr, ind, input$benchmark)
       }, numeric(1))
-      # Get group average
       grp_val <- if (input$focus_group != "all") {
         d <- m[m$year == yr & m$income_group == input$focus_group, ]
         vapply(indicators, function(ind) mean(d[[ind]], na.rm = TRUE), numeric(1))
@@ -285,7 +275,6 @@ mod_benchmark_server <- function(id, master_r) {
         d <- m[m$year == yr, ]
         vapply(indicators, function(ind) mean(d[[ind]], na.rm = TRUE), numeric(1))
       }
-      # Normalize to benchmark = 100
       bench_norm <- rep(100, length(indicators))
       grp_norm <- grp_val / pmax(bench_vals, 0.01) * 100
       safe_plotly({

@@ -1,5 +1,3 @@
-## 开发脚本/审计项目.R --- 检查项目主要交付目录是否齐备
-## 用法: Rscript 开发脚本/审计项目.R
 if (!dir.exists("程序") && basename(getwd()) == "开发脚本") setwd("..")
 
 section <- function(title) cat(sprintf("\n=== %s ===\n", title))

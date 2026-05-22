@@ -1,19 +1,8 @@
-# =============================================================================
-# 程序/03_enrich.R
-# -----------------------------------------------------------------------------
-# 外部数据增强：
-#   - 大洲 / 子区域 / 收入组（countrycode）
-#   - World Bank WDI：人口、GDP/cap、预期寿命、U5MR（可选）
-#   - 地图几何（Natural Earth，按需加载）
-# 所有网络调用带本地缓存；离线也能跑通。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 1. 国家元数据 ----------------------------------------------------------
-#' 用 countrycode 给一组 iso3_code 附加 continent / region / income_group
 enrich_country_meta <- function(iso_vec) {
   ensure_pkgs(c("countrycode", "dplyr", "tibble"))
   iso_vec <- unique(iso_vec)
@@ -37,9 +26,6 @@ enrich_country_meta <- function(iso_vec) {
   )
 }
 
-# ---- 2. 收入组（简易内置，避免 WDI 失败） -----------------------------------
-#' 内置的 World Bank 4 类收入组（2022 分类快照），作为 fallback
-#' 完整列表较长，这里提供常见国家 + 回退默认 NA
 income_group_fallback <- function() {
   tibble::tribble(
     ~iso3_code, ~income_group,
@@ -72,7 +58,6 @@ income_group_fallback <- function() {
   )
 }
 
-#' 获取收入组映射：优先 WDI，失败则用 fallback
 fetch_income_group <- function(iso_vec = NULL, use_cache = TRUE) {
   ensure_pkgs(c("dplyr"))
   cache_path <- file.path(proj_root(), "派生数据", "原始缓存", "wb_income_group.rds")
@@ -99,8 +84,6 @@ fetch_income_group <- function(iso_vec = NULL, use_cache = TRUE) {
   dplyr::filter(ig, .data$iso3_code %in% iso_vec)
 }
 
-# ---- 3. WDI 宏观变量（可选） -------------------------------------------------
-#' 拉取 World Bank WDI 指标：人口、人均 GDP、预期寿命、U5MR
 fetch_wdi_panel <- function(start = 2000, end = 2023, use_cache = TRUE) {
   ensure_pkgs(c("dplyr"))
   cache_path <- file.path(proj_root(), "派生数据", "原始缓存", "wdi_panel.rds")
@@ -137,8 +120,6 @@ fetch_wdi_panel <- function(start = 2000, end = 2023, use_cache = TRUE) {
   panel
 }
 
-# ---- 4. 合并入口 ------------------------------------------------------------
-#' 将宽表加上大洲/区域/收入组/WDI
 enrich_master <- function(master_wide, with_wdi = TRUE) {
   ensure_pkgs(c("dplyr"))
   meta <- enrich_country_meta(master_wide$iso3_code)
@@ -163,8 +144,6 @@ enrich_master <- function(master_wide, with_wdi = TRUE) {
   out
 }
 
-# ---- 5. 地图几何 ------------------------------------------------------------
-#' 读取 Natural Earth 世界多边形（50m 或 110m）
 load_world_sf <- function(scale = c("medium", "small", "large"),
                           simplify_keep = 0.08) {
   scale <- match.arg(scale)

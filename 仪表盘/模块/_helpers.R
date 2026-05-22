@@ -1,11 +1,6 @@
-# =============================================================================
-# 仪表盘/模块/_helpers.R
-# Shiny 模块共享工具：KPI 卡片 / spinner / 全局过滤器 / 数据切片
-# =============================================================================
 
 `%||%` <- function(a, b) if (is.null(a) || length(a) == 0) b else a
 
-#' KPI 卡（与 程序/13 kpi_card_html 保持设计一致，但带颜色变体）
 mod_kpi <- function(label, value, sublabel = NULL,
                     color = c("primary", "danger", "success", "warning", "muted"),
                     icon = NULL) {
@@ -21,19 +16,16 @@ mod_kpi <- function(label, value, sublabel = NULL,
   )
 }
 
-#' 标准 spinner（颜色与品牌主色一致）
 mod_spinner <- function(x, color = "#1B5E88") {
   shinycssloaders::withSpinner(x, type = 6, color = color, size = 0.6)
 }
 
-#' 合并 CSS class，自动丢弃 NULL / 空字符串
 mod_class <- function(...) {
   x <- unlist(list(...), use.names = FALSE)
   x <- x[!is.na(x) & nzchar(x)]
   paste(unique(x), collapse = " ")
 }
 
-#' 标准卡片容器（panel-content 风格）
 mod_card <- function(..., title = NULL, class = NULL,
                      kicker = NULL, footer = NULL) {
   mod_v3_card(...,
@@ -43,9 +35,6 @@ mod_card <- function(..., title = NULL, class = NULL,
               class = mod_class("panel-content", "legacy-panel-card", class))
 }
 
-#' 全局过滤器应用于 master 数据
-#' @param master master_enriched 数据
-#' @param filters list(years, continents, incomes, isos)
 apply_global_filter <- function(master, filters) {
   d <- master
   if (!is.null(filters$years) && length(filters$years) == 2) {
@@ -63,7 +52,6 @@ apply_global_filter <- function(master, filters) {
   d
 }
 
-#' 显示数据为空的占位
 mod_empty_message <- function(msg = "数据不足") {
   htmltools::div(
     class = "panel-content text-muted text-center",
@@ -73,7 +61,6 @@ mod_empty_message <- function(msg = "数据不足") {
   )
 }
 
-#' 安全的 plotly 渲染（捕获错误）
 safe_plotly <- function(expr, fallback_msg = "图表渲染失败") {
   tryCatch(force(expr),
             error = function(e) {
@@ -87,7 +74,6 @@ safe_plotly <- function(expr, fallback_msg = "图表渲染失败") {
             })
 }
 
-#' 通用 KPI 重组 — 返回一个 4 列 fluidRow
 mod_kpi_row <- function(...) {
   cards <- list(...)
   bslib::layout_columns(
@@ -96,14 +82,7 @@ mod_kpi_row <- function(...) {
   )
 }
 
-# =============================================================================
-# 共用组件
-# -----------------------------------------------------------------------------
-# 与 程序/13_design_system.R 的 helpers 配合使用，保证 Shiny 与静态 HTML
-# 共享同一套语义槽 / KPI 风格 / callout / 章节头。
-# =============================================================================
 
-#' hero（顶部标题区，含 kicker / 大标题 / lead / meta strip）
 mod_v3_hero <- function(kicker, title, lead, meta = NULL) {
   meta_html <- if (!is.null(meta) && length(meta)) {
     pieces <- vapply(meta, function(m) {
@@ -130,7 +109,6 @@ mod_v3_hero <- function(kicker, title, lead, meta = NULL) {
     meta_html))
 }
 
-#' 章节头（kicker + h3 + lead）
 mod_v3_section_head <- function(kicker, title, lead = NULL) {
   lead_html <- if (!is.null(lead) && nchar(lead))
     sprintf("<p class='v3-section-lead'>%s</p>",
@@ -145,7 +123,6 @@ mod_v3_section_head <- function(kicker, title, lead = NULL) {
     lead_html))
 }
 
-#' 判断字符串是否更像 KPI 值，用于兼容 label/value 与 value/label 两种调用
 mod_v3_is_value_like <- function(x) {
   if (is.null(x) || length(x) == 0) return(FALSE)
   txt <- trimws(as.character(x[[1]]))
@@ -158,13 +135,10 @@ mod_v3_is_value_like <- function(x) {
   has_digit && (has_value_mark || short_value)
 }
 
-#' v3 KPI 卡（替代 mod_kpi 的更精致版本，与静态页 .ghs_v3_kpi 一致）
 mod_v3_kpi <- function(label, value, hint = NULL, trend = NULL,
                        tone = c("primary", "secondary", "good",
                                  "warn", "bad", "neutral")) {
   tone <- match.arg(tone)
-  # 早期模块大量使用 mod_v3_kpi(value, label)，测试与新代码使用
-  # mod_v3_kpi(label, value)。这里按显示特征兼容，避免逐页破坏性迁移。
   if (mod_v3_is_value_like(label) && !mod_v3_is_value_like(value)) {
     tmp <- label
     label <- value
@@ -198,7 +172,6 @@ mod_v3_kpi <- function(label, value, hint = NULL, trend = NULL,
     trend_html, hint_html))
 }
 
-#' KPI 网格（4 列，自动响应到 2 / 1 列）
 mod_v3_kpi_grid <- function(...) {
   cards <- list(...)
   htmltools::tagList(
@@ -206,7 +179,6 @@ mod_v3_kpi_grid <- function(...) {
                    lapply(cards, function(c) c)))
 }
 
-#' 响应式叙事网格
 mod_v3_story_grid <- function(..., columns = 3, class = NULL) {
   htmltools::div(
     class = mod_class("v3-story-grid", class),
@@ -215,7 +187,6 @@ mod_v3_story_grid <- function(..., columns = 3, class = NULL) {
   )
 }
 
-#' 页面内容外层，限制宽度并统一 Shiny 模块间距
 mod_v3_page_body <- function(..., wide = FALSE, class = NULL) {
   htmltools::div(
     class = mod_class("v3-page-body", if (wide) "v3-page-body-wide", class),
@@ -223,7 +194,6 @@ mod_v3_page_body <- function(..., wide = FALSE, class = NULL) {
   )
 }
 
-#' 胶囊徽章行，用于标注数据口径、模型类型和交互能力
 mod_v3_badge_row <- function(..., tone = c("primary", "secondary", "good",
                                            "warn", "bad", "neutral")) {
   tone <- match.arg(tone)
@@ -240,7 +210,6 @@ mod_v3_badge_row <- function(..., tone = c("primary", "secondary", "good",
   )
 }
 
-#' 小型洞察卡：用于补足静态 HTML 中的叙事密度
 mod_v3_insight <- function(title, text, kicker = NULL,
                            tone = c("primary", "secondary", "good",
                                     "warn", "bad", "neutral"),
@@ -261,7 +230,6 @@ mod_v3_insight <- function(title, text, kicker = NULL,
   )
 }
 
-#' 读图提示 / 解释卡，放在图表前后补足“怎么看”
 mod_v3_chart_guide <- function(title, text, bullets = NULL,
                                tone = c("info", "good", "warn", "bad")) {
   tone <- match.arg(tone)
@@ -279,7 +247,6 @@ mod_v3_chart_guide <- function(title, text, bullets = NULL,
   )
 }
 
-#' 侧栏说明块，替代零散 helpText，增强控制区质感
 mod_v3_sidebar_note <- function(title, text, bullets = NULL) {
   htmltools::div(
     class = "v3-sidebar-note",
@@ -291,7 +258,6 @@ mod_v3_sidebar_note <- function(title, text, bullets = NULL) {
   )
 }
 
-#' 横向解释轨道：把“输入-处理-输出”或“读图顺序”压缩成一行
 mod_v3_rail <- function(items) {
   if (!length(items)) return(htmltools::HTML(""))
   htmltools::div(
@@ -308,10 +274,6 @@ mod_v3_rail <- function(items) {
   )
 }
 
-#' Topic brief registry used by Shiny modules.
-#' Each spec supplies the narrative density that used to exist only in the
-#' static HTML report: badges, insight cards, reading order and interpretation
-#' note. Keep the copy compact because it appears above interactive controls.
 mod_v3_topic_registry <- list(
   spending = list(
     badge_tone = "primary",
@@ -828,7 +790,6 @@ mod_v3_topic_brief <- function(topic, columns = 3, include_rail = TRUE,
   )
 }
 
-#' 有编号的方法步骤
 mod_v3_steps <- function(items) {
   if (!length(items)) return(htmltools::HTML(""))
   item_names <- names(items)
@@ -858,7 +819,6 @@ mod_v3_steps <- function(items) {
   )
 }
 
-#' 代码块
 mod_v3_code_block <- function(code, title = NULL) {
   htmltools::div(
     class = "v3-code-wrap",
@@ -870,7 +830,6 @@ mod_v3_code_block <- function(code, title = NULL) {
   )
 }
 
-#' 来源 / 注释脚注
 mod_v3_source_note <- function(..., title = "Source note") {
   htmltools::div(
     class = "v3-source-note",
@@ -879,7 +838,6 @@ mod_v3_source_note <- function(..., title = "Source note") {
   )
 }
 
-#' callout（4 tones：info/good/warn/bad）
 mod_v3_callout <- function(text, tone = c("info", "good", "warn", "bad"),
                             title = NULL) {
   tone <- match.arg(tone)
@@ -895,13 +853,6 @@ mod_v3_callout <- function(text, tone = c("info", "good", "warn", "bad"),
       as.character(text) else htmltools::htmlEscape(text)))
 }
 
-#' 模块卡（用于 overview 内的"模块导航"）
-#' @param target 目标 nav id（用于 nav_select）
-#' @param kicker eyebrow 文字
-#' @param title 模块名
-#' @param desc 一句话描述
-#' @param icon 简短 icon（emoji 或 unicode 字符）
-#' @param tone 主色：primary/secondary/good/warn/bad
 mod_v3_module_card <- function(ns, target, kicker, title, desc,
                                 icon = "\u25b8",
                                 tone = "primary") {
@@ -923,7 +874,6 @@ mod_v3_module_card <- function(ns, target, kicker, title, desc,
   )
 }
 
-#' stat strip（横向数据条；适合长 KPI 行）
 mod_v3_stat_strip <- function(items) {
   if (!length(items)) return(htmltools::HTML(""))
   cards <- vapply(seq_along(items), function(i) {
@@ -939,7 +889,6 @@ mod_v3_stat_strip <- function(items) {
                           paste(cards, collapse = "")))
 }
 
-#' 卡片容器（带可选 kicker / footer）
 mod_v3_card <- function(..., title = NULL, kicker = NULL, footer = NULL,
                           class = NULL) {
   head_html <- ""
@@ -963,7 +912,6 @@ mod_v3_card <- function(..., title = NULL, kicker = NULL, footer = NULL,
   )
 }
 
-#' 应用 plotly 主题（在 server 端 plotly 输出前调用）
 mod_v3_plotly <- function(p, dark = FALSE) {
   if (exists("ghs_plotly_layout", mode = "function")) {
     return(ghs_plotly_layout(p, theme = if (dark) "dark" else "light"))
@@ -971,7 +919,6 @@ mod_v3_plotly <- function(p, dark = FALSE) {
   p
 }
 
-#' 应用 leaflet 品牌底图
 mod_v3_leaflet <- function(map = NULL, dark = FALSE) {
   if (exists("ghs_leaflet_provider", mode = "function")) {
     return(ghs_leaflet_provider(map, theme = if (dark) "dark" else "light"))
@@ -979,7 +926,6 @@ mod_v3_leaflet <- function(map = NULL, dark = FALSE) {
   if (is.null(map)) leaflet::leaflet() else map
 }
 
-#' reactable 默认主题包装
 mod_v3_reactable <- function(data, ..., dark = FALSE) {
   args <- list(data = data, ...)
   if (exists("ghs_reactable_theme", mode = "function") &&
@@ -989,7 +935,6 @@ mod_v3_reactable <- function(data, ..., dark = FALSE) {
   do.call(reactable::reactable, args)
 }
 
-#' 简易 fmt 助手（USD / 百分比 / 大数）
 fmt_v3_usd <- function(x, digits = 0) {
   if (!length(x) || !is.finite(x)) return("\u2014")
   if (abs(x) >= 1e12) return(sprintf("$%.2fT", x / 1e12))
@@ -1010,9 +955,6 @@ fmt_v3_num <- function(x, digits = 0, suffix = "") {
   paste0(format(round(x, digits), big.mark = ",", nsmall = digits), suffix)
 }
 
-# =============================================================================
-# 语义别名（移除版本后缀，保持向后兼容）
-# =============================================================================
 mod_hero <- mod_v3_hero
 mod_section_head <- mod_v3_section_head
 mod_kpi_card <- mod_v3_kpi
@@ -1027,9 +969,6 @@ fmt_usd_v <- fmt_v3_usd
 fmt_pct_v <- fmt_v3_pct
 fmt_num_v <- fmt_v3_num
 
-# =============================================================================
-# 原生交互组件注册与地图工作台 helpers
-# =============================================================================
 
 mod_widget_project_root <- function(start = getwd(), max_up = 6) {
   d <- normalizePath(start, mustWork = FALSE)
@@ -1176,7 +1115,18 @@ mod_widget_registry <- function() {
     "widget_v2_oops_heatmap",
     "iadv_che_pc_lines",
     "iadv_oop_lines",
-    "iadv_bar_race"
+    "iadv_bar_race",
+    "iadv_sunburst_che",
+    "iadv_parcoords",
+    "iadv_force_country_sim",
+    "iadv_dashboard_overview",
+    "iadv_dt_full_panel",
+    "iadv_heatmap_year_inc",
+    "iadv_polar_radar",
+    "iadv_treemap_che",
+    "iadv_hc_stream",
+    "iadv_ec_liquid",
+    "iadv_dt_master_browse"
   )
   group_rank <- match(
     reg$group,

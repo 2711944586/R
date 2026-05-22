@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_spending.R
-# 支出水平：人均卫生支出的全球分布、排行与收入梯度
-# =============================================================================
 
 mod_spending_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -43,7 +39,6 @@ mod_spending_ui <- function(id) {
         )
       ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -72,7 +67,6 @@ mod_spending_ui <- function(id) {
           footer = "\u91d1\u989d\u53e3\u5f84\u4e3a 2023 \u5e74\u4e0d\u53d8\u7f8e\u5143\uff1b\u5bf9\u6570\u8f74\u4f1a\u538b\u7f29\u9ad8\u503c\u5c3e\u90e8\u3002"
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -100,7 +94,6 @@ mod_spending_ui <- function(id) {
           footer = "IQR = \u7b2c 25 \u5230\u7b2c 75 \u767e\u5206\u4f4d\uff0c\u4e0d\u53d7\u6781\u7aef\u9ad8\u503c\u4e3b\u5bfc\u3002"
         )
       ),
-      # Row 3: map + table
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(

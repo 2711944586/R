@@ -1,14 +1,3 @@
-# =============================================================================
-# 程序/35_plots_shocks.R   —— 冲击与变点图集（B6 阶段）
-# -----------------------------------------------------------------------------
-# 5 个组：
-#   A. COVID-19 冲击 (2019→2021/2022)              × 5
-#   B. 2008 金融危机 (2007→2009)                   × 5
-#   C. 国家级变点检测 / segmented                  × 5
-#   D. 全球冲击事件标注 / 波动包络                 × 5
-#   E. 恢复诊断                                    × 5
-# 总：25 个 plot_shock_* + ghs_export_shocks() 导出器
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -29,7 +18,6 @@ ghs_shock_events <- list(
                   xmin = 2022, xmax = 2023)
 )
 
-# 帮助：单变量 country-year 变化对比 ---------------------------------------
 .shock_diff_panel <- function(master, var, y1, y2, group_col = "continent") {
   d1 <- master[master$year == y1, c("iso3_code", "country_name",
                                        group_col, var)]
@@ -40,7 +28,6 @@ ghs_shock_events <- list(
   m
 }
 
-# 帮助：分段线性
 .segmented_slopes <- function(years, values, breakpoint) {
   ok <- is.finite(years) & is.finite(values)
   years <- years[ok]; values <- values[ok]
@@ -53,11 +40,7 @@ ghs_shock_events <- list(
                           pred = stats::predict(fit, newdata = d)))
 }
 
-# =============================================================================
-# A. COVID-19 冲击
-# =============================================================================
 
-#' 2019→2021 \u4eba\u5747 CHE \u53d8\u5316 \u00b7 \u6563\u70b9
 plot_shock_covid_chepc <- function(master, y1 = 2019, y2 = 2021) {
   ensure_pkgs(c("ggplot2"))
   m <- .shock_diff_panel(master, "che_pc_usd2023", y1, y2)
@@ -88,7 +71,6 @@ plot_shock_covid_chepc <- function(master, y1 = 2019, y2 = 2021) {
       caption = .cap_shocks())
 }
 
-#' 2019→2021 OOP / CHE \u53d8\u5316 \u00b7 \u6563\u70b9
 plot_shock_covid_oop <- function(master, y1 = 2019, y2 = 2021) {
   ensure_pkgs(c("ggplot2"))
   m <- .shock_diff_panel(master, "hf3_che", y1, y2)
@@ -117,7 +99,6 @@ plot_shock_covid_oop <- function(master, y1 = 2019, y2 = 2021) {
       caption = .cap_shocks())
 }
 
-#' COVID 期 CHE_pc 变化 dotplot \u00b7 收入组
 plot_shock_covid_dot_income <- function(master, y1 = 2019, y2 = 2021) {
   ensure_pkgs(c("ggplot2"))
   m <- .shock_diff_panel(master, "che_pc_usd2023", y1, y2,
@@ -147,7 +128,6 @@ plot_shock_covid_dot_income <- function(master, y1 = 2019, y2 = 2021) {
       caption = .cap_shocks())
 }
 
-#' 寿命下降：2019→2021 直接差
 plot_shock_covid_lifeexp <- function(master, y1 = 2019, y2 = 2021) {
   ensure_pkgs(c("ggplot2"))
   m <- .shock_diff_panel(master, "life_exp", y1, y2)
@@ -177,7 +157,6 @@ plot_shock_covid_lifeexp <- function(master, y1 = 2019, y2 = 2021) {
       caption = .cap_shocks("WDI life_exp"))
 }
 
-#' \u8f68\u8ff9：选定 4 国 2018→2022 路径
 plot_shock_covid_track <- function(master,
                                     isos = c("USA", "GBR", "DEU", "BRA",
                                                 "CHN", "IND")) {
@@ -203,11 +182,7 @@ plot_shock_covid_track <- function(master,
       caption = .cap_shocks())
 }
 
-# =============================================================================
-# B. 2008 金融危机
-# =============================================================================
 
-#' 2007→2009 \u4eba\u5747 CHE \u53d8\u5316
 plot_shock_gfc_chepc <- function(master, y1 = 2007, y2 = 2009) {
   plot_shock_covid_chepc(master, y1, y2) +
     labs_news(
@@ -219,7 +194,6 @@ plot_shock_gfc_chepc <- function(master, y1 = 2007, y2 = 2009) {
       caption = .cap_shocks())
 }
 
-#' 2007→2009 OOP \u53d8\u5316
 plot_shock_gfc_oop <- function(master, y1 = 2007, y2 = 2009) {
   plot_shock_covid_oop(master, y1, y2) +
     labs_news(
@@ -230,10 +204,8 @@ plot_shock_gfc_oop <- function(master, y1 = 2007, y2 = 2009) {
       caption = .cap_shocks())
 }
 
-#' GFC vs trend gap：2009 实际 vs 趋势线外推
 plot_shock_gfc_trend_gap <- function(master) {
   ensure_pkgs(c("ggplot2"))
-  # 每国 2000-2007 的对数线性拟合，外推到 2009，比 actual
   d <- master[is.finite(master$che_pc_usd2023) &
               master$che_pc_usd2023 > 0 &
               master$year >= 2000 & master$year <= 2009, ]
@@ -275,7 +247,6 @@ plot_shock_gfc_trend_gap <- function(master) {
       caption = .cap_shocks())
 }
 
-#' 恢复年数：到达 2007 水平所需年数
 plot_shock_gfc_recovery_years <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -314,7 +285,6 @@ plot_shock_gfc_recovery_years <- function(master) {
       caption = .cap_shocks())
 }
 
-#' GFC 敏感度：收入组对比 boxplot
 plot_shock_gfc_sensitivity <- function(master, y1 = 2007, y2 = 2009) {
   ensure_pkgs(c("ggplot2"))
   m <- .shock_diff_panel(master, "che_pc_usd2023", y1, y2,
@@ -344,11 +314,7 @@ plot_shock_gfc_sensitivity <- function(master, y1 = 2007, y2 = 2009) {
       caption = .cap_shocks())
 }
 
-# =============================================================================
-# C. 国家级变点 / segmented
-# =============================================================================
 
-#' 单国 segmented：以 2008 / 2020 为变点示意
 plot_shock_segmented_chepc <- function(master, iso = "USA",
                                         breakpoint = 2008) {
   ensure_pkgs(c("ggplot2"))
@@ -377,7 +343,6 @@ plot_shock_segmented_chepc <- function(master, iso = "USA",
       caption = .cap_shocks("piecewise OLS"))
 }
 
-#' 多国 segmented small multiples（COVID 变点）
 plot_shock_segmented_multi <- function(master,
                                        isos = c("USA", "CHN", "IND", "BRA",
                                                   "DEU", "JPN")) {
@@ -415,7 +380,6 @@ plot_shock_segmented_multi <- function(master,
       caption = .cap_shocks("piecewise OLS"))
 }
 
-#' 变点幅度排序 dotplot
 plot_shock_segmented_dot <- function(master, breakpoint = 2019) {
   ensure_pkgs(c("ggplot2"))
   isos <- unique(master$iso3_code)
@@ -457,7 +421,6 @@ plot_shock_segmented_dot <- function(master, breakpoint = 2019) {
       caption = .cap_shocks("year:post \u4ea4\u4e92\u9879"))
 }
 
-#' Pre-2019 vs post-2019 增速 散点
 plot_shock_pre_post_slope <- function(master, breakpoint = 2019) {
   ensure_pkgs(c("ggplot2"))
   isos <- unique(master$iso3_code)
@@ -502,7 +465,6 @@ plot_shock_pre_post_slope <- function(master, breakpoint = 2019) {
       caption = .cap_shocks("OLS"))
 }
 
-#' \u533a\u95f4\u62df\u5408\u53e0\u52a0\u70b9：单国全期
 plot_shock_segment_fit <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[master$iso3_code == iso &
@@ -533,11 +495,7 @@ plot_shock_segment_fit <- function(master, iso = "CHN") {
       caption = .cap_shocks())
 }
 
-# =============================================================================
-# D. 全球冲击事件标注 / 波动包络
-# =============================================================================
 
-#' 全球 CHE_pc 中位 + 冲击区间标注
 plot_shock_global_trend <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -568,7 +526,6 @@ plot_shock_global_trend <- function(master) {
       caption = .cap_shocks())
 }
 
-#' 增长率分布每年 boxplot + 冲击带
 plot_shock_growth_rate_box <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -600,7 +557,6 @@ plot_shock_growth_rate_box <- function(master) {
       caption = .cap_shocks("country-year diff(log)"))
 }
 
-#' 波动包络：每年 IQR 宽度
 plot_shock_volatility_envelope <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -634,7 +590,6 @@ plot_shock_volatility_envelope <- function(master) {
       caption = .cap_shocks())
 }
 
-#' 国家\u00d7年 冲击热力图（z>2 标红）
 plot_shock_anomaly_heat <- function(master,
                                      min_year = 2000,
                                      max_year = NULL) {
@@ -648,13 +603,11 @@ plot_shock_anomaly_heat <- function(master,
   d$lag <- ave(d$che_pc_usd2023, d$iso3_code,
                FUN = function(v) c(NA_real_, v[-length(v)]))
   d$gr <- log(d$che_pc_usd2023 / d$lag)
-  # 全样本 z-score
   mu <- mean(d$gr, na.rm = TRUE)
   sg <- stats::sd(d$gr, na.rm = TRUE)
   d$z <- (d$gr - mu) / sg
   d <- d[is.finite(d$z) & abs(d$z) > 2, ]
   if (!nrow(d)) return(ggplot2::ggplot() + ggplot2::theme_void())
-  # 按异常次数取 25 个国家
   tab <- as.data.frame(table(iso = d$iso3_code))
   tab <- tab[order(-tab$Freq), ]
   pick <- utils::head(tab$iso, 25)
@@ -676,7 +629,6 @@ plot_shock_anomaly_heat <- function(master,
       caption = .cap_shocks("country-year z > 2"))
 }
 
-#' Shock 频率：每国异常年数 (|z|>2) 排序
 plot_shock_freq_rank <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -706,11 +658,7 @@ plot_shock_freq_rank <- function(master) {
       caption = .cap_shocks())
 }
 
-# =============================================================================
-# E. 恢复诊断
-# =============================================================================
 
-#' 2022 vs 2019 恢复 dotplot
 plot_shock_recovery_2022 <- function(master, y1 = 2019, y2 = 2022) {
   ensure_pkgs(c("ggplot2"))
   m <- .shock_diff_panel(master, "che_pc_usd2023", y1, y2,
@@ -740,7 +688,6 @@ plot_shock_recovery_2022 <- function(master, y1 = 2019, y2 = 2022) {
       caption = .cap_shocks())
 }
 
-#' 恢复速度散点：2019 水平 vs 2022 相对位置
 plot_shock_recovery_scatter <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[master$year %in% c(2019, 2022) &
@@ -773,7 +720,6 @@ plot_shock_recovery_scatter <- function(master) {
       caption = .cap_shocks())
 }
 
-#' Catch-up vs starting level
 plot_shock_catchup <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[master$year %in% c(2000, 2010, 2022) &
@@ -810,7 +756,6 @@ plot_shock_catchup <- function(master) {
       caption = .cap_shocks())
 }
 
-#' 2022 残差：实际 - pre-COVID 趋势外推
 plot_shock_residual_2022 <- function(master) {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -855,7 +800,6 @@ plot_shock_residual_2022 <- function(master) {
       caption = .cap_shocks("OLS 2010-19 extrapolated"))
 }
 
-#' 恢复仪表板：5 指标 dotplot
 plot_shock_recovery_dashboard <- function(master) {
   ensure_pkgs(c("ggplot2"))
   vars <- list(
@@ -901,11 +845,7 @@ plot_shock_recovery_dashboard <- function(master) {
       caption = .cap_shocks())
 }
 
-# =============================================================================
-# 导出器
-# =============================================================================
 
-#' 批量导出 B6 冲击与变点图集
 ghs_export_shocks <- function(master = NULL, fig_dir = NULL) {
   if (is.null(master)) {
     cache <- file.path(proj_root(), "\u6d3e\u751f\u6570\u636e",

@@ -1,20 +1,8 @@
-# =============================================================================
-# 程序/21_static_showcase.R   ——   单一来源 · 单一标准 · 单一产物
-# -----------------------------------------------------------------------------
-# 输入：派生数据/处理结果/master_enriched.rds
-#       分析输出/图表/*.png        分析输出/交互组件/*.html
-#       分析输出/模型表/*.csv     程序/*.R（代码片段）
-# 输出：
-#   - 课程提交/庄颂_20241334.html   课程提交版（图表 base64，widget 线上链接）
-#   - 网站发布/index.html           GitHub Pages 同源首页
-# 不再生成旧版冗余静态展示页。
-# =============================================================================
 
 if (!exists("%||%", mode = "function")) {
   `%||%` <- function(a, b) if (is.null(a) || length(a) == 0) b else a
 }
 
-# ---- 0. 工具：HTML 转义 / 格式化 / 代码读取 -------------------------------
 
 .ghs_e <- function(x) {
   x <- as.character(x %||% "")
@@ -65,7 +53,6 @@ if (!exists("%||%", mode = "function")) {
   x <- sub("^[0-9]+_", "", x)
   x <- sub("^v2_w_", "", x)
   x <- sub("^v2_", "", x)
-  # 中文翻译查找表
   cn <- .ghs_cn_names()
   if (key %in% names(cn)) return(cn[[key]])
   if (x %in% names(cn)) return(cn[[x]])
@@ -75,7 +62,6 @@ if (!exists("%||%", mode = "function")) {
 
 .ghs_cn_names <- function() {
   c(
-    # 静态图表前缀映射
     "global_sources_area" = "\u5168\u7403\u536b\u751f\u652f\u51fa\u6765\u6e90\u9762\u79ef\u56fe",
     "oops_ranking_2023" = "OOPS \u56fd\u5bb6\u6392\u884c",
     "oops_ridges_income" = "OOPS \u6309\u6536\u5165\u7ec4\u5bc6\u5ea6",
@@ -168,7 +154,6 @@ if (!exists("%||%", mode = "function")) {
     "region_hf_breakdown" = "\u533a\u57df\u7b79\u8d44\u5206\u89e3",
     "u5mr_decline_top" = "U5MR \u4e0b\u964d\u6700\u5feb\u56fd",
     "yoy_heatmap" = "\u540c\u6bd4\u70ed\u529b\u56fe",
-    # 高级图表
     "adv_beeswarm_che_pc" = "\u4eba\u5747 CHE \u8702\u7fa4\u56fe",
     "adv_beeswarm_gghed" = "GGHED \u8702\u7fa4\u56fe",
     "adv_beeswarm_lifeexp" = "\u5bff\u547d\u8702\u7fa4\u56fe",
@@ -195,7 +180,6 @@ if (!exists("%||%", mode = "function")) {
     "adv_topbot_gghed" = "GGHED \u6781\u503c\u5bf9\u6bd4",
     "adv_topbot_life" = "\u5bff\u547d\u6781\u503c\u5bf9\u6bd4",
     "adv_topbot_oops" = "OOPS \u6781\u503c\u5bf9\u6bd4",
-    # 地图
     "map_africa_che_pc" = "\u975e\u6d32\u4eba\u5747 CHE \u5730\u56fe",
     "map_africa_gghed" = "\u975e\u6d32 GGHED \u5730\u56fe",
     "map_asia_che_pc" = "\u4e9a\u6d32\u4eba\u5747 CHE \u5730\u56fe",
@@ -222,7 +206,6 @@ if (!exists("%||%", mode = "function")) {
     "map_world_lifeexp" = "\u5168\u7403\u5bff\u547d\u5730\u56fe",
     "map_world_oops" = "\u5168\u7403 OOPS \u5730\u56fe",
     "map_world_u5mr" = "\u5168\u7403 U5MR \u5730\u56fe",
-    # 补充图表
     "donut_financing" = "\u7b79\u8d44\u6765\u6e90\u73af\u5f62\u56fe",
     "polar_bar_hc_purpose" = "HC \u7528\u9014\u6781\u5750\u6807",
     "diverging_bar_oops_change" = "OOPS \u53d8\u5316\u53d1\u6563\u6761",
@@ -261,7 +244,6 @@ if (!exists("%||%", mode = "function")) {
     "boxplot_notched_continent" = "\u5927\u6d32\u7f3a\u53e3\u7bb1\u7ebf",
     "strip_oops_income" = "OOPS \u6536\u5165\u7ec4\u5e26\u72b6",
     "area_between_income_gap" = "\u6536\u5165\u7ec4\u5dee\u8ddd\u9762\u79ef",
-    # 交互组件
     "gapminder_animated" = "Gapminder \u52a8\u753b\u6563\u70b9",
     "highlight_ts" = "\u9ad8\u4eae\u65f6\u5e8f",
     "bar_race" = "\u6761\u5f62\u56fe\u7ade\u8d5b",
@@ -446,7 +428,6 @@ if (!exists("%||%", mode = "function")) {
   paste0("<p>", parts, "</p>", collapse = "\n")
 }
 
-# ---- 1. 摘要数值计算 -----------------------------------------------------
 
 .ghs_w_mean <- function(x, w) {
   ok <- is.finite(x) & is.finite(w) & w > 0
@@ -620,7 +601,6 @@ if (!exists("%||%", mode = "function")) {
   agg
 }
 
-# ---- 2. HTML 原子组件 ----------------------------------------------------
 
 .ghs_kpi <- function(v, l, n = "") {
   sprintf("<article class='kpi'><div class='kpi-value'>%s</div><div class='kpi-label'>%s</div><div class='kpi-note'>%s</div></article>",
@@ -636,10 +616,8 @@ if (!exists("%||%", mode = "function")) {
   if (is.null(path) || !nzchar(path) || !file.exists(path)) return("")
   cur_mode <- getOption("ghs_render_mode", "submission")
   if (cur_mode == "publish") {
-    # publish 模式：使用相对路径外链（不内嵌 base64）
     src <- paste0("\u56fe\u8868/", basename(path))
   } else {
-    # submission 模式：base64 内嵌
     ok <- tryCatch({ src <- .ghs_b64(path); TRUE },
                     error = function(e) FALSE)
     if (!ok) return("")
@@ -904,10 +882,8 @@ if (!exists("%||%", mode = "function")) {
           .ghs_e(lead), chips, note, body, .ghs_deep_dive(id))
 }
 
-# ---- 3. Hero / KPI / 数据与方法 ------------------------------------------
 
 .ghs_hero <- function(s, project_url, n_fig, n_widget) {
-  # 浮动导航 dock
   dock_nav <- .ghs_nav_links("dock-links")
   dock_html <- paste0(
     "<div class='ghs-dock' id='ghs-dock'>",
@@ -990,7 +966,6 @@ if (!exists("%||%", mode = "function")) {
           cards)
 }
 
-# ---- 3b. Executive summary (S01) ----------------------------------------
 
 .ghs_executive <- function(s) {
   big <- function(num, label, hint, tone = "blue") {
@@ -1030,7 +1005,6 @@ if (!exists("%||%", mode = "function")) {
           bigs, tldr)
 }
 
-# ---- 3c. Data Quality (S04) + Codebook (S05) ----------------------------
 
 .ghs_data_quality <- function(models_dir) {
   smry <- .ghs_dq_table(models_dir, "data_quality_summary.csv")
@@ -1122,7 +1096,6 @@ if (!exists("%||%", mode = "function")) {
           body)
 }
 
-# ---- 4. 十项发现 ---------------------------------------------------------
 
 .ghs_widget_anchor <- function(widget_dir, base, label, mode = "submission",
                                repo_url = "https://github.com/2711944586/R") {
@@ -1153,7 +1126,6 @@ if (!exists("%||%", mode = "function")) {
   s <- .ghs_summary(master)
   if (is.null(widget_dir)) widget_dir <- file.path(dirname(fig_dir), "\u4ea4\u4e92\u7ec4\u4ef6")
 
-  ## ---- F1 全球长期趋势 ----
   f1_code <- .ghs_read_code(file.path(programs_dir, "07_plot_static.R"), 1, 60)
   f1_body <- paste0(
     .ghs_method(.ghs_para(
@@ -1205,7 +1177,6 @@ if (!exists("%||%", mode = "function")) {
       .ghs_chip(sprintf("%d \u5e74\u603b\u989d", s$cur_year), .ghs_m(s$che_total_cur), "orange")
     ))
 
-  ## ---- F2 谁在付钱 ----
   top_oops <- .ghs_top_oops(master, n = 8, asc = FALSE)
   bot_oops <- .ghs_top_oops(master, n = 8, asc = TRUE)
   bot_oops <- bot_oops[order(bot_oops$hf3_che), ]
@@ -1263,7 +1234,6 @@ if (!exists("%||%", mode = "function")) {
       .ghs_chip("GGHED \u5747\u503c", .ghs_n(s$gghed_mean_cur, 1, "%"), "blue")
     ))
 
-  ## ---- F3 公平性 ----
   ineq_path <- file.path(models_dir, "ineq_panel.csv")
   ineq <- if (file.exists(ineq_path)) utils::read.csv(ineq_path) else NULL
   ineq_chips <- ""
@@ -1322,7 +1292,6 @@ if (!exists("%||%", mode = "function")) {
     "\u4eba\u53e3\u52a0\u6743\u540e\u8de8\u56fd\u4eba\u5747 CHE \u7684\u4e0d\u5e73\u7b49\u957f\u671f\u4e0b\u964d\uff0c\u4f46\u7edd\u5bf9\u6c34\u5e73\u4f9d\u7136\u5904\u4e8e\u6781\u7aef\u533a\u95f4\u3002",
     f3_body, chips = ineq_chips)
 
-  ## ---- F4 COVID 冲击 ----
   covid <- .ghs_covid_top(master, n = 8)
   covid_code <- .ghs_read_code(file.path(programs_dir, "04_metrics.R"), 116, 139)
   covid_chips <- ""; covid_table_html <- ""
@@ -1380,7 +1349,6 @@ if (!exists("%||%", mode = "function")) {
     "COVID-19 \u66b4\u9732\u4e86\u536b\u751f\u4f53\u7cfb\u7684\u8106\u5f31\u6027\uff0c\u4f46\u4e0d\u540c\u56fd\u5bb6\u627f\u62c5\u5371\u673a\u6210\u672c\u7684\u65b9\u5f0f\u622a\u7136\u4e0d\u540c\u3002",
     f4_body, chips = covid_chips)
 
-  ## ---- F5 β-收敛 ----
   beta_path <- file.path(models_dir, "beta_panel.csv")
   beta_panel <- if (file.exists(beta_path)) utils::read.csv(beta_path) else NULL
   beta_chips <- ""; beta_text <- ""
@@ -1431,7 +1399,6 @@ if (!exists("%||%", mode = "function")) {
     "\u628a 23 \u5e74\u4eba\u5747 CHE \u589e\u901f\u62df\u5408\u5230\u8d77\u70b9\u6c34\u5e73\uff0c\u7ed3\u679c\u652f\u6301 \u03b2-\u6536\u655b\u4f46\u5206\u5927\u6d32\u5b58\u5728\u663e\u8457\u5f02\u8d28\u6027\u3002",
     f5_body, chips = beta_chips)
 
-  ## ---- F6 面板 FE ----
   fe_path <- file.path(models_dir, "panel_fe_tidy.csv")
   fe <- if (file.exists(fe_path)) utils::read.csv(fe_path) else NULL
   fe_chips <- ""; fe_table_html <- ""
@@ -1477,7 +1444,6 @@ if (!exists("%||%", mode = "function")) {
     "\u5728\u63a7\u5236\u56fd\u5bb6\u4e0e\u5e74\u4efd\u56fa\u5b9a\u6548\u5e94\u540e\uff0c\u4eba\u5747\u536b\u751f\u652f\u51fa\u5bf9 GDP \u7684\u5f39\u6027\u63a5\u8fd1 0.8\u3002",
     f6_body, chips = fe_chips)
 
-  ## ---- F7 PCA + 聚类 ----
   f7_code <- .ghs_read_code(file.path(programs_dir, "05_models.R"), 17, 53)
   f7_body <- paste0(
     .ghs_method(.ghs_para(
@@ -1511,7 +1477,6 @@ if (!exists("%||%", mode = "function")) {
     "\u5728 financing \u7ed3\u6784\u7a7a\u95f4\u91cc\uff0c\u5168\u7403\u56fd\u5bb6\u81ea\u7136\u5206\u6210 4 \u7c7b\uff0c\u6bcf\u7c7b\u6709\u4e0d\u540c\u7684\u653f\u7b56\u91cd\u70b9\u3002",
     f7_body)
 
-  ## ---- F8 预测 ----
   fc_path <- file.path(models_dir, "forecast_5y.csv")
   fc <- if (file.exists(fc_path)) utils::read.csv(fc_path) else NULL
   fc_chips <- ""; fc_table_html <- ""
@@ -1560,7 +1525,6 @@ if (!exists("%||%", mode = "function")) {
     "auto.arima \u5bf9\u4e2d\u3001\u7f8e\u3001\u5370\u3001\u5df4\u7684\u4eba\u5747 CHE \u7ed9\u51fa\u77ed\u671f\u5ef6\u7eed\u4e0a\u5347\u7684\u5224\u65ad\u3002",
     f8_body, chips = fc_chips)
 
-  ## ---- F9 援助依赖 ----
   yr <- s$cur_year
   d_aid <- master[master$year == yr & is.finite(master$ext_che), ]
   ext_top <- if (nrow(d_aid)) {
@@ -1620,7 +1584,6 @@ if (!exists("%||%", mode = "function")) {
     "EXT \u5360 CHE \u8d85\u8fc7 20% \u610f\u5473\u7740\u672c\u571f\u8d22\u653f\u96be\u4ee5\u72ec\u7acb\u652f\u6491\u7cfb\u7edf\uff1b\u8be5\u4fe1\u53f7\u4e0e OOPS \u5e76\u5b58\u63d0\u793a\u5c45\u6c11\u4ecd\u9700\u6309\u6b21\u4ed8\u8d39\u3002",
     f9_body, chips = ext_chips)
 
-  ## ---- F10 效率前沿 ----
   d_eff <- master[master$year == yr &
                     is.finite(master$che_pc_usd2023) &
                     is.finite(master$life_exp), ]
@@ -1693,7 +1656,6 @@ if (!exists("%||%", mode = "function")) {
     "\u5728\u7ed9\u5b9a\u4eba\u5747\u8d44\u91d1\u4e0b\uff0c\u5404\u56fd\u9884\u671f\u5bff\u547d / U5MR \u7684\u5dee\u5f02\u53ef\u80fd\u53cd\u6620\u4f53\u7cfb\u8d28\u91cf\u3001PHC \u4e0e\u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u9762\u7b49\u975e\u8d44\u91d1\u56e0\u7d20\u3002",
     f10_body, chips = eff_chips)
 
-  ## ---- F11 \u6392\u540d\u53d8\u8fc1 ----
   f11_code <- paste0(
     "library(dplyr)\n",
     "rk <- master |>\n",
@@ -1768,7 +1730,6 @@ if (!exists("%||%", mode = "function")) {
     "\u540e\u53d1\u8005\u7684 GGHED \u62ac\u5347 + \u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u6269\u5927\u662f\u4e3b\u8981\u9a71\u52a8\u3002",
     f11_body, chips = f11_chips)
 
-  ## ---- F12 \u9884\u671f\u5bff\u547d\u5f39\u6027 ----
   f12_code <- paste0(
     "fit <- lm(life_exp ~ log(che_pc_usd2023),\n",
     "          data = subset(master, year == max(year, na.rm = TRUE) &\n",
@@ -1824,7 +1785,6 @@ if (!exists("%||%", mode = "function")) {
     "\u4e0d\u540c\u53d1\u5c55\u9636\u6bb5\uff0c\u4eba\u5747\u8d44\u91d1\u7684\u8fb9\u9645\u5bff\u547d\u4ea7\u51fa\u660e\u663e\u4e0d\u540c\u3002",
     f12_body, chips = le_chips)
 
-  ## ---- F13 SDG-3 ----
   f13_chips <- paste0(
     .ghs_chip("\u9884\u671f\u5bff\u547d", sprintf("%.1f \u5e74", s$life_w_cur %||% NA), "blue"),
     .ghs_chip("U5MR (\u52a0\u6743)", sprintf("%.1f \u00b7 1000", s$u5mr_w_cur %||% NA), "orange"),
@@ -1859,7 +1819,6 @@ if (!exists("%||%", mode = "function")) {
     "PHC + \u793e\u4f1a\u533b\u4fdd\u8986\u76d6\u9762\u4e0d\u4ec5\u662f\u8d44\u91d1\u95ee\u9898\uff0c\u66f4\u662f SDG-3 \u8fdb\u5c55\u7684\u5173\u952e\u673a\u5236\u3002",
     f13_body, chips = f13_chips)
 
-  ## ---- F14 \u6781\u503c\u4e0e\u8df3\u8dc3 ----
   f14_chips <- paste0(
     .ghs_chip("\u671f\u95f4", "2000\u20132023", "ink"),
     .ghs_chip("\u4e24\u7aef", "Top 8 + Bottom 8", "blue"),
@@ -1894,19 +1853,16 @@ if (!exists("%||%", mode = "function")) {
     "\u8df3\u8dc3\u8005\u591a\u662f\u4ece\u8f83\u4f4e\u8d44\u91d1\u8d77\u70b9\u51fa\u53d1\uff0c\u5e76\u4f34\u968f GGHED \u8de8\u671f\u5feb\u901f\u52a0\u7801\uff1b\u53d8\u70b9\u5bf9\u5e94 GFC \u4e0e COVID\u3002",
     f14_body, chips = f14_chips)
 
-  # F15\u2013F36 \u00b7 \u62fc\u63a5\u9644\u52a0 22 \u4e2a\u65b0 finding\uff08\u5b58\u5728\u65f6\uff09
   f_extra <- if (exists("ghs_findings_extra", mode = "function"))
     ghs_findings_extra(s, fig_dir, programs_dir = programs_dir,
                         widget_dir = widget_dir,
                         mode = mode, repo_url = repo_url)
   else ""
 
-  # \u8865\u5145\u5185\u5bb9\u6ce8\u5165\uff1a\u4e3a\u6bcf\u4e2a Finding \u6dfb\u52a0\u989d\u5916\u56fe\u8868\u3001\u4ea4\u4e92\u7ec4\u4ef6\u4e0e\u53d9\u8ff0\u6bb5\u843d
   se <- if (exists("ghs_sections_extra_content", mode = "function"))
     ghs_sections_extra_content(fig_dir, widget_dir, programs_dir, mode, repo_url)
   else list()
 
-  # \u5c06\u8865\u5145\u5185\u5bb9\u8ffd\u52a0\u5230\u5bf9\u5e94 Finding \u7684 section \u672b\u5c3e\uff08</div></section> \u4e4b\u524d\uff09
   .inject_extra <- function(html, id) {
     extra <- se[[id]]
     if (is.null(extra) || !nzchar(extra)) return(html)
@@ -1935,7 +1891,6 @@ if (!exists("%||%", mode = "function")) {
          f_extra)
 }
 
-# ---- 4b. 国家档案 / 区域 / 不平等图册 / 仿真 / 稳健性 -------------------
 
 .ghs_country_profiles <- function(master, fig_dir,
                                   iso_list = c("CHN", "USA", "IND", "BRA"),
@@ -2338,7 +2293,6 @@ if (!exists("%||%", mode = "function")) {
           .ghs_section_note("session"), caps_html, body)
 }
 
-# ---- 5. 图库 / 交互组件 / 复现 / 结论 ------------------------------------
 
 .ghs_gallery_note <- function(title, kind) {
   n <- tolower(title)
@@ -2547,7 +2501,6 @@ if (!exists("%||%", mode = "function")) {
   )
 }
 
-# ---- 6. CSS / JS ---------------------------------------------------------
 
 .ghs_css <- function() {
   paste(c(
@@ -2856,19 +2809,9 @@ if (!exists("%||%", mode = "function")) {
   ), collapse = "")
 }
 
-# =============================================================================
-# 设计系统 overlay（在 .ghs_css() 之后追加，复用语义槽）
-# -----------------------------------------------------------------------------
-# 设计原则：
-#   - 所有 v3 类用 .ghs-v3- 前缀，不污染既有 v2 选择器
-#   - 4 个响应断点 1280 / 1024 / 768 / 420，全部 min-width: 0 防溢出
-#   - 中文不强制断字（word-break:keep-all），英文 overflow-wrap:anywhere
-#   - sticky-toc 自动跟随；reading-progress 渐变；hamburger 抽屉
-# =============================================================================
 
 .ghs_css_v3 <- function() {
   paste(c(
-    # ---- tokens（继承 :root 已有变量，再叠加语义槽）----------------
     ":root{",
       "--g3-primary:#1d3f5f;--g3-secondary:#c46327;--g3-good:#2a857a;",
       "--g3-warn:#c89a3b;--g3-bad:#a23b3b;--g3-neutral:#5d667a;",
@@ -2895,7 +2838,6 @@ if (!exists("%||%", mode = "function")) {
       "--g3-shadow-lg:0 24px 64px rgba(0,0,0,.6);",
     "}",
 
-    # ---- 排版（防溢出 / 中英文混排）----------------------------------
     ".ghs-v3 *,.ghs-v3 *:before,.ghs-v3 *:after{box-sizing:border-box;min-width:0}",
     ".ghs-v3{font-family:'Inter','Noto Sans CJK SC','Microsoft YaHei',system-ui,sans-serif;color:var(--g3-ink);line-height:var(--g3-line-h)}",
     ".ghs-v3 p,.ghs-v3 li,.ghs-v3 dd,.ghs-v3 td{word-break:keep-all;overflow-wrap:anywhere;hyphens:none}",
@@ -2903,20 +2845,17 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-v3 a{color:var(--g3-primary);text-underline-offset:3px}",
     ".ghs-v3 img,.ghs-v3 svg,.ghs-v3 iframe,.ghs-v3 video,.ghs-v3 canvas{max-width:100%;height:auto;min-width:0}",
 
-    # ---- 章节头 ---------------------------------------------------
     ".ghs-section-head{display:flex;flex-direction:column;gap:8px;max-width:920px;margin:0 0 28px}",
     ".ghs-section-head[data-align='center']{margin-left:auto;margin-right:auto;text-align:center;align-items:center}",
     ".ghs-kicker{display:inline-block;font-size:var(--g3-fs-tiny);letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);font-weight:800}",
     ".ghs-section-title{font-size:var(--g3-fs-h2);color:var(--g3-ink);margin:0}",
     ".ghs-section-lead{font-size:18px;color:var(--g3-neutral);max-width:780px;margin:0;line-height:1.55}",
 
-    # ---- KPI 条 / strip ------------------------------------------
     ".ghs-stat-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--g3-gap);margin:24px 0}",
     ".ghs-stat-cell{padding:18px 20px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);min-width:0}",
     ".ghs-stat-value{font-family:'Source Serif 4',serif;font-size:30px;font-weight:700;color:var(--g3-primary);line-height:1.05}",
     ".ghs-stat-label{margin-top:6px;color:var(--g3-neutral);font-size:13px}",
 
-    # ---- KPI 卡 ---------------------------------------------------
     ".ghs-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g3-gap)}",
     ".ghs-kpi{position:relative;padding:22px 20px;border:1px solid var(--g3-line);border-radius:var(--g3-radius);background:var(--g3-paper2);box-shadow:var(--g3-shadow-sm);overflow:hidden;min-width:0}",
     ".ghs-kpi:before{content:'';position:absolute;left:0;top:0;width:5px;height:100%;background:var(--tone,var(--g3-primary))}",
@@ -2925,7 +2864,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-kpi-trend{font-weight:700;font-size:12.5px;font-family:'Source Serif 4',serif}",
     ".ghs-kpi-hint{margin-top:6px;font-size:12px;color:var(--g3-neutral);line-height:1.5}",
 
-    # ---- callout (4 tones) ----------------------------------------
     ".ghs-callout{display:flex;flex-direction:column;gap:6px;padding:14px 18px 16px 22px;border-radius:var(--g3-radius);background:var(--g3-paper2);border-left:4px solid var(--bar,var(--g3-primary));box-shadow:var(--g3-shadow-sm);font-size:14px;color:var(--g3-ink)}",
     ".ghs-callout-title{display:block;font-weight:800;font-size:13.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--bar,var(--g3-primary))}",
     ".ghs-callout-body{line-height:1.65;color:var(--g3-ink)}",
@@ -2933,7 +2871,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-callout-warn{--bar:var(--g3-warn);background:#fff8ec}",
     ".ghs-callout-bad{--bar:var(--g3-bad);background:#fdf0ee}",
 
-    # ---- finding card -------------------------------------------
     ".ghs-finding{padding:96px 0;border-top:1px solid var(--g3-line)}",
     ".ghs-finding,.ghs-finding:nth-of-type(odd),.ghs-finding:nth-of-type(even){background:var(--g3-paper)}",
     ".ghs-finding-head{display:grid;grid-template-columns:minmax(150px,max-content) minmax(0,1fr);gap:32px;align-items:start;margin-bottom:32px}",
@@ -2951,7 +2888,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-chip[data-tone='warn'] i{color:var(--g3-warn)}",
     ".ghs-chip[data-tone='bad'] i{color:var(--g3-bad)}",
 
-    # ---- figure grids -------------------------------------------
     ".ghs-fig-grid{display:grid;gap:var(--g3-gap);margin:18px 0}",
     ".ghs-fig-grid-2{grid-template-columns:repeat(2,1fr)}",
     ".ghs-fig-grid-3{grid-template-columns:repeat(3,1fr)}",
@@ -2960,7 +2896,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-fig-card figure{margin:0}",
     ".ghs-fig-card figcaption{margin-top:8px;font-size:13px;color:var(--g3-neutral);line-height:1.55}",
 
-    # ---- deep dive 6 卡 -----------------------------------------
     ".ghs-deep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--g3-gap);margin:32px 0;padding:24px;background:var(--g3-paper2);border-radius:var(--g3-radius-lg);border:1px solid var(--g3-line)}",
     ".ghs-deep-card{background:var(--g3-paper);border:1px solid var(--g3-line);border-radius:var(--g3-radius);padding:18px 20px;min-width:0}",
     ".ghs-deep-card h4{font-family:'Inter',sans-serif;font-size:11.5px;letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);margin:0 0 10px;font-weight:800}",
@@ -2972,14 +2907,12 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-deep-card.tone-sens h4{color:var(--g3-neutral)}",
     ".ghs-deep-card.tone-policy h4{color:var(--g3-bad)}",
 
-    # ---- sticky 右侧 TOC ----------------------------------------
     ".ghs-with-toc{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:var(--g3-gap-xl);align-items:start}",
     ".ghs-toc{position:sticky;top:96px;align-self:start;display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--g3-line);padding:6px 0 6px 18px;font-size:12.5px;color:var(--g3-neutral);max-height:calc(100vh - 120px);overflow-y:auto}",
     ".ghs-toc a{display:block;color:var(--g3-neutral);text-decoration:none;padding:4px 8px;border-radius:6px;transition:color .2s,background .2s}",
     ".ghs-toc a.active,.ghs-toc a:hover{color:var(--g3-primary);background:var(--g3-paper2)}",
     ".ghs-toc .ghs-toc-group{font-size:11px;letter-spacing:var(--g3-track-wide);text-transform:uppercase;color:var(--g3-secondary);font-weight:800;margin-top:8px;padding:0 8px}",
 
-    # ---- 数据血缘可视化（用于 data lineage 章节）-----------------
     ".ghs-lineage{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g3-gap);margin:24px 0}",
     ".ghs-lineage-step{position:relative;padding:18px 20px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);min-width:0}",
     ".ghs-lineage-step:not(:last-child):after{content:'\u2192';position:absolute;right:-18px;top:50%;transform:translateY(-50%);color:var(--g3-secondary);font-size:24px;font-weight:800;z-index:2}",
@@ -2987,7 +2920,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-lineage-name{font-family:'Source Serif 4',serif;font-weight:700;font-size:18px;color:var(--g3-ink);margin-bottom:4px}",
     ".ghs-lineage-meta{font-size:12px;color:var(--g3-neutral);line-height:1.5}",
 
-    # ---- reading paths ------------------------------------------
     ".ghs-paths{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--g3-gap);margin:24px 0}",
     ".ghs-path-card{padding:24px;background:var(--g3-paper);border:1px solid var(--g3-line);border-radius:var(--g3-radius-lg);box-shadow:var(--g3-shadow-sm);display:flex;flex-direction:column;gap:10px;min-width:0}",
     ".ghs-path-card[data-tone='primary']{border-top:4px solid var(--g3-primary)}",
@@ -3001,20 +2933,17 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-path-list li a{color:var(--g3-ink);text-decoration:none}",
     ".ghs-path-list li a:hover{color:var(--g3-primary)}",
 
-    # ---- sources / citations ------------------------------------
     ".ghs-sources{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--g3-gap);margin:24px 0}",
     ".ghs-source-card{padding:16px 20px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);font-size:13.5px;line-height:1.55;min-width:0}",
     ".ghs-source-card b{display:block;color:var(--g3-primary);font-weight:800;margin-bottom:4px}",
     ".ghs-source-card span{color:var(--g3-neutral)}",
 
-    # ---- robustness / sensitivity table -------------------------
     ".ghs-sens-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--g3-gap);margin:18px 0}",
     ".ghs-sens-card{padding:16px 18px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);min-width:0}",
     ".ghs-sens-title{font-weight:800;color:var(--g3-primary);font-size:13.5px;margin:0 0 6px}",
     ".ghs-sens-value{font-family:'Source Serif 4',serif;font-size:24px;color:var(--g3-ink);font-weight:700}",
     ".ghs-sens-note{font-size:12px;color:var(--g3-neutral);margin-top:4px;line-height:1.5}",
 
-    # ---- limitations / policy bullets ---------------------------
     ".ghs-bullet-list{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px}",
     ".ghs-bullet-list li{position:relative;padding:12px 16px 12px 38px;background:var(--g3-paper2);border:1px solid var(--g3-line);border-radius:var(--g3-radius);font-size:14px;line-height:1.65}",
     ".ghs-bullet-list li:before{content:'';position:absolute;left:14px;top:18px;width:14px;height:14px;border-radius:50%;background:var(--bullet,var(--g3-primary))}",
@@ -3023,7 +2952,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-bullet-list li[data-tone='bad']:before{background:var(--g3-bad)}",
     ".ghs-bullet-list li b{color:var(--g3-primary);font-weight:800;display:block;margin-bottom:4px;font-size:13px;text-transform:uppercase;letter-spacing:.04em}",
 
-    # ---- 响应断点 -----------------------------------------------
     "@media(max-width:1280px){.ghs-with-toc{grid-template-columns:1fr;gap:var(--g3-gap-lg)}.ghs-toc{display:none}}",
     "@media(max-width:1024px){.ghs-stat-strip{grid-template-columns:repeat(2,1fr)}.ghs-kpi-grid{grid-template-columns:repeat(2,1fr)}.ghs-fig-grid-3,.ghs-fig-grid-4{grid-template-columns:repeat(2,1fr)}.ghs-deep-grid{grid-template-columns:repeat(2,1fr)}.ghs-paths{grid-template-columns:1fr}.ghs-lineage{grid-template-columns:repeat(2,1fr)}.ghs-lineage-step:nth-child(2n):after{display:none}.ghs-sources{grid-template-columns:1fr}}",
     "@media(max-width:900px){.finding-head,.ghs-finding-head{grid-template-columns:1fr;gap:14px}.finding-num,.ghs-finding-num{margin-top:0}}",
@@ -3032,19 +2960,9 @@ if (!exists("%||%", mode = "function")) {
   ), collapse = "")
 }
 
-# =============================================================================
-# 编辑级精修层（在 v3 之后追加，专注微观品质）
-# -----------------------------------------------------------------------------
-# 设计原则：
-#   - NYT / FT / The Pudding 风格的编辑级排版细节
-#   - 更紧凑的字号阶梯、更大的留白、更精确的字间距
-#   - 修复溢出与重叠：图卡 max-height、长标签 ellipsis、表格横向滚动
-#   - 微交互：滚动揭示、章节锚定下拉、悬浮态色彩过渡
-# =============================================================================
 
 .ghs_css_polish <- function() {
   paste(c(
-    # ---- 字体层级精修 ---------------------------------------------
     "body{font-feature-settings:'ss01' on,'cv11' on,'kern' on;text-rendering:optimizeLegibility}",
     "h1,h2,h3,h4{font-feature-settings:'ss01' on,'cv11' on,'kern' on,'liga' on;letter-spacing:-.015em}",
     ".hero h1{letter-spacing:-.025em;font-feature-settings:'ss01' on,'kern' on,'dlig' on}",
@@ -3057,7 +2975,6 @@ if (!exists("%||%", mode = "function")) {
     ".fig-frame:hover{transform:scale(1.01)}",
     ".fig-frame img{width:100%;height:auto;display:block;border-radius:8px}",
 
-    # ---- Hero 编辑级强化 ------------------------------------------
     ".hero{min-height:92vh;padding-top:48px}",
     ".hero h1{font-size:clamp(54px,8vw,108px);font-weight:800;line-height:.96}",
     ".hero h1 .accent{background:linear-gradient(95deg,#f7c08a 5%,#e89860 45%,#c46327 80%);-webkit-background-clip:text;background-clip:text}",
@@ -3072,20 +2989,17 @@ if (!exists("%||%", mode = "function")) {
     ".btn.ghost{border-radius:14px;transition:border-color .2s ease,background .2s ease}",
     ".btn.ghost:hover{border-color:rgba(247,238,223,.4);background:rgba(247,238,223,.06)}",
 
-    # ---- 导航栏精修（编辑级粘性） ---------------------------------
     ".nav{padding:12px 0 20px}",
     ".brand{font-size:12px;letter-spacing:.24em}",
     ".links a{font-size:12px;font-weight:600;padding:5px 9px;letter-spacing:.02em}",
     ".links a:hover{background:rgba(247,238,223,.1)}",
     ".links .nav-group-label{font-size:10px;color:rgba(247,238,223,.38)}",
 
-    # ---- 章节标题层级 --------------------------------------------
     ".section{padding:120px 0;border-top:1px solid var(--line)}",
     ".section h2{font-size:clamp(32px,3.8vw,50px);font-weight:800;line-height:1.08;margin-bottom:18px}",
     ".section .lead{font-size:clamp(16.5px,1.2vw,18px);line-height:1.7;color:var(--muted);max-width:900px}",
     ".section-head .kicker{font-size:11.5px;letter-spacing:.24em;font-weight:900;background:linear-gradient(90deg,#c46327,#1d3f5f);-webkit-background-clip:text;background-clip:text;color:transparent}",
 
-    # ---- KPI 卡片细节 --------------------------------------------
     ".kpi{padding:28px 26px;border-radius:18px;background:linear-gradient(180deg,#fffaf2 30%,#f7e8d2 100%);border:1px solid rgba(13,18,27,.08);box-shadow:0 20px 56px rgba(13,18,27,.06),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .25s ease,box-shadow .25s ease}",
     ".kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(13,18,27,.10)}",
     ".kpi:before{width:6px;background:linear-gradient(180deg,#c46327,#1d3f5f 70%,#2a857a)}",
@@ -3093,7 +3007,6 @@ if (!exists("%||%", mode = "function")) {
     ".kpi-label{font-size:13px;letter-spacing:.06em;font-weight:800;text-transform:uppercase;color:var(--ink);margin-top:12px}",
     ".kpi-note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px}",
 
-    # ---- Finding 卡片精修 ----------------------------------------
     ".finding{padding:120px 0}",
     ".finding-head{grid-template-columns:minmax(150px,max-content) minmax(0,1fr);gap:32px}",
     ".finding-num{display:block;font-size:60px;font-weight:900;letter-spacing:0;color:var(--g3-secondary);margin-top:0;white-space:nowrap;line-height:.95}",
@@ -3106,13 +3019,11 @@ if (!exists("%||%", mode = "function")) {
     ".chip i{font-size:13.5px;font-weight:800;color:var(--ink)}",
     ".chip-blue i{color:var(--g3-primary)}.chip-orange i{color:var(--g3-secondary)}.chip-neutral i{color:var(--muted)}.chip-ink i{color:var(--ink)}",
 
-    # ---- 图表卡片精修与防溢出 ------------------------------------
     ".ghs-fig-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff,#fbf6ee);box-shadow:0 6px 22px rgba(13,18,27,.06);border:1px solid rgba(13,18,27,.08);transition:transform .2s ease,box-shadow .2s ease}",
     ".ghs-fig-card:hover{transform:translateY(-3px);box-shadow:0 16px 44px rgba(13,18,27,.10)}",
     ".ghs-fig-card img{border-radius:10px;width:100%;height:auto;display:block}",
     ".ghs-fig-card figcaption{margin-top:14px;font-size:13.5px;color:var(--muted);line-height:1.65;font-weight:500}",
 
-    # ---- Deep-dive 6 卡精修 -------------------------------------
     ".ghs-deep-grid,.deep-dive-grid{padding:28px;background:linear-gradient(180deg,#fbf6ee,#f3e8d6);border:1px solid rgba(13,18,27,.08);border-radius:24px;gap:18px}",
     ".ghs-deep-card,.deep-dive-grid .deep-card{padding:22px 24px;background:#fff;border:1px solid rgba(13,18,27,.08);border-radius:14px;box-shadow:0 4px 14px rgba(13,18,27,.04);transition:transform .15s ease;min-width:0}",
     ".ghs-deep-card:hover{transform:translateY(-2px)}",
@@ -3123,7 +3034,6 @@ if (!exists("%||%", mode = "function")) {
     ".ghs-deep-card[data-tone='neutral']{border-left:4px solid #5d667a}",
     ".ghs-deep-card[data-tone='secondary']{border-left:4px solid #c46327}",
 
-    # ---- 表格精修 ------------------------------------------------
     ".table-wrap{margin:16px 0;overflow-x:auto;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.06)}",
     ".table-wrap table{width:100%;border-collapse:collapse;font-size:13.5px}",
     ".table-wrap th{background:#f0ebe1;padding:14px 16px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#78716c;border-bottom:1px solid rgba(0,0,0,.08);text-align:left;position:sticky;top:0;z-index:2}",
@@ -3131,46 +3041,35 @@ if (!exists("%||%", mode = "function")) {
     ".table-wrap tr:hover td{background:rgba(0,0,0,.02)}",
     ".table-wrap tr:last-child td{border-bottom:0}",
 
-    # ---- 代码块精修 ----------------------------------------------
     "pre,.code-pre{padding:22px 24px;border-radius:14px;background:linear-gradient(180deg,#0c1424,#0a1020);box-shadow:0 12px 36px rgba(0,0,0,.18);font-size:13px;line-height:1.7;overflow-x:auto;border:1px solid rgba(247,238,223,.08)}",
     "code{font-feature-settings:'liga' on,'calt' on}",
     ".code-figure{margin:18px 0 26px}",
     ".code-caption{font-size:12px;color:var(--muted);margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}",
 
-    # ---- 章节分隔（无装饰线） ----------------------------------------
     ".section{position:relative}",
 
-    # ---- 滚动揭示动画 --------------------------------------------
     "@keyframes ghs-fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}",
     ".section,.finding{animation:none;opacity:1;transform:none;filter:none}",
     "@media(prefers-reduced-motion:reduce){.section,.finding{animation:none}}",
 
-    # ---- 链接精修 ------------------------------------------------
     "a{transition:color .15s ease;text-decoration-thickness:1px;text-underline-offset:3px}",
     ".finding-body a:not(.btn),.section a:not(.btn){color:var(--blue);text-decoration:underline;text-decoration-color:rgba(29,63,95,.3);text-underline-offset:3px}",
     ".finding-body a:not(.btn):hover,.section a:not(.btn):hover{text-decoration-color:var(--blue);color:#0d121b}",
 
-    # ---- 选区配色 ------------------------------------------------
     "::selection{background:rgba(196,99,39,.28);color:var(--ink)}",
 
-    # ---- 加载状态优化 --------------------------------------------
     "img[loading='lazy']{transition:opacity .4s ease}",
     "img:not([src]){opacity:0}",
 
-    # ---- 长标签自动断词 ------------------------------------------
     ".kpi-label,.chip i,.finding-kicker,.section-head .kicker,.module-card .module-title{overflow-wrap:break-word;word-break:keep-all;hyphens:auto}",
 
-    # ---- 防止图标 emoji 撑开行 -----------------------------------
     "h1 span:not(.accent),h2 span,h3 span{vertical-align:baseline}",
 
-    # ---- 小屏幕特别优化 ------------------------------------------
     "@media(max-width:900px){.finding-head,.ghs-finding-head{grid-template-columns:1fr;gap:14px}.finding-num,.ghs-finding-num{margin-top:0}.finding-kicker,.ghs-kicker{margin-top:0}}",
     "@media(max-width:640px){.hero{min-height:auto;padding:30px 0 70px}.hero h1{font-size:42px}.section{padding:72px 0}.kpi{padding:22px 20px}.kpi-value{font-size:32px}.finding{padding:72px 0}.finding-num{font-size:54px;margin-top:0}.ghs-deep-grid,.deep-dive-grid{padding:18px}.btn{padding:12px 20px;font-size:13.5px}}",
 
-    # ---- 焦点态可访问性（WCAG 2.1 AA） --------------------------
     "a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:8px}",
 
-    # ---- 浮动导航 Dock ----------------------------------------
     ".ghs-dock{position:fixed;bottom:24px;right:24px;z-index:9999;font-family:'Inter',system-ui,sans-serif}",
     ".dock-toggle{width:50px;height:50px;border-radius:12px;border:1px solid rgba(23,33,31,.16);background:#fbfaf6;color:#17211f;font-size:18px;cursor:pointer;box-shadow:0 1px 2px rgba(23,33,31,.08),0 12px 28px rgba(23,33,31,.10);transition:transform .18s ease,border-color .18s ease,background-color .18s ease;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}",
     ".dock-toggle:hover{transform:translateY(-1px);border-color:rgba(37,79,92,.30);background:#eef3f2}",
@@ -3222,14 +3121,7 @@ if (!exists("%||%", mode = "function")) {
   ), collapse = "")
 }
 
-# =============================================================================
-# 章节 / 卡片渲染辅助（为 phase B/E/F 准备）
-# -----------------------------------------------------------------------------
-# 这些函数被 .ghs_render() 内的新章节调用；每个返回完整 HTML 字符串。
-# 命名前缀统一 .ghs_v3_。
-# =============================================================================
 
-#' 章节头（带 kicker / title / lead 三层）
 .ghs_v3_section_head <- function(kicker, title, lead = NULL,
                                  align = "left") {
   lead_html <- if (!is.null(lead) && nzchar(lead))
@@ -3242,7 +3134,6 @@ if (!exists("%||%", mode = "function")) {
     .ghs_e(align), .ghs_e(kicker), .ghs_e(title), lead_html)
 }
 
-#' v3 章节包裹器：<section class='section ghs-v3' id=...><div class='wrap'>...
 .ghs_v3_section <- function(id, kicker, title, body,
                             lead = NULL, extra_class = "") {
   sprintf(
@@ -3253,7 +3144,6 @@ if (!exists("%||%", mode = "function")) {
     body)
 }
 
-#' KPI 卡（语义 tone 6 选 1）
 .ghs_v3_kpi <- function(value, label, hint = NULL, trend = NULL,
                         tone = "primary") {
   tone_color <- switch(tone,
@@ -3280,12 +3170,10 @@ if (!exists("%||%", mode = "function")) {
     tone_color, .ghs_e(value), .ghs_e(label), trend_html, hint_html)
 }
 
-#' KPI 网格（4 列 / 自动响应）
 .ghs_v3_kpi_grid <- function(cards) {
   sprintf("<div class='ghs-kpi-grid ghs-v3'>%s</div>", paste(cards, collapse = ""))
 }
 
-#' stat strip（横向数据条）
 .ghs_v3_stat_strip <- function(items) {
   if (!length(items)) return("")
   cards <- vapply(seq_along(items), function(i) {
@@ -3300,7 +3188,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-stat-strip'>%s</div>", paste(cards, collapse = ""))
 }
 
-#' callout（4 tones）
 .ghs_v3_callout <- function(text, tone = "info", title = NULL) {
   title_html <- if (!is.null(title) && nzchar(title))
     sprintf("<strong class='ghs-callout-title'>%s</strong>",
@@ -3312,7 +3199,6 @@ if (!exists("%||%", mode = "function")) {
     .ghs_e(tone), title_html, text)
 }
 
-#' deep-dive 六卡（数据 / 方法 / 假设 / 局限 / 敏感性 / 政策）
 .ghs_v3_deep_dive <- function(data = "", method = "", assume = "",
                               limit = "", sens = "", policy = "") {
   card <- function(tone, label, body) {
@@ -3332,7 +3218,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-deep-grid'>%s</div>", cards)
 }
 
-#' figure 卡（base64 嵌入 / 外链取决于 mode）
 .ghs_v3_fig_card <- function(path, caption, mode = "submission") {
   if (!file.exists(path))
     return(sprintf("<div class='ghs-fig-card'><p class='muted'>missing: %s</p></div>",
@@ -3345,13 +3230,11 @@ if (!exists("%||%", mode = "function")) {
     src, .ghs_e(caption), .ghs_e(caption))
 }
 
-#' figure grid（n 列）
 .ghs_v3_fig_grid <- function(figs, ncol = 2) {
   cls <- paste0("ghs-fig-grid ghs-fig-grid-", ncol)
   sprintf("<div class='%s'>%s</div>", cls, paste(figs, collapse = ""))
 }
 
-#' chip 行（统计芯片）
 .ghs_v3_chips <- function(chips) {
   if (!length(chips)) return("")
   pills <- vapply(seq_along(chips), function(i) {
@@ -3363,7 +3246,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-chip-row'>%s</div>", paste(pills, collapse = ""))
 }
 
-#' finding 卡（完整结构：num/kicker/title/lead/chips/figs/widgets/deep/policy）
 .ghs_v3_finding <- function(id, num, kicker, title, lead,
                              chips_html = "", figs_html = "",
                              widgets_html = "", deep_html = "",
@@ -3382,7 +3264,6 @@ if (!exists("%||%", mode = "function")) {
     chips_html, figs_html, widgets_html, deep_html, policy_html)
 }
 
-#' reading-path 三卡（评阅 / 政策 / 数据科学）
 .ghs_v3_reading_paths <- function(paths) {
   cards <- vapply(seq_along(paths), function(i) {
     p <- paths[[i]]
@@ -3403,7 +3284,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-paths'>%s</div>", paste(cards, collapse = ""))
 }
 
-#' 数据血缘（4 步流水线可视化）
 .ghs_v3_lineage <- function(steps) {
   cards <- vapply(seq_along(steps), function(i) {
     s <- steps[[i]]
@@ -3417,7 +3297,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-lineage'>%s</div>", paste(cards, collapse = ""))
 }
 
-#' sources / citations 网格
 .ghs_v3_sources <- function(sources) {
   cards <- vapply(seq_along(sources), function(i) {
     s <- sources[[i]]
@@ -3429,7 +3308,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-sources'>%s</div>", paste(cards, collapse = ""))
 }
 
-#' sensitivity card 网格（每个 finding 的稳健性）
 .ghs_v3_sens_grid <- function(items) {
   cards <- vapply(seq_along(items), function(i) {
     it <- items[[i]]
@@ -3444,7 +3322,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<div class='ghs-sens-grid'>%s</div>", paste(cards, collapse = ""))
 }
 
-#' bullet list（带语义色圆点的项目列表）
 .ghs_v3_bullets <- function(bullets) {
   items <- vapply(seq_along(bullets), function(i) {
     b <- bullets[[i]]
@@ -3459,7 +3336,6 @@ if (!exists("%||%", mode = "function")) {
   sprintf("<ul class='ghs-bullet-list'>%s</ul>", paste(items, collapse = ""))
 }
 
-# ---- 7. 主合成 / 入口 ----------------------------------------------------
 
 .ghs_render <- function(master, fig_dir, widget_dir, programs_dir, models_dir,
                         mode, repo_url, project_url) {
@@ -3511,6 +3387,23 @@ if (!exists("%||%", mode = "function")) {
 }
 
 .ghs_write_rmd <- function(path) {
+  html_path <- sub("[.]Rmd$", ".html", path)
+  if (!file.exists(html_path)) {
+    stop("Missing HTML for Rmd synchronization: ", html_path)
+  }
+  html <- readChar(html_path, nchars = file.info(html_path)[["size"]], useBytes = TRUE)
+  extract_part <- function(pattern, text, label) {
+    m <- regexec(pattern, text, perl = TRUE)
+    hit <- regmatches(text, m)[[1]]
+    if (length(hit) < 2L) stop("Cannot extract ", label, " from generated HTML")
+    hit[2]
+  }
+  style <- extract_part("(?is)<style>(.*?)</style>", html, "style")
+  body <- extract_part("(?is)<body>(.*)<script>.*</script></body></html>\\s*$", html, "body")
+  script <- extract_part("(?is)<script>(.*)</script></body></html>\\s*$", html, "script")
+  body <- gsub("><", ">\n<", body, fixed = TRUE)
+  style <- gsub("}", "}\n", style, fixed = TRUE)
+  script <- gsub(";", ";\n", script, fixed = TRUE)
   lines <- c(
     "---",
     "title: \"全球卫生支出 2000–2023：整合分析与核心发现\"",
@@ -3519,101 +3412,20 @@ if (!exists("%||%", mode = "function")) {
     "date: \"`r format(Sys.Date(), '%Y-%m-%d')`\"",
     "output:",
     "  html_document:",
-    "    toc: true",
-    "    toc_depth: 2",
-    "    number_sections: false",
+    "    self_contained: false",
+    "    toc: false",
     "    theme: null",
     "---",
     "",
-    "Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/",
+    "<style>",
+    strsplit(style, "\n", fixed = TRUE)[[1]],
+    "</style>",
     "",
-    "## 主报告入口",
+    strsplit(body, "\n", fixed = TRUE)[[1]],
     "",
-    "本 Rmd 是课程源文档与复现说明。完整交互报告由 `程序/21_static_showcase.R` 生成，主文件位于同目录：",
-    "",
-    "- [打开课程 HTML 主报告](庄颂_20241334.html)",
-    "- [打开 Shiny 云端仪表盘](https://constantine1433223.shinyapps.io/ghs-dashboard/)",
-    "- [打开 GitHub Pages 静态发布版](https://2711944586.github.io/R/)",
-    "",
-    "## 数据与范围",
-    "",
-    "分析对象为 2000–2023 年全球卫生支出面板。原始数据来自 TidyTuesday 2026-04-21 整理的 WHO Global Health Expenditure Database，并补充 WDI 中的人口、收入组和健康产出指标。核心问题包括卫生支出增长、筹资结构、自付风险、不平等、COVID-19 冲击、外援依赖、效率、预测和政策含义。",
-    "",
-    "```{r setup, include=FALSE}",
-    "knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)",
-    "root <- normalizePath(file.path(getwd(), \"..\"), winslash = \"/\", mustWork = FALSE)",
-    "count_files <- function(path, pattern) {",
-    "  p <- file.path(root, path)",
-    "  if (!dir.exists(p)) return(0L)",
-    "  length(list.files(p, pattern = pattern, recursive = TRUE, full.names = TRUE))",
-    "}",
-    "size_mb <- function(path) {",
-    "  p <- file.path(root, path)",
-    "  if (!file.exists(p) && !dir.exists(p)) return(NA_real_)",
-    "  files <- if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p",
-    "  round(sum(file.info(files)$size, na.rm = TRUE) / 1024^2, 2)",
-    "}",
-    "```",
-    "",
-    "## 当前规模",
-    "",
-    "```{r scale-table}",
-    "scale_tbl <- data.frame(",
-    "  项目 = c(\"PNG 图\", \"SVG 图\", \"交互组件\", \"CSV 模型表\", \"课程 HTML\", \"网站首页\"),",
-    "  数量或体积 = c(",
-    "    count_files(\"分析输出/图表\", \"[.]png$\"),",
-    "    count_files(\"分析输出/图表\", \"[.]svg$\"),",
-    "    count_files(\"分析输出/交互组件\", \"[.]html$\"),",
-    "    count_files(\"分析输出/模型表\", \"[.]csv$\"),",
-    "    paste0(size_mb(\"课程提交/庄颂_20241334.html\"), \" MB\"),",
-    "    paste0(size_mb(\"网站发布/index.html\"), \" MB\")",
-    "  ),",
-    "  stringsAsFactors = FALSE",
-    ")",
-    "knitr::kable(scale_tbl)",
-    "```",
-    "",
-    "## 生成方式",
-    "",
-    "完整页面使用同一个生成器输出两份文件：课程 HTML 使用内嵌图像，便于直接评阅；GitHub Pages 首页使用外链图像和发布目录中的 standalone widgets，便于线上浏览。",
-    "",
-    "```bash",
-    "Rscript 构建.R submission",
-    "Rscript 构建.R quality",
-    "```",
-    "",
-    "提交包使用轻量策略生成：保留课程主件、网站首页、Shiny 应用、核心派生数据、CSV 模型表、质量报告、项目文档与复现脚本；大型 widget 依赖和完整 SVG 图表不再重复打包。",
-    "",
-    "```bash",
-    "$env:GHS_BUILD_DELIVERY='TRUE'",
-    "Rscript 构建.R delivery",
-    "```",
-    "",
-    "## 质量门禁",
-    "",
-    "```{r quality-summary}",
-    "quality_path <- file.path(root, \"分析输出\", \"质量报告\", \"quality_gate_summary.csv\")",
-    "if (file.exists(quality_path)) {",
-    "  q <- read.csv(quality_path, fileEncoding = \"UTF-8\")",
-    "  knitr::kable(q)",
-    "} else {",
-    "  cat(\"尚未生成质量门禁报告。\")",
-    "}",
-    "```",
-    "",
-    "## 复现入口",
-    "",
-    "- `构建.R`：统一构建入口。",
-    "- `程序/21_static_showcase.R`：课程 HTML 与网站首页生成器。",
-    "- `程序/26_delivery.R`：提交包生成器。",
-    "- `仪表盘/`：Shiny 应用源码与模块。",
-    "- `项目文档/方法手册.md`：F1–F14 的研究问题、变量、方法、产物和局限。",
-    "",
-    "## Session Info",
-    "",
-    "```{r session-info}",
-    "sessionInfo()",
-    "```"
+    "<script>",
+    strsplit(script, "\n", fixed = TRUE)[[1]],
+    "</script>"
   )
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(lines, path, useBytes = TRUE)
@@ -3647,15 +3459,12 @@ generate_static_showcase <- function(root = NULL,
   dir.create(dirname(out_submission), recursive = TRUE, showWarnings = FALSE)
   dir.create(dirname(out_publish), recursive = TRUE, showWarnings = FALSE)
 
-  # submission 版：图像内嵌，widget 指向线上发布地址
   options(ghs_render_mode = "submission")
   html_submission <- .ghs_render(master, fig_dir, widget_dir, programs_dir,
                                   models_dir, mode = "submission",
                                   repo_url = repo_url, project_url = project_url)
 
-  # publish 版：外链图片（体积小，可部署）
   options(ghs_render_mode = "publish")
-  # 复制图表到网站发布目录
   pub_fig_dir <- file.path(dirname(out_publish), "\u56fe\u8868")
   dir.create(pub_fig_dir, recursive = TRUE, showWarnings = FALSE)
   pngs_src <- list.files(fig_dir, pattern = "[.]png$", full.names = TRUE)

@@ -1,14 +1,4 @@
-# =============================================================================
-# 程序/22_plots_extra.R
-# -----------------------------------------------------------------------------
-# 扩展静态图集：补足整合页所需的更多图表种类。
-# 所有图都通过 save_fig() 输出 png+svg 到 分析输出/图表/。
-#
-# 入口：ghs_export_extra(master, world_sf, outputs_dir, verbose)
-# 由 target_figures() 在生成主题图与 dataviz 图后调用。
-# =============================================================================
 
-# ---- 工具 -----------------------------------------------------------------
 
 .gxe_pkgs <- function() {
   ensure_pkgs(c("dplyr", "tidyr", "ggplot2", "scales", "patchwork",
@@ -26,14 +16,12 @@
   invisible(NULL)
 }
 
-# 优先使用扩展主题，回退到 minimal
 .gxe_theme <- function(base_size = 12) {
   if (exists("theme_ghs3", mode = "function")) theme_ghs3(base_size = base_size)
   else if (exists("theme_ghs2", mode = "function")) theme_ghs2(base_size = base_size)
   else ggplot2::theme_minimal(base_size = base_size)
 }
 
-# ---- 单图函数 -------------------------------------------------------------
 
 .gxe_brazil_profile <- function(master) {
   if (!"BRA" %in% master$iso3_code) return(NULL)
@@ -551,7 +539,6 @@
     .gxe_theme(12) + ggplot2::theme(axis.text.y = ggplot2::element_blank())
 }
 
-# ---- 入口 -----------------------------------------------------------------
 
 ghs_export_extra <- function(master, world_sf = NULL,
                               outputs_dir = file.path("分析输出", "图表"),

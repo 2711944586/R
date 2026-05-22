@@ -1,12 +1,4 @@
-# =============================================================================
-# 程序/19_narrative.R  ·  Quarto 叙事 helper（KPI / callout / scrollytell）
-# -----------------------------------------------------------------------------
-# 用法：在 Quarto chunk 中调用，输出 HTML 直接嵌入文档
-# =============================================================================
 
-#' KPI 卡片网格（任意数量）
-#' @param ... 名值对 list(value=..., label=..., delta=NULL, sublabel=NULL)
-#' @export
 narrative_kpi_grid <- function(...) {
   args <- list(...)
   if (!length(args)) return("")
@@ -17,16 +9,12 @@ narrative_kpi_grid <- function(...) {
                          paste(cards, collapse = ""), "</div>"))
 }
 
-#' 编辑式 callout（衬线大字 + 左竖线）
-#' @export
 narrative_callout <- function(text, source = NULL,
                                variant = c("default","warn","tip","note")) {
   variant <- match.arg(variant)
   htmltools::HTML(news_callout_html(text, source = source, variant = variant))
 }
 
-#' 数据来源块（页脚或图下方）
-#' @export
 narrative_data_source <- function(...) {
   args <- list(...)
   items <- vapply(args, function(a) {
@@ -44,10 +32,6 @@ narrative_data_source <- function(...) {
   ))
 }
 
-#' scrollytell 容器（左 sticky 图，右 step 文字）
-#' @param figure_html 图（HTML 字符串）
-#' @param steps list of character: 每段 step 文字
-#' @export
 narrative_scrolly <- function(figure_html, steps) {
   if (!length(steps)) return("")
   steps_html <- paste(vapply(seq_along(steps), function(i) {
@@ -60,8 +44,6 @@ narrative_scrolly <- function(figure_html, steps) {
   ))
 }
 
-#' 章末政策含义 box
-#' @export
 narrative_policy_box <- function(...) {
   args <- list(...)
   items <- vapply(args, function(s) sprintf("<li>%s</li>",
@@ -73,8 +55,6 @@ narrative_policy_box <- function(...) {
   ))
 }
 
-#' 简洁数字摘要（文本流内用）
-#' @export
 narrative_inline_number <- function(value, unit = "", fmt = "%s") {
   cls <- "inline-number"
   txt <- htmltools::htmlEscape(sprintf(fmt, value))
@@ -84,5 +64,4 @@ narrative_inline_number <- function(value, unit = "", fmt = "%s") {
   htmltools::HTML(sprintf("<span class=\"%s\">%s</span>", cls, txt))
 }
 
-# tiny operator
 `%||%` <- function(a, b) if (!is.null(a)) a else b

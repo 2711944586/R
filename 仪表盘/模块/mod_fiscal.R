@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_fiscal.R
-# 财政空间：政府卫生支出的财政可持续性与优先级分析
-# =============================================================================
 
 mod_fiscal_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -42,7 +38,6 @@ mod_fiscal_ui <- function(id) {
           )
         ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -74,7 +69,6 @@ mod_fiscal_ui <- function(id) {
           footer = "\u6298\u7ebf\u4e3a\u7ec4\u5185\u56fd\u5bb6\u5747\u503c\uff0c\u4e3b\u8981\u7528\u4e8e\u8d8b\u52bf\u6bd4\u8f83\u3002"
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -103,7 +97,6 @@ mod_fiscal_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("quadrant_chart"), height = 380))
         )
       ),
-      # Row 3: map + ranking
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -148,10 +141,8 @@ mod_fiscal_ui <- function(id) {
 mod_fiscal_server <- function(id, master_r) {
   shiny::moduleServer(id, function(input, output, session) {
 
-    # GGHE-D/GGE proxy: gghed_che * che / gge (approximate)
     enriched <- shiny::reactive({
       m <- master_r()
-      # gghed_gdp = GGHE-D as % of GDP (if available)
       if (!"gghed_gdp" %in% names(m)) {
         m$gghed_gdp <- ifelse(
           is.finite(m$gghed_che) & is.finite(m$che_pc_usd2023) &
@@ -160,9 +151,8 @@ mod_fiscal_server <- function(id, master_r) {
           NA_real_
         )
       }
-      # gghed_gge proxy (health priority in government spending)
       if (!"gghed_gge" %in% names(m)) {
-        m$gghed_gge <- m$gghed_gdp * 3.2  # rough proxy: avg GGE/GDP ~ 31%
+        m$gghed_gge <- m$gghed_gdp * 3.2
       }
       m
     })

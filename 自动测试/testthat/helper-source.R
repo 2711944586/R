@@ -1,7 +1,7 @@
-# 自动测试/testthat/helper-source.R
-# testthat 自动加载 helper-*.R 文件
-# 作用：source 所有 程序/*.R 模块到测试环境，让任何 test_* 文件都能直接调用项目函数
-# 这样 testthat::test_dir("自动测试/testthat") 也能跑通（v1 只支持 testthat.R 入口）
+
+
+
+
 
 .proj_root <- (function() {
   cwd <- getwd()

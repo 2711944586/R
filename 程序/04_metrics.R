@@ -1,15 +1,8 @@
-# =============================================================================
-# 程序/04_metrics.R
-# -----------------------------------------------------------------------------
-# 指标计算：不平等、结构、离散度等。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 1. 不平等指数 ----------------------------------------------------------
-#' 加权基尼系数（Dagum 2000 式）
 gini_weighted <- function(x, w = NULL) {
   if (is.null(w)) w <- rep(1, length(x))
   ok <- is.finite(x) & is.finite(w) & x >= 0 & w > 0
@@ -25,7 +18,6 @@ gini_weighted <- function(x, w = NULL) {
   g
 }
 
-#' Theil-T 指数（人口加权）
 theil_t <- function(x, w = NULL) {
   if (is.null(w)) w <- rep(1, length(x))
   ok <- is.finite(x) & is.finite(w) & x > 0 & w > 0
@@ -36,7 +28,6 @@ theil_t <- function(x, w = NULL) {
   sum(w * x / sum(w * x) * log(x / mean_x))
 }
 
-#' Atkinson 指数 (ε)
 atkinson <- function(x, w = NULL, eps = 0.5) {
   if (is.null(w)) w <- rep(1, length(x))
   ok <- is.finite(x) & is.finite(w) & x > 0 & w > 0
@@ -51,8 +42,6 @@ atkinson <- function(x, w = NULL, eps = 0.5) {
   1 - ede / mean_x
 }
 
-# ---- 2. 时间序列的不平等 ---------------------------------------------------
-#' 按 year 计算全球人均 CHE 的不平等指数面板
 inequality_by_year <- function(master, value_col = "che_pc_usd2023",
                                weight_col = "pop") {
   ensure_pkgs(c("dplyr", "tidyr", "tibble"))
@@ -81,8 +70,6 @@ inequality_by_year <- function(master, value_col = "che_pc_usd2023",
     )
 }
 
-# ---- 3. 集中率 --------------------------------------------------------------
-#' Top-k 国家占全球总支出的份额
 top_k_share <- function(df, value_col, k = 20) {
   ensure_pkgs("dplyr")
   val <- rlang::sym(value_col)
@@ -98,8 +85,6 @@ top_k_share <- function(df, value_col, k = 20) {
     )
 }
 
-# ---- 4. 结构变化指数 --------------------------------------------------------
-#' 结构变化距离：两年间份额向量的 cosine distance
 struct_change <- function(shares_a, shares_b) {
   a <- as.numeric(shares_a); b <- as.numeric(shares_b)
   stopifnot(length(a) == length(b))
@@ -111,8 +96,6 @@ struct_change <- function(shares_a, shares_b) {
   1 - dot / (na_norm * nb_norm)
 }
 
-# ---- 5. COVID 冲击度 --------------------------------------------------------
-#' 对每国计算 2020-2022 相对 2019 的相对变化（% of CHE 口径与 USD 口径各一）
 covid_shock <- function(master, base_year = 2019,
                         shock_years = 2020:2022) {
   ensure_pkgs("dplyr")

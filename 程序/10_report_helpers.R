@@ -1,20 +1,9 @@
-# =============================================================================
-# 程序/10_report_helpers.R
-# -----------------------------------------------------------------------------
-# 报告 / 文章生成辅助函数：批量导出图表、生成摘要、写交互 HTML widget。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# =============================================================================
-# 1. 文本数字摘要（给 Quarto / Rmd inline 用）
-# =============================================================================
 
-#' Master 表的摘要数字
-#' @param master 宽表
-#' @return list(numeric)
 ghs_headline_numbers <- function(master) {
   ensure_pkgs(c("dplyr"))
   cur_year <- max(master$year, na.rm = TRUE)
@@ -46,18 +35,7 @@ ghs_headline_numbers <- function(master) {
   )
 }
 
-# =============================================================================
-# 2. 批量导出静态图（一行调用产出 25+ 张 PNG/SVG）
-# =============================================================================
 
-#' 批量产出全部 chapter-level 静态图
-#'
-#' @param master 宽表
-#' @param world_sf 可空，传入用于 choropleth 的 sf 对象
-#' @param outputs_dir 输出目录
-#' @param formats 格式（默认 png 与 svg）
-#' @param verbose 是否打印每张图进度
-#' @return invisible(character) 已生成图的相对路径
 ghs_export_all_static <- function(master,
                                   world_sf = NULL,
                                   outputs_dir = file.path(proj_root(),
@@ -197,11 +175,7 @@ ghs_export_all_static <- function(master,
   invisible(saved)
 }
 
-# =============================================================================
-# 3. 批量导出交互 widget 为独立 HTML
-# =============================================================================
 
-#' 把交互 widget 写成 standalone HTML（适合 GitHub Pages 嵌入）
 ghs_widget_escape <- function(x) {
   x <- as.character(if (is.null(x)) "" else x)
   x <- gsub("&", "&amp;", x, fixed = TRUE)
@@ -311,7 +285,6 @@ ghs_save_widget <- function(widget, name,
   invisible(path)
 }
 
-#' 批量导出全部交互 widget
 ghs_export_all_widgets <- function(master, world_sf = NULL,
                                     dir = file.path(proj_root(),
                                                       "分析输出", "交互组件"),
@@ -361,14 +334,7 @@ ghs_export_all_widgets <- function(master, world_sf = NULL,
   invisible(produced)
 }
 
-# =============================================================================
-# 4. 模型结果导出
-# =============================================================================
 
-#' 运行所有建模并导出 CSV / RDS
-#'
-#' @param master 宽表
-#' @param outputs_dir 输出根目录（会写到 分析输出/模型表）
 ghs_export_all_models <- function(master,
                                    outputs_dir = file.path(proj_root(),
                                                               "分析输出",
@@ -376,21 +342,18 @@ ghs_export_all_models <- function(master,
   ensure_pkgs(c("dplyr"))
   dir.create(outputs_dir, recursive = TRUE, showWarnings = FALSE)
 
-  # (1) 不平等指数面板
   ineq <- tryCatch(inequality_by_year(master), error = function(e) NULL)
   if (!is.null(ineq)) {
     readr::write_csv(ineq, file.path(outputs_dir, "ineq_panel.csv"))
     saveRDS(ineq,        file.path(outputs_dir, "ineq_panel.rds"))
   }
 
-  # (2) COVID 冲击表
   shock <- tryCatch(covid_shock(master), error = function(e) NULL)
   if (!is.null(shock)) {
     readr::write_csv(shock, file.path(outputs_dir, "covid_shock.csv"))
     saveRDS(shock,        file.path(outputs_dir, "covid_shock.rds"))
   }
 
-  # (3) β-收敛
   bc <- tryCatch(fit_beta_convergence(master),
                   error = function(e) NULL)
   if (!is.null(bc)) {
@@ -398,7 +361,6 @@ ghs_export_all_models <- function(master,
     saveRDS(bc, file.path(outputs_dir, "beta_convergence.rds"))
   }
 
-  # (4) 面板固定效应
   fe <- tryCatch(fit_panel_fe(master), error = function(e) NULL)
   if (!is.null(fe)) {
     saveRDS(fe, file.path(outputs_dir, "panel_fe.rds"))
@@ -407,7 +369,6 @@ ghs_export_all_models <- function(master,
                                                           "panel_fe_tidy.csv"))
   }
 
-  # (5) PCA + cluster
   snap <- master |>
     dplyr::filter(.data$year == max(.data$year, na.rm = TRUE)) |>
     tidyr::drop_na("gghed_che", "pvtd_che", "ext_che", "hf3_che")
@@ -422,7 +383,6 @@ ghs_export_all_models <- function(master,
                      file.path(outputs_dir, "pca_cluster_scores.csv"))
   }
 
-  # (6) 预测面板（4 国 × 5 年）
   isos <- c("CHN", "USA", "IND", "BRA")
   preds <- lapply(isos, function(iso) {
     di <- master |>
@@ -446,14 +406,7 @@ ghs_export_all_models <- function(master,
   ))
 }
 
-# =============================================================================
-# 5. 全流程：data → models → figures → widgets
-# =============================================================================
 
-#' 在新机器上一行命令产出全部静态图、widget、模型表
-#'
-#' @param master 已 enrich 后的宽表（如果 NULL 会重新构建）
-#' @param world_sf 可空
 ghs_run_everything <- function(master = NULL, world_sf = NULL,
                                 outputs_dir = file.path(proj_root(), "分析输出"),
                                 figures = TRUE, widgets = TRUE,

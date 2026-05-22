@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_dataquality.R
-# 数据质量浏览：缺失模式、覆盖率、修订记录
-# =============================================================================
 
 mod_dataquality_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -198,7 +194,6 @@ mod_dataquality_server <- function(id, master_r) {
     output$missing_heatmap <- plotly::renderPlotly({
       m <- filtered()
       ind <- input$indicator
-      # Take a sample of countries (top 50 by coverage)
       coverage_by_iso <- tapply(m[[ind]], m$iso3_code, function(x) sum(is.finite(x)))
       top_isos <- names(sort(coverage_by_iso, decreasing = TRUE))[1:40]
       d <- m[m$iso3_code %in% top_isos, c("iso3_code", "year", ind)]

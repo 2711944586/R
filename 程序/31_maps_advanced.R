@@ -1,22 +1,8 @@
-# =============================================================================
-# 程序/31_maps_advanced.R   —— 高级地图集（B2 阶段）
-# -----------------------------------------------------------------------------
-# 类别：
-#   ▸ 世界 choropleth：5 个指标
-#   ▸ 大洲缩放 choropleth：6 大洲 × 任意指标
-#   ▸ Bivariate choropleth：3x3 颜色矩阵（手工实现，无需 biscale）
-#   ▸ 变化图：Δvar over period
-#   ▸ 分位数 choropleth：quintile bins
-#   ▸ Bubble overlay（cartogram 替代）：Robinson 投影 + 比例气泡
-#   ▸ 多时点 small multiples
-# 输出：ggplot 对象；ghs_export_maps_advanced() 导出 PNG + SVG
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
 }
 
-# ---- 0. 共用工具 ----------------------------------------------------------
 
 .has_pkg <- function(pkg) requireNamespace(pkg, quietly = TRUE)
 
@@ -26,12 +12,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
   else paste0(base, " \u00b7 ", extra)
 }
 
-#' 把 master 的某指标按年份联接到 world_sf
-#' @param master 主数据
-#' @param world_sf sf 对象（含 iso3_code 列）
-#' @param var 指标列名
-#' @param year 年份
-#' @return sf 含 `value` 列
 join_master_to_sf <- function(master, world_sf, var, year) {
   ensure_pkgs(c("sf"))
   m <- master[master$year == year, c("iso3_code", "country_name", var)]
@@ -40,7 +20,6 @@ join_master_to_sf <- function(master, world_sf, var, year) {
   out
 }
 
-#' 加 robinson 投影（如果坐标允许）
 .maybe_robinson <- function(sf_obj) {
   ensure_pkgs(c("sf"))
   res <- tryCatch(sf::st_transform(sf_obj, "+proj=robin"),
@@ -63,9 +42,7 @@ join_master_to_sf <- function(master, world_sf, var, year) {
       legend.key.height = ggplot2::unit(48, "points"))
 }
 
-# ---- 1. 世界 choropleth ---------------------------------------------------
 
-#' 单指标全球 choropleth（顺序色 + Robinson）
 plot_map_world_var <- function(master, world_sf,
                                  var = "che_pc_usd2023",
                                  year = NULL,
@@ -94,7 +71,6 @@ plot_map_world_var <- function(master, world_sf,
       caption = .cap_news_map(caption_extra))
 }
 
-#' 包装：5 个常用指标
 plot_map_che_pc      <- function(master, world_sf, year = NULL)
   plot_map_world_var(master, world_sf, "che_pc_usd2023", year,
     palette = "ocean", trans = "log10",
@@ -137,10 +113,7 @@ plot_map_u5mr        <- function(master, world_sf, year = NULL)
     subtitle = "sqrt \u8f74\u62c9\u51fa\u4f4e\u503c\u5dee\u5f02\uff1b\u989c\u8272\u8d8a\u6df1 = \u6b7b\u4ea1\u7387\u8d8a\u9ad8",
     caption_extra = "WDI under-5 mortality")
 
-# ---- 2. 大洲缩放 choropleth -----------------------------------------------
 
-#' 缩放到某大洲的 choropleth
-#' @param continent "Africa" | "Asia" | "Europe" | "Americas" | "Oceania"
 plot_map_continent <- function(master, world_sf,
                                 continent = "Africa",
                                 var = "che_pc_usd2023",
@@ -163,9 +136,7 @@ plot_map_continent <- function(master, world_sf,
       caption = .cap_news_map())
 }
 
-# ---- 3. Bivariate choropleth (自实现 3x3) ---------------------------------
 
-#' 二维分箱并打颜色编号（A1..C3，A 为 X 低/B 中/C 高，1=Y 低/2 中/3 高）
 .bivariate_class <- function(x, y) {
   qx <- stats::quantile(x, c(1/3, 2/3), na.rm = TRUE)
   qy <- stats::quantile(y, c(1/3, 2/3), na.rm = TRUE)
@@ -176,14 +147,12 @@ plot_map_continent <- function(master, world_sf,
   out
 }
 
-# 9 色二维色板：行 = Y 等级（1..3 由弱到强），列 = X 等级
 .bivariate_palette <- c(
-  A1 = "#e8e8e8", B1 = "#cae8d4", C1 = "#7ec38b",  # 低 Y
-  A2 = "#dac9e2", B2 = "#a4c4d4", C2 = "#4d8c8e",  # 中 Y
-  A3 = "#9c6fa1", B3 = "#6f7a9f", C3 = "#28556e"   # 高 Y
+  A1 = "#e8e8e8", B1 = "#cae8d4", C1 = "#7ec38b",
+  A2 = "#dac9e2", B2 = "#a4c4d4", C2 = "#4d8c8e",
+  A3 = "#9c6fa1", B3 = "#6f7a9f", C3 = "#28556e"
 )
 
-#' 二维 choropleth：x_var × y_var
 plot_map_bivariate <- function(master, world_sf,
                                  x_var = "che_pc_usd2023",
                                  y_var = "life_exp",
@@ -212,7 +181,6 @@ plot_map_bivariate <- function(master, world_sf,
       subtitle = subtitle %||% "3\u00d73 \u989c\u8272\u77e9\u9635\u00b7\u4f4e\u4e2d\u9ad8\u5404\u4e09\u5206\u4f4d",
       caption = .cap_news_map("self-implemented 3x3 bivariate"))
 
-  # 9x9 图例
   leg_df <- data.frame(
     x = rep(c("A", "B", "C"), 3),
     y = rep(c("1", "2", "3"), each = 3),
@@ -266,9 +234,7 @@ plot_map_bivariate_gghed_u5mr <- function(master, world_sf, year = NULL)
                     year %||% max(master$year, na.rm = TRUE)),
     subtitle = "\u53f3\u4e0a\uff1a\u9ad8 GGHED \u4f46 U5MR \u4e0d\u964d \u00b7 \u6709\u6548\u6027\u95ee\u9898")
 
-# ---- 4. 变化图 ------------------------------------------------------------
 
-#' 两年间变化 choropleth：Δvar = var(y2) − var(y1)
 plot_map_change <- function(master, world_sf,
                               var = "che_pc_usd2023",
                               y1 = NULL, y2 = NULL,
@@ -336,9 +302,7 @@ plot_map_lifeexp_change <- function(master, world_sf, y1 = NULL, y2 = NULL)
                     y2 %||% max(master$year, na.rm = TRUE)),
     subtitle = "\u5e74\u4efd\u53d8\u5316\uff1b\u84dd\u7eff = \u4ef0\u67d3\u9971\u4e0a")
 
-# ---- 5. 分位数 choropleth -------------------------------------------------
 
-#' 五分位 choropleth：把指标分 5 档着色
 plot_map_quintile <- function(master, world_sf,
                                 var = "che_pc_usd2023",
                                 year = NULL,
@@ -374,9 +338,7 @@ plot_map_quintile <- function(master, world_sf,
       caption = .cap_news_map())
 }
 
-# ---- 6. 比例气泡（cartogram 替代） ----------------------------------------
 
-#' 投影 + 比例气泡（每国一个气泡）
 plot_map_bubble <- function(master, world_sf,
                               var = "che_usd2023",
                               year = NULL,
@@ -420,9 +382,7 @@ plot_map_bubble <- function(master, world_sf,
       caption = .cap_news_map())
 }
 
-# ---- 7. 多时点 small multiples --------------------------------------------
 
-#' 一个指标在 4 个时点的并排 choropleth
 plot_map_smallmultiples <- function(master, world_sf,
                                        var = "che_pc_usd2023",
                                        years = c(2000, 2008, 2014,
@@ -454,9 +414,7 @@ plot_map_smallmultiples <- function(master, world_sf,
       caption = .cap_news_map())
 }
 
-# ---- 8. 导出器 ------------------------------------------------------------
 
-#' 批量导出 B2 地图集
 ghs_export_maps_advanced <- function(master = NULL, world_sf = NULL,
                                        fig_dir = NULL) {
   if (is.null(master)) {

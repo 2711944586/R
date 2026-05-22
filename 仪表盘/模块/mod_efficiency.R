@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_efficiency.R
-# Tab 4 · 效率 ★：DEA 散点 + 排名 reactable
-# =============================================================================
 
 mod_efficiency_ui <- function(id, year_min, year_max) {
   ns <- shiny::NS(id)
@@ -116,7 +112,6 @@ mod_efficiency_server <- function(id, master_r) {
               is.finite(m$life_exp), , drop = FALSE]
       shiny::req(nrow(d) >= 30)
 
-      # 简化 DEA：log 寿命 vs log CHE 的回归残差作为效率分
       d$log_che  <- log(d$che_pc_usd2023)
       d$log_life <- log(d$life_exp)
       lm_fit <- stats::lm(log_life ~ log_che, data = d)

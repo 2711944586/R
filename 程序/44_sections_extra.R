@@ -1,11 +1,3 @@
-# =============================================================================
-# 程序/44_sections_extra.R   —— F 阶段：4 个新章节
-# -----------------------------------------------------------------------------
-# 函数集合：.ghs_section_outcomes / .ghs_section_equity / .ghs_section_country /
-#           .ghs_section_shocks
-# 入口：ghs_sections_extra(master, fig_dir, models_dir, widget_dir, mode)
-# 返回拼接 HTML，由 21_static_showcase.R::.ghs_render 在末尾追加。
-# =============================================================================
 
 .ghsx_fig_or_empty <- function(fig_dir, fname, caption, label) {
   path <- file.path(fig_dir, fname)
@@ -38,7 +30,6 @@
     id, kicker, title, lead, body)
 }
 
-#' 章节 1·产出与效率 · outcomes
 .ghs_section_outcomes <- function(master, fig_dir) {
   body <- paste0(
     "<div class='atlas-grid'>",
@@ -68,7 +59,6 @@
     body)
 }
 
-#' 章节 2·不平等与财务保护 · equity
 .ghs_section_equity <- function(master, fig_dir) {
   body <- paste0(
     "<div class='atlas-grid'>",
@@ -96,7 +86,6 @@
     body)
 }
 
-#' 章节 3·国家专题 · country
 .ghs_section_country <- function(master, fig_dir) {
   body <- paste0(
     "<div class='atlas-grid'>",
@@ -120,7 +109,6 @@
     body)
 }
 
-#' 章节 4·冲击与变点 · shocks
 .ghs_section_shocks <- function(master, fig_dir) {
   body <- paste0(
     "<div class='atlas-grid'>",
@@ -144,7 +132,6 @@
     body)
 }
 
-#' 入口：返回 4 个新章节 HTML
 ghs_sections_extra <- function(master, fig_dir, models_dir,
                                 widget_dir = NULL,
                                 mode = "publish", repo_url = "") {
@@ -157,15 +144,6 @@ ghs_sections_extra <- function(master, fig_dir, models_dir,
     .ghs_section_shocks(master, fig_dir))
 }
 
-# =============================================================================
-# 程序/44_sections_extra.R
-# -----------------------------------------------------------------------------
-# G 阶段：为 F1-F36 全部发现注入补充分析内容（额外图表、交互组件、叙述段落、代码块）。
-# 将未引用的 ~205 张图表与 ~99 个交互组件分配至 36 个发现中。
-# 入口：ghs_sections_extra_content(fig_dir, widget_dir, programs_dir, mode, repo_url)
-# 返回命名列表，键为 finding ID（如 "f-trend"），值为 HTML 字符串。
-# 依赖 42_findings_extra.R 中的 .fe_fig / .fe_widget 等辅助函数。
-# =============================================================================
 
 if (!exists(".fe_fig", mode = "function")) {
   .se_source_path <- file.path("程序库", "42_findings_extra.R")
@@ -176,12 +154,10 @@ if (!exists(".fe_fig", mode = "function")) {
   if (file.exists(.se_source_path)) source(.se_source_path)
 }
 
-# ---- 内部辅助 ----------------------------------------------------------------
 
 .se_prose <- function(...) {
   parts <- c(...)
   if (!length(parts)) return("")
-  # 使用 method-block 容器确保与主内容一致的排版
   body <- paste0("<p>", parts, "</p>", collapse = "\n")
   sprintf("<div class='method-block'>%s</div>", body)
 }
@@ -233,7 +209,6 @@ if (!exists(".fe_fig", mode = "function")) {
     .se_prose(prose_after))
 }
 
-# ---- F1: 全球长期趋势 (f-trend) ----------------------------------------------
 
 .se_f1 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -284,7 +259,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F2: 筹资来源 (f-finance) ------------------------------------------------
 
 .se_f2 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -336,7 +310,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F3: 跨国不平等 (f-equity) -----------------------------------------------
 
 .se_f3 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -393,7 +366,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F4: 危机冲击 (f-covid) --------------------------------------------------
 
 .se_f4 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -424,11 +396,9 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(fixest); library(tidyverse)\n",
-      "# 事件研究法\n",
       "es_mod <- feols(log(che_pc) ~ i(rel_year, ref = -1) |\n",
       "  country + year, data = panel, cluster = ~country)\n",
       "iplot(es_mod, main = 'COVID Event Study')\n",
-      "# 恢复速度\n",
       "recovery <- panel %>% filter(post_covid) %>%\n",
       "  mutate(gap = che_pc / predicted_trend - 1)"
     ),
@@ -448,7 +418,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F5: 收敛分析 (f-beta) ---------------------------------------------------
 
 .se_f5 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -475,13 +444,10 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(plm); library(tidyverse)\n",
-      "# Beta-收敛\n",
       "beta_mod <- lm(cagr_che ~ log(che_pc_2000) + region + governance,\n",
       "               data = cross_section)\n",
-      "# Sigma-收敛\n",
       "sigma_ts <- panel %>% group_by(year) %>%\n",
       "  summarise(sigma = sd(log(che_pc)))\n",
-      "# 半衰期\n",
       "half_life <- log(2) / abs(coef(beta_mod)['log(che_pc_2000)'])"
     ),
     widgets = list(
@@ -501,7 +467,6 @@ if (!exists(".fe_fig", mode = "function")) {
 }
 
 
-# ---- F6: GDP弹性 (f-fe) -----------------------------------------------------
 
 .se_f6 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -524,11 +489,9 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(fixest); library(tidyverse)\n",
-      "# 双向固定效应\n",
       "fe_mod <- feols(log(che_pc) ~ log(gdp_pc) * democracy |\n",
       "  country + year, data = panel, cluster = ~country)\n",
       "summary(fe_mod)\n",
-      "# 分组弹性\n",
       "by_income <- panel %>% group_by(income_group) %>%\n",
       "  group_modify(~broom::tidy(\n",
       "    feols(log(che_pc) ~ log(gdp_pc) | country + year, data = .x)))"
@@ -549,7 +512,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F7: 国家分类 (f-cluster) ------------------------------------------------
 
 .se_f7 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -579,9 +541,8 @@ if (!exists(".fe_fig", mode = "function")) {
       "set.seed(42)\n",
       "km5 <- kmeans(features, centers = 5, nstart = 25)\n",
       "fviz_cluster(km5, data = features)\n",
-      "# 轮廓\n",
       "sil <- silhouette(km5$cluster, dist(features))\n",
-      "mean(sil[, 'sil_width'])  # 0.42"
+      "silhouette_width <- mean(sil[, 'sil_width'])"
     ),
     widgets = list(
       c("05_ternary.html", "三元图聚类交互"),
@@ -599,7 +560,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F8: 趋势预测 (f-forecast) -----------------------------------------------
 
 .se_f8 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -625,11 +585,9 @@ if (!exists(".fe_fig", mode = "function")) {
       "che_ts <- ts(global$che_total, start = 2000)\n",
       "fit_arima <- auto.arima(che_ts)\n",
       "fit_ets <- ets(che_ts)\n",
-      "# 组合预测\n",
       "fc_arima <- forecast(fit_arima, h = 8)\n",
       "fc_ets <- forecast(fit_ets, h = 8)\n",
       "fc_combined <- (fc_arima$mean + fc_ets$mean) / 2\n",
-      "# 蒙特卡洛\n",
       "mc_sim <- replicate(10000, simulate(fit_arima, nsim = 8))"
     ),
     widgets = list(
@@ -648,7 +606,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F9: 外援依赖 (f-aid) ---------------------------------------------------
 
 .se_f9 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -672,7 +629,6 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(vars); library(tidyverse)\n",
-      "# 面板VAR\n",
       "pvar_data <- panel %>% filter(ext_share > 0.1) %>%\n",
       "  select(country, year, ext_share, gghed_gdp, che_pc)\n",
       "var_mod <- VAR(pvar_data[, -c(1,2)], p = 2, type = 'both')\n",
@@ -695,7 +651,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F10: 资金效率 (f-efficiency) --------------------------------------------
 
 .se_f10 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -719,11 +674,9 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(Benchmarking); library(tidyverse)\n",
-      "# DEA效率评分\n",
       "x <- matrix(log(panel$che_pc), ncol = 1)\n",
       "y <- matrix(panel$life_exp, ncol = 1)\n",
       "dea_scores <- dea(x, y, RTS = 'crs')\n",
-      "# 四象限分类\n",
       "panel <- panel %>% mutate(\n",
       "  quadrant = case_when(\n",
       "    eff_score > median(eff_score) & che_pc > median(che_pc) ~ 'HH',\n",
@@ -746,7 +699,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F11: 排名变动 (f-rank) --------------------------------------------------
 
 .se_f11 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -769,11 +721,9 @@ if (!exists(".fe_fig", mode = "function")) {
       "library(tidyverse); library(ggbump)\n",
       "rank_df <- panel %>% group_by(year) %>%\n",
       "  mutate(rank = rank(-che_pc)) %>% ungroup()\n",
-      "# 排名波动性\n",
       "volatility <- rank_df %>% group_by(country) %>%\n",
       "  summarise(rank_iqr = IQR(rank),\n",
       "            rank_change = rank[year==2022] - rank[year==2000])\n",
-      "# Bump chart\n",
       "ggplot(top20, aes(year, rank, color = country)) +\n",
       "  geom_bump(size = 1.2) + scale_y_reverse()"
     ),
@@ -793,7 +743,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F12: 寿命弹性 (f-lifeexp) -----------------------------------------------
 
 .se_f12 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -813,11 +762,9 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(quantreg); library(tidyverse)\n",
-      "# 分位数回归\n",
       "qr_fit <- rq(life_exp ~ log(che_pc) + education + watsani +\n",
       "  governance, data = panel, tau = c(0.1, 0.25, 0.5, 0.75, 0.9))\n",
       "summary(qr_fit)\n",
-      "# R-squared decomposition\n",
       "ols_full <- lm(life_exp ~ log(che_pc) + education + watsani +\n",
       "  governance, data = panel)\n",
       "relaimpo::calc.relimp(ols_full, type = 'lmg')"
@@ -838,7 +785,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F13: 可持续发展 (f-sdg3) ------------------------------------------------
 
 .se_f13 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -859,7 +805,6 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# SDG轨道计算\n",
       "sdg_track <- outcomes %>%\n",
       "  mutate(target_2030 = case_when(\n",
       "    indicator == 'u5mr' ~ 25,\n",
@@ -887,7 +832,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F14: 极端值 (f-extreme) -------------------------------------------------
 
 .se_f14 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -905,12 +849,10 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 极端值检测\n",
       "extremes <- panel %>% filter(year == 2022) %>%\n",
       "  mutate(z_che = scale(log(che_pc)),\n",
       "         z_oop = scale(oop_share),\n",
       "         is_extreme = abs(z_che) > 2.5 | abs(z_oop) > 2.5)\n",
-      "# 敏感性\n",
       "trimmed <- panel %>% filter(\n",
       "  between(che_pc, quantile(che_pc, 0.05), quantile(che_pc, 0.95)))"
     ),
@@ -929,7 +871,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F15: 老龄化 (f-aging) ---------------------------------------------------
 
 .se_f15 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -952,10 +893,8 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(fixest); library(tidyverse)\n",
-      "# 老龄化效应估计\n",
       "aging_mod <- feols(log(che_pc) ~ pct_65plus + log(gdp_pc) +\n",
       "  urban_pct | country + year, data = panel, cluster = ~country)\n",
-      "# 预测\n",
       "projection <- expand_grid(year = 2023:2050,\n",
       "  scenario = c('base', 'compression')) %>%\n",
       "  left_join(un_pop_proj) %>%\n",
@@ -977,7 +916,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F16: 城镇化 (f-urban) ---------------------------------------------------
 
 .se_f16 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -998,7 +936,6 @@ if (!exists(".fe_fig", mode = "function")) {
       "library(fixest); library(tidyverse)\n",
       "urban_mod <- feols(log(che_pc) ~ urban_pct + log(gdp_pc) +\n",
       "  pct_65plus | country + year, data = panel, cluster = ~country)\n",
-      "# 非线性检验\n",
       "urban_spline <- feols(log(che_pc) ~ bs(urban_pct, df=3) +\n",
       "  log(gdp_pc) | country + year, data = panel)"
     ),
@@ -1018,7 +955,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F17: 公共财政空间 (f-fiscal) --------------------------------------------
 
 .se_f17 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1036,13 +972,11 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 财政空间计算\n",
       "fiscal <- panel %>% mutate(\n",
       "  tax_space = (target_tax - revenue_gdp) * gdp_pc,\n",
       "  priority_space = (target_priority - gghed_gge) * gge_gdp * gdp_pc,\n",
       "  waste_space = che_pc * waste_rate,\n",
       "  total_space = tax_space + priority_space + waste_space)\n",
-      "# 债务约束国家\n",
       "debt_constrained <- fiscal %>%\n",
       "  filter(debt_gdp > 60 | debt_distress == TRUE)"
     ),
@@ -1062,7 +996,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F18: 价格与可及性 (f-price) ---------------------------------------------
 
 .se_f18 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1084,14 +1017,12 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 灾难性支出估算\n",
       "catastrophic <- hh_survey %>%\n",
       "  mutate(cata_10 = oop_expenditure / consumption > 0.10,\n",
       "         cata_25 = oop_expenditure / consumption > 0.25) %>%\n",
       "  group_by(country, year) %>%\n",
       "  summarise(incidence_10 = weighted.mean(cata_10, weight),\n",
       "            incidence_25 = weighted.mean(cata_25, weight))\n",
-      "# U型检验\n",
       "u_test <- lm(oop_share ~ income_group + I(income_group^2), data = panel)"
     ),
     widgets = list(
@@ -1110,7 +1041,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F19: 区域协议效应 (f-regional) ------------------------------------------
 
 .se_f19 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1130,11 +1060,9 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(fixest); library(tidyverse)\n",
-      "# 区域固定效应\n",
       "reg_mod <- feols(log(che_pc) ~ log(gdp_pc) + pct_65plus +\n",
       "  urban_pct | country + year + region^year,\n",
       "  data = panel, cluster = ~country)\n",
-      "# 区域收敛速度\n",
       "sigma_by_region <- panel %>% group_by(region, year) %>%\n",
       "  summarise(sigma = sd(log(che_pc))) %>%\n",
       "  group_by(region) %>%\n",
@@ -1156,7 +1084,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F20: 通胀冲击 (f-inflation) ---------------------------------------------
 
 .se_f20 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1177,13 +1104,11 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 实际支出计算\n",
       "real_che <- panel %>%\n",
       "  left_join(deflators, by = c('country', 'year')) %>%\n",
       "  mutate(che_real = che_nominal / health_deflator * 100,\n",
       "         growth_nominal = che_nominal / lag(che_nominal) - 1,\n",
       "         growth_real = che_real / lag(che_real) - 1)\n",
-      "# 通胀分解\n",
       "decomp <- inflation_data %>%\n",
       "  group_by(component) %>%\n",
       "  summarise(contribution = weighted.mean(growth, weight_in_basket))"
@@ -1204,7 +1129,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F21: 死因结构 (f-ncd) ---------------------------------------------------
 
 .se_f21 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1223,10 +1147,8 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# NCD-CHE关联\n",
       "ncd_mod <- feols(log(che_pc) ~ ncd_mortality_pct + log(gdp_pc) +\n",
       "  pct_65plus | country + year, data = panel, cluster = ~country)\n",
-      "# 支出错配指数\n",
       "mismatch <- panel %>% mutate(\n",
       "  ncd_spending_share = ncd_expenditure / che_total,\n",
       "  mismatch_idx = ncd_mortality_pct - ncd_spending_share)"
@@ -1247,7 +1169,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F22: UHC覆盖 (f-uhc) ---------------------------------------------------
 
 .se_f22 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1266,10 +1187,8 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# UHC-CHE门槛效应\n",
       "uhc_mod <- lm(uhc_index ~ log(che_pc) * I(che_pc > 500) +\n",
       "  governance + education, data = panel_2022)\n",
-      "# 维度分解\n",
       "uhc_dims <- uhc_data %>%\n",
       "  select(country, year, rmnch, infectious, ncd, capacity) %>%\n",
       "  pivot_longer(-c(country, year)) %>%\n",
@@ -1292,7 +1211,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F23: 灾难性支出 (f-catastrophic) ----------------------------------------
 
 .se_f23 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1310,14 +1228,12 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 多阈值灾难性支出\n",
       "catastrophic <- hh_data %>%\n",
       "  mutate(cata_10 = oop / consumption > 0.10,\n",
       "         cata_25 = oop / consumption > 0.25,\n",
       "         cata_40 = oop / consumption > 0.40) %>%\n",
       "  group_by(country, quintile) %>%\n",
       "  summarise(across(starts_with('cata'), ~weighted.mean(.x, wt)))\n",
-      "# 状态依赖\n",
       "state_dep <- panel_hh %>% group_by(hh_id) %>%\n",
       "  mutate(lag_cata = lag(cata_10)) %>%\n",
       "  ungroup() %>% glm(cata_10 ~ lag_cata + quintile, family = binomial, data = .)"
@@ -1338,7 +1254,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F24: 母婴健康 (f-maternal) ----------------------------------------------
 
 .se_f24 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1359,10 +1274,8 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 母婴死亡率弹性\n",
       "mmr_mod <- feols(log(mmr) ~ log(che_pc) + skilled_birth +\n",
       "  education_female | country + year, data = panel, cluster = ~country)\n",
-      "# ARR计算\n",
       "arr <- outcomes %>% group_by(country) %>%\n",
       "  summarise(arr_2015 = -(log(u5mr_2015) - log(u5mr_2000)) / 15,\n",
       "            arr_2022 = -(log(u5mr_2022) - log(u5mr_2015)) / 7)"
@@ -1383,7 +1296,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F25: NCD预防 (f-prevention) ---------------------------------------------
 
 .se_f25 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1401,12 +1313,10 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 预防支出比重\n",
       "prevention <- ghed %>%\n",
       "  mutate(prev_share = hc6_expenditure / che_total) %>%\n",
       "  group_by(income_group, year) %>%\n",
       "  summarise(median_share = median(prev_share, na.rm = TRUE))\n",
-      "# 成本效果\n",
       "ce_ratio <- interventions %>%\n",
       "  mutate(icer = cost_per_daly_averted) %>%\n",
       "  filter(category == 'best_buy') %>%\n",
@@ -1428,7 +1338,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F26: 卫生人力 (f-workforce) ---------------------------------------------
 
 .se_f26 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1447,10 +1356,8 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 人力-支出弹性\n",
       "wf_mod <- feols(log(hcw_density) ~ log(che_pc) + log(gdp_pc) |\n",
       "  country + year, data = panel, cluster = ~country)\n",
-      "# Brain drain估算\n",
       "drain <- workforce %>%\n",
       "  mutate(outflow_rate = emigrant_hcw / trained_hcw,\n",
       "         net_density = (trained_hcw - emigrant_hcw) / pop * 10000)"
@@ -1471,7 +1378,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F27: 收入晋升 (f-reclassify) -------------------------------------------
 
 .se_f27 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1490,12 +1396,10 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 晋升事件识别\n",
       "transitions <- panel %>% group_by(country) %>%\n",
       "  mutate(income_change = income_group != lag(income_group)) %>%\n",
       "  filter(income_change) %>%\n",
       "  select(country, year, from = lag(income_group), to = income_group)\n",
-      "# 晋升前后对比\n",
       "pre_post <- panel %>% inner_join(transitions) %>%\n",
       "  mutate(rel_year = year - transition_year) %>%\n",
       "  filter(abs(rel_year) <= 5) %>%\n",
@@ -1518,7 +1422,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F28: 不平等分解 (f-theil) -----------------------------------------------
 
 .se_f28 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1536,14 +1439,12 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(ineq); library(tidyverse)\n",
-      "# Theil分解\n",
       "theil_decomp <- panel %>% group_by(year) %>%\n",
       "  summarise(\n",
       "    T_total = Theil(che_pc, parameter = 1),\n",
       "    T_between = TheilBetween(che_pc, income_group),\n",
       "    T_within = T_total - T_between,\n",
       "    between_share = T_between / T_total)\n",
-      "# 二级分解\n",
       "theil_2level <- panel %>% group_by(year, region) %>%\n",
       "  summarise(T_region = Theil(che_pc)) %>%\n",
       "  left_join(theil_decomp)"
@@ -1564,7 +1465,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F29: 卫生紧急 (f-fragile) -----------------------------------------------
 
 .se_f29 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1583,10 +1483,8 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(fixest); library(tidyverse)\n",
-      "# 冲突事件研究\n",
       "conflict_es <- feols(log(che_pc) ~ i(rel_year, ref = -1) |\n",
       "  country + year, data = conflict_panel, cluster = ~country)\n",
-      "# 恢复时间估算\n",
       "recovery_time <- conflict_panel %>%\n",
       "  filter(post_conflict) %>%\n",
       "  group_by(country) %>%\n",
@@ -1609,7 +1507,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F30: OECD vs LMIC (f-oecd) ----------------------------------------------
 
 .se_f30 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1628,7 +1525,6 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 边际收益分析\n",
       "marginal <- panel_2022 %>%\n",
       "  mutate(group = ifelse(country %in% oecd_members, 'OECD', 'LMIC')) %>%\n",
       "  group_by(group) %>%\n",
@@ -1653,7 +1549,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F31: 效率象限 (f-dea) ---------------------------------------------------
 
 .se_f31 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1673,14 +1568,12 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(Benchmarking); library(tidyverse)\n",
-      "# DEA多规格\n",
       "x <- matrix(log(panel_2022$che_pc), ncol = 1)\n",
       "y_single <- matrix(panel_2022$life_exp, ncol = 1)\n",
       "y_multi <- cbind(panel_2022$life_exp, -panel_2022$u5mr)\n",
       "dea_crs <- dea(x, y_single, RTS = 'crs')\n",
       "dea_vrs <- dea(x, y_single, RTS = 'vrs')\n",
       "dea_multi <- dea(x, y_multi, RTS = 'crs')\n",
-      "# 四象限\n",
       "panel_2022 <- panel_2022 %>% mutate(\n",
       "  quadrant = case_when(\n",
       "    dea_score >= 0.9 & che_pc > 2000 ~ 'HH',\n",
@@ -1703,7 +1596,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F32: 援助效率 (f-aid-eff) -----------------------------------------------
 
 .se_f32 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1721,12 +1613,10 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(fixest); library(AER); library(tidyverse)\n",
-      "# IV回归\n",
       "iv_mod <- ivreg(log(u5mr) ~ ext_che_share + log(gdp_pc) +\n",
       "  governance | geo_proximity + colonial_tie + log(gdp_pc) +\n",
       "  governance, data = panel_lic)\n",
       "summary(iv_mod, diagnostics = TRUE)\n",
-      "# 渠道比较\n",
       "channel_eff <- aid_data %>% group_by(channel) %>%\n",
       "  summarise(cost_per_daly = total_spending / dalys_averted)"
     ),
@@ -1746,7 +1636,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F33: 数据完整性 (f-dataquality) -----------------------------------------
 
 .se_f33 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1764,12 +1653,10 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse); library(naniar)\n",
-      "# 缺失模式分析\n",
       "miss_pattern <- ghed %>%\n",
       "  select(country, year, starts_with('hc'), che_pc, gghed_gdp, oop_share) %>%\n",
       "  group_by(country) %>%\n",
       "  summarise(completeness = 1 - mean(is.na(c_across(everything()))))\n",
-      "# MNAR检验\n",
       "mnar_test <- miss_pattern %>%\n",
       "  left_join(governance) %>%\n",
       "  cor.test(~ completeness + governance_score, data = .)"
@@ -1786,7 +1673,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F34: 数据修订 (f-revision) ----------------------------------------------
 
 .se_f34 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1803,7 +1689,6 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 跨版本修订计算\n",
       "revisions <- bind_rows(\n",
       "  ghed_2020 %>% mutate(version = 2020),\n",
       "  ghed_2021 %>% mutate(version = 2021),\n",
@@ -1826,7 +1711,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F35: 小岛国 (f-sids) ---------------------------------------------------
 
 .se_f35 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1844,17 +1728,15 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# SIDS波动性分析\n",
       "sids_vol <- panel %>% filter(is_sids) %>%\n",
       "  group_by(country) %>%\n",
       "  summarise(cv_che = sd(che_pc) / mean(che_pc),\n",
       "            ext_share = mean(ext_che),\n",
       "            disaster_count = sum(major_disaster))\n",
-      "# 对比大国\n",
       "large_vol <- panel %>% filter(pop > 10e6) %>%\n",
       "  group_by(country) %>%\n",
       "  summarise(cv_che = sd(che_pc) / mean(che_pc))\n",
-      "wilcox.test(sids_vol$cv_che, large_vol$cv_che)  # p < 0.001"
+      "volatility_test <- wilcox.test(sids_vol$cv_che, large_vol$cv_che)"
     ),
     widgets = list(
       c("iadv_diagonal_tree.html", "对角树状交互"),
@@ -1868,7 +1750,6 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# ---- F36: 综合指数 (f-composite) ---------------------------------------------
 
 .se_f36 <- function(fd, wd, mode, repo) {
   .se_block(fd, wd, mode, repo,
@@ -1888,13 +1769,11 @@ if (!exists(".fe_fig", mode = "function")) {
     ),
     code = paste0(
       "library(tidyverse)\n",
-      "# 综合指数构建\n",
       "composite <- panel_2022 %>% mutate(\n",
       "  adequacy = scales::rescale(log(che_pc), to = c(0, 100)),\n",
       "  equity = scales::rescale(1 - oop_share, to = c(0, 100)),\n",
       "  efficiency = scales::rescale(dea_score, to = c(0, 100))) %>%\n",
       "  mutate(\n",
-      "  # PCA权重\n",
       "  pca_fit = prcomp(cbind(adequacy, equity, efficiency), scale. = TRUE),\n",
       "  w = abs(pca_fit$rotation[,1]) / sum(abs(pca_fit$rotation[,1])),\n",
       "  score = w[1]*adequacy + w[2]*equity + w[3]*efficiency)"
@@ -1912,18 +1791,7 @@ if (!exists(".fe_fig", mode = "function")) {
   )
 }
 
-# =============================================================================
-# 主入口函数
-# =============================================================================
 
-#' 为所有36个发现生成补充内容HTML
-#'
-#' @param fig_dir 图表目录路径（如 "分析输出/图表"）
-#' @param widget_dir 交互组件目录路径（如 "分析输出/交互组件"）
-#' @param programs_dir 程序库路径
-#' @param mode 部署模式 ("publish" 或 "dev")
-#' @param repo_url 仓库URL
-#' @return 命名列表，键为 finding ID，值为 HTML 字符串
 ghs_sections_extra_content <- function(fig_dir = "分析输出/图表",
                                        widget_dir = "分析输出/交互组件",
                                        programs_dir = "程序库",

@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_purpose.R
-# 支出用途：HC1-HC9 卫生支出功能分类的结构与演化
-# =============================================================================
 
 mod_purpose_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -41,7 +37,6 @@ mod_purpose_ui <- function(id) {
           )
         ),
       shiny::uiOutput(ns("kpi_strip")),
-      # Row 1
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -70,7 +65,6 @@ mod_purpose_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("hc1_hc6_scatter"), height = 440))
         )
       ),
-      # Row 2
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(

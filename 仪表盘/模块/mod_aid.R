@@ -1,7 +1,3 @@
-# =============================================================================
-# 仪表盘/模块/mod_aid.R
-# 外部援助卫生支出：地理分布、依赖度演化与可持续性
-# =============================================================================
 
 mod_aid_ui <- function(id) {
   ns <- shiny::NS(id)
@@ -44,7 +40,6 @@ mod_aid_ui <- function(id) {
           )
         ),
         shiny::uiOutput(ns("kpi_strip")),
-      # Row 1: scatter + trend
       bslib::layout_columns(
         col_widths = c(7, 5),
         mod_card(
@@ -71,7 +66,6 @@ mod_aid_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("trend_by_income"), height = 450))
         )
       ),
-      # Row 2: top dependent + map
       bslib::layout_columns(
         col_widths = c(5, 7),
         mod_card(
@@ -98,7 +92,6 @@ mod_aid_ui <- function(id) {
           mod_spinner(leaflet::leafletOutput(ns("aid_map"), height = 480))
         )
       ),
-      # 可持续性与结构
       bslib::layout_columns(
         col_widths = c(6, 6),
         mod_card(
@@ -126,7 +119,6 @@ mod_aid_ui <- function(id) {
           mod_spinner(plotly::plotlyOutput(ns("aid_by_continent"), height = 380))
         )
       ),
-      # Table
       mod_card(
         kicker = "F7 \u00b7 \u56fd\u5bb6\u660e\u7ec6",
         title = "\u63f4\u52a9\u4f9d\u8d56\u56fd\u5bb6\u8be6\u8868",

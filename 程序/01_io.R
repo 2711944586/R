@@ -1,15 +1,8 @@
-# =============================================================================
-# 程序/01_io.R
-# -----------------------------------------------------------------------------
-# 原始数据读入：保留作业给定的三个对象名 financing_schemes / health_spending /
-# spending_purpose。提供标准化的读取接口、类型修正和基础清洗。
-# =============================================================================
 
 if (!exists("proj_root", mode = "function")) {
   source(file.path("程序", "00_utils.R"))
 }
 
-# ---- 0. 数据集路径 ---------------------------------------------------------
 ghs_data_dir <- function() {
   file.path(proj_root(), "原始数据")
 }
@@ -23,11 +16,6 @@ ghs_csv_paths <- function() {
   )
 }
 
-# ---- 1. 通用读取 ------------------------------------------------------------
-#' 读取单个 CSV，统一类型
-#'
-#' @param path 文件路径
-#' @return tibble
 read_ghs_csv <- function(path) {
   ensure_pkgs(c("readr"))
   readr::read_csv(
@@ -46,11 +34,6 @@ read_ghs_csv <- function(path) {
   )
 }
 
-# ---- 2. 三数据集入口 --------------------------------------------------------
-#' 读取三张原始表；保留作业给定对象名
-#'
-#' @param assign_globals 若为 TRUE，在全局环境也赋值，供作业脚本直接使用
-#' @return named list(financing_schemes, health_spending, spending_purpose)
 load_ghs <- function(assign_globals = FALSE) {
   paths <- ghs_csv_paths()
   missing_files <- vapply(paths, function(p) !file.exists(p), logical(1))
@@ -75,8 +58,6 @@ load_ghs <- function(assign_globals = FALSE) {
   out
 }
 
-# ---- 3. 数据摘要 ------------------------------------------------------------
-#' 对三数据集给一个一页概览（行数、年份范围、国家数、指标数）
 summarize_ghs <- function(ghs = load_ghs()) {
   ensure_pkgs(c("dplyr", "tibble"))
   mk_row <- function(df, name) {
@@ -98,8 +79,6 @@ summarize_ghs <- function(ghs = load_ghs()) {
   )
 }
 
-# ---- 4. 指标字典 ------------------------------------------------------------
-#' 指标编码 -> 中文解释 字典
 ghs_indicator_dict <- function() {
   tibble::tribble(
     ~prefix,  ~dataset,            ~group,   ~label_en,                                                        ~label_zh,
@@ -123,7 +102,6 @@ ghs_indicator_dict <- function() {
   )
 }
 
-#' 取 indicator_code 的前缀（去掉 _che / _usd2023 后缀）
 ghs_indicator_prefix <- function(code) {
   sub("_(che|usd2023)$", "", code)
 }

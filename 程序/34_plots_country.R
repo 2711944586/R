@@ -1,14 +1,3 @@
-# =============================================================================
-# 程序/34_plots_country.R   —— 国家专题图集（B5 阶段）
-# -----------------------------------------------------------------------------
-# 5 个组：
-#   A. 单国时间序列                                       × 5
-#   B. 国家对比 / Small multiples                         × 5
-#   C. 同侪 / 区域内对比                                  × 5
-#   D. 排名 / Top / Bottom                               × 5
-#   E. 专题国家集（BRICS / G7 / EU / 太平洋小国 / Lo-LE） × 5
-# 总：25 个 plot_country_* + ghs_export_country() 导出器
-# =============================================================================
 
 if (!exists("ensure_pkgs", mode = "function")) {
   source(file.path("\u7a0b\u5e8f", "00_utils.R"))
@@ -20,7 +9,6 @@ if (!exists("ensure_pkgs", mode = "function")) {
   else paste0(base, " \u00b7 ", extra)
 }
 
-# 预设国家集 ---------------------------------------------------------------
 ghs_country_sets <- list(
   brics   = c("BRA", "RUS", "IND", "CHN", "ZAF"),
   g7      = c("USA", "GBR", "FRA", "DEU", "ITA", "JPN", "CAN"),
@@ -44,11 +32,7 @@ ghs_country_sets <- list(
   d
 }
 
-# =============================================================================
-# A. 单国时间序列
-# =============================================================================
 
-#' 单国 CHE_pc 轨迹 + 全球中位参考线
 plot_country_trend_chepc <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   ref <- stats::aggregate(che_pc_usd2023 ~ year, data = master,
@@ -75,7 +59,6 @@ plot_country_trend_chepc <- function(master, iso = "CHN") {
       caption = .cap_country())
 }
 
-#' 单国 HF1/HF2/HF3 三源叠加
 plot_country_hf_stack <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[master$iso3_code == iso, ]
@@ -112,7 +95,6 @@ plot_country_hf_stack <- function(master, iso = "CHN") {
       caption = .cap_country("WHO GHED HF schema"))
 }
 
-#' 单国 HC 功能分布（最近 1 年 + 历史中位）
 plot_country_hc_bars <- function(master, iso = "CHN", year = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -152,13 +134,11 @@ plot_country_hc_bars <- function(master, iso = "CHN", year = NULL) {
       caption = .cap_country("WHO GHED HC \u5206\u7c7b"))
 }
 
-#' 单国寿命 + U5MR 双轴
 plot_country_outcome_dual <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[master$iso3_code == iso, ]
   d <- d[is.finite(d$life_exp) | (is.finite(d$u5mr) & d$u5mr > 0), ]
   if (!nrow(d)) return(ggplot2::ggplot() + ggplot2::theme_void())
-  # 双轴：以一次缩放将 u5mr 映射进 life_exp 量级
   rng_le <- range(d$life_exp, na.rm = TRUE)
   rng_u5 <- range(d$u5mr, na.rm = TRUE)
   if (any(!is.finite(rng_le)) || any(!is.finite(rng_u5))) {
@@ -187,7 +167,6 @@ plot_country_outcome_dual <- function(master, iso = "CHN") {
       caption = .cap_country("WDI life_exp & U5MR"))
 }
 
-#' 单国 5 指标 dashboard 小型面板
 plot_country_dashboard <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[master$iso3_code == iso, ]
@@ -216,11 +195,7 @@ plot_country_dashboard <- function(master, iso = "CHN") {
       caption = .cap_country())
 }
 
-# =============================================================================
-# B. 国家对比
-# =============================================================================
 
-#' Small multiples：N 国 CHE_pc 时序
 plot_country_smallmult_chepc <- function(master,
                                           isos = ghs_country_sets$brics) {
   ensure_pkgs(c("ggplot2"))
@@ -240,7 +215,6 @@ plot_country_smallmult_chepc <- function(master,
       caption = .cap_country())
 }
 
-#' N 国对比折线（同 log 轴）
 plot_country_compare_chepc <- function(master,
                                         isos = ghs_country_sets$g7) {
   ensure_pkgs(c("ggplot2"))
@@ -261,7 +235,6 @@ plot_country_compare_chepc <- function(master,
       caption = .cap_country())
 }
 
-#' N 国 5 指标热力（最近年）
 plot_country_compare_heat <- function(master,
                                        isos = ghs_country_sets$brics,
                                        year = NULL) {
@@ -277,7 +250,6 @@ plot_country_compare_heat <- function(master,
   }
   if (!length(long)) return(ggplot2::ggplot() + ggplot2::theme_void())
   lg <- do.call(rbind, long)
-  # 列内 z-score
   lg$z <- ave(lg$val, lg$var, FUN = function(v) {
     if (sum(is.finite(v)) < 2) return(rep(NA_real_, length(v)))
     (v - mean(v, na.rm = TRUE)) / stats::sd(v, na.rm = TRUE)
@@ -301,7 +273,6 @@ plot_country_compare_heat <- function(master,
       caption = .cap_country())
 }
 
-#' 两国并列：选定 2 国，HC 功能并列条形（最近年）
 plot_country_pair_hc <- function(master, iso_a = "USA", iso_b = "CHN",
                                   year = NULL) {
   ensure_pkgs(c("ggplot2"))
@@ -348,7 +319,6 @@ plot_country_pair_hc <- function(master, iso_a = "USA", iso_b = "CHN",
       caption = .cap_country())
 }
 
-#' 同期增长率对比 (CAGR)
 plot_country_cagr_compare <- function(master,
                                       isos = ghs_country_sets$brics,
                                       y1 = 2000, y2 = NULL) {
@@ -387,11 +357,7 @@ plot_country_cagr_compare <- function(master,
       caption = .cap_country())
 }
 
-# =============================================================================
-# C. 同侪 / 区域内对比
-# =============================================================================
 
-#' 单国 vs 收入组 z-score 时序
 plot_country_zscore_income <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023) &
@@ -421,7 +387,6 @@ plot_country_zscore_income <- function(master, iso = "CHN") {
       caption = .cap_country())
 }
 
-#' 单国 vs 大洲 OOP gap 时序
 plot_country_oop_gap <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$hf3_che), ]
@@ -449,7 +414,6 @@ plot_country_oop_gap <- function(master, iso = "CHN") {
       caption = .cap_country())
 }
 
-#' 单国 vs 全球：寿命差距
 plot_country_lifeexp_gap <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   med <- stats::aggregate(life_exp ~ year, data = master,
@@ -474,7 +438,6 @@ plot_country_lifeexp_gap <- function(master, iso = "CHN") {
       caption = .cap_country())
 }
 
-#' 多国 vs 全球 趋势对照
 plot_country_multi_vs_global <- function(master,
                                           isos = ghs_country_sets$brics) {
   ensure_pkgs(c("ggplot2"))
@@ -502,7 +465,6 @@ plot_country_multi_vs_global <- function(master,
       caption = .cap_country())
 }
 
-#' 单国排名变化（CHE_pc 全球排名）
 plot_country_rank_trend <- function(master, iso = "CHN") {
   ensure_pkgs(c("ggplot2"))
   d <- master[is.finite(master$che_pc_usd2023), ]
@@ -525,11 +487,7 @@ plot_country_rank_trend <- function(master, iso = "CHN") {
       caption = .cap_country())
 }
 
-# =============================================================================
-# D. 排名 / Top / Bottom
-# =============================================================================
 
-#' Top10 / Bottom10 \u4eba\u5747 CHE （最近年）
 plot_country_topbot_chepc <- function(master, year = NULL, n = 10) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -558,7 +516,6 @@ plot_country_topbot_chepc <- function(master, year = NULL, n = 10) {
       caption = .cap_country())
 }
 
-#' 寿命 Top10 / Bottom10
 plot_country_topbot_lifeexp <- function(master, year = NULL, n = 10) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -585,7 +542,6 @@ plot_country_topbot_lifeexp <- function(master, year = NULL, n = 10) {
       caption = .cap_country("WDI life expectancy"))
 }
 
-#' \u8d77\u70b9 vs \u8fdb\u6b65：散点（增长 vs 起点）
 plot_country_start_progress <- function(master, y1 = 2000, y2 = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(y2)) y2 <- max(master$year, na.rm = TRUE)
@@ -618,7 +574,6 @@ plot_country_start_progress <- function(master, y1 = 2000, y2 = NULL) {
       caption = .cap_country())
 }
 
-#' 年化增长率分布：分位 + 标注极值
 plot_country_growth_dist <- function(master, y1 = 2000, y2 = NULL) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(y2)) y2 <- max(master$year, na.rm = TRUE)
@@ -652,7 +607,6 @@ plot_country_growth_dist <- function(master, y1 = 2000, y2 = NULL) {
       caption = .cap_country())
 }
 
-#' 多指标 Top 10 \u00b7 5 列汇总
 plot_country_topn_grid <- function(master, year = NULL, n = 10) {
   ensure_pkgs(c("ggplot2"))
   if (is.null(year)) year <- max(master$year, na.rm = TRUE)
@@ -693,11 +647,7 @@ plot_country_topn_grid <- function(master, year = NULL, n = 10) {
       caption = .cap_country())
 }
 
-# =============================================================================
-# E. 专题国家集
-# =============================================================================
 
-#' BRICS \u4eba\u5747 CHE 与寿命双轴小倍数
 plot_country_brics_dual <- function(master) {
   isos <- ghs_country_sets$brics
   ensure_pkgs(c("ggplot2"))
@@ -734,7 +684,6 @@ plot_country_brics_dual <- function(master) {
       caption = .cap_country())
 }
 
-#' G7 \u8de8\u56fd OOP 趋势对比
 plot_country_g7_oop <- function(master) {
   isos <- ghs_country_sets$g7
   ensure_pkgs(c("ggplot2"))
@@ -756,7 +705,6 @@ plot_country_g7_oop <- function(master) {
       caption = .cap_country())
 }
 
-#' EU5 vs ASEAN5 \u5e73\u5747 CHE\u4eba\u5747 对比
 plot_country_eu_vs_asean <- function(master) {
   ensure_pkgs(c("ggplot2"))
   eu <- ghs_country_sets$eu5
@@ -783,7 +731,6 @@ plot_country_eu_vs_asean <- function(master) {
       caption = .cap_country())
 }
 
-#' Nordic 国家 OOP & 寿命联动
 plot_country_nordic_combo <- function(master) {
   ensure_pkgs(c("ggplot2"))
   isos <- ghs_country_sets$nordic
@@ -807,7 +754,6 @@ plot_country_nordic_combo <- function(master) {
       caption = .cap_country())
 }
 
-#' Low-LE 与 High-LE 国家 stark 对比
 plot_country_lowle_highle <- function(master) {
   ensure_pkgs(c("ggplot2"))
   isos <- c(ghs_country_sets$lowle, ghs_country_sets$highle)
@@ -831,11 +777,7 @@ plot_country_lowle_highle <- function(master) {
       caption = .cap_country("WDI life_exp"))
 }
 
-# =============================================================================
-# 导出器
-# =============================================================================
 
-#' 批量导出 B5 国家专题图集
 ghs_export_country <- function(master = NULL, fig_dir = NULL) {
   if (is.null(master)) {
     cache <- file.path(proj_root(), "\u6d3e\u751f\u6570\u636e",

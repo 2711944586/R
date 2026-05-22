@@ -1,8 +1,3 @@
-## 开发脚本/生成分析输出.R
-## 生成静态图、交互 widget 与模型表，写入 分析输出/
-## 用法（在仓库根目录）：
-##   Rscript 开发脚本/生成分析输出.R [figures|widgets|models|all]
-##
 
 if (!dir.exists("程序") && basename(getwd()) == "开发脚本") setwd("..")
 
@@ -14,7 +9,6 @@ mode <- match.arg(tolower(mode), c("all", "figures", "widgets", "models"))
 
 cat(sprintf("[run_all_分析输出] mode = %s, cwd = %s\n", mode, getwd()))
 
-# ---- 加载函数库 ------------------------------------------------------------
 for (f in list.files("程序", pattern = "\\.R$", full.names = TRUE)) {
   source(f, encoding = "UTF-8")
 }
@@ -22,7 +16,6 @@ suppressPackageStartupMessages({
   library(dplyr); library(tidyr); library(ggplot2)
 })
 
-# ---- 主数据 ---------------------------------------------------------------
 cache <- file.path("派生数据", "处理结果", "master_enriched.rds")
 if (file.exists(cache)) {
   master <- readRDS(cache)
@@ -38,7 +31,6 @@ if (file.exists(cache)) {
               cache, nrow(master)))
 }
 
-# ---- 世界 sf ---------------------------------------------------------------
 world_sf_obj <- NULL
 sf_cache <- file.path("派生数据", "处理结果", "world_sf_medium.rds")
 if (file.exists(sf_cache)) {
@@ -52,7 +44,6 @@ if (file.exists(sf_cache)) {
 cat(sprintf("[run_all_分析输出] world_sf %s\n",
             if (is.null(world_sf_obj)) "MISSING" else "loaded"))
 
-# ---- 分模式执行 ------------------------------------------------------------
 res <- list()
 if (mode %in% c("all", "figures")) {
   cat("\n=== STAGE: figures ===\n")

@@ -1,4 +1,4 @@
-## 共享 fixture：load_ghs 一次, 后面所有测试都用
+
 ghs_fix <- tryCatch(load_ghs(), error = function(e) NULL)
 skip_if_no_data <- function() {
   if (is.null(ghs_fix)) skip("GHED CSV not found")
@@ -47,7 +47,7 @@ test_that("master_wide year range is 2000-2023", {
 test_that("enrich_master() adds continent + income_group", {
   skip_if_no_data()
   mw <- build_master_wide(ghs_fix)
-  me <- enrich_master(mw, with_wdi = FALSE)  # 跳过 WDI 网络以加速
+  me <- enrich_master(mw, with_wdi = FALSE)
   expect_true("continent" %in% names(me))
   expect_true("income_group" %in% names(me))
   expect_true(all(unique(na.omit(me$continent)) %in%
