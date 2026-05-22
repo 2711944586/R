@@ -21,6 +21,21 @@ ghs_count_files <- function(path, pattern = NULL) {
   length(list.files(path, pattern = pattern, recursive = TRUE, full.names = TRUE))
 }
 
+ghs_copy_matching <- function(from_dir, to_dir, pattern, recursive = FALSE) {
+  if (!dir.exists(from_dir)) return(invisible(FALSE))
+  files <- list.files(from_dir, pattern = pattern, recursive = recursive,
+                      full.names = TRUE, all.files = FALSE)
+  if (!length(files)) return(invisible(FALSE))
+  rel <- ghs_rel(files, from_dir)
+  dir.create(to_dir, recursive = TRUE, showWarnings = FALSE)
+  for (i in seq_along(files)) {
+    dst <- file.path(to_dir, rel[[i]])
+    dir.create(dirname(dst), recursive = TRUE, showWarnings = FALSE)
+    file.copy(files[[i]], dst, overwrite = TRUE, copy.date = TRUE)
+  }
+  invisible(TRUE)
+}
+
 ghs_dir_size_mb <- function(path) {
   if (!file.exists(path) && !dir.exists(path)) return(NA_real_)
   files <- if (dir.exists(path)) list.files(path, recursive = TRUE, full.names = TRUE) else path
@@ -42,31 +57,20 @@ ghs_file_purpose <- function(rel) {
   purpose[rel == "README.md"] <- "最终交付包总说明；说明推荐评阅顺序、目录结构、核心产物、复现命令、质量门禁和注意事项。"
   purpose[rel == file.path("交付索引", "交付清单.csv")] <- "核心交付项核验表；用于快速检查关键文件或目录是否存在、文件数和体积是否符合预期。"
   purpose[rel == file.path("交付索引", "完整文件索引.csv")] <- "交付包内全部文件的机器可读索引；逐文件记录路径、目录、扩展名、体积和用途类别。"
-  purpose[rel == "网站发布/交互组件"] <- "发布版 standalone widgets 目录；网站首页按需加载其中 HTML，并依赖同名 _files 资源目录。"
+  purpose[rel == "网站发布/图表"] <- "发布页使用的 PNG 图表目录；比完整图表目录更轻，保留网站首页本地预览能力。"
   purpose[rel == "网站发布/仪表盘"] <- "静态网站中的浏览器版 Shiny 或备用仪表盘入口目录。"
-  purpose[rel == "分析输出/图表"] <- "全部静态图目录；包含 94 张 PNG 和 94 张 SVG。"
-  purpose[rel == "分析输出/交互组件"] <- "分析阶段 standalone widgets 原件目录；包含 42 个 HTML widget 及其依赖。"
-  purpose[rel == "分析输出/模型表"] <- "模型、指标、预测、聚类、效率、公平性和情景模拟结果表目录。"
+  purpose[rel == "分析输出/模型表"] <- "模型、指标、预测、聚类、效率、公平性和情景模拟结果表目录；轻量包仅保留 CSV。"
   purpose[rel == "分析输出/质量报告"] <- "质量门禁报告目录；包含 summary、HTML 报告和各模块明细表。"
   purpose[rel == "原始数据"] <- "课程原始数据目录；包含 GHED 三张 CSV 和数据说明文档。"
   purpose[rel == "程序"] <- "R 函数库目录；支撑数据处理、建模、绘图、widget、静态页、Shiny 和交付包生成。"
   purpose[rel == "仪表盘"] <- "Shiny 应用目录；包含 UI、server、模块、数据快照和程序库。"
   purpose[rel == "项目文档"] <- "项目文档目录；包含方法手册、部署说明、变更记录和课程原始说明。"
-  purpose[rel == "开发脚本"] <- "开发脚本目录；包含审计、测试、构建、质量门禁和部署辅助脚本。"
-  purpose[rel == "自动测试"] <- "testthat 自动测试目录；用于复核核心函数和项目约束。"
-  purpose[rel == "部署配置"] <- "Docker 与 docker-compose 配置目录；用于容器化复现或部署。"
-  purpose[rel == ".github/workflows"] <- "GitHub Actions 工作流目录；用于自动发布和云端部署参考。"
   purpose[grepl("^课程提交/.*[.]Rmd$", rel)] <- "课程要求的 RMarkdown 源文档；可在交付包根目录结构下重新 knit 或调用统一生成器。"
   purpose[grepl("^课程提交/.*[.]html$", rel)] <- "课程要求的 HTML 结果文档；作为离线评阅主入口。"
   purpose[rel == "网站发布/index.html"] <- "GitHub Pages 同源首页；与课程提交 HTML 使用同一生成器生成。"
-  purpose[grepl("^网站发布/交互组件/.*[.]html$", rel)] <- "发布目录中的 standalone HTML widget；由网站首页按需加载。"
-  purpose[grepl("^网站发布/交互组件/.+_files/", rel)] <- "发布目录 widget 的 JavaScript/CSS/数据依赖；必须与同名 widget HTML 一起保留。"
+  purpose[grepl("^网站发布/图表/.*[.]png$", rel)] <- "网站首页使用的 PNG 图表；用于轻量本地预览。"
   purpose[grepl("^网站发布/仪表盘/", rel)] <- "浏览器版 Shiny 或备用发布资源；用于检查静态网站中的仪表盘入口。"
-  purpose[grepl("^分析输出/图表/.*[.]png$", rel)] <- "PNG 静态图；用于正文展示、Gallery 浏览和人工复核。"
-  purpose[grepl("^分析输出/图表/.*[.]svg$", rel)] <- "SVG 矢量图；用于高清复核、缩放查看和图像质量检查。"
-  purpose[grepl("^分析输出/交互组件/.*[.]html$", rel)] <- "分析阶段生成的 standalone 交互组件原件。"
-  purpose[grepl("^分析输出/交互组件/.+_files/", rel)] <- "分析阶段 widget 的依赖资源；保证 HTML widget 可离线打开。"
-  purpose[grepl("^分析输出/模型表/", rel)] <- "模型、指标、预测、聚类、效率、公平性或情景模拟结果表。"
+  purpose[grepl("^分析输出/模型表/.*[.]csv$", rel)] <- "模型、指标、预测、聚类、效率、公平性或情景模拟结果 CSV。"
   purpose[grepl("^分析输出/质量报告/", rel)] <- "质量门禁输出；记录语法、图像、链接、widget、文本、secret、Shiny 和 README 一致性检查。"
   purpose[grepl("^原始数据/", rel)] <- "课程原始数据及说明；用于追溯 GHED 三张原始表和数据来源。"
   purpose[grepl("^派生数据/处理结果/master_enriched[.]rds$", rel)] <- "清洗增强后的主面板缓存；支撑图表、模型、静态页和 Shiny。"
@@ -77,11 +81,7 @@ ghs_file_purpose <- function(rel) {
   purpose[grepl("^仪表盘/模块/", rel)] <- "Shiny 模块源码；对应 39 个页面与交互组件。"
   purpose[grepl("^仪表盘/数据快照/", rel)] <- "Shiny 运行所需数据快照；用于离线启动仪表盘。"
   purpose[grepl("^仪表盘/程序库/", rel)] <- "Shiny 部署包中的 R 程序副本；用于云端或可移植部署。"
-  purpose[grepl("^开发脚本/", rel)] <- "开发、审计、测试、构建和部署辅助脚本。"
-  purpose[grepl("^自动测试/", rel)] <- "testthat 自动测试套件；用于复核核心函数和项目约束。"
   purpose[grepl("^项目文档/", rel)] <- "项目说明、方法手册、部署文档、变更记录和课程原始说明。"
-  purpose[grepl("^部署配置/", rel)] <- "Docker 和 docker-compose 配置；用于容器化复现或部署。"
-  purpose[grepl("^[.]github/workflows/", rel)] <- "GitHub Actions 工作流；用于 Pages 或 Shiny 自动部署参考。"
   purpose[grepl("^项目入口/", rel)] <- "项目入口或配置文件；用于依赖安装、构建、启动、包元信息、许可证或开发环境复现。"
   purpose
 }
@@ -119,10 +119,8 @@ ghs_delivery_manifest <- function(delivery_dir) {
     file.path("课程提交", "庄颂_20241334.Rmd"),
     file.path("课程提交", "庄颂_20241334.html"),
     file.path("网站发布", "index.html"),
-    file.path("网站发布", "交互组件"),
+    file.path("网站发布", "图表"),
     file.path("网站发布", "仪表盘"),
-    file.path("分析输出", "图表"),
-    file.path("分析输出", "交互组件"),
     file.path("分析输出", "模型表"),
     file.path("分析输出", "质量报告"),
     "原始数据",
@@ -133,10 +131,6 @@ ghs_delivery_manifest <- function(delivery_dir) {
     "程序",
     "仪表盘",
     "项目文档",
-    "开发脚本",
-    "自动测试",
-    "部署配置",
-    file.path(".github", "workflows"),
     file.path("项目入口", "构建.R"),
     file.path("项目入口", "安装依赖.R"),
     file.path("项目入口", "启动仪表盘.R"),
@@ -159,11 +153,10 @@ ghs_delivery_manifest <- function(delivery_dir) {
 }
 
 ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
-  png_count <- ghs_count_files(file.path(delivery_dir, "分析输出", "图表"), "[.]png$")
-  svg_count <- ghs_count_files(file.path(delivery_dir, "分析输出", "图表"), "[.]svg$")
-  widget_count <- ghs_count_files(file.path(delivery_dir, "分析输出", "交互组件"), "[.]html$")
-  site_widget_count <- ghs_count_files(file.path(delivery_dir, "网站发布", "交互组件"), "[.]html$")
-  model_count <- ghs_count_files(file.path(delivery_dir, "分析输出", "模型表"), "[.](csv|rds)$")
+  png_count <- ghs_count_files(file.path(root, "分析输出", "图表"), "[.]png$")
+  svg_count <- ghs_count_files(file.path(root, "分析输出", "图表"), "[.]svg$")
+  widget_count <- ghs_count_files(file.path(root, "分析输出", "交互组件"), "[.]html$")
+  model_count <- ghs_count_files(file.path(delivery_dir, "分析输出", "模型表"), "[.]csv$")
   total_files <- nrow(file_index)
   total_size <- round(sum(file_index$size_mb, na.rm = TRUE), 2)
   top_dir <- ifelse(grepl("/", file_index$path, fixed = TRUE), sub("/.*$", "", file_index$path), ".")
@@ -194,18 +187,18 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "本目录名为 `庄颂_20241334/`，与作业提交命名保持一致。最终提交时可直接压缩整个文件夹为 `庄颂_20241334.zip`。根目录只保留一个 `README.md` 文件；安装、启动、构建、依赖和索引类文件均放入专门文件夹，避免评阅入口被杂项文件淹没。",
     "",
-    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成，内容同源，只是服务场景不同。Rmd、HTML、网站、图表、widget、模型表、数据字典、质量报告和复现脚本均已放入本文件夹。",
+    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成，内容同源，只是服务场景不同。交付包保留课程主件、网站首页、Shiny 应用、核心派生数据、CSV 模型结果、质量报告、项目文档和复现脚本；大型图表目录与 widget 依赖不再重复打包，完整交互以首行两个线上地址为准。",
     "",
-    sprintf("本交付包共包含 **%s 个文件**，总大小约 **%s MB**。其中 HTML 主件体积较大，是为了保证课程提交版离线可读。", total_files, total_size),
+    sprintf("本交付包共包含 **%s 个文件**，总大小约 **%s MB**。本版为轻量提交包：保留评阅和复现最有用的文件，删除重复的发布资源副本。", total_files, total_size),
     "",
     "## 2. 核心规模",
     "",
     sprintf("- **内容结构**：36 个内容章节，包含数据说明、核心发现、图集、交互组件、复现说明和结论。"),
     sprintf("- **核心发现**：14 项，每项对应研究问题、方法、代码入口、图表、表格和解释。"),
-    sprintf("- **静态图集**：`分析输出/图表/` 中有 %s 张 PNG + %s 张 SVG。", png_count, svg_count),
-    sprintf("- **交互组件**：`分析输出/交互组件/` 中有 %s 个 HTML widget；`网站发布/交互组件/` 中有 %s 个发布版 HTML widget。", widget_count, site_widget_count),
-    sprintf("- **模型表**：`分析输出/模型表/` 中有 %s 个 CSV/RDS 模型或指标产物。", model_count),
-    "- **Shiny**：39 个页面与交互模块；首页调整为简洁封面，保留项目入口和统一视觉风格，支持本地 Shiny、shinylive 浏览器版和 shinyapps.io 云端版。",
+    sprintf("- **静态图集**：完整项目当前生成 %s 张 PNG + %s 张 SVG；课程 HTML 已嵌入主要展示图，轻量包不再复制完整图表目录。", png_count, svg_count),
+    sprintf("- **交互组件**：完整项目当前生成 %s 个 HTML widget；课程 HTML 与网站首页通过发布地址按需打开，不在提交包内重复保存 widget 依赖。", widget_count),
+    sprintf("- **模型表**：`分析输出/模型表/` 中保留 %s 个 CSV 模型或指标产物，适合快速复核。", model_count),
+    "- **Shiny**：39 个页面与交互模块；首页调整为纯标题封面，导航支持点击空白处关闭，交互组件页增加更多代表性快速入口。",
     "",
     "## 3. 推荐评阅顺序",
     "",
@@ -226,19 +219,17 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "### `课程提交/`",
     "",
     "- `课程提交/庄颂_20241334.Rmd`：课程源文档。它已同步到当前项目口径，包含提交说明、作业要求对照、当前规模、复现命令、质量摘要和 sessionInfo。",
-    sprintf("- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接离线打开；页面包含 36 个内容章节、14 项发现、%s 张 PNG 图、%s 张 SVG 图和交互入口。", png_count, svg_count),
+    sprintf("- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接打开；页面包含 36 个内容章节、14 项发现、图表库、交互入口和结论。"),
     "",
     "### `网站发布/`",
     "",
-    "- `网站发布/index.html`：GitHub Pages 首页，与课程提交 HTML 同源。它用于网站发布和路径联调。",
-    "- `网站发布/交互组件/`：发布版 standalone widgets。每个 `.html` 通常对应一个同名 `_files/` 依赖目录，移动或提交时必须整体保留。",
+    "- `网站发布/index.html`：GitHub Pages 首页，与课程提交 HTML 同源。dock 定位和移动目录关闭逻辑已统一修复。",
+    "- 完整发布版的 standalone widgets 位于线上 GitHub Pages 与仓库发布目录，轻量提交包不再复制这批大体积依赖。",
     "- `网站发布/仪表盘/`：浏览器版 Shiny 或备用页面入口，用于静态站中的仪表盘跳转。",
     "",
     "### `分析输出/`",
     "",
-    "- `分析输出/图表/`：全部静态图。PNG 适合快速预览和正文展示，SVG 适合高清缩放和复核。",
-    "- `分析输出/交互组件/`：分析阶段生成的 standalone widgets 原件，保留 HTML 与 `_files/` 依赖。",
-    "- `分析输出/模型表/`：模型、指标、预测、聚类、PCA、效率、公平性和情景模拟等表格产物。",
+    "- `分析输出/模型表/`：保留 CSV 格式的模型、指标、预测、聚类、PCA、效率、公平性和情景模拟结果。",
     "- `分析输出/质量报告/`：质量门禁产物，包括 `quality_gate_summary.csv`、`quality_gate.json`、`quality_gate.html` 和各模块明细表。",
     "",
     "### `原始数据/`",
@@ -270,13 +261,6 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "- `部署总览.md`、`部署_GitHub_Pages.md`、`部署_Shiny云端.md`、`部署_浏览器仪表盘.md`：不同部署方式的说明。",
     "- `变更记录.md`：重要迭代和 bug 修复记录。",
     "- `2026作业_Global Health Spending 数据集自由分析.docx`：课程原始说明副本。",
-    "",
-    "### `开发脚本/`、`自动测试/`、`部署配置/`、`.github/workflows/`",
-    "",
-    "- `开发脚本/`：审计、语法检查、自动测试、质量门禁、部署辅助和批量构建脚本。",
-    "- `自动测试/`：testthat 测试套件。",
-    "- `部署配置/`：Dockerfile 与 docker-compose。",
-    "- `.github/workflows/`：GitHub Actions 发布与部署参考。",
     "",
     "### `项目入口/` 与 `交付索引/`",
     "",
@@ -325,15 +309,15 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "## 9. 注意事项",
     "",
     "- 不要把 shinyapps.io token、secret、`.Renviron`、`.env` 或 `rsconnect/` 提交到仓库。",
-    "- `网站发布/index.html` 如需完整交互体验，应与同级 `交互组件/`、`仪表盘/` 一起移动。",
+    "- `网站发布/index.html` 的完整交互体验以线上静态发布版为准；轻量提交包中的课程 HTML 会把 widget 打开到线上发布地址。",
     "- `课程提交/庄颂_20241334.Rmd` 依赖交付包内的 `程序/`，因此不要单独移动 Rmd；如需单独提交，仍建议同时提交整个 `庄颂_20241334/` 文件夹。",
-    "- 单页 HTML 体积较大是为了课程提交离线可读；本次不把 HTML 体积优化作为目标。",
+    "- 单页 HTML 体积较大是为了课程提交可直接阅读；提交包已避免重复复制 widget 和完整图表资源。",
     "",
     "## 10. 已知限制",
     "",
-    "- 完整离线 HTML 与两套 widget 依赖导致交付包较大，首次打开和传输成本偏高。",
+    "- 轻量包不包含完整 widget 依赖目录；如需逐个离线打开 standalone widget，请使用完整仓库或 GitHub Pages 发布目录。",
     "- 当前质量门禁覆盖语法、图像、链接、widget、文本、secret、Shiny bundle 与 README 一致性，未包含跨断点截图测试。",
-    "- 未附带 renv 锁定文件，不同 R 与依赖包版本下仍可能出现行为差异。",
+    "- `renv.lock` 放在 `项目入口/`；不同 R 与系统库版本下仍可能出现细小渲染差异。",
     "- 多数交互组件是 standalone widget，Shiny 模块之间未共享筛选状态。",
     "- 现有结论以描述性与预测性分析为主，不作为因果识别使用。",
     "",
@@ -356,15 +340,12 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   dir.create(entry_dir, recursive = TRUE, showWarnings = FALSE)
   dir.create(index_dir, recursive = TRUE, showWarnings = FALSE)
   for (f in root_files) ghs_copy_path(file.path(root, f), file.path(entry_dir, f))
-  ghs_copy_path(file.path(root, ".github", "workflows"), file.path(delivery_dir, ".github", "workflows"))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.html"), file.path(delivery_dir, "课程提交", "庄颂_20241334.html"))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.Rmd"), file.path(delivery_dir, "课程提交", "庄颂_20241334.Rmd"))
   ghs_copy_path(file.path(root, "网站发布", "index.html"), file.path(delivery_dir, "网站发布", "index.html"))
-  ghs_copy_path(file.path(root, "网站发布", "交互组件"), file.path(delivery_dir, "网站发布", "交互组件"))
+  ghs_copy_matching(file.path(root, "网站发布", "图表"), file.path(delivery_dir, "网站发布", "图表"), "[.]png$", recursive = FALSE)
   ghs_copy_path(file.path(root, "网站发布", "仪表盘"), file.path(delivery_dir, "网站发布", "仪表盘"))
-  ghs_copy_path(file.path(root, "分析输出", "图表"), file.path(delivery_dir, "分析输出", "图表"))
-  ghs_copy_path(file.path(root, "分析输出", "交互组件"), file.path(delivery_dir, "分析输出", "交互组件"))
-  ghs_copy_path(file.path(root, "分析输出", "模型表"), file.path(delivery_dir, "分析输出", "模型表"))
+  ghs_copy_matching(file.path(root, "分析输出", "模型表"), file.path(delivery_dir, "分析输出", "模型表"), "[.]csv$", recursive = TRUE)
   ghs_copy_path(file.path(root, "分析输出", "质量报告"), file.path(delivery_dir, "分析输出", "质量报告"))
   ghs_copy_path(file.path(root, "原始数据"), file.path(delivery_dir, "原始数据"))
   derived <- c("master_enriched.rds", "feature_mart_country_year.csv", "feature_mart_country_year.rds", "feature_dictionary.csv", "world_sf_medium.rds")
@@ -387,9 +368,6 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
     dst <- file.path(delivery_dir, "项目文档", basename(f))
     ghs_copy_path(src, dst)
   }
-  ghs_copy_path(file.path(root, "开发脚本"), file.path(delivery_dir, "开发脚本"))
-  ghs_copy_path(file.path(root, "自动测试"), file.path(delivery_dir, "自动测试"))
-  ghs_copy_path(file.path(root, "部署配置"), file.path(delivery_dir, "部署配置"))
   unlink(file.path(delivery_dir, "原始数据", ".DS_Store"), force = TRUE)
   unlink(file.path(delivery_dir, "课程提交", ".Rhistory"), force = TRUE)
   unlink(file.path(delivery_dir, "仪表盘", "rsconnect"), recursive = TRUE, force = TRUE)

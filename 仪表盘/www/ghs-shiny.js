@@ -91,6 +91,31 @@
     }, 90);
   }
 
+  function closeOpenNavigation() {
+    document.querySelectorAll(".navbar .dropdown-toggle.show").forEach(function (toggle) {
+      if (window.bootstrap && window.bootstrap.Dropdown) {
+        var inst = window.bootstrap.Dropdown.getOrCreateInstance(toggle);
+        inst.hide();
+      } else {
+        toggle.classList.remove("show");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.querySelectorAll(".navbar .dropdown-menu.show").forEach(function (menu) {
+      menu.classList.remove("show");
+    });
+
+    document.querySelectorAll(".navbar .navbar-collapse.show").forEach(function (collapse) {
+      if (window.bootstrap && window.bootstrap.Collapse) {
+        var inst = window.bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false });
+        inst.hide();
+      } else {
+        collapse.classList.remove("show");
+      }
+    });
+  }
+
   document.addEventListener("shiny:busy", function () {
     document.documentElement.classList.add("ghs-shiny-busy");
   });
@@ -103,8 +128,22 @@
   window.addEventListener("scroll", markScrolledNav, { passive: true });
   document.addEventListener("shown.bs.tab", scrollTabToTop);
   document.addEventListener("click", function (event) {
+    var insideNavbar = event.target.closest(".navbar, nav.navbar");
+    if (!insideNavbar) {
+      closeOpenNavigation();
+    }
+
+    if (event.target.closest(".navbar .dropdown-item, .navbar .nav-link:not(.dropdown-toggle)")) {
+      window.setTimeout(closeOpenNavigation, 80);
+    }
+
     if (event.target.closest(".home-route-card, .home-action, .v3-module-card, .module-card")) {
       scrollTabToTop();
+    }
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeOpenNavigation();
     }
   });
   document.addEventListener("shiny:value", function () {

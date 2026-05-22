@@ -5,7 +5,7 @@
 #       分析输出/图表/*.png        分析输出/交互组件/*.html
 #       分析输出/模型表/*.csv     程序/*.R（代码片段）
 # 输出：
-#   - 课程提交/庄颂_20241334.html   课程提交版（图表 base64，widget 相对路径）
+#   - 课程提交/庄颂_20241334.html   课程提交版（图表 base64，widget 线上链接）
 #   - 网站发布/index.html           GitHub Pages 同源首页
 # 不再生成旧版冗余静态展示页。
 # =============================================================================
@@ -1129,7 +1129,7 @@ if (!exists("%||%", mode = "function")) {
   p <- file.path(widget_dir, base)
   if (!file.exists(p)) return("")
   href_local <- if (mode == "submission")
-    paste0("../\u5206\u6790\u8f93\u51fa/\u4ea4\u4e92\u7ec4\u4ef6/", base)
+    paste0("https://2711944586.github.io/R/\u4ea4\u4e92\u7ec4\u4ef6/", base)
   else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", base)
   href_remote <- sprintf(
     "%s/blob/main/\u5206\u6790\u8f93\u51fa/\u4ea4\u4e92\u7ec4\u4ef6/%s", repo_url, base)
@@ -2384,81 +2384,6 @@ if (!exists("%||%", mode = "function")) {
   )
 }
 
-.ghs_asset_console <- function(fig_dir, widget_dir, mode, repo_url) {
-  return("")  # disabled: all assets now in Findings
-  return("")  # disabled: all assets now in Findings
-  pngs <- sort(list.files(fig_dir, pattern = "[.]png$", full.names = TRUE))
-  htmls <- sort(list.files(widget_dir, pattern = "[.]html$", full.names = TRUE))
-  if (!length(pngs) && !length(htmls)) return("")
-
-  fig_meta <- if (length(pngs)) {
-    data.frame(
-      path = pngs,
-      title = vapply(pngs, .ghs_pretty, character(1)),
-      stringsAsFactors = FALSE
-    )
-  } else data.frame(path = character(0), title = character(0))
-  if (nrow(fig_meta)) {
-    fig_meta$kind <- vapply(fig_meta$title, .ghs_kind, character(1))
-    fig_meta$size <- vapply(fig_meta$path, .ghs_size, character(1))
-  }
-
-  widget_meta <- if (length(htmls)) {
-    data.frame(
-      path = htmls,
-      title = vapply(htmls, .ghs_pretty, character(1)),
-      stringsAsFactors = FALSE
-    )
-  } else data.frame(path = character(0), title = character(0))
-  if (nrow(widget_meta)) {
-    widget_meta$kind <- vapply(widget_meta$title, .ghs_kind, character(1))
-    widget_meta$size <- vapply(widget_meta$path, .ghs_size, character(1))
-  }
-
-  kind_count <- function(x) {
-    if (!length(x)) return("0")
-    tab <- sort(table(x), decreasing = TRUE)
-    paste(sprintf("%s %d", names(tab), as.integer(tab)), collapse = " · ")
-  }
-  jump_chips <- paste(vapply(c("时间", "分布", "地图", "结构", "模型", "指标", "综合"), function(k) {
-    sprintf("<button type='button' onclick=\"filterAssetConsole('%s')\">%s</button>",
-            .ghs_e(k), .ghs_e(k))
-  }, character(1)), collapse = "")
-
-  fig_rows <- if (nrow(fig_meta)) paste(vapply(seq_len(nrow(fig_meta)), function(i) {
-    p <- fig_meta$path[i]
-    sprintf("<a class='asset-row asset-figure-row' href='#%s' data-kind='%s' data-title='%s'><span>F%03d</span><strong>%s</strong><em>%s</em><small>%s</small></a>",
-            .ghs_e(.ghs_slug(p)), .ghs_e(fig_meta$kind[i]),
-            .ghs_e(tolower(paste(fig_meta$title[i], fig_meta$kind[i]))),
-            i, .ghs_e(fig_meta$title[i]), .ghs_e(fig_meta$kind[i]),
-            .ghs_e(fig_meta$size[i]))
-  }, character(1)), collapse = "") else "<p class='asset-empty'>暂无静态图。</p>"
-
-  widget_rows <- if (nrow(widget_meta)) paste(vapply(seq_len(nrow(widget_meta)), function(i) {
-    p <- widget_meta$path[i]; base <- basename(p)
-    src <- if (mode == "submission")
-      paste0("../分析输出/交互组件/", base)
-    else paste0("交互组件/", base)
-    fallback <- if (mode == "submission")
-      sprintf("%s/blob/main/分析输出/交互组件/%s", repo_url, base)
-    else paste0("交互组件/", base)
-    sprintf("<button class='asset-row asset-widget-row' type='button' data-kind='%s' data-title='%s' onclick=\"loadWidgetUrl('%s','%s','%s');\"><span>W%03d</span><strong>%s</strong><em>%s</em><small>%s</small></button>",
-            .ghs_e(widget_meta$kind[i]),
-            .ghs_e(tolower(paste(widget_meta$title[i], widget_meta$kind[i]))),
-            .ghs_e(src), .ghs_e(widget_meta$title[i]), .ghs_e(fallback),
-            i, .ghs_e(widget_meta$title[i]), .ghs_e(widget_meta$kind[i]),
-            .ghs_e(widget_meta$size[i]))
-  }, character(1)), collapse = "") else "<p class='asset-empty'>暂无交互组件。</p>"
-
-  sprintf(
-    "<section class='asset-console' id='asset-console'><header><span class='kicker'>Asset Console</span><h3>全量素材中控台 · 图表 %d 张 · 交互 %d 个</h3><p>这里把项目文件中的静态图片与 standalone HTML 组件全部接入页面：左侧图表条目跳转到对应 Gallery 原图卡片，右侧交互条目会直接打开下方 Interactive lab 的 iframe。所有素材按同一套主题口径归类，避免只在文件夹里存在而没有进入叙事。</p></header><div class='asset-console-stats'><a href='#figure-index'><strong>%d</strong><span>图表索引</span></a><a href='#gallery'><strong>%d</strong><span>图库卡片</span></a><a href='#widgets'><strong>%d</strong><span>交互组件</span></a><a href='#findings'><strong>36</strong><span>核心发现</span></a></div><div class='asset-console-tools'><input id='asset-search' type='search' placeholder='搜索 map / density / profile / 指标 / 国家 …' oninput='filterAssetConsole(this.value)'><div class='asset-console-chips'><button type='button' class='active' onclick=\"filterAssetConsole('')\">全部</button>%s</div></div><div class='asset-console-grid'><article><header><h4>静态图表 · 全量跳转</h4><p>%s</p></header><div class='asset-list'>%s</div></article><article><header><h4>交互组件 · 即点即开</h4><p>%s</p></header><div class='asset-list'>%s</div></article></div></section>",
-    length(pngs), length(htmls), length(pngs), length(pngs), length(htmls),
-    jump_chips, .ghs_e(kind_count(fig_meta$kind)), fig_rows,
-    .ghs_e(kind_count(widget_meta$kind)), widget_rows
-  )
-}
-
-
 .ghs_inject_all_assets <- function(fig_dir, widget_dir, mode, repo_url) {
   ""
 }
@@ -2511,7 +2436,6 @@ if (!exists("%||%", mode = "function")) {
             .ghs_e(k), if (k == "\u5168\u90e8") " class='active'" else "",
             .ghs_e(k))
   }, character(1)), collapse = "")
-  asset_console <- ""  # Asset Console removed
   sprintf("<section class='section gallery' id='gallery'><div class='wrap'><header class='section-head'><span class='kicker'>S16 \u00b7 Gallery</span><h2>\u9759\u6001\u56fe\u8868\u5e93 \u00b7 %d \u5f20</h2><p class='lead'>\u6309\u4e3b\u9898\u7b5b\u9009\uff1b\u70b9\u51fb\u4efb\u610f\u5361\u7247\u653e\u5927\u67e5\u770b\u539f\u56fe\u3002</p></header>%s%s%s<div class='tabs'>%s</div><div class='gallery-grid'>%s</div></div></section>",
           length(pngs), .ghs_section_note("gallery"), index, "",
           tabs, cards)
@@ -2523,11 +2447,9 @@ if (!exists("%||%", mode = "function")) {
   card <- function(p) {
     title <- .ghs_pretty(p); kind <- .ghs_kind(title); base <- basename(p)
     src <- if (mode == "submission")
-      paste0("../\u5206\u6790\u8f93\u51fa/\u4ea4\u4e92\u7ec4\u4ef6/", base)
+      paste0("https://2711944586.github.io/R/\u4ea4\u4e92\u7ec4\u4ef6/", base)
     else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", base)
-    fallback <- if (mode == "submission")
-      sprintf("%s/blob/main/\u5206\u6790\u8f93\u51fa/\u4ea4\u4e92\u7ec4\u4ef6/%s", repo_url, base)
-    else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", base)
+    fallback <- src
     sprintf("<article class='widget-card' data-kind='%s'><header><span class='pill'>%s</span><h3>%s</h3><p>%s \u00b7 standalone HTML</p></header><div class='widget-actions'><button type='button' onclick=\"loadWidgetUrl('%s','%s','%s')\">\u5728\u53f3\u4fa7\u67e5\u770b</button><a href='%s' target='_blank' rel='noreferrer'>\u65b0\u7a97\u6253\u5f00</a></div></article>",
             .ghs_e(kind), .ghs_e(kind), .ghs_e(title), .ghs_size(p),
             .ghs_e(src), .ghs_e(title), .ghs_e(fallback), .ghs_e(fallback))
@@ -2922,11 +2844,10 @@ if (!exists("%||%", mode = "function")) {
     "function filterAssetConsole(q){q=(q||'').trim().toLowerCase();document.querySelectorAll('.asset-console-chips button').forEach(function(b){var t=(b.textContent||'').trim().toLowerCase();b.classList.toggle('active',(!q&&t==='\u5168\u90e8')||(q&&t===q));});document.querySelectorAll('.asset-row').forEach(function(r){var hay=((r.dataset.title||'')+' '+(r.dataset.kind||'')+' '+r.textContent).toLowerCase();var ok=!q||hay.indexOf(q)>=0;r.style.display=ok?'grid':'none';});var s=document.getElementById('asset-search');if(s&&s.value!==q&&q.length<=4)s.value=q;}",
     "function openFigure(btn){var img=btn.querySelector('img');document.getElementById('modal-img').src=img.src;document.getElementById('modal-title').textContent=btn.dataset.title||img.alt;document.getElementById('fig-modal').classList.add('open');}",
     "function closeFigure(){document.getElementById('fig-modal').classList.remove('open');}",
-    "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;var anchor=document.getElementById('widgets')||wrap;var top=anchor.getBoundingClientRect().top+window.scrollY-18;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});history.replaceState(null,'','#widgets');}",
-    "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFigure();});",
-    "function toggleDock(){var dock=document.getElementById('ghs-dock');dock.classList.toggle('open');}",
+    "(function(){function absTop(el){return el.getBoundingClientRect().top+window.scrollY;}function navOffset(){var topBar=document.querySelector('.top-bar');var fixed=0;if(topBar&&getComputedStyle(topBar).position==='fixed')fixed+=topBar.getBoundingClientRect().height||0;return Math.max(10,Math.round(fixed+18));}function anchorTarget(el){if(!el)return null;if(el.id==='top')return el;return el.matches('.finding,.section,.hero')?el:(el.closest('.finding,.section,.hero')||el);}function scrollToId(id,replaceHash){var el=document.getElementById(id);if(!el)return false;var target=anchorTarget(el);var top=id==='top'?0:absTop(target)-navOffset();window.scrollTo({top:Math.max(0,top),behavior:'smooth'});if(replaceHash!==false&&history.replaceState)history.replaceState(null,'','#'+id);return true;}function closeDock(){var dock=document.getElementById('ghs-dock');if(dock)dock.classList.remove('open');}function closeMobileToc(){var toc=document.getElementById('mobile-toc');if(toc)toc.open=false;}window.ghsNavOffset=navOffset;window.ghsAnchorTop=function(el){return absTop(anchorTarget(el));};window.ghsScrollToId=scrollToId;window.ghsCloseDock=closeDock;window.ghsCloseMobileToc=closeMobileToc;window.toggleDock=function(force){var dock=document.getElementById('ghs-dock');if(!dock)return;var open=typeof force==='boolean'?force:!dock.classList.contains('open');dock.classList.toggle('open',open);};document.addEventListener('click',function(e){var dock=document.getElementById('ghs-dock');if(dock&&dock.classList.contains('open')&&!e.target.closest('#ghs-dock'))closeDock();var toc=document.getElementById('mobile-toc');if(toc&&toc.open&&!e.target.closest('#mobile-toc'))closeMobileToc();},true);document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDock();closeMobileToc();closeFigure();}});})();",
+    "function loadWidgetUrl(url,title,fallback){document.getElementById('widget-title').textContent=title;var f=document.getElementById('widget-frame');var wrap=f.parentNode;var oldBanner=document.getElementById('widget-fallback-banner');if(oldBanner)oldBanner.remove();var banner=document.createElement('div');banner.id='widget-fallback-banner';banner.className='widget-fallback-banner';banner.innerHTML='\u6b63\u5728\u52a0\u8f7d <strong>'+title+'</strong>\u2026 \u82e5\u957f\u65f6\u95f4\u7a7a\u767d\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';wrap.insertBefore(banner,f);f.onload=function(){banner.classList.add('loaded');banner.innerHTML='\u5df2\u52a0\u8f7d <strong>'+title+'</strong>\u3002\u82e5\u663e\u793a\u4e0d\u5b8c\u6574\uff0c\u53ef <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.onerror=function(){banner.classList.add('error');banner.innerHTML='\u65e0\u6cd5\u76f4\u63a5\u5728\u53f3\u4fa7\u52a0\u8f7d <strong>'+title+'</strong>\uff0c\u8bf7 <a href=\"'+(fallback||url)+'\" target=\"_blank\" rel=\"noreferrer\">\u5728\u65b0\u7a97\u6253\u5f00</a>\u3002';};f.src=url;if(window.ghsScrollToId)window.ghsScrollToId('widgets',true);if(window.ghsCloseDock)window.ghsCloseDock();if(window.ghsCloseMobileToc)window.ghsCloseMobileToc();}",
     "(function(){var bar=document.getElementById('read-progress');function update(){var h=document.documentElement;var s=h.scrollTop||document.body.scrollTop;var max=(h.scrollHeight-h.clientHeight)||1;var pct=s/max;if(bar)bar.style.width=(pct*100)+'%';}window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();})();",
-    "(function(){var links=document.querySelectorAll('.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function absTop(el){return el.getBoundingClientRect().top+window.scrollY;}function spy(){var pos=window.scrollY+80;var sorted=targets.slice().sort(function(a,b){return absTop(a.el)-absTop(b.el);});var cur=sorted.length?sorted[0].id:null;for(var i=0;i<sorted.length;i++){if(absTop(sorted[i].el)<=pos){cur=sorted[i].id;}else{break;}}links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el){var header=el.querySelector('.finding-head,.section-head,header');var target=header||el;var top=absTop(target)-24;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});history.replaceState(null,'','#'+id);}var d=document.getElementById('ghs-dock');if(d)d.classList.remove('open');});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);spy();})();",
+    "(function(){var links=document.querySelectorAll('.dock-brand[href^=\"#\"],.dock-links a[href^=\"#\"],.mobile-toc-items a[href^=\"#\"]');if(!links.length)return;var targets=[];links.forEach(function(a){var id=a.getAttribute('href').slice(1);if(id&&!targets.some(function(t){return t.id===id;})){var el=document.getElementById(id);if(el)targets.push({id:id,el:el});}});function spy(){var pos=window.scrollY+(window.ghsNavOffset?window.ghsNavOffset():20)+8;var sorted=targets.slice().sort(function(a,b){return window.ghsAnchorTop(a.el)-window.ghsAnchorTop(b.el);});var cur=sorted.length?sorted[0].id:null;for(var i=0;i<sorted.length;i++){if(window.ghsAnchorTop(sorted[i].el)<=pos){cur=sorted[i].id;}else{break;}}links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});}links.forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href').slice(1);if(id&&window.ghsScrollToId&&window.ghsScrollToId(id,true)){e.preventDefault();if(window.ghsCloseDock)window.ghsCloseDock();if(window.ghsCloseMobileToc)window.ghsCloseMobileToc();setTimeout(spy,260);}});});window.addEventListener('scroll',spy,{passive:true});window.addEventListener('resize',spy);document.addEventListener('DOMContentLoaded',function(){if(location.hash){var id=location.hash.slice(1);setTimeout(function(){if(window.ghsScrollToId)window.ghsScrollToId(id,false);},80);}spy();});spy();})();",
     "document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.tagName==='DETAILS'&&d.classList.contains('widget-embed')&&d.open){var f=d.querySelector('iframe[data-src]');if(f&&!f.src){f.src=f.dataset.src;}}},true);",
     "(function(){var ios=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){var el=en.target;var src=el.dataset.src;if(src&&!el.src){el.src=src;}ios.unobserve(el);}});},{rootMargin:'200px 0px'}):null;document.querySelectorAll('iframe[data-src]').forEach(function(f){if(ios){ios.observe(f);}});})();",
     "function runSim(){var dO=parseFloat(document.getElementById('sim-oops').value);var dG=parseFloat(document.getElementById('sim-gghed').value);var dE=parseFloat(document.getElementById('sim-ext').value);document.getElementById('sim-oops-out').textContent=(dO>0?'+':'')+dO;document.getElementById('sim-gghed-out').textContent=(dG>0?'+':'')+dG;document.getElementById('sim-ext-out').textContent=(dE>0?'+':'')+dE;function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}var baseO=parseFloat((document.getElementById('sim-oops-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseG=parseFloat((document.getElementById('sim-gghed-new').nextElementSibling.textContent.match(/[-+]?\\d+(\\.\\d+)?/)||[0])[0]);var baseHigh=parseFloat((document.getElementById('sim-oops-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var baseExtH=parseFloat((document.getElementById('sim-ext-high').nextElementSibling.textContent.match(/[-+]?\\d+/)||[0])[0]);var newO=clamp(baseO+dO+(-0.4*dG),0,90);var newG=clamp(baseG+dG,0,95);var newHigh=clamp(Math.round(baseHigh+1.6*dO+0.6*dG*-1),0,200);var newExtH=clamp(Math.round(baseExtH+0.5*dE),0,200);document.getElementById('sim-oops-new').textContent=newO.toFixed(1)+'%';document.getElementById('sim-gghed-new').textContent=newG.toFixed(1)+'%';document.getElementById('sim-oops-high').textContent=newHigh;document.getElementById('sim-ext-high').textContent=newExtH;}",
@@ -3293,7 +3214,7 @@ if (!exists("%||%", mode = "function")) {
     ".links a:hover,.links a.active,.dock-links .nav-group a:hover,.dock-links .nav-group a.active,.mobile-toc-items a:hover,.mobile-toc-items a.active{background:var(--final-surface-2)!important;color:var(--final-ink)!important}",
     ".ghs-dock,.dock-panel,.dock-toggle{background:var(--final-surface)!important;background-image:none!important;border-color:var(--final-line)!important;box-shadow:var(--final-shadow)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
     ".ghs-dock.open .dock-toggle{background:var(--final-blue)!important;color:#fff!important;border-color:var(--final-blue)!important}",
-    ".read-progress{background:var(--final-blue)!important;background-image:none!important}",
+    "#read-progress{background:var(--final-blue)!important;background-image:none!important}",
     "pre,.code-pre{background:#17211f!important;background-image:none!important;color:#f8faf6!important;border-radius:8px!important}",
     ".mobile-toc{border-radius:8px!important}",
     "@media(max-width:760px){.hero{min-height:auto!important;padding:34px 0 64px!important}.mobile-toc{display:block!important}.hero h1{font-size:clamp(38px,12vw,58px)!important}.figure-index-row{grid-template-columns:34px 1fr!important}.asset-row{grid-template-columns:46px 1fr!important}.figure-index-row em,.figure-index-row small,.asset-row em,.asset-row small{display:none!important}}",
@@ -3590,23 +3511,6 @@ if (!exists("%||%", mode = "function")) {
 }
 
 .ghs_write_rmd <- function(path) {
-  html_path <- sub("[.]Rmd$", ".html", path)
-  if (!file.exists(html_path)) {
-    stop("Missing HTML for Rmd synchronization: ", html_path)
-  }
-  html <- readChar(html_path, nchars = file.info(html_path)[["size"]], useBytes = TRUE)
-  extract_part <- function(pattern, text, label) {
-    m <- regexec(pattern, text, perl = TRUE)
-    hit <- regmatches(text, m)[[1]]
-    if (length(hit) < 2L) stop("Cannot extract ", label, " from generated HTML")
-    hit[2]
-  }
-  style <- extract_part("(?is)<style>(.*?)</style>", html, "style")
-  body <- extract_part("(?is)<body>(.*)<script>.*</script></body></html>\\s*$", html, "body")
-  script <- extract_part("(?is)<script>(.*)</script></body></html>\\s*$", html, "script")
-  body <- gsub("><", ">\n<", body, fixed = TRUE)
-  style <- gsub("}", "}\n", style, fixed = TRUE)
-  script <- gsub(";", ";\n", script, fixed = TRUE)
   lines <- c(
     "---",
     "title: \"全球卫生支出 2000–2023：整合分析与核心发现\"",
@@ -3615,20 +3519,101 @@ if (!exists("%||%", mode = "function")) {
     "date: \"`r format(Sys.Date(), '%Y-%m-%d')`\"",
     "output:",
     "  html_document:",
-    "    self_contained: false",
-    "    toc: false",
+    "    toc: true",
+    "    toc_depth: 2",
+    "    number_sections: false",
     "    theme: null",
     "---",
     "",
-    "<style>",
-    strsplit(style, "\n", fixed = TRUE)[[1]],
-    "</style>",
+    "Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/",
     "",
-    strsplit(body, "\n", fixed = TRUE)[[1]],
+    "## 主报告入口",
     "",
-    "<script>",
-    strsplit(script, "\n", fixed = TRUE)[[1]],
-    "</script>"
+    "本 Rmd 是课程源文档与复现说明。完整交互报告由 `程序/21_static_showcase.R` 生成，主文件位于同目录：",
+    "",
+    "- [打开课程 HTML 主报告](庄颂_20241334.html)",
+    "- [打开 Shiny 云端仪表盘](https://constantine1433223.shinyapps.io/ghs-dashboard/)",
+    "- [打开 GitHub Pages 静态发布版](https://2711944586.github.io/R/)",
+    "",
+    "## 数据与范围",
+    "",
+    "分析对象为 2000–2023 年全球卫生支出面板。原始数据来自 TidyTuesday 2026-04-21 整理的 WHO Global Health Expenditure Database，并补充 WDI 中的人口、收入组和健康产出指标。核心问题包括卫生支出增长、筹资结构、自付风险、不平等、COVID-19 冲击、外援依赖、效率、预测和政策含义。",
+    "",
+    "```{r setup, include=FALSE}",
+    "knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)",
+    "root <- normalizePath(file.path(getwd(), \"..\"), winslash = \"/\", mustWork = FALSE)",
+    "count_files <- function(path, pattern) {",
+    "  p <- file.path(root, path)",
+    "  if (!dir.exists(p)) return(0L)",
+    "  length(list.files(p, pattern = pattern, recursive = TRUE, full.names = TRUE))",
+    "}",
+    "size_mb <- function(path) {",
+    "  p <- file.path(root, path)",
+    "  if (!file.exists(p) && !dir.exists(p)) return(NA_real_)",
+    "  files <- if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p",
+    "  round(sum(file.info(files)$size, na.rm = TRUE) / 1024^2, 2)",
+    "}",
+    "```",
+    "",
+    "## 当前规模",
+    "",
+    "```{r scale-table}",
+    "scale_tbl <- data.frame(",
+    "  项目 = c(\"PNG 图\", \"SVG 图\", \"交互组件\", \"CSV 模型表\", \"课程 HTML\", \"网站首页\"),",
+    "  数量或体积 = c(",
+    "    count_files(\"分析输出/图表\", \"[.]png$\"),",
+    "    count_files(\"分析输出/图表\", \"[.]svg$\"),",
+    "    count_files(\"分析输出/交互组件\", \"[.]html$\"),",
+    "    count_files(\"分析输出/模型表\", \"[.]csv$\"),",
+    "    paste0(size_mb(\"课程提交/庄颂_20241334.html\"), \" MB\"),",
+    "    paste0(size_mb(\"网站发布/index.html\"), \" MB\")",
+    "  ),",
+    "  stringsAsFactors = FALSE",
+    ")",
+    "knitr::kable(scale_tbl)",
+    "```",
+    "",
+    "## 生成方式",
+    "",
+    "完整页面使用同一个生成器输出两份文件：课程 HTML 使用内嵌图像，便于直接评阅；GitHub Pages 首页使用外链图像和发布目录中的 standalone widgets，便于线上浏览。",
+    "",
+    "```bash",
+    "Rscript 构建.R submission",
+    "Rscript 构建.R quality",
+    "```",
+    "",
+    "提交包使用轻量策略生成：保留课程主件、网站首页、Shiny 应用、核心派生数据、CSV 模型表、质量报告、项目文档与复现脚本；大型 widget 依赖和完整 SVG 图表不再重复打包。",
+    "",
+    "```bash",
+    "$env:GHS_BUILD_DELIVERY='TRUE'",
+    "Rscript 构建.R delivery",
+    "```",
+    "",
+    "## 质量门禁",
+    "",
+    "```{r quality-summary}",
+    "quality_path <- file.path(root, \"分析输出\", \"质量报告\", \"quality_gate_summary.csv\")",
+    "if (file.exists(quality_path)) {",
+    "  q <- read.csv(quality_path, fileEncoding = \"UTF-8\")",
+    "  knitr::kable(q)",
+    "} else {",
+    "  cat(\"尚未生成质量门禁报告。\")",
+    "}",
+    "```",
+    "",
+    "## 复现入口",
+    "",
+    "- `构建.R`：统一构建入口。",
+    "- `程序/21_static_showcase.R`：课程 HTML 与网站首页生成器。",
+    "- `程序/26_delivery.R`：提交包生成器。",
+    "- `仪表盘/`：Shiny 应用源码与模块。",
+    "- `项目文档/方法手册.md`：F1–F14 的研究问题、变量、方法、产物和局限。",
+    "",
+    "## Session Info",
+    "",
+    "```{r session-info}",
+    "sessionInfo()",
+    "```"
   )
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(lines, path, useBytes = TRUE)
@@ -3662,7 +3647,7 @@ generate_static_showcase <- function(root = NULL,
   dir.create(dirname(out_submission), recursive = TRUE, showWarnings = FALSE)
   dir.create(dirname(out_publish), recursive = TRUE, showWarnings = FALSE)
 
-  # submission 版：base64 内嵌（离线可读）
+  # submission 版：图像内嵌，widget 指向线上发布地址
   options(ghs_render_mode = "submission")
   html_submission <- .ghs_render(master, fig_dir, widget_dir, programs_dir,
                                   models_dir, mode = "submission",

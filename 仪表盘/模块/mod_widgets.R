@@ -89,6 +89,36 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
             label = htmltools::tagList(shiny::icon("chart-line"), "CHE 趋势"),
             class = "widget-quick-btn",
             title = "切换到高级 CHE 趋势线"
+          ),
+          shiny::actionButton(
+            ns("quick_race"),
+            label = htmltools::tagList(shiny::icon("ranking-star"), "排行动画"),
+            class = "widget-quick-btn",
+            title = "切换到动态排行组件"
+          ),
+          shiny::actionButton(
+            ns("quick_sunburst"),
+            label = htmltools::tagList(shiny::icon("circle-nodes"), "旭日结构"),
+            class = "widget-quick-btn",
+            title = "切换到支出结构旭日图"
+          ),
+          shiny::actionButton(
+            ns("quick_parcoords"),
+            label = htmltools::tagList(shiny::icon("sliders"), "平行坐标"),
+            class = "widget-quick-btn",
+            title = "切换到多指标平行坐标"
+          ),
+          shiny::actionButton(
+            ns("quick_sankey"),
+            label = htmltools::tagList(shiny::icon("diagram-project"), "Sankey"),
+            class = "widget-quick-btn",
+            title = "切换到资金流 Sankey"
+          ),
+          shiny::actionButton(
+            ns("quick_full_dt"),
+            label = htmltools::tagList(shiny::icon("database"), "全字段表"),
+            class = "widget-quick-btn",
+            title = "切换到全字段浏览表"
           )
         )
       ),
@@ -230,6 +260,26 @@ mod_widgets_server <- function(id, master_r, world_sf) {
 
     shiny::observeEvent(input$quick_lines, {
       switch_to_widget("iadv_che_pc_lines", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_race, {
+      switch_to_widget("iadv_bar_race", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_sunburst, {
+      switch_to_widget("iadv_sunburst_che", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_parcoords, {
+      switch_to_widget("iadv_parcoords", "高级组件", "plotly")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_sankey, {
+      switch_to_widget("iadv_sankey_3stage", "高级组件", "ui")
+    }, ignoreInit = TRUE)
+
+    shiny::observeEvent(input$quick_full_dt, {
+      switch_to_widget("iadv_dt_full_panel", "高级组件", "dt")
     }, ignoreInit = TRUE)
 
     current_spec <- shiny::reactive({
