@@ -4,6 +4,7 @@
   document.documentElement.classList.add("ghs-js-ready");
 
   var revealObserver = null;
+  var enhancementTimer = null;
   var revealSelector = [
     ".v3-card",
     ".v3-kpi",
@@ -12,7 +13,8 @@
     ".widget-workbench-bar",
     ".overview-signal-card",
     ".widget-type-card",
-    ".widget-feature-btn"
+    ".widget-feature-btn",
+    ".widget-gallery-card"
   ].join(", ");
 
   function markWidgetContainers() {
@@ -24,6 +26,54 @@
           panel.classList.add("has-mounted-widget");
         }
       });
+  }
+
+  var widgetFrameObserver = null;
+
+  function loadStandaloneFrames() {
+    var frames = document.querySelectorAll("iframe[data-widget-src]");
+
+    function loadFrame(frame) {
+      if (!frame || frame.dataset.ghsWidgetLoaded === "true") return;
+      var src = frame.getAttribute("data-widget-src");
+      if (!src) return;
+      frame.dataset.ghsWidgetLoaded = "true";
+      frame.setAttribute("src", src);
+      var card = frame.closest(".widget-gallery-card");
+      if (card) card.classList.add("is-loading");
+      frame.addEventListener("load", function () {
+        if (card) {
+          card.classList.remove("is-loading");
+          card.classList.add("is-loaded");
+        }
+      }, { once: true });
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      frames.forEach(loadFrame);
+      return;
+    }
+
+    if (!widgetFrameObserver) {
+      widgetFrameObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            loadFrame(entry.target);
+            widgetFrameObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.08,
+        rootMargin: "520px 0px"
+      });
+    }
+
+    frames.forEach(function (frame) {
+      if (frame.dataset.ghsWidgetBound !== "true") {
+        frame.dataset.ghsWidgetBound = "true";
+        widgetFrameObserver.observe(frame);
+      }
+    });
   }
 
   function revealPanels() {
@@ -59,7 +109,7 @@
   }
 
   function applyRevealStagger() {
-    document.querySelectorAll(".tab-pane.active .v3-card, .tab-pane.active .v3-kpi, .tab-pane.active .v3-insight, .tab-pane.active .overview-signal-card, .tab-pane.active .widget-type-card, .tab-pane.active .widget-feature-btn")
+    document.querySelectorAll(".tab-pane.active .v3-card, .tab-pane.active .v3-kpi, .tab-pane.active .v3-insight, .tab-pane.active .overview-signal-card, .tab-pane.active .widget-type-card, .tab-pane.active .widget-feature-btn, .tab-pane.active .widget-gallery-card")
       .forEach(function (node, index) {
         node.style.setProperty("--ghs-stagger", String(Math.min(index, 10) * 34) + "ms");
       });
@@ -80,10 +130,16 @@
 
   function runEnhancements() {
     markWidgetContainers();
+    loadStandaloneFrames();
     revealPanels();
     applyRevealStagger();
     labelIconOnlyButtons();
     markScrolledNav();
+  }
+
+  function scheduleEnhancements() {
+    window.clearTimeout(enhancementTimer);
+    enhancementTimer = window.setTimeout(runEnhancements, 40);
   }
 
   function scrollTabToTop() {
@@ -125,9 +181,28 @@
     document.documentElement.classList.remove("ghs-shiny-busy");
   });
 
-  document.addEventListener("DOMContentLoaded", runEnhancements);
+  document.addEventListener("DOMContentLoaded", function () {
+    runEnhancements();
+    if ("MutationObserver" in window && document.body) {
+      var observer = new MutationObserver(function (mutations) {
+        var shouldRun = mutations.some(function (mutation) {
+          return Array.prototype.some.call(mutation.addedNodes, function (node) {
+            return node.nodeType === 1 && (
+              node.matches && node.matches("iframe[data-widget-src], .widget-gallery-card, .html-widget, .leaflet-container, .rt-table, .dataTables_wrapper") ||
+              node.querySelector && node.querySelector("iframe[data-widget-src], .widget-gallery-card, .html-widget, .leaflet-container, .rt-table, .dataTables_wrapper")
+            );
+          });
+        });
+        if (shouldRun) scheduleEnhancements();
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+  });
   window.addEventListener("scroll", markScrolledNav, { passive: true });
-  document.addEventListener("shown.bs.tab", scrollTabToTop);
+  document.addEventListener("shown.bs.tab", function () {
+    scrollTabToTop();
+    scheduleEnhancements();
+  });
   document.addEventListener("click", function (event) {
     var insideNavbar = event.target.closest(".navbar, nav.navbar");
     if (!insideNavbar) {
@@ -148,6 +223,6 @@
     }
   });
   document.addEventListener("shiny:value", function () {
-    window.setTimeout(runEnhancements, 0);
+    scheduleEnhancements();
   });
 })();

@@ -33,7 +33,71 @@ prepare_shiny_app <- function() {
   dir.create(file.path("仪表盘", "程序库"), recursive = TRUE, showWarnings = FALSE)
   file.copy(list.files("程序", pattern = "[.]R$", full.names = TRUE),
             file.path("仪表盘", "程序库"), overwrite = TRUE)
+  prepare_shiny_widget_manifest()
   invisible(TRUE)
+}
+
+prepare_shiny_widget_manifest <- function(widget_dir = file.path("网站发布", "交互组件"),
+                                          fallback_dir = file.path("分析输出", "交互组件"),
+                                          out = file.path("仪表盘", "www", "widget_manifest.csv")) {
+  if (!dir.exists(widget_dir)) widget_dir <- fallback_dir
+  files <- if (dir.exists(widget_dir)) {
+    list.files(widget_dir, pattern = "[.]html$", full.names = TRUE)
+  } else {
+    character()
+  }
+  dir.create(dirname(out), recursive = TRUE, showWarnings = FALSE)
+  if (!length(files)) {
+    utils::write.csv(data.frame(), out, row.names = FALSE, fileEncoding = "UTF-8")
+    return(invisible(out))
+  }
+  pretty <- function(file) {
+    x <- tools::file_path_sans_ext(basename(file))
+    x <- sub("^[0-9]+_", "", x)
+    x <- sub("^iadv_", "", x)
+    x <- sub("^imap_", "", x)
+    x <- sub("^widget_", "", x)
+    x <- gsub("_", " ", x)
+    x <- tools::toTitleCase(x)
+    caps <- c(Che = "CHE", Oops = "OOPS", Gdp = "GDP", U5mr = "U5MR",
+              Dt = "DT", Hf = "HF", Hc = "HC", Ext = "EXT",
+              Sdg = "SDG", Uhc = "UHC")
+    for (nm in names(caps)) x <- gsub(paste0("\\b", nm, "\\b"), caps[[nm]], x)
+    x
+  }
+  type_of <- function(file) {
+    x <- tolower(basename(file))
+    if (grepl("leaflet|imap|map|choropleth", x)) return("Leaflet")
+    if (grepl("reactable|^iadv_rt_|rank", x)) return("Reactable")
+    if (grepl("dt_|atlas|master_browse|table", x)) return("DT")
+    if (grepl("sankey|network|force|chord|tree|diagonal", x)) return("Network")
+    if (grepl("ec_|hc_|gauge|liquid|sunburst|icicle|wheel|packed", x)) return("HTML")
+    "Plotly"
+  }
+  group_of <- function(file) {
+    x <- tolower(basename(file))
+    if (grepl("leaflet|imap|map|choropleth", x)) return("地图")
+    if (grepl("dt_|reactable|^iadv_rt_|rank|table|atlas|browse", x)) return("表格")
+    if (grepl("sankey|network|force|chord|tree|diagonal", x)) return("网络")
+    if (grepl("sunburst|treemap|icicle|packed|wheel|donut|funnel", x)) return("结构")
+    if (grepl("heatmap|matrix|corr|calendar", x)) return("矩阵")
+    if (grepl("area|line|trend|race|timeline|stream|river|forecast", x)) return("时间")
+    if (grepl("hist|density|box|violin|polar|radar|parcoords|splom", x)) return("分布")
+    "专题"
+  }
+  out_df <- data.frame(
+    file = basename(files),
+    title = vapply(files, pretty, character(1)),
+    group = vapply(files, group_of, character(1)),
+    type = vapply(files, type_of, character(1)),
+    size_mb = round(file.info(files)$size / 1024^2, 2),
+    url = paste0("https://2711944586.github.io/R/交互组件/",
+                 utils::URLencode(basename(files), reserved = TRUE)),
+    stringsAsFactors = FALSE
+  )
+  out_df <- out_df[order(out_df$group, out_df$type, out_df$title), ]
+  utils::write.csv(out_df, out, row.names = FALSE, fileEncoding = "UTF-8")
+  invisible(out)
 }
 
 read_env_or_prompt <- function(name, prompt) {
@@ -78,6 +142,15 @@ deploy_shinyapps <- function(app_name = "ghs-dashboard",
   )
 }
 
-args <- commandArgs(trailingOnly = TRUE)
-app_name <- if (length(args) >= 1 && nzchar(args[[1]])) args[[1]] else "ghs-dashboard"
-deploy_shinyapps(app_name = app_name)
+is_deploy_script_entrypoint <- function() {
+  file_arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
+  if (!length(file_arg)) return(FALSE)
+  identical(basename(sub("^--file=", "", file_arg[[length(file_arg)]])),
+            "部署Shiny云端.R")
+}
+
+if (is_deploy_script_entrypoint()) {
+  args <- commandArgs(trailingOnly = TRUE)
+  app_name <- if (length(args) >= 1 && nzchar(args[[1]])) args[[1]] else "ghs-dashboard"
+  deploy_shinyapps(app_name = app_name)
+}

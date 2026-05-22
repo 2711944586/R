@@ -17,6 +17,123 @@ mod_widget_feature_button <- function(ns, id, icon, kicker, title, text,
   )
 }
 
+mod_widget_pretty_name <- function(file) {
+  x <- tools::file_path_sans_ext(basename(file))
+  x <- sub("^[0-9]+_", "", x)
+  x <- sub("^iadv_", "", x)
+  x <- sub("^imap_", "", x)
+  x <- sub("^widget_", "", x)
+  x <- gsub("_", " ", x)
+  tools::toTitleCase(x)
+}
+
+mod_widget_file_type <- function(file) {
+  x <- tolower(basename(file))
+  if (grepl("leaflet|imap|map|choropleth", x)) return("Leaflet")
+  if (grepl("reactable|^iadv_rt_|rank", x)) return("Reactable")
+  if (grepl("dt_|dt_|atlas|master_browse|table", x)) return("DT")
+  if (grepl("sankey|network|force|chord|tree|diagonal", x)) return("Network")
+  if (grepl("ec_|hc_|gauge|liquid|sunburst|icicle|wheel|packed", x)) return("HTML")
+  "Plotly"
+}
+
+mod_widget_file_group <- function(file) {
+  x <- tolower(basename(file))
+  if (grepl("leaflet|imap|map|choropleth", x)) return("地图")
+  if (grepl("dt_|reactable|^iadv_rt_|rank|table|atlas|browse", x)) return("表格")
+  if (grepl("sankey|network|force|chord|tree|diagonal", x)) return("网络")
+  if (grepl("sunburst|treemap|icicle|packed|wheel|donut|funnel", x)) return("结构")
+  if (grepl("heatmap|matrix|corr|calendar", x)) return("矩阵")
+  if (grepl("area|line|trend|race|timeline|stream|river|forecast", x)) return("时间")
+  if (grepl("hist|density|box|violin|polar|radar|parcoords|splom", x)) return("分布")
+  "专题"
+}
+
+mod_widget_manifest_from_files <- function(files,
+                                           base_url = "https://2711944586.github.io/R/交互组件/") {
+  if (!length(files)) return(data.frame())
+  files <- sort(files)
+  data.frame(
+    file = basename(files),
+    title = vapply(files, mod_widget_pretty_name, character(1)),
+    group = vapply(files, mod_widget_file_group, character(1)),
+    type = vapply(files, mod_widget_file_type, character(1)),
+    size_mb = round(file.info(files)$size / 1024^2, 2),
+    url = paste0(base_url, utils::URLencode(basename(files), reserved = TRUE)),
+    stringsAsFactors = FALSE
+  )
+}
+
+mod_widget_standalone_catalog <- function() {
+  root <- mod_widget_project_root()
+  manifest_paths <- c(
+    file.path(getwd(), "www", "widget_manifest.csv"),
+    file.path(root, "仪表盘", "www", "widget_manifest.csv"),
+    file.path(root, "www", "widget_manifest.csv")
+  )
+  manifest_paths <- unique(normalizePath(manifest_paths, winslash = "/",
+                                         mustWork = FALSE))
+  manifest_path <- manifest_paths[file.exists(manifest_paths)][1]
+  if (!is.na(manifest_path) && nzchar(manifest_path)) {
+    out <- tryCatch(
+      utils::read.csv(manifest_path, stringsAsFactors = FALSE,
+                      fileEncoding = "UTF-8"),
+      error = function(e) data.frame()
+    )
+    if (nrow(out)) return(out)
+  }
+  widget_dirs <- c(
+    file.path(root, "网站发布", "交互组件"),
+    file.path(root, "分析输出", "交互组件"),
+    file.path(getwd(), "www", "交互组件")
+  )
+  widget_dirs <- unique(widget_dirs[dir.exists(widget_dirs)])
+  if (!length(widget_dirs)) return(data.frame())
+  files <- list.files(widget_dirs[[1]], pattern = "\\.html$", full.names = TRUE)
+  mod_widget_manifest_from_files(files)
+}
+
+mod_widget_gallery_card <- function(row, index) {
+  title <- row$title %||% row$file
+  url <- row$url %||% ""
+  htmltools::tags$article(
+    class = "widget-gallery-card",
+    htmltools::tags$header(
+      class = "widget-gallery-card-head",
+      htmltools::span(class = "widget-gallery-index",
+                      sprintf("%03d", index)),
+      htmltools::div(
+        htmltools::span(class = "widget-gallery-kicker",
+                        paste(row$group, row$type, sep = " · ")),
+        htmltools::h3(title)
+      )
+    ),
+    htmltools::div(
+      class = "widget-gallery-frame",
+      htmltools::tags$iframe(
+        title = paste("Widget preview", title),
+        `data-widget-src` = url,
+        loading = "lazy",
+        referrerpolicy = "no-referrer",
+        allowfullscreen = NA,
+        srcdoc = paste0(
+          "<!doctype html><html><head><meta charset='utf-8'>",
+          "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;",
+          "background:#fffaf2;color:#5d667a;font-family:system-ui,'Microsoft YaHei',sans-serif}",
+          "main{text-align:center;padding:24px}b{display:block;color:#1d3f5f;margin-bottom:8px}</style>",
+          "</head><body><main><b>正在准备组件</b><span>滚动到此处后加载完整交互 HTML</span></main></body></html>"
+        )
+      )
+    ),
+    htmltools::tags$footer(
+      class = "widget-gallery-card-foot",
+      htmltools::span(row$file),
+      htmltools::tags$a("新窗打开", href = url, target = "_blank",
+                        rel = "noreferrer")
+    )
+  )
+}
+
 mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
   ns <- shiny::NS(id)
   bslib::nav_panel(
@@ -242,6 +359,7 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
         )
       ),
       shiny::uiOutput(ns("widget_type_deck")),
+      shiny::uiOutput(ns("standalone_gallery")),
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           width = 310,
@@ -539,6 +657,41 @@ mod_widgets_server <- function(id, master_r, world_sf) {
         type_card("reactable", "Reactable", "表格资产承担排序、搜索、明细复核和导出前检查。", "warn"),
         type_card("dt", "DT", "适合大字段浏览和快速筛选。", "secondary"),
         type_card("ui", "HTML / Network", "组合型 HTML、网络图和专题摘要进入 UI 渲染通道。", "neutral")
+      )
+    })
+
+    output$standalone_gallery <- shiny::renderUI({
+      catalog <- mod_widget_standalone_catalog()
+      if (!nrow(catalog)) {
+        return(mod_widget_missing(
+          "未检测到 standalone 组件清单",
+          "请先运行 Rscript 构建.R widgets 和 Rscript 构建.R deploy，或确认仪表盘/www/widget_manifest.csv 已存在。"
+        ))
+      }
+      groups <- sort(unique(catalog$group))
+      types <- sort(unique(catalog$type))
+      cards <- lapply(seq_len(nrow(catalog)), function(i) {
+        mod_widget_gallery_card(catalog[i, , drop = FALSE], i)
+      })
+      htmltools::tags$section(
+        class = "widget-gallery-section",
+        mod_v3_section_head(
+          "Standalone gallery",
+          sprintf("完整交互组件墙 · %d 个 HTML widget", nrow(catalog)),
+          "这里展示静态报告中生成的全部 standalone 交互组件。每张卡片在滚动进入视口时加载完整 HTML，既能一次性看到全目录，也避免首屏卡顿。"
+        ),
+        htmltools::div(
+          class = "widget-gallery-stats",
+          htmltools::span(paste("分组", length(groups))),
+          htmltools::span(paste("类型", length(types))),
+          htmltools::span(paste("总大小约", fmt_v3_num(sum(catalog$size_mb, na.rm = TRUE), 1), "MB")),
+          htmltools::span("来源 GitHub Pages 完整组件")
+        ),
+        htmltools::div(
+          class = "widget-gallery-filter-note",
+          paste("包含", paste(groups, collapse = " / "), "；组件 iframe 指向静态发布版完整 HTML，云端 Shiny 不再出现空白组件。")
+        ),
+        htmltools::div(class = "widget-gallery-grid", cards)
       )
     })
 
