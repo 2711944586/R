@@ -114,15 +114,13 @@ mod_widget_gallery_card <- function(row, index) {
   url <- row$url %||% ""
   iframe_args <- list(
     title = paste("Widget preview", title),
-    src = url,
     `data-widget-src` = url,
-    `data-widget-eager` = "true",
-    loading = "eager",
+    loading = "lazy",
     referrerpolicy = "no-referrer",
     allowfullscreen = NA
   )
   htmltools::tags$article(
-    class = "widget-gallery-card is-loaded",
+    class = "widget-gallery-card is-deferred",
     htmltools::tags$header(
       class = "widget-gallery-card-head",
       htmltools::span(class = "widget-gallery-index",
@@ -135,6 +133,10 @@ mod_widget_gallery_card <- function(row, index) {
     ),
     htmltools::div(
       class = "widget-gallery-frame",
+      htmltools::div(
+        class = "widget-frame-placeholder",
+        "进入视口后加载真实 standalone widget。"
+      ),
       do.call(htmltools::tags$iframe, iframe_args)
     ),
     htmltools::tags$footer(

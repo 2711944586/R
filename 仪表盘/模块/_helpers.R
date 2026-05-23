@@ -405,7 +405,7 @@ mod_v3_widget_specs <- function(topic) {
 mod_v3_widget_card <- function(spec, index) {
   url <- mod_v3_widget_url(spec$file)
   htmltools::tags$article(
-    class = "section-widget-card widget-gallery-card is-loaded",
+    class = "section-widget-card widget-gallery-card is-deferred",
     htmltools::tags$header(
       class = "section-widget-card-head",
       htmltools::span(class = "section-widget-index", sprintf("%02d", index)),
@@ -417,12 +417,14 @@ mod_v3_widget_card <- function(spec, index) {
     ),
     htmltools::div(
       class = "section-widget-frame widget-gallery-frame",
+      htmltools::div(
+        class = "widget-frame-placeholder",
+        "滚动到此处后加载线上真实交互组件。"
+      ),
       htmltools::tags$iframe(
         title = paste("Section widget", spec$title),
-        src = url,
         `data-widget-src` = url,
-        `data-widget-eager` = "true",
-        loading = "eager",
+        loading = "lazy",
         referrerpolicy = "no-referrer",
         allowfullscreen = NA
       )

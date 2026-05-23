@@ -4,6 +4,7 @@
   document.documentElement.classList.add("ghs-js-ready");
 
   var revealObserver = null;
+  var widgetFrameObserver = null;
   var enhancementTimer = null;
   var revealSelector = [
     ".v3-card",
@@ -28,57 +29,63 @@
       });
   }
 
-  function loadStandaloneFrames() {
-    var frames = document.querySelectorAll("iframe[data-widget-src]");
+  function loadWidgetFrame(frame) {
+    if (!frame || frame.dataset.ghsWidgetLoaded === "true") return;
+    var src = frame.getAttribute("data-widget-src");
+    if (!src) return;
+    frame.dataset.ghsWidgetLoaded = "true";
+    var card = frame.closest(".widget-gallery-card, .section-widget-card");
+    if (card) {
+      card.classList.remove("is-deferred", "is-loaded");
+      card.classList.add("is-loading");
+    }
+    frame.addEventListener("load", function () {
+      if (card) {
+        card.classList.remove("is-loading");
+        card.classList.add("is-loaded");
+      }
+    }, { once: true });
+    frame.setAttribute("src", src);
+  }
 
-    function loadFrame(frame) {
-      if (!frame || frame.dataset.ghsWidgetLoaded === "true") return;
-      var src = frame.getAttribute("data-widget-src");
-      if (!src) return;
-      frame.dataset.ghsWidgetLoaded = "true";
-      var card = frame.closest(".widget-gallery-card");
-      if (!frame.getAttribute("src")) {
-        frame.setAttribute("src", src);
-        if (card) card.classList.add("is-loading");
-      }
-      frame.addEventListener("load", function () {
-        if (card) {
-          card.classList.remove("is-loading");
-          card.classList.add("is-loaded");
-        }
-      }, { once: true });
-      if (frame.getAttribute("src")) {
-        if (card) {
-          card.classList.remove("is-loading");
-          card.classList.add("is-loaded");
-        }
-      }
+  function loadStandaloneFrames(scope) {
+    var root = scope || document;
+    var frames = root.querySelectorAll("iframe[data-widget-src]:not([src])");
+
+    if (!("IntersectionObserver" in window)) {
+      Array.prototype.slice.call(frames, 0, 6).forEach(loadWidgetFrame);
+      return;
     }
 
-    frames.forEach(loadFrame);
+    if (!widgetFrameObserver) {
+      widgetFrameObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            loadWidgetFrame(entry.target);
+            widgetFrameObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.02,
+        rootMargin: "420px 0px"
+      });
+    }
+
+    frames.forEach(function (frame) {
+      if (frame.dataset.ghsWidgetObserved !== "true") {
+        frame.dataset.ghsWidgetObserved = "true";
+        widgetFrameObserver.observe(frame);
+      }
+    });
   }
+
+  window.ghsLoadWidgetFrame = loadWidgetFrame;
+  window.ghsLoadStandaloneFrames = loadStandaloneFrames;
 
   function refreshActiveStandaloneFrames() {
     var activePane = document.querySelector(".tab-pane.active");
     if (!activePane) return;
-    document.querySelectorAll(".section-widget-strip iframe[data-widget-src]").forEach(function (frame) {
-      var src = frame.getAttribute("data-widget-src");
-      if (!src || frame.dataset.ghsActiveRefresh === "true") return;
-      frame.dataset.ghsActiveRefresh = "true";
-      var card = frame.closest(".widget-gallery-card");
-      if (card) {
-        card.classList.remove("is-loaded");
-        card.classList.add("is-loading");
-      }
-      frame.addEventListener("load", function () {
-        if (card) {
-          card.classList.remove("is-loading");
-          card.classList.add("is-loaded");
-        }
-      }, { once: true });
-      var sep = src.indexOf("?") >= 0 ? "&" : "?";
-      frame.setAttribute("src", src + sep + "ghs_view=" + Date.now());
-    });
+    loadStandaloneFrames(activePane);
   }
 
   function revealPanels() {
@@ -274,6 +281,7 @@
 
   function buildModuleStrip(panel) {
     if (!panel || panel.querySelector(".section-widget-strip, .js-module-widget-strip")) return;
+    if (panel.matches(".home-page, .home-title-page") || panel.querySelector(".home-title-cover")) return;
     var text = (panelTitle(panel) + " " + (panel.textContent || "")).trim();
     if (text.length < 20 || /首页|home-title|封面/.test(text)) return;
     var topic = topicFor(text);
@@ -289,9 +297,9 @@
       topic.files.map(function (item) {
         var url = widgetUrl(item[0]);
         return [
-          "<article class='section-widget-card'>",
+          "<article class='section-widget-card widget-gallery-card is-deferred'>",
           "<header><strong>" + item[1] + "</strong><a href='" + url + "' target='_blank' rel='noreferrer'>新窗</a></header>",
-          "<div class='section-widget-frame'><iframe src='" + url + "' data-widget-src='" + url + "' data-widget-eager='true' loading='eager' referrerpolicy='no-referrer' title='" + item[1] + "'></iframe></div>",
+          "<div class='section-widget-frame widget-gallery-frame'><div class='widget-frame-placeholder'>进入视口后加载线上真实组件。</div><iframe data-widget-src='" + url + "' loading='lazy' referrerpolicy='no-referrer' title='" + item[1] + "'></iframe></div>",
           "</article>"
         ].join("");
       }).join(""),
@@ -312,12 +320,9 @@
   }
 
   function loadWidgetFrames(scope) {
-    (scope || document).querySelectorAll("iframe[data-widget-src]").forEach(function (frame) {
-      var src = frame.getAttribute("data-widget-src");
-      if (src && frame.getAttribute("src") !== src) {
-        frame.setAttribute("src", src);
-      }
-    });
+    if (window.ghsLoadStandaloneFrames) {
+      window.ghsLoadStandaloneFrames(scope || document);
+    }
   }
 
   window.ghsLoadWidgetFrames = loadWidgetFrames;
