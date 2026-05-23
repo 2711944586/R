@@ -182,7 +182,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "本目录名为 `庄颂_20241334/`，与作业提交命名保持一致。最终提交时可直接压缩整个文件夹为 `庄颂_20241334.zip`。根目录只保留一个 `README.md` 文件；安装、启动、构建、依赖和索引类文件均放入专门文件夹，避免评阅入口被杂项文件淹没。",
     "",
-    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html`、`课程提交/庄颂_20241334.Rmd` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成。Rmd 会从课程 HTML 抽取样式、正文和脚本，保证内容与 HTML 一致。课程 HTML 已修复标题页动画、暖纸色背景、右下角 dock、图片放大弹层和交互组件空白问题；离线评阅时会显示轻量组件预览，完整 widget 可通过线上发布地址打开。交付包保留课程主件、网站首页、Shiny 源码、核心派生数据、CSV 模型结果、质量报告、项目文档和复现脚本；完整图片目录、widget 依赖目录和重复代码副本不再打包。",
+    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html`、`课程提交/庄颂_20241334.Rmd` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成。Rmd 会从课程 HTML 抽取样式、正文和脚本，保证内容与 HTML 一致。课程 HTML 已修复标题页动画、暖纸色背景、右下角 dock、图片放大弹层和交互组件空白问题；离线评阅时会显示轻量组件预览，完整 widget 可通过线上发布地址打开。云端 Shiny 已随应用发布完整 standalone widget 缓存，打开页面即可直接看到地图、Plotly、表格和网络组件；交付包则保留课程主件、网站首页、Shiny 源码、核心派生数据、CSV 模型结果、质量报告、项目文档和复现脚本，不重复打包完整图片目录、widget 缓存目录和重复代码副本。",
     "",
     sprintf("本交付包共包含 **%s 个文件**，总大小约 **%s MB**。当前版本保留完整课程 HTML/Rmd 与 Shiny 运行文件，同时删除重复的发布资源副本。", total_files, total_size),
     "",
@@ -191,7 +191,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     sprintf("- **内容结构**：36 个内容章节，包含数据说明、核心发现、图集、交互组件、复现说明和结论。"),
     sprintf("- **核心发现**：14 项，每项对应研究问题、方法、代码入口、图表、表格和解释。"),
     sprintf("- **静态图集**：完整项目当前生成 %s 张 PNG + %s 张 SVG；课程 HTML/Rmd 已嵌入主要展示图，提交包不再复制独立图片文件。", png_count, svg_count),
-    sprintf("- **交互组件**：完整项目当前生成 %s 个 HTML widget；课程 HTML 内置轻量离线预览，完整 widget 通过发布地址按需打开，不在提交包内重复保存 widget 依赖。", widget_count),
+    sprintf("- **交互组件**：完整项目当前生成 %s 个 HTML widget；云端 Shiny 已随应用发布完整 widget 缓存，课程 HTML 内置轻量离线预览，完整 widget 通过发布地址按需打开；提交包不重复保存这批大体积缓存。", widget_count),
     sprintf("- **模型表**：`分析输出/模型表/` 中保留 %s 个 CSV 模型或指标产物，适合快速复核。", model_count),
     "- **Shiny**：39 个页面与交互模块；首页调整为纯标题封面，导航支持点击空白处关闭，交互组件页新增动态气泡、地图、排行动画、旭日结构、平行坐标、相似网络、专题看板、热力图、雷达画像、树状结构、功能流图、液体仪表和主表浏览。",
     "",
@@ -245,7 +245,8 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "### `仪表盘/`",
     "",
-    "- 本地 Shiny 应用目录。`global.R`、`ui.R`、`server.R` 是入口；`模块/` 保存模块源码；`www/` 保存前端资源；`数据快照/` 用于可移植启动。",
+    "- 本地 Shiny 应用目录。`global.R`、`ui.R`、`server.R` 是入口；`模块/` 保存模块源码；`www/` 保存前端样式与脚本；`数据快照/` 用于可移植启动。",
+    "- `www/交互组件/` 是云端 Shiny 使用的 standalone widget 缓存，完整目录已部署到 shinyapps.io；为控制提交包体积，本交付包不复制该缓存，缺失时 Shiny 会回退到 GitHub Pages widget 地址。",
     "- `模块/mod_home.R` 是 Shiny 首页模块；当前首页只承担封面和导航入口，不再堆叠总览指标、路径卡片或结论摘要。",
     "- 已排除 `rsconnect/` 部署元数据，避免把账号部署状态或本机路径放入交付包。",
     "",
@@ -303,13 +304,13 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "## 9. 注意事项",
     "",
     "- 不要把 shinyapps.io token、secret、`.Renviron`、`.env` 或 `rsconnect/` 提交到仓库。",
-    "- `课程提交/庄颂_20241334.html` 内置轻量 widget 预览；完整 standalone widget 仍以线上静态发布版为准。",
+    "- `课程提交/庄颂_20241334.html` 内置轻量 widget 预览；完整 standalone widget 可在 shinyapps.io 或线上静态发布版查看。",
     "- `课程提交/庄颂_20241334.Rmd` 依赖交付包内的 `程序/`，因此不要单独移动 Rmd；如需单独提交，仍建议同时提交整个 `庄颂_20241334/` 文件夹。",
     "- 单页 HTML 和同源 Rmd 体积较大是为了课程提交可直接阅读和复核；提交包已避免重复复制 widget、图片目录和重复代码副本。",
     "",
     "## 10. 已知限制",
     "",
-    "- 提交包不包含完整 widget 依赖目录、发布图表目录和浏览器版仪表盘目录；如需逐个打开 standalone widget 或完整图表库，请使用完整仓库或 GitHub Pages 发布目录。",
+    "- 提交包不包含完整 widget 缓存目录、发布图表目录和浏览器版仪表盘目录；如需逐个打开 standalone widget 或完整图表库，请使用 shinyapps.io、完整仓库或 GitHub Pages 发布目录。",
     "- 当前质量门禁覆盖语法、图像、链接、widget、文本、secret、Shiny bundle 与 README 一致性，未包含跨断点截图测试。",
     "- `renv.lock` 放在 `项目入口/`；不同 R 与系统库版本下仍可能出现细小渲染差异。",
     "- 多数交互组件是 standalone widget，Shiny 模块之间未共享筛选状态。",
@@ -363,6 +364,8 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   unlink(file.path(delivery_dir, "原始数据", ".DS_Store"), force = TRUE)
   unlink(file.path(delivery_dir, "课程提交", ".Rhistory"), force = TRUE)
   unlink(file.path(delivery_dir, "仪表盘", "rsconnect"), recursive = TRUE, force = TRUE)
+  unlink(file.path(delivery_dir, "仪表盘", "www", "交互组件"), recursive = TRUE, force = TRUE)
+  unlink(file.path(delivery_dir, "仪表盘", "www", "widget_manifest.csv"), force = TRUE)
   image_files <- list.files(delivery_dir,
                             pattern = "[.](png|jpe?g|gif|svg|webp|bmp|tiff?)$",
                             recursive = TRUE, full.names = TRUE,
