@@ -2683,23 +2683,29 @@ body,
 }
 
 .section-widget-strip {
-  max-width: min(1360px, calc(100vw - 42px));
-  margin: -8px auto 24px;
-  padding: 0 18px;
+  max-width: min(1400px, calc(100vw - 34px));
+  margin: -6px auto 30px;
+  padding: 18px;
+  border: 1px solid rgba(37, 79, 92, .13);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, .92), rgba(248, 242, 232, .78));
+  box-shadow: 0 1px 2px rgba(23, 33, 31, .045), 0 14px 34px rgba(23, 33, 31, .075);
 }
 
 .section-widget-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 3px;
-  margin: 0 0 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 18px;
+  align-items: end;
+  margin: 0 0 16px;
 }
 
 .section-widget-head span {
-  color: var(--ghs-final-blue);
-  font-size: 10.5px;
+  color: #8f743d;
+  font-size: 10px;
   font-weight: 850;
-  letter-spacing: .16em;
+  letter-spacing: .14em;
   text-transform: uppercase;
 }
 
@@ -2715,14 +2721,15 @@ body,
   max-width: 720px;
   margin: 0;
   color: var(--ghs-final-muted);
-  font-size: 13.5px;
+  font-size: 13.2px;
   line-height: 1.62;
+  grid-column: 1 / -1;
 }
 
 .section-widget-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .section-widget-card {
@@ -2731,15 +2738,23 @@ body,
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(23, 33, 31, .045), 0 12px 28px rgba(23, 33, 31, .07);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.section-widget-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(37, 79, 92, .22);
+  box-shadow: 0 2px 4px rgba(23, 33, 31, .06), 0 18px 38px rgba(23, 33, 31, .10);
 }
 
 .section-widget-card-head {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
   gap: 12px;
-  padding: 14px 16px 12px;
+  padding: 13px 16px 12px;
   border-bottom: 1px solid var(--ghs-final-line);
-  background: linear-gradient(180deg, #fffdf8, #fbfaf6);
+  background:
+    linear-gradient(180deg, rgba(255,253,248,.98), rgba(249,245,237,.95));
 }
 
 .section-widget-index {
@@ -2783,14 +2798,17 @@ body,
 }
 
 .section-widget-frame {
-  min-height: 440px;
+  min-height: 500px;
   background: #fff;
 }
 
 .section-widget-frame iframe {
+  display: block;
   width: 100%;
-  height: 440px;
-  min-height: 440px;
+  height: 500px;
+  min-height: 500px;
+  border: 0;
+  background: #fff;
 }
 
 .section-widget-card-foot {
@@ -2824,9 +2842,41 @@ body,
   text-underline-offset: 3px;
 }
 
+.section-widget-strip-overview {
+  margin-top: -4px;
+  padding: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, .95), rgba(244, 237, 225, .82));
+}
+
+.section-widget-strip-overview .section-widget-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+
+.section-widget-strip-overview .section-widget-card:first-child .section-widget-frame,
+.section-widget-strip-overview .section-widget-card:first-child .section-widget-frame iframe,
+.section-widget-strip-overview .section-widget-card .section-widget-frame,
+.section-widget-strip-overview .section-widget-card .section-widget-frame iframe {
+  min-height: 560px;
+  height: 560px;
+}
+
 @media (max-width: 1180px) {
   .section-widget-strip {
     max-width: min(1180px, calc(100vw - 28px));
+  }
+
+  .section-widget-strip-overview .section-widget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-widget-strip-overview .section-widget-card:first-child .section-widget-frame,
+  .section-widget-strip-overview .section-widget-card:first-child .section-widget-frame iframe,
+  .section-widget-strip-overview .section-widget-card .section-widget-frame,
+  .section-widget-strip-overview .section-widget-card .section-widget-frame iframe {
+    min-height: 520px;
+    height: 520px;
   }
 }
 
@@ -2839,7 +2889,7 @@ body,
 @media (max-width: 640px) {
   .section-widget-strip {
     max-width: calc(100vw - 18px);
-    padding: 0;
+    padding: 12px;
   }
 
   .section-widget-card-head {
@@ -2848,7 +2898,15 @@ body,
 
   .section-widget-frame,
   .section-widget-frame iframe {
-    min-height: 380px;
-    height: 380px;
+    min-height: 420px;
+    height: 420px;
+  }
+
+  .section-widget-strip-overview .section-widget-card:first-child .section-widget-frame,
+  .section-widget-strip-overview .section-widget-card:first-child .section-widget-frame iframe,
+  .section-widget-strip-overview .section-widget-card .section-widget-frame,
+  .section-widget-strip-overview .section-widget-card .section-widget-frame iframe {
+    min-height: 430px;
+    height: 430px;
   }
 }

@@ -39,7 +39,8 @@ prepare_shiny_app <- function() {
 
 prepare_shiny_widget_manifest <- function(widget_dir = file.path("网站发布", "交互组件"),
                                           fallback_dir = file.path("分析输出", "交互组件"),
-                                          out = file.path("仪表盘", "www", "widget_manifest.csv")) {
+                                          out = file.path("仪表盘", "www", "widget_manifest.csv"),
+                                          shiny_widget_dir = file.path("仪表盘", "www", "交互组件")) {
   if (!dir.exists(widget_dir)) widget_dir <- fallback_dir
   files <- if (dir.exists(widget_dir)) {
     list.files(widget_dir, pattern = "[.]html$", full.names = TRUE)
@@ -47,9 +48,19 @@ prepare_shiny_widget_manifest <- function(widget_dir = file.path("网站发布",
     character()
   }
   dir.create(dirname(out), recursive = TRUE, showWarnings = FALSE)
+  dir.create(shiny_widget_dir, recursive = TRUE, showWarnings = FALSE)
   if (!length(files)) {
     utils::write.csv(data.frame(), out, row.names = FALSE, fileEncoding = "UTF-8")
     return(invisible(out))
+  }
+  old_local <- list.files(shiny_widget_dir, pattern = "[.]html$", full.names = TRUE)
+  stale <- setdiff(basename(old_local), basename(files))
+  if (length(stale)) {
+    unlink(file.path(shiny_widget_dir, stale), force = TRUE)
+  }
+  copied <- file.copy(files, shiny_widget_dir, overwrite = TRUE)
+  if (any(!copied)) {
+    warning("Some standalone widget HTML files were not copied to Shiny www.")
   }
   pretty <- function(file) {
     x <- tools::file_path_sans_ext(basename(file))
@@ -91,7 +102,7 @@ prepare_shiny_widget_manifest <- function(widget_dir = file.path("网站发布",
     group = vapply(files, group_of, character(1)),
     type = vapply(files, type_of, character(1)),
     size_mb = round(file.info(files)$size / 1024^2, 2),
-    url = paste0("https://2711944586.github.io/R/交互组件/",
+    url = paste0("交互组件/",
                  utils::URLencode(basename(files), reserved = TRUE)),
     stringsAsFactors = FALSE
   )

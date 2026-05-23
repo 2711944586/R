@@ -84,21 +84,20 @@ mod_kpi_row <- function(...) {
 
 
 mod_v3_widget_url <- function(file) {
-  paste0(
-    "https://2711944586.github.io/R/交互组件/",
-    utils::URLencode(file, reserved = TRUE)
-  )
-}
-
-mod_v3_widget_placeholder <- function(title) {
-  paste0(
-    "<!doctype html><html><head><meta charset='utf-8'>",
-    "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;",
-    "background:#fffaf2;color:#5d667a;font-family:system-ui,'Microsoft YaHei',sans-serif}",
-    "main{text-align:center;padding:24px}b{display:block;color:#254f5c;margin-bottom:8px}</style>",
-    "</head><body><main><b>", htmltools::htmlEscape(title),
-    "</b><span>滚动到这里后加载完整交互图</span></main></body></html>"
-  )
+  encoded <- utils::URLencode(file, reserved = TRUE)
+  root <- if (exists("app_dir_env", envir = .GlobalEnv, inherits = FALSE)) {
+    get("app_dir_env", envir = .GlobalEnv)
+  } else {
+    mod_widget_project_root()
+  }
+  local_dirs <- unique(c(
+    file.path(root, "www", "交互组件"),
+    file.path(root, "仪表盘", "www", "交互组件"),
+    file.path(getwd(), "www", "交互组件")
+  ))
+  local_hit <- any(file.exists(file.path(local_dirs, file)))
+  if (local_hit) return(paste0("交互组件/", encoded))
+  paste0("https://2711944586.github.io/R/交互组件/", encoded)
 }
 
 mod_v3_widget_topic <- function(kicker, title, lead) {
@@ -164,10 +163,14 @@ mod_v3_widget_specs <- function(topic) {
     list(file = file, title = title, kicker = kicker, desc = desc)
   }
   common <- list(
+    spec("11_world_leaflet.html", "世界地图：全球空间分布", "Leaflet map",
+         "把全球差异直接放回地理空间，悬停即可查看国家标签和核心指标。"),
     spec("01_gapminder_animated.html", "动态气泡：支出、GDP 与寿命", "Plotly animation",
          "用年份动画把经济水平、健康产出和人均卫生支出放在同一张图里。"),
-    spec("11_world_leaflet.html", "世界地图：空间分布", "Leaflet map",
-         "悬停国家查看指标标签，先把全球差异落到地理位置。")
+    spec("13_leaflet_choropleth.html", "分级设色地图：人均支出", "Leaflet choropleth",
+         "切换到支出强度视角，观察高低支出国家在空间上的聚集。"),
+    spec("iadv_bar_race.html", "动态排行：高支出国家变化", "Motion ranking",
+         "用年份帧观察排名重排，让总览页一打开就有明显的运动和对比。")
   )
   specs <- switch(topic,
     widgets = list(
@@ -395,13 +398,14 @@ mod_v3_widget_specs <- function(topic) {
     ),
     common
   )
-  specs[seq_len(min(2, length(specs)))]
+  n <- if (identical(topic, "overview")) 4 else 2
+  specs[seq_len(min(n, length(specs)))]
 }
 
 mod_v3_widget_card <- function(spec, index) {
   url <- mod_v3_widget_url(spec$file)
   htmltools::tags$article(
-    class = "section-widget-card widget-gallery-card",
+    class = "section-widget-card widget-gallery-card is-loaded",
     htmltools::tags$header(
       class = "section-widget-card-head",
       htmltools::span(class = "section-widget-index", sprintf("%02d", index)),
@@ -415,9 +419,10 @@ mod_v3_widget_card <- function(spec, index) {
       class = "section-widget-frame widget-gallery-frame",
       htmltools::tags$iframe(
         title = paste("Section widget", spec$title),
+        src = url,
         `data-widget-src` = url,
-        srcdoc = mod_v3_widget_placeholder(spec$title),
-        loading = "lazy",
+        `data-widget-eager` = "true",
+        loading = "eager",
         referrerpolicy = "no-referrer",
         allowfullscreen = NA
       )
@@ -435,7 +440,8 @@ mod_v3_section_widgets <- function(kicker, title, lead) {
   topic <- mod_v3_widget_topic(kicker, title, lead)
   specs <- mod_v3_widget_specs(topic)
   htmltools::tags$section(
-    class = "section-widget-strip",
+    class = mod_class("section-widget-strip",
+                      if (identical(topic, "overview")) "section-widget-strip-overview"),
     `data-widget-topic` = topic,
     htmltools::div(
       class = "section-widget-head",

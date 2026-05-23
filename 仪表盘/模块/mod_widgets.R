@@ -91,7 +91,10 @@ mod_widget_standalone_catalog <- function() {
                       fileEncoding = "UTF-8"),
       error = function(e) data.frame()
     )
-    if (nrow(out)) return(mod_widget_catalog_order(out))
+    if (nrow(out)) {
+      out$url <- vapply(out$file, mod_v3_widget_url, character(1))
+      return(mod_widget_catalog_order(out))
+    }
   }
   widget_dirs <- c(
     file.path(root, "网站发布", "交互组件"),
@@ -101,7 +104,9 @@ mod_widget_standalone_catalog <- function() {
   widget_dirs <- unique(widget_dirs[dir.exists(widget_dirs)])
   if (!length(widget_dirs)) return(data.frame())
   files <- list.files(widget_dirs[[1]], pattern = "\\.html$", full.names = TRUE)
-  mod_widget_manifest_from_files(files)
+  out <- mod_widget_manifest_from_files(files)
+  if (nrow(out)) out$url <- vapply(out$file, mod_v3_widget_url, character(1))
+  out
 }
 
 mod_widget_gallery_card <- function(row, index) {
@@ -109,25 +114,15 @@ mod_widget_gallery_card <- function(row, index) {
   url <- row$url %||% ""
   iframe_args <- list(
     title = paste("Widget preview", title),
+    src = url,
     `data-widget-src` = url,
-    loading = if (index <= 8) "eager" else "lazy",
+    `data-widget-eager` = "true",
+    loading = "eager",
     referrerpolicy = "no-referrer",
     allowfullscreen = NA
   )
-  if (index <= 8 && nzchar(url)) {
-    iframe_args$src <- url
-    iframe_args$`data-widget-eager` <- "true"
-  } else {
-    iframe_args$srcdoc <- paste0(
-      "<!doctype html><html><head><meta charset='utf-8'>",
-      "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;",
-      "background:#fffaf2;color:#5d667a;font-family:system-ui,'Microsoft YaHei',sans-serif}",
-      "main{text-align:center;padding:24px}b{display:block;color:#1d3f5f;margin-bottom:8px}</style>",
-      "</head><body><main><b>正在准备组件</b><span>滚动到此处后加载完整交互 HTML</span></main></body></html>"
-    )
-  }
   htmltools::tags$article(
-    class = "widget-gallery-card",
+    class = "widget-gallery-card is-loaded",
     htmltools::tags$header(
       class = "widget-gallery-card-head",
       htmltools::span(class = "widget-gallery-index",
@@ -225,8 +220,8 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
       title = "Widgets · 交互组件原生中枢",
       lead = paste(
         "这里把静态报告中分散的交互组件还原为 Shiny 原生输出。",
-        "目录只负责检索与选择，真正的图表、地图、表格和网络会在选中后懒加载，",
-        "既保留组件完整度，也避免一次性加载全部组件造成页面迟滞。"
+        "总览地图、动态图、表格和网络组件会直接显示在页面中，",
+        "既能快速检索原生输出，也能从完整 HTML 组件墙直接打开细看。"
       ),
       meta = list("Plotly", "Leaflet", "Reactable", "DT", "Network / HTML")
     ),
@@ -235,7 +230,7 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
       mod_v3_badge_row(
         "原生渲染",
         "Plotly / Leaflet / Reactable / DT / Network",
-        "按需加载",
+        "直接显示",
         "高级组件可直接切换",
         tone = "secondary"
       ),
@@ -465,8 +460,8 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
             choices = country_choices, selected = "CHN",
             options = list(placeholder = "部分组件会使用该国家")),
           mod_v3_sidebar_note(
-            title = "组件加载策略",
-            text = "目录每次只渲染当前选中的一个组件；切换组件会重新调用对应 R 函数。",
+            title = "组件显示策略",
+            text = "上方精选和下方 HTML 组件墙直接显示，侧栏用于切换当前原生 Shiny 预览。",
             bullets = c(
               "Plotly/Leaflet/表格组件走专用输出通道。",
               "HTML、networkD3、crosstalk 等组合组件走 UI 输出。",
@@ -823,18 +818,18 @@ mod_widgets_server <- function(id, master_r, world_sf) {
         mod_v3_section_head(
           "Standalone gallery",
           sprintf("完整交互组件墙 · %d 个 HTML widget", nrow(catalog)),
-          "这里展示静态报告中生成的全部 standalone 交互组件。每张卡片在滚动进入视口时加载完整 HTML，既能一次性看到全目录，也避免首屏卡顿。"
+          "这里展示静态报告中生成的全部 standalone 交互组件。每张卡片直接载入真实 HTML，可在当前页查看，也可打开新窗放大阅读。"
         ),
         htmltools::div(
           class = "widget-gallery-stats",
           htmltools::span(paste("分组", length(groups))),
           htmltools::span(paste("类型", length(types))),
           htmltools::span(paste("总大小约", fmt_v3_num(sum(catalog$size_mb, na.rm = TRUE), 1), "MB")),
-          htmltools::span("来源 GitHub Pages 完整组件")
+          htmltools::span("来源 Shiny 本地静态组件")
         ),
         htmltools::div(
           class = "widget-gallery-filter-note",
-          paste("包含", paste(groups, collapse = " / "), "；组件 iframe 指向静态发布版完整 HTML，云端 Shiny 不再出现空白组件。")
+          paste("包含", paste(groups, collapse = " / "), "；组件 iframe 指向随 Shiny 一起发布的 standalone HTML，打开页面即可看到完整交互组件。")
         ),
         htmltools::div(class = "widget-gallery-grid", cards)
       )

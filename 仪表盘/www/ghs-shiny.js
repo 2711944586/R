@@ -28,8 +28,6 @@
       });
   }
 
-  var widgetFrameObserver = null;
-
   function loadStandaloneFrames() {
     var frames = document.querySelectorAll("iframe[data-widget-src]");
 
@@ -37,54 +35,49 @@
       if (!frame || frame.dataset.ghsWidgetLoaded === "true") return;
       var src = frame.getAttribute("data-widget-src");
       if (!src) return;
-      if (frame.dataset.widgetEager === "true" && frame.getAttribute("src")) {
-        frame.dataset.ghsWidgetLoaded = "true";
-        var eagerCard = frame.closest(".widget-gallery-card");
-        if (eagerCard) eagerCard.classList.add("is-loaded");
-        return;
-      }
       frame.dataset.ghsWidgetLoaded = "true";
-      frame.setAttribute("src", src);
       var card = frame.closest(".widget-gallery-card");
-      if (card) card.classList.add("is-loading");
+      if (!frame.getAttribute("src")) {
+        frame.setAttribute("src", src);
+        if (card) card.classList.add("is-loading");
+      }
       frame.addEventListener("load", function () {
         if (card) {
           card.classList.remove("is-loading");
           card.classList.add("is-loaded");
         }
       }, { once: true });
-    }
-
-    if (!("IntersectionObserver" in window)) {
-      frames.forEach(loadFrame);
-      return;
-    }
-
-    if (!widgetFrameObserver) {
-      widgetFrameObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            loadFrame(entry.target);
-            widgetFrameObserver.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.08,
-        rootMargin: "520px 0px"
-      });
-    }
-
-    frames.forEach(function (frame) {
-      var rect = frame.getBoundingClientRect();
-      var isNearViewport = rect.top < window.innerHeight + 700 && rect.bottom > -320;
-      if (frame.closest(".tab-pane.active") && isNearViewport) {
-        loadFrame(frame);
-        return;
+      if (frame.getAttribute("src")) {
+        if (card) {
+          card.classList.remove("is-loading");
+          card.classList.add("is-loaded");
+        }
       }
-      if (frame.dataset.ghsWidgetBound !== "true") {
-        frame.dataset.ghsWidgetBound = "true";
-        widgetFrameObserver.observe(frame);
+    }
+
+    frames.forEach(loadFrame);
+  }
+
+  function refreshActiveStandaloneFrames() {
+    var activePane = document.querySelector(".tab-pane.active");
+    if (!activePane) return;
+    activePane.querySelectorAll(".section-widget-strip iframe[data-widget-src]").forEach(function (frame) {
+      var src = frame.getAttribute("data-widget-src");
+      if (!src || frame.dataset.ghsActiveRefresh === "true") return;
+      frame.dataset.ghsActiveRefresh = "true";
+      var card = frame.closest(".widget-gallery-card");
+      if (card) {
+        card.classList.remove("is-loaded");
+        card.classList.add("is-loading");
       }
+      frame.addEventListener("load", function () {
+        if (card) {
+          card.classList.remove("is-loading");
+          card.classList.add("is-loaded");
+        }
+      }, { once: true });
+      var sep = src.indexOf("?") >= 0 ? "&" : "?";
+      frame.setAttribute("src", src + sep + "ghs_view=" + Date.now());
     });
   }
 
@@ -214,6 +207,8 @@
   document.addEventListener("shown.bs.tab", function () {
     scrollTabToTop();
     scheduleEnhancements();
+    window.setTimeout(refreshActiveStandaloneFrames, 160);
+    window.setTimeout(refreshActiveStandaloneFrames, 800);
   });
   document.addEventListener("click", function (event) {
     var insideNavbar = event.target.closest(".navbar, nav.navbar");
