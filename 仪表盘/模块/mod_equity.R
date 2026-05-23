@@ -152,6 +152,7 @@ mod_equity_server <- function(id, master_r, year_max) {
     output$indices_ts <- plotly::renderPlotly({
       d <- ineq_data()
       shiny::req(d, nrow(d) > 0)
+      if (!"atk2" %in% names(d)) d$atk2 <- NA_real_
       cols_map <- c("Gini" = "gini_pop", "Theil-T" = "theil_pop",
                     "Atkinson(\u03b5=0.5)" = "atk05",
                     "Atkinson(\u03b5=1)"   = "atk1",
@@ -160,6 +161,7 @@ mod_equity_server <- function(id, master_r, year_max) {
       shiny::req(length(sel) > 0)
       use_cols <- cols_map[sel]
       use_cols <- use_cols[use_cols %in% names(d)]
+      shiny::req(length(use_cols) > 0)
       d2 <- d[, c("year", use_cols)]
       d2 <- tidyr::pivot_longer(d2, dplyr::all_of(unname(use_cols)),
                                  names_to = "key", values_to = "value")
@@ -219,8 +221,10 @@ mod_equity_server <- function(id, master_r, year_max) {
     output$inequality_table <- reactable::renderReactable({
       d <- ineq_data()
       shiny::req(d, nrow(d) > 0)
+      if (!"atk2" %in% names(d)) d$atk2 <- NA_real_
       d <- d[order(d$year), , drop = FALSE]
       first_gini <- d$gini_pop[which(is.finite(d$gini_pop))[1]]
+      if (!is.finite(first_gini)) first_gini <- NA_real_
       df <- data.frame(
         year = d$year,
         gini = round(d$gini_pop, 3),

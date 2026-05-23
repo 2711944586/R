@@ -104,7 +104,13 @@ mod_pandemic_server <- function(id, master_r) {
   shiny::moduleServer(id, function(input, output, session) {
     covid_panel <- shiny::reactive({
       m <- master_r()
-      tryCatch(covid_shock(m), error = function(e) NULL)
+      d <- tryCatch(covid_shock(m), error = function(e) NULL)
+      if (is.null(d) || !nrow(d)) return(d)
+      meta <- m |>
+        dplyr::filter(.data$year == 2019) |>
+        dplyr::select(.data$iso3_code, .data$continent, .data$income_group) |>
+        dplyr::distinct(.data$iso3_code, .keep_all = TRUE)
+      dplyr::left_join(d, meta, by = "iso3_code")
     })
 
     output$kpi_strip <- shiny::renderUI({
@@ -143,10 +149,12 @@ mod_pandemic_server <- function(id, master_r) {
       shiny::req(d, nrow(d) > 0)
       pal <- c(Africa = "#C0504D", Americas = "#1B5E88", Asia = "#E8833C",
                Europe = "#2A9D8F", Oceania = "#7B4B94", Antarctica = "#9C9C9C")
-      x_col <- if ("delta_gghe_che" %in% names(d)) "delta_gghe_che"
+      x_col <- if ("gghed_delta_pp" %in% names(d)) "gghed_delta_pp"
+                else if ("delta_gghe_che" %in% names(d)) "delta_gghe_che"
                 else if ("delta_gghed_che" %in% names(d)) "delta_gghed_che"
                 else names(d)[grepl("delta", names(d), ignore.case = TRUE)][1]
-      y_col <- if ("delta_oop" %in% names(d)) "delta_oop"
+      y_col <- if ("oops_delta_pp" %in% names(d)) "oops_delta_pp"
+                else if ("delta_oop" %in% names(d)) "delta_oop"
                 else if ("delta_hf3_che" %in% names(d)) "delta_hf3_che"
                 else names(d)[grepl("oop", names(d), ignore.case = TRUE)][1]
       shiny::req(!is.null(x_col), !is.null(y_col))

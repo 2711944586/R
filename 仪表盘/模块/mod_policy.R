@@ -219,7 +219,8 @@ mod_policy_server <- function(id, master_r) {
         if (d$hf3_che[1] > target) {
           gap <- d$hf3_che[1] - target
           recs <- htmltools::tagAppendChild(recs, mod_v3_callout(
-            sprintf(htmltools::HTML("\u5f53\u524d OOPS = %.1f%%\uff0c\u8d85\u8fc7 WHO \u63a8\u8350\u9608\u503c (25%%)\u3002\u5efa\u8bae\u901a\u8fc7\u6269\u5927\u516c\u5171\u62a5\u9500\u8303\u56f4\u3001\u63d0\u9ad8\u9884\u4ed8\u6bd4\u4f8b\u6216\u5bf9\u8106\u5f31\u4eba\u7fa4\u7ed9\u4e88\u5b9a\u5411\u8865\u52a9\uff0c\u4f18\u5148\u7f29\u5c0f %.1f \u4e2a\u767e\u5206\u70b9\u7684\u5bb6\u5ead\u73b0\u91d1\u652f\u4ed8\u7f3a\u53e3\u3002", d$hf3_che[1], gap)),
+            sprintf("\u5f53\u524d OOPS = %.1f%%\uff0c\u8d85\u8fc7 WHO \u63a8\u8350\u9608\u503c (25%%)\u3002\u5efa\u8bae\u901a\u8fc7\u6269\u5927\u516c\u5171\u62a5\u9500\u8303\u56f4\u3001\u63d0\u9ad8\u9884\u4ed8\u6bd4\u4f8b\u6216\u5bf9\u8106\u5f31\u4eba\u7fa4\u7ed9\u4e88\u5b9a\u5411\u8865\u52a9\uff0c\u4f18\u5148\u7f29\u5c0f %.1f \u4e2a\u767e\u5206\u70b9\u7684\u5bb6\u5ead\u73b0\u91d1\u652f\u4ed8\u7f3a\u53e3\u3002",
+                    d$hf3_che[1], gap),
             tone = "warn", title = "\u8d22\u52a1\u4fdd\u62a4"))
         } else {
           recs <- htmltools::tagAppendChild(recs, mod_v3_callout(

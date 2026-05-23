@@ -75,6 +75,12 @@
     }
 
     frames.forEach(function (frame) {
+      var rect = frame.getBoundingClientRect();
+      var isNearViewport = rect.top < window.innerHeight + 700 && rect.bottom > -320;
+      if (frame.closest(".tab-pane.active") && isNearViewport) {
+        loadFrame(frame);
+        return;
+      }
       if (frame.dataset.ghsWidgetBound !== "true") {
         frame.dataset.ghsWidgetBound = "true";
         widgetFrameObserver.observe(frame);

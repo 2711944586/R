@@ -162,7 +162,7 @@ mod_robustness_server <- function(id, master_r) {
     )
     label_lookup <- function(x, dict) {
       if (!length(x) || is.na(x)) return("\u672a\u5206\u7ec4")
-      out <- dict[[x]]
+      out <- unname(dict[as.character(x)])
       if (is.null(out) || is.na(out)) x else unname(out)
     }
 

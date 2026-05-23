@@ -83,6 +83,373 @@ mod_kpi_row <- function(...) {
 }
 
 
+mod_v3_widget_url <- function(file) {
+  paste0(
+    "https://2711944586.github.io/R/交互组件/",
+    utils::URLencode(file, reserved = TRUE)
+  )
+}
+
+mod_v3_widget_placeholder <- function(title) {
+  paste0(
+    "<!doctype html><html><head><meta charset='utf-8'>",
+    "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;",
+    "background:#fffaf2;color:#5d667a;font-family:system-ui,'Microsoft YaHei',sans-serif}",
+    "main{text-align:center;padding:24px}b{display:block;color:#254f5c;margin-bottom:8px}</style>",
+    "</head><body><main><b>", htmltools::htmlEscape(title),
+    "</b><span>滚动到这里后加载完整交互图</span></main></body></html>"
+  )
+}
+
+mod_v3_widget_topic <- function(kicker, title, lead) {
+  primary <- paste(kicker, title)
+  txt <- paste(primary, lead)
+  match_topic <- function(source) {
+    rules <- list(
+      c("widgets", "交互组件|\\bWidgets\\b|INTERACTION LIBRARY"),
+      c("overview", "Global Health Expenditure|总览|\\bOverview\\b|长卷"),
+      c("about", "项目说明|交互仪表盘说明|关于|\\bAbout\\b"),
+      c("methods", "方法|数据说明|\\bMethods\\b|手册"),
+      c("forecast", "预测|\\bForecast\\b|ARIMA|\\bETS\\b|预测实验室"),
+      c("scenarios", "情景|\\bScenarios\\b|蒙特卡洛"),
+      c("country", "国家画像|单国|\\bCountry\\b"),
+      c("regional", "区域对比|区域|大洲|\\bRegional\\b"),
+      c("ranking", "排行|排名|\\bRanking\\b"),
+      c("benchmark", "对标|基准|\\bBenchmark\\b"),
+      c("purpose", "功能分类|用途|\\bPurpose\\b|HC1|SPENDING BY PURPOSE"),
+      c("financing", "筹资结构|风险分担|\\bFinancing\\b|HF1|HF4"),
+      c("spending", "支出水平|人均 CHE|支出规模|\\bSpending\\b"),
+      c("aid", "外援|援助|外部援助|\\bAid\\b|EXT"),
+      c("fiscal", "财政|\\bFiscal\\b|政府"),
+      c("equity", "公平|\\bEquity\\b|财务保护|灾难性"),
+      c("inequality", "不平等|\\bInequality\\b|Theil|Gini"),
+      c("efficiency", "效率|\\bEfficiency\\b|DEA|效率前沿|残差"),
+      c("convergence", "收敛|\\bConvergence\\b|beta|sigma"),
+      c("decomposition", "分解|\\bDecompose\\b|\\bDecomposition\\b"),
+      c("outcomes", "健康产出|\\bOutcomes\\b|资金.*寿命|寿命.*产出|life_exp"),
+      c("sdg", "SDG|UHC|U5MR|健康目标"),
+      c("prevention", "预防|\\bPrevention\\b|HC6"),
+      c("aging", "老龄化|\\bAging\\b|人口结构"),
+      c("pandemic", "疫情|\\bPandemic\\b|韧性|COVID|冲击"),
+      c("growth", "增长|\\bGrowth\\b|CAGR|弹性"),
+      c("transition", "转型|\\bTransition\\b|收入晋升"),
+      c("timeline", "时间线|\\bTimeline\\b|24-YEAR"),
+      c("extremes", "极值|异常国家|\\bExtremes\\b|极端值"),
+      c("compare", "多国多指标对比|国家对比|\\bCompare\\b"),
+      c("cluster", "聚类|\\bCluster\\b|PCA|k-means|类型发现"),
+      c("mapstudio", "Map Studio|地图工作台|SPATIAL ANALYTICS"),
+      c("correlation", "相关|\\bCorrelation\\b|Spearman|变量关联"),
+      c("distribution", "指标分布|统计特征|\\bDistribution\\b|偏度|统计分布"),
+      c("robustness", "稳健|\\bRobustness\\b|Bootstrap|敏感度"),
+      c("dataquality", "数据质量|\\bData Quality\\b|缺失|覆盖"),
+      c("policy", "政策|\\bPolicy\\b|政策顾问"),
+      c("atlas", "\\bAtlas\\b|数据图谱|字段|资产")
+    )
+    for (rule in rules) {
+      if (grepl(rule[[2]], source, ignore.case = TRUE, perl = TRUE)) {
+        return(rule[[1]])
+      }
+    }
+    NULL
+  }
+  topic <- match_topic(primary)
+  if (!is.null(topic)) return(topic)
+  topic <- match_topic(txt)
+  if (!is.null(topic)) return(topic)
+  "overview"
+}
+
+mod_v3_widget_specs <- function(topic) {
+  spec <- function(file, title, kicker, desc) {
+    list(file = file, title = title, kicker = kicker, desc = desc)
+  }
+  common <- list(
+    spec("01_gapminder_animated.html", "动态气泡：支出、GDP 与寿命", "Plotly animation",
+         "用年份动画把经济水平、健康产出和人均卫生支出放在同一张图里。"),
+    spec("11_world_leaflet.html", "世界地图：空间分布", "Leaflet map",
+         "悬停国家查看指标标签，先把全球差异落到地理位置。")
+  )
+  specs <- switch(topic,
+    widgets = list(
+      spec("iadv_bar_race.html", "动态排行：高支出国家变化", "Motion ranking",
+           "用年份帧观察排行重排，适合快速进入完整组件库。"),
+      spec("iadv_sankey_3stage.html", "三段资金流", "Network flow",
+           "把来源、筹资方案和用途串起来看，补足单图比例的阅读。")
+    ),
+    overview = common,
+    about = list(
+      spec("iadv_gauge_grid.html", "指标仪表组", "HTML gauges",
+           "把关键指标和风险信号整合为可悬停的仪表化面板。"),
+      spec("13_reactable_rank.html", "国家排行表", "Reactable",
+           "用可搜索、可排序的表格把图上的模式落回国家明细。")
+    ),
+    methods = list(
+      spec("iadv_dt_master_browse.html", "主面板浏览", "DT table",
+           "按国家和年份复核宽表字段，检查每张图背后的记录。"),
+      spec("31_corr_matrix.html", "指标相关矩阵", "Plotly matrix",
+           "查看核心变量的相关结构，辅助判断后续模型设定。")
+    ),
+    country = list(
+      spec("33_country_compare.html", "国家对比：核心指标轨迹", "Plotly compare",
+           "把多个国家的支出和保护指标放在同一屏里比较。"),
+      spec("13_highlight_lines.html", "多国高亮时序", "Plotly lines",
+           "点击图例隔离国家，观察长期距离和追赶路径。")
+    ),
+    regional = list(
+      spec("iadv_rt_continent_summary.html", "大洲摘要表", "Reactable",
+           "从区域表格读取大洲差异，再回到趋势和箱线图。"),
+      spec("iadv_continent_ribbon.html", "大洲带状趋势", "Plotly ribbon",
+           "用带状图展示区域均值和波动范围。")
+    ),
+    ranking = list(
+      spec("iadv_oop_rank_latest.html", "OOPS 最新排行", "Reactable",
+           "锁定自付压力最高和最低的国家，便于继续追踪。"),
+      spec("iadv_bar_race.html", "动态排行重排", "Plotly frame",
+           "用动画查看排名是否只是单年结果。")
+    ),
+    benchmark = list(
+      spec("iadv_polar_radar.html", "多维雷达画像", "Plotly radar",
+           "把充足性、公平性和效率放到同一张剖面图里。"),
+      spec("iadv_rt_compare_years.html", "年份对标表", "Reactable",
+           "用表格核查基准差距和跨期变化。")
+    ),
+    financing = list(
+      spec("09_sankey_sources.html", "资金来源 Sankey", "Sankey",
+           "把公共、私人、外援和自付的流向关系直接画出来。"),
+      spec("iadv_donut_finance.html", "筹资结构环图", "Plotly donut",
+           "用结构图快速判断风险主要落在政府、家庭还是外部资金。")
+    ),
+    spending = list(
+      spec("iadv_che_pc_lines.html", "人均 CHE 趋势线", "Plotly lines",
+           "对比主要国家长期支出距离和增长斜率。"),
+      spec("13_leaflet_choropleth.html", "人均支出世界地图", "Leaflet",
+           "把支出梯度放回全球空间格局中阅读。")
+    ),
+    purpose = list(
+      spec("iadv_hc_stream.html", "HC 功能流图", "HTML stream",
+           "观察治疗、预防和管理等功能项随时间的结构流动。"),
+      spec("iadv_hc_wheel.html", "功能用途轮图", "HTML wheel",
+           "用环形层级图展示 HC 功能项的组成关系。")
+    ),
+    aid = list(
+      spec("35_ext_top_bar.html", "外援依赖 Top 国家", "Plotly bar",
+           "快速识别 EXT 占比高的国家和潜在退出风险。"),
+      spec("iadv_dt_extdep.html", "外援依赖明细表", "DT table",
+           "用可筛选表格核查高依赖国家的支出与产出背景。")
+    ),
+    fiscal = list(
+      spec("iadv_dt_gghed_oop.html", "公共筹资与自付表", "DT table",
+           "并列检查 GGHED 和 OOPS，定位财政托底不足的国家。"),
+      spec("36_global_hf.html", "全球筹资结构趋势", "Plotly",
+           "观察公共、私人和外援份额的长期替代关系。")
+    ),
+    equity = list(
+      spec("07_inequality.html", "不平等指数交互图", "Plotly",
+           "追踪支出不平等和人口权重下的分布变化。"),
+      spec("13_oops_heatmap.html", "OOPS 国家年份热力图", "Heatmap",
+           "找出自付压力持续高位或发生突变的国家。")
+    ),
+    inequality = list(
+      spec("iadv_ribbon_quantiles.html", "分位数带状图", "Plotly ribbon",
+           "用分位数带查看分布是否正在收窄或拉开。"),
+      spec("iadv_box_continent.html", "大洲箱线分布", "Plotly box",
+           "比较组内离散度和离群点。")
+    ),
+    efficiency = list(
+      spec("28_che_life.html", "支出与寿命关系", "Plotly scatter",
+           "在同等支出水平下识别健康产出偏高或偏低的国家。"),
+      spec("iadv_density2d.html", "二维密度分布", "Plotly density",
+           "用密度层识别主体国家群和异常点。")
+    ),
+    convergence = list(
+      spec("iadv_che_pc_lines.html", "支出收敛趋势", "Plotly lines",
+           "观察国家间人均支出距离是否随时间缩小。"),
+      spec("iadv_rt_growth_champions.html", "增长冠军表", "Reactable",
+           "定位低起点高增长或长期停滞国家。")
+    ),
+    decomposition = list(
+      spec("iadv_waterfall_che.html", "CHE 增长瀑布图", "Plotly waterfall",
+           "把总变化拆成可解释的增量结构。"),
+      spec("iadv_waterfall_continents.html", "大洲贡献瀑布图", "Plotly waterfall",
+           "查看全球变化主要由哪些区域推动。")
+    ),
+    outcomes = list(
+      spec("28_che_life.html", "CHE 与预期寿命", "Plotly scatter",
+           "比较支出投入和健康产出是否同步改善。"),
+      spec("29_che_u5.html", "CHE 与儿童死亡率", "Plotly scatter",
+           "把卫生支出和 U5MR 改善放在同一横截面里。")
+    ),
+    sdg = list(
+      spec("iadv_dt_sdg38_alarm.html", "SDG 3.8 风险表", "DT table",
+           "筛选需要关注的 UHC 和风险保护国家。"),
+      spec("iadv_lifeexp_byinc.html", "收入组寿命趋势", "Plotly",
+           "对照收入组间健康产出距离。")
+    ),
+    prevention = list(
+      spec("iadv_hc_item.html", "预防功能项组件", "HTML widget",
+           "把 HC 预防支出拆到功能项层级。"),
+      spec("iadv_lifeexp_byinc.html", "预防与产出参照", "Plotly",
+           "把投入结构和寿命结果放到同一分析线索中。")
+    ),
+    aging = list(
+      spec("38_life_top_bar.html", "寿命 Top 国家", "Plotly bar",
+           "先看长寿国家，再回到老龄化压力和支出响应。"),
+      spec("iadv_dualaxis_oop_lifeexp.html", "OOPS 与寿命双轴", "Plotly dual axis",
+           "同屏查看财务压力与健康产出变化。")
+    ),
+    pandemic = list(
+      spec("iadv_area_shock_bands.html", "冲击期带状面积图", "Plotly bands",
+           "突出 2020 前后卫生支出的异常波动。"),
+      spec("iadv_rt_shock_response.html", "冲击响应表", "Reactable",
+           "用国家明细确认疫情期变化幅度。")
+    ),
+    growth = list(
+      spec("26_che_cagr_bar.html", "CHE CAGR 排行", "Plotly bar",
+           "用复合增速识别长期增长最快的国家。"),
+      spec("iadv_dt_growth_desc.html", "增长明细表", "DT table",
+           "筛选增长、基数和收入组信息。")
+    ),
+    transition = list(
+      spec("iadv_sankey_continent_oop.html", "区域 OOPS 转型 Sankey", "Sankey",
+           "把区域结构变化转化为流向关系。"),
+      spec("iadv_funnel_sources.html", "筹资转型漏斗图", "Plotly funnel",
+           "从资金来源到制度结构逐层观察转型。")
+    ),
+    timeline = list(
+      spec("iadv_area_smooth_che.html", "全球 CHE 平滑面积", "Plotly area",
+           "用长期面积图观察总量扩张节奏。"),
+      spec("43_yoy_heatmap.html", "同比变化热力图", "Heatmap",
+           "把年度变化压缩成矩阵，快速定位断点。")
+    ),
+    extremes = list(
+      spec("iadv_lollipop_oop.html", "OOPS 极值棒棒糖图", "Plotly lollipop",
+           "突出自付压力最高的一组国家。"),
+      spec("iadv_rt_oop_extremes.html", "OOPS 极值表", "Reactable",
+           "用表格复核极端值是否稳定。")
+    ),
+    compare = list(
+      spec("33_country_compare.html", "多国指标对比", "Plotly compare",
+           "把选中国家的关键指标轨迹放在同一视图。"),
+      spec("iadv_dt_threeyear.html", "三年窗口表", "DT table",
+           "检查短期变化是否受单年波动影响。")
+    ),
+    cluster = list(
+      spec("iadv_parcoords.html", "多指标平行坐标", "Plotly parcoords",
+           "查看各类国家在多维指标上的剖面差异。"),
+      spec("iadv_force_country_sim.html", "国家相似网络", "Network",
+           "用指标距离寻找同伴国家。")
+    ),
+    forecast = list(
+      spec("06_forecast_subplot.html", "预测子图", "Plotly forecast",
+           "用多面板查看未来路径和历史趋势。"),
+      spec("13_mc_fan.html", "蒙特卡洛扇形图", "Plotly fan",
+           "用不确定性区间表达预测风险。")
+    ),
+    scenarios = list(
+      spec("13_scenarios.html", "政策情景曲线", "Plotly scenarios",
+           "比较不同假设下的未来轨迹。"),
+      spec("13_mc_fan.html", "情景不确定性扇形图", "Plotly fan",
+           "把情景结果从单点扩展到区间。")
+    ),
+    mapstudio = list(
+      spec("11_world_leaflet.html", "世界底图", "Leaflet",
+           "空间工作台的基础入口，支持国家悬停和定位。"),
+      spec("iadv_heatmap_year_inc.html", "年份收入组热力", "Heatmap",
+           "把时间和收入组维度压缩到一张矩阵里。")
+    ),
+    correlation = list(
+      spec("31_corr_matrix.html", "相关矩阵", "Plotly matrix",
+           "快速查看核心变量之间的相关结构。"),
+      spec("32_corr_overtime.html", "相关随时间变化", "Plotly overtime",
+           "判断相关关系是否稳定。")
+    ),
+    distribution = list(
+      spec("iadv_density_che.html", "CHE 密度分布", "Plotly density",
+           "查看卫生支出的右偏和尾部。"),
+      spec("13_income_violin.html", "收入组小提琴图", "Plotly violin",
+           "比较收入组间分布差异和组内离散度。")
+    ),
+    robustness = list(
+      spec("iadv_bar_ci.html", "置信区间条形图", "Plotly CI",
+           "用区间而非单点呈现估计稳定性。"),
+      spec("iadv_rt_below_threshold.html", "阈值敏感表", "Reactable",
+           "筛选低于关键阈值的国家和年份。")
+    ),
+    dataquality = list(
+      spec("iadv_dt_master_browse.html", "主表审计", "DT table",
+           "检查缺失、异常和字段覆盖。"),
+      spec("iadv_ec_calendar.html", "覆盖日历热力", "HTML calendar",
+           "用矩阵化组件观察数据覆盖状态。")
+    ),
+    policy = list(
+      spec("iadv_polar_radar.html", "政策雷达画像", "Plotly radar",
+           "把财政、保护、效率和产出维度合成一张画像。"),
+      spec("iadv_gauge_grid.html", "风险仪表组", "HTML gauges",
+           "用仪表化组件呈现关键风险等级。")
+    ),
+    atlas = list(
+      spec("iadv_dt_full_panel.html", "全字段浏览表", "DT table",
+           "集中浏览国家年面板的所有核心字段。"),
+      spec("iadv_dt_master_browse.html", "主面板索引", "DT table",
+           "按国家、年份、收入组快速定位记录。")
+    ),
+    common
+  )
+  specs[seq_len(min(2, length(specs)))]
+}
+
+mod_v3_widget_card <- function(spec, index) {
+  url <- mod_v3_widget_url(spec$file)
+  htmltools::tags$article(
+    class = "section-widget-card widget-gallery-card",
+    htmltools::tags$header(
+      class = "section-widget-card-head",
+      htmltools::span(class = "section-widget-index", sprintf("%02d", index)),
+      htmltools::div(
+        htmltools::span(class = "section-widget-kicker", spec$kicker),
+        htmltools::h3(spec$title),
+        htmltools::p(spec$desc)
+      )
+    ),
+    htmltools::div(
+      class = "section-widget-frame widget-gallery-frame",
+      htmltools::tags$iframe(
+        title = paste("Section widget", spec$title),
+        `data-widget-src` = url,
+        srcdoc = mod_v3_widget_placeholder(spec$title),
+        loading = "lazy",
+        referrerpolicy = "no-referrer",
+        allowfullscreen = NA
+      )
+    ),
+    htmltools::tags$footer(
+      class = "section-widget-card-foot",
+      htmltools::span(spec$file),
+      htmltools::tags$a("新窗打开", href = url, target = "_blank",
+                        rel = "noreferrer")
+    )
+  )
+}
+
+mod_v3_section_widgets <- function(kicker, title, lead) {
+  topic <- mod_v3_widget_topic(kicker, title, lead)
+  specs <- mod_v3_widget_specs(topic)
+  htmltools::tags$section(
+    class = "section-widget-strip",
+    `data-widget-topic` = topic,
+    htmltools::div(
+      class = "section-widget-head",
+      htmltools::span("Interactive pair"),
+      htmltools::strong("本板块精选交互组件"),
+      htmltools::p("先用这两张交互图建立直觉，再向下阅读本页的分析、表格和模型结果。")
+    ),
+    htmltools::div(
+      class = "section-widget-grid",
+      lapply(seq_along(specs), function(i) mod_v3_widget_card(specs[[i]], i))
+    )
+  )
+}
+
 mod_v3_hero <- function(kicker, title, lead, meta = NULL) {
   meta_html <- if (!is.null(meta) && length(meta)) {
     pieces <- vapply(meta, function(m) {
@@ -98,7 +465,7 @@ mod_v3_hero <- function(kicker, title, lead, meta = NULL) {
            paste(pieces, collapse = "<span class='v3-meta-sep'>\u00b7</span>"),
            "</div>")
   } else ""
-  htmltools::HTML(sprintf(
+  hero_html <- sprintf(
     paste0("<section class='v3-hero'><div class='v3-hero-inner'>",
            "<span class='v3-hero-kicker'>%s</span>",
            "<h1 class='v3-hero-title'>%s</h1>",
@@ -106,7 +473,9 @@ mod_v3_hero <- function(kicker, title, lead, meta = NULL) {
     htmltools::htmlEscape(kicker),
     htmltools::htmlEscape(title),
     htmltools::htmlEscape(lead),
-    meta_html))
+    meta_html)
+  widget_html <- as.character(mod_v3_section_widgets(kicker, title, lead))
+  htmltools::HTML(paste0(hero_html, widget_html))
 }
 
 mod_v3_section_head <- function(kicker, title, lead = NULL) {

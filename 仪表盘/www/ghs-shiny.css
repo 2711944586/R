@@ -2681,3 +2681,174 @@ body,
     animation: none !important;
   }
 }
+
+.section-widget-strip {
+  max-width: min(1360px, calc(100vw - 42px));
+  margin: -8px auto 24px;
+  padding: 0 18px;
+}
+
+.section-widget-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  margin: 0 0 12px;
+}
+
+.section-widget-head span {
+  color: var(--ghs-final-blue);
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.section-widget-head strong {
+  color: var(--ghs-final-ink);
+  font-family: "Source Serif 4", "Noto Serif SC", Georgia, serif;
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.16;
+  font-weight: 780;
+}
+
+.section-widget-head p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--ghs-final-muted);
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
+.section-widget-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.section-widget-card {
+  background: var(--ghs-final-surface);
+  border: 1px solid var(--ghs-final-line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(23, 33, 31, .045), 0 12px 28px rgba(23, 33, 31, .07);
+}
+
+.section-widget-card-head {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--ghs-final-line);
+  background: linear-gradient(180deg, #fffdf8, #fbfaf6);
+}
+
+.section-widget-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 30px;
+  border-radius: 8px;
+  background: #254f5c;
+  color: #fff;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.section-widget-kicker {
+  display: block;
+  color: var(--ghs-final-muted);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  margin: 0 0 4px;
+}
+
+.section-widget-card h3 {
+  margin: 0;
+  color: var(--ghs-final-ink);
+  font-family: "Source Serif 4", "Noto Serif SC", Georgia, serif;
+  font-size: 17.5px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.section-widget-card p {
+  margin: 6px 0 0;
+  color: var(--ghs-final-muted);
+  font-size: 12.8px;
+  line-height: 1.56;
+}
+
+.section-widget-frame {
+  min-height: 440px;
+  background: #fff;
+}
+
+.section-widget-frame iframe {
+  width: 100%;
+  height: 440px;
+  min-height: 440px;
+}
+
+.section-widget-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 16px 11px;
+  border-top: 1px solid var(--ghs-final-line);
+  background: var(--ghs-final-surface-2);
+  color: var(--ghs-final-muted);
+  font-size: 11.8px;
+}
+
+.section-widget-card-foot span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section-widget-card-foot a {
+  color: var(--ghs-final-blue);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-widget-card-foot a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 1180px) {
+  .section-widget-strip {
+    max-width: min(1180px, calc(100vw - 28px));
+  }
+}
+
+@media (max-width: 860px) {
+  .section-widget-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-widget-strip {
+    max-width: calc(100vw - 18px);
+    padding: 0;
+  }
+
+  .section-widget-card-head {
+    grid-template-columns: 1fr;
+  }
+
+  .section-widget-frame,
+  .section-widget-frame iframe {
+    min-height: 380px;
+    height: 380px;
+  }
+}
