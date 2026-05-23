@@ -47,22 +47,6 @@ if (!exists("%||%", mode = "function")) {
   paste0("data:", mime, ";base64,", base64enc::base64encode(p))
 }
 
-.ghs_data_html <- function(html) {
-  paste0("data:text/html;charset=utf-8,", utils::URLencode(html, reserved = TRUE))
-}
-
-.ghs_widget_preview_src <- function(title, kind, size_lab, full_href) {
-  title <- .ghs_e(title)
-  kind <- .ghs_e(kind)
-  size_lab <- .ghs_e(size_lab)
-  full_href <- .ghs_e(full_href)
-  html <- sprintf(
-    "<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;min-height:100%%;background:#fff9ed;color:#251a10;font-family:'Segoe UI','Microsoft YaHei',system-ui,sans-serif}body{padding:18px}.card{width:100%%;min-height:calc(100vh - 36px);border:1px solid rgba(64,43,23,.16);border-radius:14px;background:#fff9ed;box-shadow:0 14px 32px rgba(64,43,23,.10);padding:22px;display:grid;grid-template-rows:auto auto minmax(210px,1fr) auto auto;gap:16px}.meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:#6f604d}.meta span{border:1px solid rgba(64,43,23,.16);border-radius:999px;padding:4px 10px;background:#f4e6cc}h1{font-family:Georgia,'Noto Serif SC',serif;font-size:clamp(24px,4vw,40px);line-height:1.1;margin:0;color:#251a10}.stage{position:relative;min-height:210px;border:1px solid rgba(64,43,23,.12);border-radius:10px;background:linear-gradient(180deg,#fffdf8,#f4e6cc);overflow:hidden}.bar{position:absolute;bottom:28px;width:7%%;border-radius:7px 7px 0 0;background:#7b4c1f;transform-origin:bottom;animation:pulse 2.6s ease-in-out infinite}.line{position:absolute;left:8%%;right:8%%;top:54%%;height:2px;background:#b96f24;transform:scaleX(.1);transform-origin:left;animation:draw 3.2s cubic-bezier(.16,1,.3,1) infinite}.dot{position:absolute;width:10px;height:10px;border-radius:50%%;background:#b96f24;box-shadow:0 0 0 5px rgba(185,111,36,.14);animation:float 3.2s ease-in-out infinite}.controls{display:flex;gap:10px;flex-wrap:wrap}.controls button,.controls a{appearance:none;border:1px solid rgba(64,43,23,.16);border-radius:8px;background:#fff;color:#251a10;padding:9px 13px;font-weight:700;text-decoration:none;cursor:pointer}.controls button.active{background:#7b4c1f;color:#fff;border-color:#7b4c1f}.note{font-size:13px;line-height:1.65;color:#6f604d;margin:0}@keyframes pulse{0%%,100%%{transform:scaleY(.72);opacity:.72}50%%{transform:scaleY(1);opacity:1}}@keyframes draw{0%%{transform:scaleX(.08);opacity:.4}45%%,75%%{transform:scaleX(1);opacity:1}100%%{transform:scaleX(.08);opacity:.4}}@keyframes float{0%%,100%%{transform:translate(0,0)}50%%{transform:translate(28px,-18px)}}@media(max-width:560px){body{padding:10px}.card{min-height:calc(100vh - 20px);padding:16px;gap:12px}.stage{min-height:170px}}</style></head><body><main class='card'><div class='meta'><span>%s</span><span>%s</span><span>离线预览</span></div><h1>%s</h1><div class='stage' id='stage'></div><div class='controls'><button type='button' class='active' data-mode='trend'>趋势</button><button type='button' data-mode='rank'>排行</button><button type='button' data-mode='map'>结构</button><a href='%s' target='_blank' rel='noreferrer'>打开完整组件</a></div><p class='note'>当前为课程提交 HTML 的内置预览，用于离线评阅时避免组件区域空白；完整的 plotly、leaflet、DT 或 networkD3 版本可通过按钮在浏览器中打开。</p></main><script>const stage=document.getElementById('stage');const modes={trend:[42,58,76,68,91,74,84,63],rank:[82,67,72,54,88,45,78,61],map:[52,80,46,73,60,88,55,70]};function draw(mode){stage.innerHTML='<div class=\"line\"></div>';modes[mode].forEach((v,i)=>{const b=document.createElement('i');b.className='bar';b.style.left=(9+i*10.5)+'%%';b.style.height=v+'%%';b.style.animationDelay=(i*.11)+'s';stage.appendChild(b);const d=document.createElement('i');d.className='dot';d.style.left=(10+i*10.5)+'%%';d.style.top=(82-v*.65)+'%%';d.style.animationDelay=(i*.1)+'s';stage.appendChild(d);});}document.querySelectorAll('button[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('button[data-mode]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');draw(btn.dataset.mode);}));draw('trend');</script></body></html>",
-    kind, size_lab, title, full_href
-  )
-  .ghs_data_html(html)
-}
-
 .ghs_pretty <- function(p) {
   x <- tools::file_path_sans_ext(basename(p))
   key <- x
@@ -1122,12 +1106,11 @@ if (!exists("%||%", mode = "function")) {
   else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", base)
   kind <- .ghs_kind(.ghs_pretty(p))
   size_lab <- .ghs_size(p)
-  embed_src <- if (mode == "submission")
-    .ghs_widget_preview_src(label, kind, size_lab, href_full) else href_full
+  embed_src <- href_full
   href_remote <- sprintf(
     "%s/blob/main/\u5206\u6790\u8f93\u51fa/\u4ea4\u4e92\u7ec4\u4ef6/%s", repo_url, base)
-  hint <- if (mode == "submission") "\u79bb\u7ebf\u9884\u89c8" else "\u70b9\u51fb\u5c55\u5f00\u52a0\u8f7d"
-  sprintf("<details class='widget-embed' data-src='%s'><summary><strong>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %s</strong><span class='widget-meta'>%s \u00b7 %s</span></summary><div class='widget-embed-frame'><iframe data-src='%s' loading='lazy' title='%s' allowfullscreen></iframe></div><nav class='widget-embed-links'><a href='%s' target='_blank' rel='noreferrer'>\u5b8c\u6574\u7ec4\u4ef6</a><a href='%s' target='_blank' rel='noreferrer'>GitHub \u9884\u89c8</a><a href='#widgets'>\u7ec4\u4ef6\u4e2d\u5fc3</a></nav></details>",
+  hint <- if (mode == "submission") "\u7ebf\u4e0a\u771f\u5b9e\u7ec4\u4ef6" else "\u70b9\u51fb\u5c55\u5f00\u52a0\u8f7d"
+  sprintf("<details class='widget-embed' data-src='%s'><summary><strong>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %s</strong><span class='widget-meta'>%s \u00b7 %s</span></summary><div class='widget-embed-frame'><iframe src='%s' loading='eager' title='%s' referrerpolicy='no-referrer' allowfullscreen></iframe></div><nav class='widget-embed-links'><a href='%s' target='_blank' rel='noreferrer'>\u5b8c\u6574\u7ec4\u4ef6</a><a href='%s' target='_blank' rel='noreferrer'>GitHub \u9884\u89c8</a><a href='#widgets'>\u7ec4\u4ef6\u4e2d\u5fc3</a></nav></details>",
           .ghs_e(embed_src), .ghs_e(label), size_lab, hint,
           .ghs_e(embed_src), .ghs_e(label),
           .ghs_e(href_full), .ghs_e(href_remote))
@@ -2423,11 +2406,10 @@ if (!exists("%||%", mode = "function")) {
     full_src <- if (mode == "submission")
       paste0("https://2711944586.github.io/R/\u4ea4\u4e92\u7ec4\u4ef6/", base)
     else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", base)
-    preview_src <- if (mode == "submission")
-      .ghs_widget_preview_src(title, kind, .ghs_size(p), full_src) else full_src
+    preview_src <- full_src
     sprintf("<article class='widget-card' data-kind='%s'><header><span class='pill'>%s</span><h3>%s</h3><p>%s \u00b7 %s</p></header><div class='widget-actions'><button type='button' onclick=\"loadWidgetUrl('%s','%s','%s')\">\u5728\u53f3\u4fa7\u67e5\u770b</button><a href='%s' target='_blank' rel='noreferrer'>\u5b8c\u6574\u7ec4\u4ef6</a></div></article>",
             .ghs_e(kind), .ghs_e(kind), .ghs_e(title), .ghs_size(p),
-            if (mode == "submission") "\u79bb\u7ebf\u9884\u89c8" else "standalone HTML",
+            if (mode == "submission") "\u7ebf\u4e0a\u771f\u5b9e\u7ec4\u4ef6" else "standalone HTML",
             .ghs_e(preview_src), .ghs_e(title), .ghs_e(full_src),
             .ghs_e(full_src))
   }
@@ -2444,11 +2426,9 @@ if (!exists("%||%", mode = "function")) {
   default_full <- if (mode == "submission")
     paste0("https://2711944586.github.io/R/\u4ea4\u4e92\u7ec4\u4ef6/", basename(htmls[[1]]))
   else paste0("\u4ea4\u4e92\u7ec4\u4ef6/", basename(htmls[[1]]))
-  default_src <- if (mode == "submission")
-    .ghs_widget_preview_src(default_title, default_kind, .ghs_size(htmls[[1]]), default_full)
-  else default_full
-  frame_label <- if (mode == "submission") "\u79bb\u7ebf\u9884\u89c8" else "standalone widget"
-  sprintf("<section class='section widgets' id='widgets'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 \u4ea4\u4e92\u7ec4\u4ef6\u5e93</span><h2>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %d \u4e2a\u72ec\u7acb HTML</h2><p class='lead'>plotly \u00b7 leaflet \u00b7 reactable \u00b7 DT \u00b7 networkD3\u3002\u8bfe\u7a0b\u63d0\u4ea4 HTML \u5185\u7f6e\u79bb\u7ebf\u9884\u89c8\uff1b\u7f51\u9875\u7248\u4f1a\u52a0\u8f7d\u5b8c\u6574 standalone widget\u3002</p></header>%s<div class='tabs'>%s</div><div class='widget-lab'><div class='widget-list'>%s</div><div class='widget-frame-wrap'><div class='widget-frame-head'><strong id='widget-title'>%s</strong><span>%s</span></div><iframe id='widget-frame' title='interactive widget' loading='lazy' src='%s'></iframe></div></div></div></section>",
+  default_src <- default_full
+  frame_label <- if (mode == "submission") "\u7ebf\u4e0a\u771f\u5b9e\u7ec4\u4ef6" else "standalone widget"
+  sprintf("<section class='section widgets' id='widgets'><div class='wrap'><header class='section-head'><span class='kicker'>S17 \u00b7 \u4ea4\u4e92\u7ec4\u4ef6\u5e93</span><h2>\u4ea4\u4e92\u7ec4\u4ef6 \u00b7 %d \u4e2a\u72ec\u7acb HTML</h2><p class='lead'>plotly \u00b7 leaflet \u00b7 reactable \u00b7 DT \u00b7 networkD3\u3002\u8bfe\u7a0b HTML \u4e0e\u7f51\u9875\u90e8\u7f72\u7248\u4f7f\u7528\u540c\u4e00\u6279\u771f\u5b9e standalone widget\uff0c\u7ec4\u4ef6\u94fe\u63a5\u4e3a\u7ebf\u4e0a\u7edd\u5bf9\u5730\u5740\uff0c\u5355\u72ec\u8f6c\u53d1 HTML \u4e5f\u53ef\u4ee5\u76f4\u63a5\u67e5\u770b\u3002</p></header>%s<div class='tabs'>%s</div><div class='widget-lab'><div class='widget-list'>%s</div><div class='widget-frame-wrap'><div class='widget-frame-head'><strong id='widget-title'>%s</strong><span>%s</span></div><iframe id='widget-frame' title='interactive widget' loading='eager' referrerpolicy='no-referrer' src='%s'></iframe></div></div></div></section>",
           length(htmls), .ghs_section_note("widgets"), tabs, cards,
           .ghs_e(default_title), frame_label, .ghs_e(default_src))
 }

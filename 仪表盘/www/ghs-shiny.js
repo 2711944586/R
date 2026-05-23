@@ -61,7 +61,7 @@
   function refreshActiveStandaloneFrames() {
     var activePane = document.querySelector(".tab-pane.active");
     if (!activePane) return;
-    activePane.querySelectorAll(".section-widget-strip iframe[data-widget-src]").forEach(function (frame) {
+    document.querySelectorAll(".section-widget-strip iframe[data-widget-src]").forEach(function (frame) {
       var src = frame.getAttribute("data-widget-src");
       if (!src || frame.dataset.ghsActiveRefresh === "true") return;
       frame.dataset.ghsActiveRefresh = "true";
@@ -232,4 +232,118 @@
   document.addEventListener("shiny:value", function () {
     scheduleEnhancements();
   });
+})();
+(function () {
+  var widgetBase = "https://2711944586.github.io/R/交互组件/";
+  var widgetTopics = [
+    { keys: ["总览", "overview", "global"], title: "总览地图与全球趋势", files: [["11_world_leaflet.html", "世界地图"], ["01_gapminder_animated.html", "动态气泡"], ["iadv_global_weighted_avg.html", "加权均值"]] },
+    { keys: ["国家", "country", "画像", "compare"], title: "国家画像交互组件", files: [["33_country_compare.html", "国家比较"], ["13_highlight_lines.html", "国家轨迹"], ["iadv_dt_master_browse.html", "主表浏览"]] },
+    { keys: ["区域", "regional", "continent", "地图", "map"], title: "区域地图与大洲对比", files: [["iadv_heatmap_year_inc.html", "收入组热力"], ["iadv_rt_continent_summary.html", "大洲摘要"], ["iadv_continent_ribbon.html", "大洲带状图"]] },
+    { keys: ["筹资", "financing", "资金", "hf"], title: "筹资结构交互组件", files: [["iadv_donut_finance.html", "筹资环图"], ["09_sankey_sources.html", "资金流向"], ["iadv_hf_share_area.html", "份额趋势"]] },
+    { keys: ["用途", "purpose", "功能", "hc"], title: "支出功能结构组件", files: [["iadv_sunburst_che.html", "旭日结构"], ["iadv_waterfall_che.html", "瀑布分解"], ["05_ternary.html", "三元结构"]] },
+    { keys: ["公平", "equity", "自付", "oop", "inequality"], title: "公平与自付风险组件", files: [["39_oops_dumbbell.html", "OOPS 哑铃"], ["07_inequality.html", "不平等"], ["iadv_rt_oop_extremes.html", "极端国家"]] },
+    { keys: ["产出", "outcome", "health", "life", "sdg"], title: "健康产出交互组件", files: [["28_che_life.html", "资金与寿命"], ["29_che_u5.html", "儿童死亡"], ["iadv_lifeexp_byinc.html", "寿命收入组"]] },
+    { keys: ["冲击", "shock", "pandemic", "变化", "transition"], title: "冲击与变化组件", files: [["iadv_area_shock_bands.html", "冲击带"], ["43_yoy_heatmap.html", "同比热力"], ["04_bar_race.html", "排行动画"]] },
+    { keys: ["预测", "forecast", "scenario", "情景"], title: "预测与情景组件", files: [["06_forecast_subplot.html", "预测面板"], ["13_scenarios.html", "情景路径"], ["iadv_bar_ci.html", "置信区间"]] },
+    { keys: ["质量", "方法", "method", "robust", "data"], title: "数据与方法组件", files: [["13_dt_atlas.html", "数据表"], ["31_corr_matrix.html", "相关矩阵"], ["iadv_parcoords.html", "平行坐标"]] }
+  ];
+  var fallbackWidgets = [
+    ["11_world_leaflet.html", "世界地图"],
+    ["01_gapminder_animated.html", "动态气泡"],
+    ["iadv_dt_master_browse.html", "主表浏览"]
+  ];
+
+  function widgetUrl(file) {
+    return widgetBase + encodeURIComponent(file);
+  }
+
+  function topicFor(text) {
+    var hay = (text || "").toLowerCase();
+    for (var i = 0; i < widgetTopics.length; i += 1) {
+      if (widgetTopics[i].keys.some(function (key) { return hay.indexOf(key.toLowerCase()) >= 0; })) {
+        return widgetTopics[i];
+      }
+    }
+    return { title: "本板块精选交互组件", files: fallbackWidgets };
+  }
+
+  function panelTitle(panel) {
+    var head = panel.querySelector("h1, h2, .card-title, .navbar-title, .page-title");
+    return head ? head.textContent.trim() : "";
+  }
+
+  function buildModuleStrip(panel) {
+    if (!panel || panel.querySelector(".section-widget-strip, .js-module-widget-strip")) return;
+    var text = (panelTitle(panel) + " " + (panel.textContent || "")).trim();
+    if (text.length < 20 || /首页|home-title|封面/.test(text)) return;
+    var topic = topicFor(text);
+    var strip = document.createElement("section");
+    strip.className = "section-widget-strip js-module-widget-strip";
+    strip.style.marginTop = "24px";
+    strip.innerHTML = [
+      "<div class='section-widget-strip-head'>",
+      "<span>Interactive widgets</span>",
+      "<strong>" + topic.title + "</strong>",
+      "</div>",
+      "<div class='section-widget-grid'>",
+      topic.files.map(function (item) {
+        var url = widgetUrl(item[0]);
+        return [
+          "<article class='section-widget-card'>",
+          "<header><strong>" + item[1] + "</strong><a href='" + url + "' target='_blank' rel='noreferrer'>新窗</a></header>",
+          "<div class='section-widget-frame'><iframe src='" + url + "' data-widget-src='" + url + "' data-widget-eager='true' loading='eager' referrerpolicy='no-referrer' title='" + item[1] + "'></iframe></div>",
+          "</article>"
+        ].join("");
+      }).join(""),
+      "</div>"
+    ].join("");
+    var anchor = panel.querySelector(".section-head, .page-head, .hero, .bslib-card, .card");
+    if (anchor && anchor.parentNode === panel) {
+      anchor.insertAdjacentElement("afterend", strip);
+    } else {
+      panel.insertBefore(strip, panel.firstChild);
+    }
+  }
+
+  function ensureModuleWidgetStrips() {
+    var panels = Array.prototype.slice.call(document.querySelectorAll(".tab-pane, [role='tabpanel']"));
+    if (!panels.length) panels = Array.prototype.slice.call(document.querySelectorAll("main > section, .bslib-page"));
+    panels.forEach(buildModuleStrip);
+  }
+
+  function loadWidgetFrames(scope) {
+    (scope || document).querySelectorAll("iframe[data-widget-src]").forEach(function (frame) {
+      var src = frame.getAttribute("data-widget-src");
+      if (src && frame.getAttribute("src") !== src) {
+        frame.setAttribute("src", src);
+      }
+    });
+  }
+
+  window.ghsLoadWidgetFrames = loadWidgetFrames;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    ensureModuleWidgetStrips();
+    loadWidgetFrames(document);
+  });
+
+  document.addEventListener("shown.bs.tab", function () {
+    ensureModuleWidgetStrips();
+    loadWidgetFrames(document);
+  });
+
+  new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      mutation.addedNodes.forEach(function (node) {
+        if (node.nodeType === 1) {
+          if (node.matches && node.matches("iframe[data-widget-src]")) {
+            loadWidgetFrames(node.parentNode || document);
+          } else if (node.querySelector && node.querySelector("iframe[data-widget-src]")) {
+            loadWidgetFrames(node);
+          }
+        }
+      });
+    });
+    ensureModuleWidgetStrips();
+  }).observe(document.documentElement, { childList: true, subtree: true });
 })();

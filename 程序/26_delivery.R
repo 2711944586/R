@@ -182,44 +182,48 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "本目录名为 `庄颂_20241334/`，与作业提交命名保持一致。最终提交时可直接压缩整个文件夹为 `庄颂_20241334.zip`。根目录只保留一个 `README.md` 文件；安装、启动、构建、依赖和索引类文件均放入专门文件夹，避免评阅入口被杂项文件淹没。",
     "",
-    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html`、`课程提交/庄颂_20241334.Rmd` 与 `网站发布/index.html` 由同一个生成器 `程序/21_static_showcase.R` 生成。Rmd 会从课程 HTML 抽取样式、正文和脚本，保证内容与 HTML 一致。课程 HTML 已修复标题页动画、暖纸色背景、右下角 dock、图片放大弹层和交互组件空白问题；离线评阅时会显示轻量组件预览，完整 widget 可通过线上发布地址打开。云端 Shiny 已随应用发布完整 standalone widget 缓存，打开页面即可直接看到地图、Plotly、表格和网络组件；交付包则保留课程主件、网站首页、Shiny 源码、核心派生数据、CSV 模型结果、质量报告、项目文档和复现脚本，不重复打包完整图片目录、widget 缓存目录和重复代码副本。",
+    "最终页面遵循单一标准：`课程提交/庄颂_20241334.html` 与 `课程提交/庄颂_20241334.Rmd` 由同一个生成器 `程序/21_static_showcase.R` 生成。Rmd 会从课程 HTML 抽取样式、正文和脚本，保证内容与 HTML 一致。课程 HTML 已修复标题页动画、暖纸色背景、右下角 dock、图片放大弹层和交互组件空白问题；交互组件使用线上绝对地址直接加载真实 standalone widget，因此单独转发这个 HTML 文件也可以看到与网页部署版一致的组件。云端 Shiny 已随应用发布完整 standalone widget 缓存，打开页面即可直接看到地图、Plotly、表格和网络组件；交付包则保留课程主件、Shiny 源码、核心派生数据、CSV 模型结果、质量报告和复现脚本，不重复打包 `网站发布/`、`项目文档/`、完整图片目录、widget 缓存目录和重复代码副本。",
     "",
     sprintf("本交付包共包含 **%s 个文件**，总大小约 **%s MB**。当前版本保留完整课程 HTML/Rmd 与 Shiny 运行文件，同时删除重复的发布资源副本。", total_files, total_size),
     "",
-    "## 2. 核心规模",
+    "## 2. 两个网页部署入口",
+    "",
+    "| 网页 | 地址 | 面向老师的用途 | 当前部署方式 |",
+    "|---|---|---|---|",
+    "| Shiny 云端仪表盘 | <https://constantine1433223.shinyapps.io/ghs-dashboard/> | 现场汇报和交互演示主入口；可以切换模块、查看地图工作台、国家比较、筹资结构、健康产出、政策结论和完整 widget 缓存。 | 由 `开发脚本/部署Shiny云端.R ghs-dashboard` 发布到 shinyapps.io；部署包内包含 `仪表盘/www/交互组件/` 的 standalone widget 缓存。 |",
+    "| GitHub Pages 静态报告 | <https://2711944586.github.io/R/> | 网页版课程报告主入口；适合老师直接在浏览器中按章节阅读，查看 36 个内容章节、14 项核心发现、图表库、交互组件库和复现说明。 | 由 `.github/workflows/deploy.yml` 在 `main` 分支推送后发布 `网站发布/`；`网站发布/index.html` 与课程 HTML 同源生成。 |",
+    "",
+    "这两个网页承担不同角色：Shiny 云端版负责“可操作的仪表盘”，GitHub Pages 静态版负责“可阅读、可转发、可留档的网页报告”。课程提交包中的 `课程提交/庄颂_20241334.html` 也会直接加载 GitHub Pages 上的真实 standalone widget；如果老师打开本地 HTML 时没有联网，静态正文和已嵌入图表仍可阅读，但交互 iframe 需要联网访问线上组件。",
+    "",
+    "## 3. 核心规模",
     "",
     sprintf("- **内容结构**：36 个内容章节，包含数据说明、核心发现、图集、交互组件、复现说明和结论。"),
     sprintf("- **核心发现**：14 项，每项对应研究问题、方法、代码入口、图表、表格和解释。"),
     sprintf("- **静态图集**：完整项目当前生成 %s 张 PNG + %s 张 SVG；课程 HTML/Rmd 已嵌入主要展示图，提交包不再复制独立图片文件。", png_count, svg_count),
-    sprintf("- **交互组件**：完整项目当前生成 %s 个 HTML widget；云端 Shiny 已随应用发布完整 widget 缓存，课程 HTML 内置轻量离线预览，完整 widget 通过发布地址按需打开；提交包不重复保存这批大体积缓存。", widget_count),
+    sprintf("- **交互组件**：完整项目当前生成 %s 个 HTML widget；云端 Shiny 已随应用发布完整 widget 缓存，课程 HTML 使用线上绝对地址直接加载真实 widget；提交包不重复保存这批大体积缓存。", widget_count),
     sprintf("- **模型表**：`分析输出/模型表/` 中保留 %s 个 CSV 模型或指标产物，适合快速复核。", model_count),
     "- **Shiny**：39 个页面与交互模块；首页调整为纯标题封面，导航支持点击空白处关闭，交互组件页新增动态气泡、地图、排行动画、旭日结构、平行坐标、相似网络、专题看板、热力图、雷达画像、树状结构、功能流图、液体仪表和主表浏览。",
     "",
-    "## 3. 推荐评阅顺序",
+    "## 4. 推荐评阅顺序",
     "",
-    "1. 打开 `课程提交/庄颂_20241334.html`：这是课程要求的 HTML 结果文档，也是最稳妥的离线评阅主入口。",
-    sprintf("2. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，样式、正文和脚本与课程 HTML 同源同步。"),
-    "3. 打开 `网站发布/index.html`：这是 GitHub Pages 同源首页，适合检查发布路径和交互组件。",
-    "4. 查看 `项目文档/方法手册.md`：逐项核查 F1–F14 的研究问题、数据口径、变量、方法、代码入口、主要产物和局限。",
+    "1. 打开 Shiny 云端仪表盘：<https://constantine1433223.shinyapps.io/ghs-dashboard/>，用于课堂汇报时演示可交互模块和完整 widget 缓存。",
+    "2. 打开 GitHub Pages 静态报告：<https://2711944586.github.io/R/>，用于在线阅读完整报告、核对章节结构和交互组件库。",
+    "3. 打开 `课程提交/庄颂_20241334.html`：这是课程要求的本地 HTML 结果文档；联网时会直接加载线上真实 standalone widget。",
+    sprintf("4. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，样式、正文和脚本与课程 HTML 同源同步。"),
     "5. 查看 `分析输出/质量报告/quality_gate.html`：确认语法、图像、链接、widget、secret、Shiny bundle、README 一致性等质量门禁。",
     "6. 查看 `派生数据/处理结果/feature_dictionary.csv`：复核变量来源、单位、公式、角色和缺失率。",
     "7. 如需逐文件核验，打开 `交付索引/完整文件索引.csv` 或查看本 README 的“完整文件索引”章节。",
     "",
-    "## 4. 顶层目录总览",
+    "## 5. 顶层目录总览",
     "",
     ghs_md_table(top_summary, c("顶层路径", "文件数", "体积MB")),
     "",
-    "## 5. 所有顶层路径的作用",
+    "## 6. 所有顶层路径的作用",
     "",
     "### `课程提交/`",
     "",
     "- `课程提交/庄颂_20241334.Rmd`：课程源文档。它由课程 HTML 同步生成，保留同一套样式、正文、导航、交互入口和结论。",
-    sprintf("- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接打开；页面包含 36 个内容章节、14 项发现、图表库、交互入口、离线组件预览和结论。"),
-    "",
-    "### `网站发布/`",
-    "",
-    "- `网站发布/index.html`：GitHub Pages 首页，与课程提交 HTML 同源。标题页动画、背景颜色、dock 显示、图片放大、widget 加载和移动目录关闭逻辑已统一修复。",
-    "- 完整发布版的 PNG 图表、standalone widgets 和浏览器版仪表盘位于线上 GitHub Pages 与仓库发布目录，提交包不再复制这批大体积依赖。",
+    sprintf("- `课程提交/庄颂_20241334.html`：课程结果文档。该文件由统一生成器生成，适合老师直接打开；页面包含 36 个内容章节、14 项发现、图表库、交互入口、线上真实组件 iframe 和结论。"),
     "",
     "### `分析输出/`",
     "",
@@ -250,13 +254,6 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "- `模块/mod_home.R` 是 Shiny 首页模块；当前首页只承担封面和导航入口，不再堆叠总览指标、路径卡片或结论摘要。",
     "- 已排除 `rsconnect/` 部署元数据，避免把账号部署状态或本机路径放入交付包。",
     "",
-    "### `项目文档/`",
-    "",
-    "- `方法手册.md`：14 项核心发现的方法矩阵和局限说明。",
-    "- `部署总览.md`、`部署_GitHub_Pages.md`、`部署_Shiny云端.md`、`部署_浏览器仪表盘.md`：不同部署方式的说明。",
-    "- `变更记录.md`：重要迭代和 bug 修复记录。",
-    "- `2026作业_Global Health Spending 数据集自由分析.docx`：课程原始说明副本。",
-    "",
     "### `项目入口/` 与 `交付索引/`",
     "",
     "- `README.md`：本交付包说明，也是评阅者进入文件夹后的第一入口。",
@@ -268,7 +265,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "- `交付索引/交付清单.csv`：核心路径核验表。",
     "- `交付索引/完整文件索引.csv`：逐文件索引，本 README 后文也完整列出。",
     "",
-    "## 6. 复现命令",
+    "## 7. 复现命令",
     "",
     "在交付包根目录 `庄颂_20241334/` 内执行：",
     "",
@@ -289,34 +286,34 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "- `课程提交/庄颂_20241334.Rmd`",
     "- `课程提交/庄颂_20241334.html`",
     "",
-    "## 7. 质量门禁摘要",
+    "## 8. 质量门禁摘要",
     "",
     "| 模块 | 状态 | 通过/总数 |",
     "|---|---|---:|",
     q_text,
     "",
-    "## 8. 核心交付清单",
+    "## 9. 核心交付清单",
     "",
     "| 路径 | 存在 | 文件数 | 体积 | 作用 |",
     "|---|---:|---:|---:|---|",
     manifest_text,
     "",
-    "## 9. 注意事项",
+    "## 10. 注意事项",
     "",
     "- 不要把 shinyapps.io token、secret、`.Renviron`、`.env` 或 `rsconnect/` 提交到仓库。",
-    "- `课程提交/庄颂_20241334.html` 内置轻量 widget 预览；完整 standalone widget 可在 shinyapps.io 或线上静态发布版查看。",
+    "- `课程提交/庄颂_20241334.html` 使用线上绝对地址直接加载真实 standalone widget；单独转发 HTML 文件也可以查看完整组件，但需要联网访问 GitHub Pages 组件资源。",
     "- `课程提交/庄颂_20241334.Rmd` 依赖交付包内的 `程序/`，因此不要单独移动 Rmd；如需单独提交，仍建议同时提交整个 `庄颂_20241334/` 文件夹。",
     "- 单页 HTML 和同源 Rmd 体积较大是为了课程提交可直接阅读和复核；提交包已避免重复复制 widget、图片目录和重复代码副本。",
     "",
-    "## 10. 已知限制",
+    "## 11. 已知限制",
     "",
-    "- 提交包不包含完整 widget 缓存目录、发布图表目录和浏览器版仪表盘目录；如需逐个打开 standalone widget 或完整图表库，请使用 shinyapps.io、完整仓库或 GitHub Pages 发布目录。",
+    "- 提交包不包含完整 widget 缓存目录、发布图表目录、`网站发布/` 和 `项目文档/`；如需逐个打开 standalone widget 或完整图表库，请使用 shinyapps.io、完整仓库或 GitHub Pages 发布目录。",
     "- 当前质量门禁覆盖语法、图像、链接、widget、文本、secret、Shiny bundle 与 README 一致性，未包含跨断点截图测试。",
     "- `renv.lock` 放在 `项目入口/`；不同 R 与系统库版本下仍可能出现细小渲染差异。",
     "- 多数交互组件是 standalone widget，Shiny 模块之间未共享筛选状态。",
     "- 现有结论以描述性与预测性分析为主，不作为因果识别使用。",
     "",
-    "## 11. 完整文件索引",
+    "## 12. 完整文件索引",
     "",
     "本节逐文件列出交付包内所有文件及其用途。若需要用表格软件筛选，可直接打开 `交付索引/完整文件索引.csv`。",
     "",
@@ -337,7 +334,6 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   for (f in root_files) ghs_copy_path(file.path(root, f), file.path(entry_dir, f))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.html"), file.path(delivery_dir, "课程提交", "庄颂_20241334.html"))
   ghs_copy_path(file.path(root, "课程提交", "庄颂_20241334.Rmd"), file.path(delivery_dir, "课程提交", "庄颂_20241334.Rmd"))
-  ghs_copy_path(file.path(root, "网站发布", "index.html"), file.path(delivery_dir, "网站发布", "index.html"))
   ghs_copy_matching(file.path(root, "分析输出", "模型表"), file.path(delivery_dir, "分析输出", "模型表"), "[.]csv$", recursive = TRUE)
   ghs_copy_path(file.path(root, "分析输出", "质量报告"), file.path(delivery_dir, "分析输出", "质量报告"))
   ghs_copy_path(file.path(root, "原始数据"), file.path(delivery_dir, "原始数据"))
@@ -346,23 +342,10 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   ghs_copy_path(file.path(root, "程序"), file.path(delivery_dir, "程序"))
   for (f in c("global.R", "server.R", "ui.R")) ghs_copy_path(file.path(root, "仪表盘", f), file.path(delivery_dir, "仪表盘", f))
   for (d in c("模块", "www", "数据快照", "派生数据")) ghs_copy_path(file.path(root, "仪表盘", d), file.path(delivery_dir, "仪表盘", d))
-  doc_files <- c(
-    "../README_项目总览.md",
-    "方法手册.md",
-    "部署总览.md",
-    "部署_GitHub_Pages.md",
-    "部署_Shiny云端.md",
-    "部署_浏览器仪表盘.md",
-    "变更记录.md",
-    "2026作业_Global Health Spending 数据集自由分析.docx"
-  )
-  for (f in doc_files) {
-    src <- if (startsWith(f, "../")) file.path(root, sub("^\\.\\./", "", f)) else file.path(root, "项目文档", f)
-    dst <- file.path(delivery_dir, "项目文档", basename(f))
-    ghs_copy_path(src, dst)
-  }
   unlink(file.path(delivery_dir, "原始数据", ".DS_Store"), force = TRUE)
   unlink(file.path(delivery_dir, "课程提交", ".Rhistory"), force = TRUE)
+  unlink(file.path(delivery_dir, "网站发布"), recursive = TRUE, force = TRUE)
+  unlink(file.path(delivery_dir, "项目文档"), recursive = TRUE, force = TRUE)
   unlink(file.path(delivery_dir, "仪表盘", "rsconnect"), recursive = TRUE, force = TRUE)
   unlink(file.path(delivery_dir, "仪表盘", "www", "交互组件"), recursive = TRUE, force = TRUE)
   unlink(file.path(delivery_dir, "仪表盘", "www", "widget_manifest.csv"), force = TRUE)
@@ -377,12 +360,14 @@ ghs_build_delivery <- function(root = getwd(), delivery_dir = file.path(root, "�
   for (i in seq_len(2L)) {
     file_index <- ghs_delivery_file_index(delivery_dir)
     manifest <- ghs_delivery_manifest(delivery_dir)
+    manifest <- manifest[!(manifest$path %in% c("网站发布/index.html", "项目文档")), , drop = FALSE]
     utils::write.csv(file_index, file.path(index_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
     utils::write.csv(manifest, file.path(index_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
     writeLines(ghs_delivery_readme(root, delivery_dir, manifest, file_index), file.path(delivery_dir, "README.md"), useBytes = TRUE)
   }
   file_index <- ghs_delivery_file_index(delivery_dir)
   manifest <- ghs_delivery_manifest(delivery_dir)
+  manifest <- manifest[!(manifest$path %in% c("网站发布/index.html", "项目文档")), , drop = FALSE]
   utils::write.csv(file_index, file.path(index_dir, "完整文件索引.csv"), row.names = FALSE, fileEncoding = "UTF-8")
   utils::write.csv(manifest, file.path(index_dir, "交付清单.csv"), row.names = FALSE, fileEncoding = "UTF-8")
   writeLines(ghs_delivery_readme(root, delivery_dir, manifest, file_index), file.path(delivery_dir, "README.md"), useBytes = TRUE)
