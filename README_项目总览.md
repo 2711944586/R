@@ -1,4 +1,4 @@
-Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/
+Shiny 云端版：https://constantine114514.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/
 
 # 项目总览
 
@@ -17,7 +17,7 @@ Shiny 首页已改为纯标题封面页，只保留项目题名和年份范围�
 
 | 网页 | 地址 | 重点用途 | 部署方式 |
 |---|---|---|---|
-| Shiny 云端仪表盘 | <https://constantine1433223.shinyapps.io/ghs-dashboard/> | 现场汇报主入口。用于演示可切换模块、地图工作台、国家比较、筹资结构、健康产出、交互组件和政策结论。 | `开发脚本/部署Shiny云端.R ghs-dashboard` 发布到 shinyapps.io。 |
+| Shiny 云端仪表盘 | <https://constantine114514.shinyapps.io/ghs-dashboard/> | 现场汇报主入口。用于演示可切换模块、地图工作台、国家比较、筹资结构、健康产出、交互组件和政策结论。 | `开发脚本/部署Shiny云端.R ghs-dashboard` 发布到 shinyapps.io。 |
 | GitHub Pages 静态报告 | <https://2711944586.github.io/R/> | 在线阅读主入口。用于展示完整报告、36 个章节、14 项核心发现、图表库、组件库和复现说明。 | `.github/workflows/deploy.yml` 发布 `网站发布/`。 |
 
 Shiny 云端版偏“演示和操作”，GitHub Pages 静态版偏“阅读和留档”。课程提交 HTML 与静态发布页同源生成，交互 iframe 直接使用线上真实 standalone widget。
@@ -26,11 +26,11 @@ Shiny 云端版偏“演示和操作”，GitHub Pages 静态版偏“阅读和�
 
 | 入口 | 地址 |
 |---|---|
-| Shiny 云端版 | <https://constantine1433223.shinyapps.io/ghs-dashboard/> |
+| Shiny 云端版 | <https://constantine114514.shinyapps.io/ghs-dashboard/> |
 | GitHub Pages | <https://2711944586.github.io/R/> |
 | GitHub 仓库 | <https://github.com/2711944586/R> |
 
-Shiny 最新部署记录以本轮 `rsconnect::deployApp()` 输出为准；应用固定地址为 <https://constantine1433223.shinyapps.io/ghs-dashboard/>。
+Shiny 最新部署记录以本轮 `rsconnect::deployApp()` 输出为准；应用固定地址为 <https://constantine114514.shinyapps.io/ghs-dashboard/>。
 
 ## 提交包主体
 

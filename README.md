@@ -1,4 +1,4 @@
-Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ GitHub Pages 静态报告：https://2711944586.github.io/R/
+Shiny 云端版：https://constantine114514.shinyapps.io/ghs-dashboard/ ｜ GitHub Pages 静态报告：https://2711944586.github.io/R/
 
 # Global Health Spending 2000-2023
 
@@ -10,7 +10,7 @@ Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ Git
 
 | 网页 | 地址 | 主要用途 | 当前状态 |
 |---|---|---|---|
-| Shiny 云端仪表盘 | <https://constantine1433223.shinyapps.io/ghs-dashboard/> | 课堂汇报和现场交互演示。可以切换专题模块，查看地图工作台、国家比较、筹资结构、公平性、健康产出、政策结论和完整 widget 缓存。 | 已部署到 shinyapps.io，部署脚本为 `开发脚本/部署Shiny云端.R ghs-dashboard`。 |
+| Shiny 云端仪表盘 | <https://constantine114514.shinyapps.io/ghs-dashboard/> | 课堂汇报和现场交互演示。可以切换专题模块，查看地图工作台、国家比较、筹资结构、公平性、健康产出、政策结论和完整 widget 缓存。 | 已部署到 shinyapps.io，部署脚本为 `开发脚本/部署Shiny云端.R ghs-dashboard`。 |
 | GitHub Pages 静态报告 | <https://2711944586.github.io/R/> | 在线阅读完整网页报告。包含 36 个内容章节、14 项核心发现、图表库、交互组件库、复现说明和质量门禁说明。 | 已部署到 GitHub Pages，由 `.github/workflows/deploy.yml` 发布 `网站发布/`。 |
 
 两者分工不同：Shiny 云端版负责“可操作、可演示”，GitHub Pages 版负责“可阅读、可转发、可留档”。课程提交 HTML 与 GitHub Pages 使用同一套生成逻辑；交互组件 iframe 指向线上真实 standalone widget，并采用按需加载，避免本地 HTML 打开时一次性加载大量远程页面。
@@ -137,7 +137,7 @@ GitHub Pages 静态版由 `main` 分支推送后触发 `.github/workflows/deploy
 
 ## 推荐评阅顺序
 
-1. 打开 Shiny 云端仪表盘：<https://constantine1433223.shinyapps.io/ghs-dashboard/>。
+1. 打开 Shiny 云端仪表盘：<https://constantine114514.shinyapps.io/ghs-dashboard/>。
 2. 打开 GitHub Pages 静态报告：<https://2711944586.github.io/R/>。
 3. 打开提交包中的 `课程提交/庄颂_20241334.html`。
 4. 查看 `课程提交/庄颂_20241334.Rmd` 核对源文档。

@@ -169,13 +169,13 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
   manifest_text <- paste(sprintf("| `%s` | %s | %s | %s MB | %s |", manifest$path, ifelse(manifest$exists, "是", "否"), manifest$files, manifest$size_mb, manifest$purpose), collapse = "\n")
   file_index_text <- ghs_md_table(file_index, c("path", "size_mb", "purpose"))
   c(
-    "Shiny 云端版：https://constantine1433223.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/",
+    "Shiny 云端版：https://constantine114514.shinyapps.io/ghs-dashboard/ ｜ 静态发布版：https://2711944586.github.io/R/",
     "",
     "# 庄颂_20241334 · Global Health Spending 交付说明",
     "",
     "> 作者：庄颂（20241334）  ",
     "> 数据：TidyTuesday 2026-04-21 / WHO Global Health Expenditure Database + WDI  ",
-    "> Shiny 云端：<https://constantine1433223.shinyapps.io/ghs-dashboard/>  ",
+    "> Shiny 云端：<https://constantine114514.shinyapps.io/ghs-dashboard/>  ",
     "> 静态发布：<https://2711944586.github.io/R/>",
     "",
     "## 1. 交付包定位",
@@ -190,7 +190,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "| 网页 | 地址 | 面向老师的用途 | 当前部署方式 |",
     "|---|---|---|---|",
-    "| Shiny 云端仪表盘 | <https://constantine1433223.shinyapps.io/ghs-dashboard/> | **课堂汇报首选入口**。用于现场切换模块、演示地图工作台、国家比较、筹资结构、公平性、健康产出、预测情景、政策结论和完整 widget 墙。 | 由 `开发脚本/部署Shiny云端.R ghs-dashboard` 发布到 shinyapps.io；部署包内包含 `仪表盘/www/交互组件/` 的 standalone widget 缓存，组件按视口加载。 |",
+    "| Shiny 云端仪表盘 | <https://constantine114514.shinyapps.io/ghs-dashboard/> | **课堂汇报首选入口**。用于现场切换模块、演示地图工作台、国家比较、筹资结构、公平性、健康产出、预测情景、政策结论和完整 widget 墙。 | 由 `开发脚本/部署Shiny云端.R ghs-dashboard` 发布到 shinyapps.io；部署包内包含 `仪表盘/www/交互组件/` 的 standalone widget 缓存，组件按视口加载。 |",
     "| GitHub Pages 静态报告 | <https://2711944586.github.io/R/> | **在线报告阅读入口**。适合老师直接在浏览器中按章节阅读，查看 36 个内容章节、14 项核心发现、图表库、交互组件库和复现说明。 | 由 `.github/workflows/deploy.yml` 在 `main` 分支推送后发布 `网站发布/`；`网站发布/index.html` 与课程 HTML 同源生成。 |",
     "",
     "这两个网页承担不同角色：Shiny 云端版负责“可操作、可演示的仪表盘”，GitHub Pages 静态版负责“可阅读、可转发、可留档的网页报告”。课程提交包中的 `课程提交/庄颂_20241334.html` 也会按需加载 GitHub Pages 上的真实 standalone widget；如果老师打开本地 HTML 时没有联网，静态正文和已嵌入图表仍可阅读，但交互 iframe 需要联网访问线上组件。",
@@ -206,7 +206,7 @@ ghs_delivery_readme <- function(root, delivery_dir, manifest, file_index) {
     "",
     "## 4. 推荐评阅顺序",
     "",
-    "1. 打开 Shiny 云端仪表盘：<https://constantine1433223.shinyapps.io/ghs-dashboard/>，用于课堂汇报时演示可交互模块和完整 widget 缓存。",
+    "1. 打开 Shiny 云端仪表盘：<https://constantine114514.shinyapps.io/ghs-dashboard/>，用于课堂汇报时演示可交互模块和完整 widget 缓存。",
     "2. 打开 GitHub Pages 静态报告：<https://2711944586.github.io/R/>，用于在线阅读完整报告、核对章节结构和交互组件库。",
     "3. 打开 `课程提交/庄颂_20241334.html`：这是课程要求的本地 HTML 结果文档；联网时会在展开或点击后加载线上真实 standalone widget，初始打开不会一次性拉取所有 iframe。",
     sprintf("4. 打开 `课程提交/庄颂_20241334.Rmd`：这是课程要求的 R Markdown 源文档，样式、正文和脚本与课程 HTML 同源同步。"),

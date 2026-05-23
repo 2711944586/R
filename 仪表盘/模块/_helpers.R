@@ -158,6 +158,316 @@ mod_v3_widget_topic <- function(kicker, title, lead) {
   "overview"
 }
 
+mod_v3_widget_topic_order <- function() {
+  c(
+    "overview", "about", "methods", "country", "regional", "ranking",
+    "benchmark", "financing", "spending", "purpose", "aid", "fiscal",
+    "equity", "inequality", "efficiency", "convergence", "decomposition",
+    "outcomes", "sdg", "prevention", "aging", "pandemic", "growth",
+    "transition", "timeline", "extremes", "compare", "cluster", "forecast",
+    "scenarios", "mapstudio", "correlation", "distribution", "robustness",
+    "dataquality", "policy", "atlas", "widgets"
+  )
+}
+
+mod_v3_widget_manifest <- local({
+  cache <- NULL
+  function() {
+    if (!is.null(cache)) return(cache)
+    empty <- data.frame(
+      file = character(), title = character(), group = character(),
+      type = character(), size_mb = numeric(), url = character(),
+      stringsAsFactors = FALSE
+    )
+    root <- if (exists("app_dir_env", envir = .GlobalEnv, inherits = FALSE)) {
+      get("app_dir_env", envir = .GlobalEnv)
+    } else {
+      mod_widget_project_root()
+    }
+    candidates <- unique(c(
+      file.path(root, "www", "widget_manifest.csv"),
+      file.path(root, "仪表盘", "www", "widget_manifest.csv"),
+      file.path(getwd(), "www", "widget_manifest.csv"),
+      file.path(getwd(), "仪表盘", "www", "widget_manifest.csv")
+    ))
+    hits <- candidates[file.exists(candidates)]
+    if (!length(hits)) {
+      cache <<- empty
+      return(cache)
+    }
+    manifest <- tryCatch(
+      utils::read.csv(hits[[1]], stringsAsFactors = FALSE,
+                      fileEncoding = "UTF-8-BOM", check.names = FALSE),
+      error = function(e) {
+        utils::read.csv(hits[[1]], stringsAsFactors = FALSE,
+                        check.names = FALSE)
+      }
+    )
+    names(manifest) <- trimws(names(manifest))
+    for (nm in names(empty)) {
+      if (!nm %in% names(manifest)) manifest[[nm]] <- empty[[nm]]
+    }
+    manifest <- manifest[, names(empty), drop = FALSE]
+    manifest$file <- trimws(as.character(manifest$file))
+    manifest$title <- trimws(as.character(manifest$title))
+    manifest$group <- trimws(as.character(manifest$group))
+    manifest$type <- trimws(as.character(manifest$type))
+    manifest$url <- trimws(as.character(manifest$url))
+    manifest <- manifest[nzchar(manifest$file), , drop = FALSE]
+    cache <<- manifest
+    cache
+  }
+})
+
+mod_v3_widget_extra_files <- function() {
+  list(
+    overview = c("11_world_leaflet.html", "01_gapminder_animated.html",
+                 "13_gapminder_bubble.html", "iadv_global_weighted_avg.html",
+                 "iadv_bar_race.html", "iadv_kpi_indicator.html"),
+    about = c("iadv_gauge_grid.html", "iadv_kpi_indicator.html",
+              "13_reactable_rank.html", "12_reactable_rank.html",
+              "iadv_rt_income_summary.html", "iadv_ec_liquid.html"),
+    methods = c("iadv_dt_master_browse.html", "iadv_dt_full_panel.html",
+                "13_dt_atlas.html", "31_corr_matrix.html", "13_splom.html",
+                "iadv_parcoords.html"),
+    country = c("33_country_compare.html", "50_country_compare.html",
+                "13_highlight_lines.html", "02_highlight_ts.html",
+                "10_china_wb_line.html", "iadv_oop_lines.html",
+                "iadv_hc_country_lines.html"),
+    regional = c("iadv_rt_continent_summary.html",
+                 "iadv_rt_change_by_continent.html",
+                 "iadv_rt_income_summary.html", "iadv_continent_ribbon.html",
+                 "30_continent_oops.html", "47_continent_oops.html",
+                 "iadv_box_continent.html", "iadv_violin_inc.html"),
+    ranking = c("iadv_oop_rank_latest.html", "iadv_bar_race.html",
+                "04_bar_race.html", "iadv_rt_top_che_pc.html",
+                "38_life_top_bar.html", "55_life_top_bar.html",
+                "42_u5mr_top_bar.html", "59_u5mr_top_bar.html"),
+    benchmark = c("iadv_polar_radar.html", "iadv_polar_bar.html",
+                  "iadv_rt_compare_years.html", "iadv_subplot_4metric.html",
+                  "iadv_bubble_matrix.html", "05_ternary.html",
+                  "13_ternary.html"),
+    financing = c("09_sankey_sources.html", "13_sankey_flows.html",
+                  "iadv_sankey_3stage.html", "iadv_donut_finance.html",
+                  "iadv_hf_share_area.html", "36_global_hf.html",
+                  "53_global_hf.html"),
+    spending = c("iadv_che_pc_lines.html", "iadv_che_total_stacked.html",
+                 "27_che_gdp_world.html", "44_che_gdp_world.html",
+                 "37_income_che.html", "54_income_che.html",
+                 "13_leaflet_choropleth.html", "iadv_treemap_che.html"),
+    purpose = c("iadv_hc_stream.html", "iadv_hc_wheel.html",
+                "iadv_hc_packed.html", "iadv_hc_item.html",
+                "iadv_sunburst_che.html", "iadv_icicle.html",
+                "iadv_ec_sunburst.html"),
+    aid = c("35_ext_top_bar.html", "52_ext_top_bar.html",
+            "iadv_dt_extdep.html", "iadv_dt_gdp_che.html",
+            "iadv_funnel_sources.html"),
+    fiscal = c("iadv_dt_gghed_oop.html", "36_global_hf.html",
+               "53_global_hf.html", "iadv_donut_finance.html",
+               "iadv_funnel_sources.html", "iadv_hf_share_area.html",
+               "iadv_chord_rank_flow.html"),
+    equity = c("07_inequality.html", "13_oops_heatmap.html",
+               "08_heatmap_oops.html", "iadv_rt_finprot.html",
+               "39_oops_dumbbell.html", "56_oops_dumbbell.html",
+               "40_oops_gdp.html", "57_oops_gdp.html",
+               "41_oops_life.html", "58_oops_life.html", "iadv_hist_oop.html"),
+    inequality = c("iadv_ribbon_quantiles.html", "iadv_box_continent.html",
+                   "13_income_violin.html", "iadv_violin_small_multi.html",
+                   "iadv_density_che.html", "iadv_hist_oop.html",
+                   "iadv_oop_lines.html"),
+    efficiency = c("28_che_life.html", "45_che_life.html",
+                   "iadv_density2d.html", "iadv_bubble_matrix.html",
+                   "iadv_parcoords.html", "13_splom.html",
+                   "27_che_gdp_world.html", "44_che_gdp_world.html"),
+    convergence = c("iadv_che_pc_lines.html", "iadv_rt_growth_champions.html",
+                    "26_che_cagr_bar.html", "43_che_cagr_bar.html",
+                    "iadv_small_multi_trend.html", "iadv_area_smooth_che.html",
+                    "iadv_dt_yoy.html"),
+    decomposition = c("iadv_waterfall_che.html",
+                      "iadv_waterfall_continents.html",
+                      "iadv_chord_rank_flow.html",
+                      "iadv_sankey_continent_oop.html",
+                      "iadv_funnel_sources.html", "iadv_treemap_che.html"),
+    outcomes = c("28_che_life.html", "45_che_life.html", "29_che_u5.html",
+                 "46_che_u5.html", "iadv_lifeexp_byinc.html",
+                 "iadv_dualaxis_oop_lifeexp.html", "iadv_dt_lifeexp_u5mr.html",
+                 "iadv_u5mr_multi.html"),
+    sdg = c("iadv_dt_sdg38_alarm.html", "iadv_lifeexp_byinc.html",
+            "iadv_rt_finprot.html", "42_u5mr_top_bar.html",
+            "59_u5mr_top_bar.html", "iadv_u5mr_multi.html", "29_che_u5.html"),
+    prevention = c("iadv_hc_item.html", "iadv_hc_stream.html",
+                   "iadv_hc_country_lines.html", "iadv_hc_packed.html",
+                   "iadv_lifeexp_byinc.html", "iadv_sunburst_che.html"),
+    aging = c("38_life_top_bar.html", "55_life_top_bar.html",
+              "iadv_dualaxis_oop_lifeexp.html", "41_oops_life.html",
+              "58_oops_life.html", "iadv_lifeexp_byinc.html",
+              "10_china_wb_line.html"),
+    pandemic = c("iadv_area_shock_bands.html", "iadv_rt_shock_response.html",
+                 "43_yoy_heatmap.html", "60_yoy_heatmap.html",
+                 "iadv_dt_yoy.html", "iadv_area_smooth_che.html",
+                 "iadv_small_multi_trend.html"),
+    growth = c("26_che_cagr_bar.html", "43_che_cagr_bar.html",
+               "iadv_dt_growth_desc.html", "iadv_rt_growth_champions.html",
+               "iadv_dt_yoy.html", "04_bar_race.html", "iadv_bar_race.html"),
+    transition = c("iadv_sankey_continent_oop.html", "iadv_funnel_sources.html",
+                   "iadv_rt_change_by_continent.html", "iadv_hf_share_area.html",
+                   "iadv_chord_rank_flow.html", "39_oops_dumbbell.html"),
+    timeline = c("iadv_area_smooth_che.html", "43_yoy_heatmap.html",
+                 "60_yoy_heatmap.html", "iadv_ec_river.html",
+                 "iadv_small_multi_trend.html", "02_highlight_ts.html",
+                 "iadv_oop_lines.html"),
+    extremes = c("iadv_lollipop_oop.html", "iadv_rt_oop_extremes.html",
+                 "35_ext_top_bar.html", "52_ext_top_bar.html",
+                 "iadv_rt_top_che_pc.html", "38_life_top_bar.html",
+                 "42_u5mr_top_bar.html"),
+    compare = c("33_country_compare.html", "50_country_compare.html",
+                "iadv_dt_threeyear.html", "iadv_rt_compare_years.html",
+                "13_highlight_lines.html", "iadv_subplot_4metric.html",
+                "iadv_dt_gdp_che.html"),
+    cluster = c("iadv_parcoords.html", "iadv_force_country_sim.html",
+                "13_country_network.html", "iadv_diagonal_tree.html",
+                "iadv_density2d.html", "13_splom.html", "iadv_bubble_matrix.html"),
+    forecast = c("06_forecast_subplot.html", "13_mc_fan.html",
+                 "13_scenarios.html", "iadv_bar_ci.html",
+                 "iadv_area_smooth_che.html", "iadv_small_multi_trend.html"),
+    scenarios = c("13_scenarios.html", "13_mc_fan.html", "iadv_bar_ci.html",
+                  "06_forecast_subplot.html", "iadv_funnel_sources.html",
+                  "iadv_polar_radar.html"),
+    mapstudio = c("11_world_leaflet.html", "13_leaflet_choropleth.html",
+                  "iadv_heatmap_year_inc.html", "08_heatmap_oops.html",
+                  "13_oops_heatmap.html", "43_yoy_heatmap.html",
+                  "60_yoy_heatmap.html", "iadv_treemap_che.html"),
+    correlation = c("31_corr_matrix.html", "48_corr_matrix.html",
+                    "32_corr_overtime.html", "49_corr_overtime.html",
+                    "13_splom.html", "iadv_bubble_matrix.html",
+                    "iadv_parcoords.html"),
+    distribution = c("iadv_density_che.html", "iadv_density2d.html",
+                     "iadv_hist_oop.html", "13_income_violin.html",
+                     "iadv_violin_inc.html", "iadv_violin_small_multi.html",
+                     "iadv_box_continent.html", "iadv_polar_bar.html"),
+    robustness = c("iadv_bar_ci.html", "iadv_rt_below_threshold.html",
+                   "iadv_rt_compare_years.html", "iadv_dt_threeyear.html",
+                   "31_corr_matrix.html", "48_corr_matrix.html",
+                   "32_corr_overtime.html", "49_corr_overtime.html"),
+    dataquality = c("iadv_dt_master_browse.html", "iadv_ec_calendar.html",
+                    "iadv_ec_graph.html", "13_dt_atlas.html",
+                    "34_dt_atlas.html", "51_dt_atlas.html",
+                    "iadv_dt_full_panel.html", "iadv_dt_yoy.html"),
+    policy = c("iadv_polar_radar.html", "iadv_gauge_grid.html",
+               "iadv_kpi_indicator.html", "iadv_rt_finprot.html",
+               "iadv_rt_below_threshold.html", "iadv_dt_sdg38_alarm.html",
+               "iadv_sankey_3stage.html"),
+    atlas = c("iadv_dt_full_panel.html", "iadv_dt_master_browse.html",
+              "13_dt_atlas.html", "34_dt_atlas.html", "51_dt_atlas.html",
+              "iadv_dt_extdep.html", "iadv_dt_gdp_che.html",
+              "iadv_dt_gghed_oop.html", "iadv_dt_growth_desc.html",
+              "iadv_dt_lifeexp_u5mr.html", "iadv_dt_sdg38_alarm.html",
+              "iadv_dt_threeyear.html", "iadv_dt_yoy.html"),
+    widgets = c("iadv_bar_race.html", "iadv_sankey_3stage.html",
+                "iadv_dt_full_panel.html", "iadv_ec_graph.html",
+                "iadv_ec_liquid.html", "iadv_ec_calendar.html",
+                "iadv_ec_river.html", "iadv_ec_sunburst.html",
+                "iadv_force_country_sim.html")
+  )
+}
+
+mod_v3_widget_manifest_value <- function(row, field) {
+  x <- row[[field]][[1]] %||% ""
+  if (is.na(x)) "" else trimws(as.character(x))
+}
+
+mod_v3_widget_manifest_title <- function(row) {
+  group <- mod_v3_widget_manifest_value(row, "group")
+  title <- mod_v3_widget_manifest_value(row, "title")
+  file <- mod_v3_widget_manifest_value(row, "file")
+  if (!nzchar(title)) {
+    title <- tools::file_path_sans_ext(basename(file))
+    title <- tools::toTitleCase(gsub("_", " ", title))
+  }
+  if (nzchar(group) && !startsWith(title, group)) paste0(group, "：", title) else title
+}
+
+mod_v3_widget_manifest_desc <- function(row) {
+  group <- mod_v3_widget_manifest_value(row, "group")
+  type <- mod_v3_widget_manifest_value(row, "type")
+  base <- switch(group,
+    "表格" = "用可搜索、可排序的明细表把图形结论落回国家和年份记录。",
+    "地图" = "把指标放回空间或热力矩阵，快速定位区域聚集与异常国家。",
+    "分布" = "检查分布形态、离群点和组间差异，避免只看均值判断。",
+    "结构" = "拆解资金来源、用途或层级结构，补足比例和流向视角。",
+    "矩阵" = "用矩阵压缩变量关系、年度变化或交叉分类，适合横向核查。",
+    "时间" = "沿时间轴追踪长期趋势、拐点和排名重排。",
+    "网络" = "展示国家相似性、资金流向或层级关系，帮助识别连接结构。",
+    "专题" = "补充本板块的专题视角，把关键指标转为可交互图形。",
+    "作为本板块的扩展组件，用于放大查看数据关系和细节。"
+  )
+  if (nzchar(type)) paste0(base, " 组件类型：", type, "。") else base
+}
+
+mod_v3_manifest_widget_specs <- function(files, topic) {
+  manifest <- mod_v3_widget_manifest()
+  files <- unique(trimws(as.character(files)))
+  files <- files[nzchar(files)]
+  if (!length(files) || !nrow(manifest)) return(list())
+  idx <- match(files, manifest$file)
+  idx <- idx[!is.na(idx)]
+  if (!length(idx)) return(list())
+  rows <- manifest[idx, , drop = FALSE]
+  lapply(seq_len(nrow(rows)), function(i) {
+    row <- rows[i, , drop = FALSE]
+    group <- mod_v3_widget_manifest_value(row, "group")
+    type <- mod_v3_widget_manifest_value(row, "type")
+    kicker <- paste(c(group, type)[nzchar(c(group, type))], collapse = " / ")
+    if (!nzchar(kicker)) kicker <- "HTML widget"
+    list(
+      file = mod_v3_widget_manifest_value(row, "file"),
+      title = mod_v3_widget_manifest_title(row),
+      kicker = kicker,
+      desc = mod_v3_widget_manifest_desc(row)
+    )
+  })
+}
+
+mod_v3_unique_widget_specs <- function(specs) {
+  if (!length(specs)) return(specs)
+  files <- vapply(specs, function(x) as.character(x$file %||% ""), character(1))
+  specs[!duplicated(files) & nzchar(files)]
+}
+
+mod_v3_widget_extra_specs <- function(topic) {
+  manifest <- mod_v3_widget_manifest()
+  manual <- mod_v3_widget_extra_files()
+  topics <- mod_v3_widget_topic_order()
+  for (tp in topics) {
+    if (is.null(manual[[tp]])) manual[[tp]] <- character()
+  }
+  used <- unique(unlist(manual, use.names = FALSE))
+  missing <- setdiff(manifest$file, used)
+  if (length(missing)) {
+    for (i in seq_along(missing)) {
+      tp <- topics[((i - 1) %% length(topics)) + 1]
+      manual[[tp]] <- c(manual[[tp]], missing[[i]])
+    }
+  }
+  mod_v3_manifest_widget_specs(manual[[topic]] %||% character(), topic)
+}
+
+mod_v3_fill_widget_specs <- function(topic, specs, min_count = 6) {
+  specs <- mod_v3_unique_widget_specs(specs)
+  files <- vapply(specs, function(x) as.character(x$file %||% ""), character(1))
+  if (length(files) >= min_count) return(specs)
+  manual <- mod_v3_widget_extra_files()
+  fallback <- c(manual[[topic]] %||% character(),
+                manual$overview %||% character(),
+                mod_v3_widget_manifest()$file)
+  more <- setdiff(unique(fallback), files)
+  needed <- min_count - length(files)
+  mod_v3_unique_widget_specs(c(
+    specs,
+    mod_v3_manifest_widget_specs(utils::head(more, needed), topic)
+  ))
+}
+
 mod_v3_widget_specs <- function(topic) {
   spec <- function(file, title, kicker, desc) {
     list(file = file, title = title, kicker = kicker, desc = desc)
@@ -398,8 +708,15 @@ mod_v3_widget_specs <- function(topic) {
     ),
     common
   )
-  n <- if (identical(topic, "overview")) 4 else 2
-  specs[seq_len(min(n, length(specs)))]
+  specs <- mod_v3_unique_widget_specs(c(specs, mod_v3_widget_extra_specs(topic)))
+  min_count <- if (identical(topic, "overview")) {
+    8
+  } else if (identical(topic, "widgets")) {
+    10
+  } else {
+    6
+  }
+  mod_v3_fill_widget_specs(topic, specs, min_count = min_count)
 }
 
 mod_v3_widget_card <- function(spec, index) {
@@ -432,8 +749,17 @@ mod_v3_widget_card <- function(spec, index) {
     htmltools::tags$footer(
       class = "section-widget-card-foot",
       htmltools::span(spec$file),
-      htmltools::tags$a("新窗打开", href = url, target = "_blank",
-                        rel = "noreferrer")
+      htmltools::div(
+        class = "section-widget-card-actions",
+        htmltools::tags$button(
+          "展开阅读",
+          type = "button",
+          class = "section-widget-expand-btn",
+          `aria-expanded` = "false"
+        ),
+        htmltools::tags$a("新窗打开", href = url, target = "_blank",
+                          rel = "noreferrer")
+      )
     )
   )
 }
@@ -447,9 +773,12 @@ mod_v3_section_widgets <- function(kicker, title, lead) {
     `data-widget-topic` = topic,
     htmltools::div(
       class = "section-widget-head",
-      htmltools::span("Interactive pair"),
-      htmltools::strong("本板块精选交互组件"),
-      htmltools::p("先用这两张交互图建立直觉，再向下阅读本页的分析、表格和模型结果。")
+      htmltools::span("Interactive matrix"),
+      htmltools::strong("本板块交互组件矩阵"),
+      htmltools::p(sprintf(
+        "本板块已接入 %d 个线上真实交互组件，覆盖图形、地图、表格、结构和时间视角；滚动到卡片时再加载，便于在丰富内容和稳定性能之间取得平衡。",
+        length(specs)
+      ))
     ),
     htmltools::div(
       class = "section-widget-grid",

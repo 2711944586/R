@@ -48,6 +48,22 @@
     frame.setAttribute("src", src);
   }
 
+  function resizeWidgetFrame(frame) {
+    if (!frame) return;
+    [90, 320, 900].forEach(function (delay) {
+      window.setTimeout(function () {
+        try {
+          if (frame.contentWindow) {
+            frame.contentWindow.dispatchEvent(new Event("resize"));
+          }
+        } catch (error) {
+          // Cross-origin widget frames resize with the iframe viewport itself.
+        }
+        window.dispatchEvent(new Event("resize"));
+      }, delay);
+    });
+  }
+
   function loadStandaloneFrames(scope) {
     var root = scope || document;
     var frames = root.querySelectorAll("iframe[data-widget-src]:not([src])");
@@ -80,6 +96,7 @@
   }
 
   window.ghsLoadWidgetFrame = loadWidgetFrame;
+  window.ghsResizeWidgetFrame = resizeWidgetFrame;
   window.ghsLoadStandaloneFrames = loadStandaloneFrames;
 
   function refreshActiveStandaloneFrames() {
@@ -140,12 +157,47 @@
     });
   }
 
+  function syncWidgetExpandButtons(scope) {
+    var root = scope || document;
+    root.querySelectorAll(".section-widget-expand-btn").forEach(function (button) {
+      var card = button.closest(".section-widget-card");
+      var expanded = !!(card && card.classList.contains("is-expanded"));
+      button.setAttribute("aria-expanded", expanded ? "true" : "false");
+      button.textContent = expanded ? "收起" : "展开阅读";
+    });
+  }
+
+  function toggleSectionWidget(button) {
+    var card = button && button.closest(".section-widget-card");
+    if (!card) return;
+    var expanded = !card.classList.contains("is-expanded");
+    card.classList.toggle("is-expanded", expanded);
+    button.setAttribute("aria-expanded", expanded ? "true" : "false");
+    button.textContent = expanded ? "收起" : "展开阅读";
+
+    var frame = card.querySelector("iframe[data-widget-src]");
+    if (frame) {
+      loadWidgetFrame(frame);
+      resizeWidgetFrame(frame);
+      frame.addEventListener("load", function () {
+        resizeWidgetFrame(frame);
+      }, { once: true });
+    }
+
+    if (expanded) {
+      window.setTimeout(function () {
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  }
+
   function runEnhancements() {
     markWidgetContainers();
     loadStandaloneFrames();
     revealPanels();
     applyRevealStagger();
     labelIconOnlyButtons();
+    syncWidgetExpandButtons();
     markScrolledNav();
   }
 
@@ -227,6 +279,13 @@
       window.setTimeout(closeOpenNavigation, 80);
     }
 
+    var expandButton = event.target.closest(".section-widget-expand-btn");
+    if (expandButton) {
+      event.preventDefault();
+      toggleSectionWidget(expandButton);
+      return;
+    }
+
     if (event.target.closest(".v3-module-card, .module-card")) {
       scrollTabToTop();
     }
@@ -298,7 +357,7 @@
         var url = widgetUrl(item[0]);
         return [
           "<article class='section-widget-card widget-gallery-card is-deferred'>",
-          "<header><strong>" + item[1] + "</strong><a href='" + url + "' target='_blank' rel='noreferrer'>新窗</a></header>",
+          "<header><strong>" + item[1] + "</strong><span class='section-widget-card-actions'><button type='button' class='section-widget-expand-btn' aria-expanded='false'>展开阅读</button><a href='" + url + "' target='_blank' rel='noreferrer'>新窗</a></span></header>",
           "<div class='section-widget-frame widget-gallery-frame'><div class='widget-frame-placeholder'>进入视口后加载线上真实组件。</div><iframe data-widget-src='" + url + "' loading='lazy' referrerpolicy='no-referrer' title='" + item[1] + "'></iframe></div>",
           "</article>"
         ].join("");

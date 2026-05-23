@@ -120,7 +120,7 @@ read_env_or_prompt <- function(name, prompt) {
 }
 
 deploy_shinyapps <- function(app_name = "ghs-dashboard",
-                             account = Sys.getenv("SHINYAPPS_NAME", unset = "constantine1433223")) {
+                             account = Sys.getenv("SHINYAPPS_NAME", unset = "constantine114514")) {
   if (!requireNamespace("rsconnect", quietly = TRUE)) {
     stop("Package rsconnect is required. Install it with install.packages('rsconnect').")
   }

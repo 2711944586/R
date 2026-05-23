@@ -34,7 +34,7 @@
 
 ```r
 rsconnect::setAccountInfo(
-  name   = 'yourname',
+  name   = 'constantine114514',
   token  = '<TOKEN>',
   secret = '<SECRET>'
 )
@@ -53,7 +53,7 @@ rsconnect::setAccountInfo(
 usethis::edit_r_environ()
 
 # 写入以下三行后重启 R：
-SHINYAPPS_NAME=yourname
+SHINYAPPS_NAME=constantine114514
 SHINYAPPS_TOKEN=<TOKEN>
 SHINYAPPS_SECRET=<SECRET>
 
@@ -74,7 +74,7 @@ source("开发脚本/部署Shiny云端.R", encoding = "UTF-8")
 
 | Name | Value |
 |---|---|
-| `SHINYAPPS_NAME` | shinyapps.io 账号名（如 `zhuangsong`） |
+| `SHINYAPPS_NAME` | shinyapps.io 账号名（如 `constantine114514`） |
 | `SHINYAPPS_TOKEN` | Token 中的 `token=` 字段值 |
 | `SHINYAPPS_SECRET` | Token 中的 `secret=` 字段值 |
 
