@@ -37,6 +37,12 @@
       if (!frame || frame.dataset.ghsWidgetLoaded === "true") return;
       var src = frame.getAttribute("data-widget-src");
       if (!src) return;
+      if (frame.dataset.widgetEager === "true" && frame.getAttribute("src")) {
+        frame.dataset.ghsWidgetLoaded = "true";
+        var eagerCard = frame.closest(".widget-gallery-card");
+        if (eagerCard) eagerCard.classList.add("is-loaded");
+        return;
+      }
       frame.dataset.ghsWidgetLoaded = "true";
       frame.setAttribute("src", src);
       var card = frame.closest(".widget-gallery-card");

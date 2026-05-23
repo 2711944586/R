@@ -49,11 +49,22 @@ mod_widget_file_group <- function(file) {
   "专题"
 }
 
+mod_widget_catalog_order <- function(x) {
+  if (!nrow(x)) return(x)
+  group_levels <- c("地图", "时间", "矩阵", "结构", "网络", "分布", "表格", "专题")
+  type_levels <- c("Leaflet", "Plotly", "HTML", "Network", "Reactable", "DT")
+  group_rank <- match(x$group, group_levels)
+  type_rank <- match(x$type, type_levels)
+  group_rank[is.na(group_rank)] <- length(group_levels) + 1
+  type_rank[is.na(type_rank)] <- length(type_levels) + 1
+  x[order(group_rank, type_rank, x$title, x$file), , drop = FALSE]
+}
+
 mod_widget_manifest_from_files <- function(files,
                                            base_url = "https://2711944586.github.io/R/交互组件/") {
   if (!length(files)) return(data.frame())
   files <- sort(files)
-  data.frame(
+  mod_widget_catalog_order(data.frame(
     file = basename(files),
     title = vapply(files, mod_widget_pretty_name, character(1)),
     group = vapply(files, mod_widget_file_group, character(1)),
@@ -61,7 +72,7 @@ mod_widget_manifest_from_files <- function(files,
     size_mb = round(file.info(files)$size / 1024^2, 2),
     url = paste0(base_url, utils::URLencode(basename(files), reserved = TRUE)),
     stringsAsFactors = FALSE
-  )
+  ))
 }
 
 mod_widget_standalone_catalog <- function() {
@@ -80,7 +91,7 @@ mod_widget_standalone_catalog <- function() {
                       fileEncoding = "UTF-8"),
       error = function(e) data.frame()
     )
-    if (nrow(out)) return(out)
+    if (nrow(out)) return(mod_widget_catalog_order(out))
   }
   widget_dirs <- c(
     file.path(root, "网站发布", "交互组件"),
@@ -96,6 +107,25 @@ mod_widget_standalone_catalog <- function() {
 mod_widget_gallery_card <- function(row, index) {
   title <- row$title %||% row$file
   url <- row$url %||% ""
+  iframe_args <- list(
+    title = paste("Widget preview", title),
+    `data-widget-src` = url,
+    loading = if (index <= 8) "eager" else "lazy",
+    referrerpolicy = "no-referrer",
+    allowfullscreen = NA
+  )
+  if (index <= 8 && nzchar(url)) {
+    iframe_args$src <- url
+    iframe_args$`data-widget-eager` <- "true"
+  } else {
+    iframe_args$srcdoc <- paste0(
+      "<!doctype html><html><head><meta charset='utf-8'>",
+      "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;",
+      "background:#fffaf2;color:#5d667a;font-family:system-ui,'Microsoft YaHei',sans-serif}",
+      "main{text-align:center;padding:24px}b{display:block;color:#1d3f5f;margin-bottom:8px}</style>",
+      "</head><body><main><b>正在准备组件</b><span>滚动到此处后加载完整交互 HTML</span></main></body></html>"
+    )
+  }
   htmltools::tags$article(
     class = "widget-gallery-card",
     htmltools::tags$header(
@@ -110,26 +140,77 @@ mod_widget_gallery_card <- function(row, index) {
     ),
     htmltools::div(
       class = "widget-gallery-frame",
-      htmltools::tags$iframe(
-        title = paste("Widget preview", title),
-        `data-widget-src` = url,
-        loading = "lazy",
-        referrerpolicy = "no-referrer",
-        allowfullscreen = NA,
-        srcdoc = paste0(
-          "<!doctype html><html><head><meta charset='utf-8'>",
-          "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;",
-          "background:#fffaf2;color:#5d667a;font-family:system-ui,'Microsoft YaHei',sans-serif}",
-          "main{text-align:center;padding:24px}b{display:block;color:#1d3f5f;margin-bottom:8px}</style>",
-          "</head><body><main><b>正在准备组件</b><span>滚动到此处后加载完整交互 HTML</span></main></body></html>"
-        )
-      )
+      do.call(htmltools::tags$iframe, iframe_args)
     ),
     htmltools::tags$footer(
       class = "widget-gallery-card-foot",
       htmltools::span(row$file),
       htmltools::tags$a("新窗打开", href = url, target = "_blank",
                         rel = "noreferrer")
+    )
+  )
+}
+
+mod_widget_showcase_ui <- function(ns) {
+  htmltools::tags$section(
+    class = "widget-showcase-section",
+    mod_v3_section_head(
+      "Live restore",
+      "总览地图与精选交互组件",
+      "这里把总览页的核心图、世界地图和常用 widget 直接放回 Shiny 页面，打开组件页即可看到真实可交互输出。"
+    ),
+    bslib::layout_columns(
+      col_widths = c(7, 5),
+      mod_card(
+        kicker = "Overview · Source mix",
+        title = "全球三源结构面积图",
+        htmltools::p(
+          class = "card-note",
+          "政府、私人和外援三类资金来源按全球 CHE 归一化，悬停即可查看年份与占比。"
+        ),
+        mod_spinner(plotly::plotlyOutput(ns("showcase_source_area"),
+                                         height = 420)),
+        footer = "来自总览 F1，直接由 Shiny renderPlotly 渲染。",
+        class = "widget-showcase-card"
+      ),
+      mod_card(
+        kicker = "Overview · Burden",
+        title = "各大洲 OOPS 分布",
+        htmltools::p(
+          class = "card-note",
+          "箱线图保留区域内离散度和离群点，适合先判断家庭现金压力的区域差异。"
+        ),
+        mod_spinner(plotly::plotlyOutput(ns("showcase_oops_box"),
+                                         height = 420)),
+        footer = "来自总览 F2，年份与当前组件参数联动。",
+        class = "widget-showcase-card"
+      )
+    ),
+    bslib::layout_columns(
+      col_widths = c(7, 5),
+      mod_card(
+        kicker = "Map · Leaflet",
+        title = "世界 OOPS 地图",
+        htmltools::p(
+          class = "card-note",
+          "点击或悬停国家查看标签；颜色越深，居民自付占 CHE 的比例越高。"
+        ),
+        mod_spinner(leaflet::leafletOutput(ns("showcase_world_map"),
+                                           height = 460)),
+        footer = "world_sf 可用时显示完整分级地图；缺失时给出定位底图。",
+        class = "widget-showcase-card widget-showcase-map"
+      ),
+      mod_card(
+        kicker = "Table · Reactable",
+        title = "国家排行表",
+        htmltools::p(
+          class = "card-note",
+          "排行表带搜索、排序和分页，可从地图上的空间模式回到国家明细。"
+        ),
+        mod_spinner(reactable::reactableOutput(ns("showcase_rank"))),
+        footer = "来自 widget_v2_reactable_rank，年份与组件参数联动。",
+        class = "widget-showcase-card widget-showcase-table"
+      )
     )
   )
 }
@@ -158,6 +239,7 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
         "高级组件可直接切换",
         tone = "secondary"
       ),
+      mod_widget_showcase_ui(ns),
       htmltools::div(
         class = "widget-feature-grid",
         mod_widget_feature_button(
@@ -359,7 +441,6 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
         )
       ),
       shiny::uiOutput(ns("widget_type_deck")),
-      shiny::uiOutput(ns("standalone_gallery")),
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           width = 310,
@@ -417,7 +498,8 @@ mod_widgets_ui <- function(id, country_choices, year_min, year_max) {
             class = "widget-preview-card"
           )
         )
-      )
+      ),
+      shiny::uiOutput(ns("standalone_gallery"))
     )
   )
 }
@@ -429,6 +511,14 @@ mod_widgets_server <- function(id, master_r, world_sf) {
 
     registry_r <- shiny::reactive({
       mod_widget_registry()
+    })
+
+    showcase_year <- shiny::reactive({
+      y <- input$year
+      if (is.null(y) || !is.finite(y)) {
+        y <- max(master_r()$year, na.rm = TRUE)
+      }
+      as.integer(y)
     })
 
     shiny::observe({
@@ -658,6 +748,61 @@ mod_widgets_server <- function(id, master_r, world_sf) {
         type_card("dt", "DT", "适合大字段浏览和快速筛选。", "secondary"),
         type_card("ui", "HTML / Network", "组合型 HTML、网络图和专题摘要进入 UI 渲染通道。", "neutral")
       )
+    })
+
+    output$showcase_source_area <- plotly::renderPlotly({
+      safe_plotly({
+        plot_source_area(master_r()) |>
+          plotly::ggplotly(tooltip = c("x", "y", "fill")) |>
+          plotly::layout(legend = list(orientation = "h", y = -0.16)) |>
+          plotly::config(displaylogo = FALSE, responsive = TRUE)
+      })
+    })
+
+    output$showcase_oops_box <- plotly::renderPlotly({
+      safe_plotly({
+        plot_oops_box_continent(master_r(), year_focus = showcase_year()) |>
+          plotly::ggplotly() |>
+          plotly::config(displaylogo = FALSE, responsive = TRUE)
+      })
+    })
+
+    output$showcase_world_map <- leaflet::renderLeaflet({
+      if (is.null(world_sf)) {
+        return(leaflet::leaflet() |>
+          leaflet::addProviderTiles("CartoDB.Positron") |>
+          leaflet::addLabelOnlyMarkers(0, 0, label = "world_sf 不可用"))
+      }
+      tryCatch(
+        leaflet_choropleth(
+          master_r(), world_sf,
+          indicator_col = "hf3_che",
+          year_focus = showcase_year(),
+          title = paste0("OOPS % · ", showcase_year())
+        ),
+        error = function(e) {
+          leaflet::leaflet() |>
+            leaflet::addProviderTiles("CartoDB.Positron") |>
+            leaflet::addLabelOnlyMarkers(
+              0, 0,
+              label = paste("地图渲染失败:", conditionMessage(e))
+            )
+        }
+      )
+    })
+
+    output$showcase_rank <- reactable::renderReactable({
+      obj <- tryCatch(
+        widget_v2_reactable_rank(master_r(), year = showcase_year()),
+        error = function(e) {
+          data.frame(message = conditionMessage(e), stringsAsFactors = FALSE)
+        }
+      )
+      if (inherits(obj, "reactable")) {
+        obj
+      } else {
+        reactable::reactable(obj, pagination = FALSE)
+      }
     })
 
     output$standalone_gallery <- shiny::renderUI({
