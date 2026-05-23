@@ -148,6 +148,8 @@ deploy_shinyapps <- function(app_name = "ghs-dashboard",
     appName = app_name,
     appTitle = "Global Health Spending Dashboard",
     appFiles = app_files,
+    account = account,
+    server = "shinyapps.io",
     forceUpdate = TRUE,
     launch.browser = FALSE
   )
